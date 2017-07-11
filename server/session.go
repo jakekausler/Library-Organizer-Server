@@ -38,6 +38,7 @@ func RunServer(username, password, database string) {
 	err = db.Ping()
 	if err != nil {
 		panic(err.Error())
+	}
 	http.Handle("./web/", http.StripPrefix("./web/", http.FileServer(http.Dir("./web"))))
 	http.HandleFunc("/", getHomePage)
 	http.HandleFunc("/books", getBooks)
