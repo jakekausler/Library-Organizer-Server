@@ -16,7 +16,7 @@
 		<md-button class="icon previous-icon" ng-disabled="page<=1" ng-click="previousPage()"><md-tooltip md-delay="500">Previous Page</md-tooltip></md-button>
 		<md-button class="icon next-icon" ng-disabled="page>=pages" ng-click="nextPage()"><md-tooltip md-delay="500">Next Page</md-tooltip></md-button>
 		<md-button class="icon add-icon" ng-click="addBook($event)"><md-tooltip md-delay="500">Add Book</md-tooltip></md-button>
-		<md-button class="icon import-icon" ng-click="import($event)"><md-tooltip md-delay="500">Import Books</md-tooltip md-delay="500"></md-button>
+		<md-button ng-disabled="true" class="icon import-icon" ng-click="import($event)"><md-tooltip md-delay="500">Import Books</md-tooltip md-delay="500"></md-button>
 		<md-button class="icon export-icon" ng-click="export()"><md-tooltip md-delay="500">Export Books</md-tooltip></md-button>
 	</div>
 	<div id="shelf-navigation" ng-hide="display!='shelves'">
