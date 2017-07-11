@@ -1,0 +1,21 @@
+{
+  "name": "lib",
+  "homepage": "https://github.com/jakekausler/Library-Organizer",
+  "authors": [
+    "jakekausler <jakekausler@yahoo.com>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular-upload": "^1.0.12",
+    "angular-material": "^1.1.4"
+  }
+}

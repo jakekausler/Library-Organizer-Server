@@ -1,0 +1,56 @@
+#grid-view {
+	/*position: fixed;*/
+	/*top: 460px;*/
+	left: 2%;
+	right: 2%;
+	/*bottom: 0px;*/
+	overflow: auto;
+}
+
+.grid-view-entry {
+	border-radius: 20px;
+	position: relative;
+	float: left;
+	height: 200px;
+	cursor: pointer;
+	background: #718EA4;
+	box-shadow: inset 4px -6px 6px rgba(0,0,0,0.5), /*bottom internal shadow*/
+	inset 4px 6px 6px rgba(255,255,255,0.5); /*top internal highlight*/
+}
+
+@media only screen and (max-device-width: 480px) {
+	.grid-view-entry {
+		width: 21%;
+		margin: 2%;
+	}
+}
+@media only screen and (min-device-width: 481px) {
+	.grid-view-entry {
+		width: 8%;
+		margin: 1%;
+	}
+}
+
+.grid-view-entry-picture {
+	float: left;
+	margin: auto;
+	width: 98%;
+	height: 58%;
+}
+
+.grid-view-entry img {
+	display: block;
+	border: 4px outset #123652;
+	height: 96%;
+	margin: 4% auto;
+}
+
+.grid-view-entry-title {
+	float: left;
+	margin: 8% 4%;
+	width: 92%;
+	height: 26%;
+	overflow: auto;
+	display: block;
+	text-align: center;
+}

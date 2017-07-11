@@ -1,0 +1,124 @@
+body {
+    height: 100%;
+    font-size: small;
+    background-color: #294F6D;
+    color: #042037;
+}
+a.nostyle:link {
+    text-decoration: inherit;
+    color: inherit;
+    cursor: auto;
+}
+a.nostyle:visited {
+    text-decoration: inherit;
+    color: inherit;
+    cursor: auto;
+}
+
+#logo{
+    margin-left: 2%;
+    float: left;
+    width: 50%;
+    margin: 20px 0% 0px 4%;
+}
+#logo h1{
+    font-weight: bolder;
+    font-size: 300%;
+}
+#login-area{
+    width: 40%;
+    float: right;
+    background: #718EA4;
+    box-shadow: inset 4px -6px 6px rgba(0,0,0,0.5), /*bottom internal shadow*/
+    inset 4px 6px 6px rgba(255,255,255,0.5); /*top internal highlight*/
+    margin: 10px 2% 10px 2%;
+    padding: 10px 1% 10px 1%;
+}
+#login-label{
+    width: 100%;
+    float: left;
+    display: inline-block;
+}
+#login-area label{
+    display: block;
+    float: left;
+    clear: left;
+    width: 20%;
+}
+#login-area input[type="password"],
+#login-area input[type="text"]{
+    display: inline-block;
+    float: left;
+    width: 78%;
+}
+#login-area input[type="checkbox"]{
+    float: left;
+    width: 10%;
+}
+#login-area label[for="rememberMe"]{
+    clear: none;
+    display: block;
+    width: 85%;
+    height: 20px;
+}
+#login-area button{
+    float: left;
+    width: 95%;
+}
+#login-area .remember-and-submit{
+    float: left;
+    width: 45%;
+}
+#login-area .err{
+    float: right;
+    width: 55%;
+    display: block;
+    margin-top: 5px;
+    text-align: center;
+}
+
+.restricted-content{
+    /*top: 200px;*/
+    margin: 1% 4%;
+    /*position: fixed;*/
+    font-size: large;
+}
+
+select,
+input[type="password"],
+input[type="text"] {
+  padding: 2px;
+  border: solid 1px #123652;
+  background-color: #496D89;
+  transition: box-shadow 0.3s, border 0.3s;
+}
+select:focus,
+input[type="text"]:focus,
+input[type="text"].focus {
+  border: solid 1px #123652;
+  box-shadow: 0 0 5px 1px #969696;
+}
+input[type="submit"],
+button{
+    cursor: pointer;
+    margin: 0% .5% 0% .5%;
+    padding: 5px 0px 5px 0px;
+    border: 0;
+    background: #496D89;
+    box-shadow: inset 2px -3px 3px rgba(0,0,0,0.5), /*bottom internal shadow*/
+    inset 2px 3px 3px rgba(255,255,255,0.5); /*top internal highlight*/
+}
+::-webkit-scrollbar {
+    width: 30px;
+    height: 30px;
+}
+::-webkit-scrollbar-track {
+      background-color: #718EA4;
+}
+::-webkit-scrollbar-thumb {
+      background-color: #496D89;
+      border-radius: 7px;
+}
+::-webkit-scrollbar-button {
+      display:none;
+}

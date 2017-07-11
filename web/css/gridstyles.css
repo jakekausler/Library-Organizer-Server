@@ -1,0 +1,129 @@
+#grid{
+	overflow: auto;
+	/*position: fixed;*/
+	/*top: 460px;*/
+	left: 2%;
+	right: 2%;
+	/*bottom: 0px;*/
+}
+.grid-book{
+	border-radius: 20px;
+	width: 96%;
+	overflow: hidden;
+	margin: 0% 2% 2% 2%;
+	cursor: pointer;
+	background: #718EA4;
+	box-shadow: inset 4px -6px 6px rgba(0,0,0,0.5), /*bottom internal shadow*/
+	inset 4px 6px 6px rgba(255,255,255,0.5); /*top internal highlight*/
+
+}
+.grid-left {
+	float: left;
+	margin: 1% 1% 1% 1%;
+	width: 7%;
+	height: 98%;
+}
+.book-image img {
+	border: 4px outset #123652;
+	width: 100%;
+}
+.grid-left button {
+	padding: 5px;
+}
+.grid-left .book-info-button {
+	text-align: center;
+}
+.book-maininfo{
+	float: left;
+	margin: 1% 1% 1% 1%;
+	width: 42%;
+}
+.book-title {
+	font-weight: bold;
+	font-size: x-large;
+}
+.book-subtitle {
+	font-style: italic;
+	font-size: large;
+}
+.book-series-info {
+	font-style: italic;
+	font-size: large;
+}
+.book-authors {
+	font-size: large;
+	font-weight: bold;
+}
+.author-box {
+	border: 3px outset #123652;
+	padding: 2px;
+	margin-bottom: .5%;
+	margin-left: 2%;
+	min-height: 35px;
+	max-height: 75px;
+	overflow-y: auto;
+}
+.author-box li {
+	list-style-type: none;
+}
+.book-dewey-info {
+	margin-right: 3%;
+}
+.book-otherinfo{
+	float: left;
+	margin: 1% 1% 1% 1%;
+	width: 42%;
+	height: 98%;
+}
+
+/* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    padding-top: 100px;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+
+/* Modal Header */
+.modal-header {
+    padding: 2px 16px;
+    background-color: #5cb85c;
+    color: white;
+}
+
+/* Modal Body */
+#modal-body {padding: 2px 16px;}
+
+/* Modal Content */
+.modal-content {
+    position: relative;
+    background-color: #fefefe;
+    margin: auto;
+    padding: 0;
+    border: 1px solid #888;
+    width: 80%;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+    -webkit-animation-name: animatetop;
+    -webkit-animation-duration: 0.4s;
+    animation-name: animatetop;
+    animation-duration: 0.4s
+}
+
+/* Add Animation */
+@-webkit-keyframes animatetop {
+    from {top: -300px; opacity: 0} 
+    to {top: 0; opacity: 1}
+}
+
+@keyframes animatetop {
+    from {top: -300px; opacity: 0}
+    to {top: 0; opacity: 1}
+}

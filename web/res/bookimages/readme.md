@@ -1,0 +1,1 @@
+This folder is where book images go. Book images should be jpeg images named as "{BookID}.jpg"

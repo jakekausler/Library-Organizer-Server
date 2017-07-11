@@ -1,0 +1,49 @@
+<md-toolbar class="md-toolbar md-primary" flex>
+	<div>
+		<div id="grid-control-buttons" style="display: inline-block; float:left">
+			<md-button ng-disabled="display=='grid'" class="icon grid-icon" ng-click="displayGrid()"><md-tooltip md-delay="500">Open Grid View</md-tooltip></md-button>
+			<md-button class="icon shelves-icon" ng-disabled="display=='shelves'" ng-click="displayShelves()"><md-tooltip md-delay="500">Open Library View</md-tooltip></md-button>
+			<md-button class="icon statistics-icon" ng-disabled="display=='stats'" ng-click="displayStats()"><md-tooltip md-delay="500">View Statistics</md-tooltip></md-button>
+		</div>
+		<form action="/logout" method="post">
+			<div id="authentification" style="display: inline-block; float:right">
+				<input type="submit" class="md-button md-raised md-primary" value="Log Out">
+			</div>
+		</form>
+	</div>
+	<div id="grid-navigation" ng-hide="display!='grid'">
+		<md-button class="icon filter-icon" ng-click="toggleFilters()"><md-tooltip md-delay="500">Open Filters</md-tooltip></md-button>
+		<md-button class="icon previous-icon" ng-disabled="page<=1" ng-click="previousPage()"><md-tooltip md-delay="500">Previous Page</md-tooltip></md-button>
+		<md-button class="icon next-icon" ng-disabled="page>=pages" ng-click="nextPage()"><md-tooltip md-delay="500">Next Page</md-tooltip></md-button>
+		<md-button class="icon add-icon" ng-click="addBook($event)"><md-tooltip md-delay="500">Add Book</md-tooltip></md-button>
+		<md-button class="icon import-icon" ng-click="import($event)"><md-tooltip md-delay="500">Import Books</md-tooltip md-delay="500"></md-button>
+		<md-button class="icon export-icon" ng-click="export()"><md-tooltip md-delay="500">Export Books</md-tooltip></md-button>
+	</div>
+	<div id="shelf-navigation" ng-hide="display!='shelves'">
+		<md-button ng-hide="editingShelves" ng-click="toggleEditShelves()" class="icon edit-icon"><md-tooltip md-delay="500">Edit Shelves</md-tooltip></md-button>
+		<md-button ng-hide="!editingShelves" ng-click="toggleEditShelves()" class="icon cancel-icon"><md-tooltip md-delay="500">Stop Editing Shelves</md-tooltip></md-button>
+		<md-button ng-hide="!editingShelves" ng-click="addShelf()" class="icon add-icon"><md-tooltip md-delay="500">Add Shelf</md-tooltip></md-button>
+		<!-- todo search over through shelves' books' titles, subtitles, series, and authors -->
+		<!-- todo represent book in template -->
+		<!-- <md-autocomplete ng-hide="editingShelves" md-input-name="series" md-search-text="seriesSearchText" md-selected-item="book.series" md-items="s in query(series, seriesSearchText)" md-item-text="s" md-floating-label="Series">
+					<md-item-template>
+						<span md-highlight-text="title" md-highlight-flags="^i">{{s}}</span>
+					</md-item-template>
+				</md-autocomplete> -->
+		<div ng-hide="editingShelves" style="display: inline-block;"><input type="text" ng-change="findBook()" ng-model="shelvesSearchString" name="shelvesSearchString" value="{{shelvesSearchString}}" /></div>
+	</div>
+	<div id="stats-navigation" ng-hide="display!='stats'">
+		<md-button ng-disabled="statView=='general'" ng-click="setStatView('general')">General</md-button>
+		<md-button ng-disabled="statView=='publishers'" ng-click="setStatView('publishers')">Publishers</md-button>
+		<md-button ng-disabled="statView=='series'" ng-click="setStatView('series')">Series</md-button>
+		<md-button ng-disabled="statView=='languages'" ng-click="setStatView('languages')">Languages</md-button>
+		<md-button ng-disabled="statView=='deweys'" ng-click="setStatView('deweys')">Deweys</md-button>
+		<md-button ng-disabled="statView=='formats'" ng-click="setStatView('formats')">Formats</md-button>
+		<md-button ng-disabled="statView=='contributors'" ng-click="setStatView('contributors')">Contributors</md-button>
+		<md-button ng-disabled="statView=='dates'" ng-click="setStatView('dates')">Dates</md-button>
+		<md-button ng-disabled="statView=='dimensions'" ng-click="setStatView('dimensions')">Dimensions</md-button>
+	</div>
+</md-toolbar>
+<!-- <md-toolbar hide-sm hide-xs hide-md id="logo" class="md-primary" style="height: 100px; text-align: right;" layout-padding="5" flex=40>
+	<h1 class="md-display-1" >Library Organizer</h1>
+</md-toolbar> -->

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Library Organizer</title>
+		<link rel="stylesheet" type="text/css" href="web/css/icons.css">
+		<link rel="stylesheet" type="text/css" href="web/lib/fontawesome/css/font-awesome.min.css">
+		<script src="web/lib/bower_components/angular/angular.min.js"></script>
+		<script src="web/lib/bower_components/angular-material/angular-material.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="web/lib/bower_components/angular-material/angular-material.min.css"></script>
+		<script src="web/lib/bower_components/angular-animate/angular-animate.min.js"></script>
+		<script src="web/lib/bower_components/angular-aria/angular-aria.min.js"></script>
+		<script src="web/lib/bower_components/fusioncharts/angular-fusioncharts.min.js"></script>
+		<script src="web/lib/bower_components/fusioncharts/fusioncharts.js"></script>
+		<script src="web/lib/jquery/jquery-3.2.1.min.js"></script>
+		<script src="web/app/main/controller.js"></script>
+	</head>
+
+	<body style="overflow-y: hidden">
+		<div ng-app="libraryOrganizer" ng-controller="libraryOrganizerController as $ctrl">
+			<div id="header" layout="row" ng-include="'web/app/main/header.html'"></div>
+			<div id="grid-view" ng-hide="display!='grid'" layout="row" flex ng-include="'web/app/main/grid.html'"></div>
+			<div id="shelves-view" ng-hide="display!='shelves'" layout="row" flex ng-include="'web/app/main/shelves.html'"></div>
+			<div id="statistics-view" ng-hide="display!='stats'" layout="row" flex ng-include="'web/app/main/statistics.html'"></div>
+		</div>
+	</body>
+</html>

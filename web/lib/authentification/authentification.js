@@ -1,0 +1,1 @@
+angular.module('authentification', ['authentification.services', 'ngCookies'])

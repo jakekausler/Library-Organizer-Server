@@ -1,0 +1,129 @@
+#grid-header{
+	font-size: medium;
+	overflow: hidden;
+	/*position: fixed;*/
+	left: 0px;
+	right: 0px;
+	margin: 0px 0px 0px 2%;
+	/*height: 425px;*/
+}
+#grid-control-buttons{
+	margin: 2px 2% 5px 2%;
+	width: 96%;
+	float: left;
+}
+#grid-control-buttons form{
+	font-size: 0px;
+	display: inline;
+}
+.grid-control-button{
+	font-size: medium;
+	width: 24%;
+	margin: 0% .5% 0% .5%;
+}
+#sort-and-filter{
+	clear: both;
+	overflow: auto;
+	margin: 0px 2% 0px 2%;
+	background: #718EA4;
+	box-shadow: inset 4px -6px 6px rgba(0,0,0,0.5), /*bottom internal shadow*/
+	inset 4px 6px 6px rgba(255,255,255,0.5); /*top internal highlight*/
+}
+#sort{
+	float: left;
+	width: 35%;
+	margin: 10px 2% 10px 2%;
+}
+#sort-label {
+	display: inline-block;
+	float: left;
+	clear: left;
+	width: 25%;
+}
+#has-image-label {
+	display: inline-block;
+	float: left;
+	clear: left;
+	width: 25%;
+}
+.sort-group {
+	width: 48%;
+	float: left;
+}
+.sort-group label {
+	width: 60%;
+	float: left;
+	clear: left;
+}
+#page-group label {
+	width: 50%;
+}
+#to-dewey label {
+	width: 50%;
+}
+.sort-group input {
+	display: inline-block;
+	float: left;
+	width: 15%;
+	margin-bottom: 10px;
+}
+#filter{
+	float: left;
+	width: 55%;
+	margin: 10px 2% 10px 2%;
+}
+#filter-text{
+	float: left;
+	display: block;
+	width: 100%;
+}
+#filter-text-label{
+	float: left;
+	clear: left;
+	width: 15%;
+}
+#filter-text input{
+	margin-bottom: 5px;
+	display: inline-block;
+	float: left;
+	width: 80%;
+}
+.filter-radio-group {
+	width: 48%;
+	float: left;
+}
+.filter-radio-group label{
+	float: left;
+	clear: left;
+	width: 30%;
+}
+.button-group{
+	display: inline;
+	position: relative;
+	float: left;
+	width: 60%;
+}
+.button-group input{
+	margin-bottom: 10px;
+}
+#filter-and-sort-submit button{
+	width: 98%;
+	margin: -5px 1% 10px 1%;
+	font-size: medium;
+}
+#page-navigation{
+	margin: 5px 2% 0px 2%;
+}
+#page-navigation button {
+	width: 48%;
+	font-size: medium;
+	margin: 5px 1% 5px 1%;
+}
+#view-change{
+	margin: 5px 2% 0px 2%;
+}
+#view-change button {
+	width: 31%;
+	font-size: medium;
+	margin: 5px 1% 5px 1%;
+}
