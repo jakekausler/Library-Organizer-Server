@@ -38,6 +38,8 @@ app.controller('libraryOrganizerController', function($scope, $http, $timeout, $
 	$scope.roles;
 	$scope.deweys;
 
+	$scope.lastRecievedTime = new Date().getTime();
+
 	$scope.updateRecieved = function() {
 		console.log($scope.page);
 		$http.get('/books', {
@@ -487,6 +489,13 @@ app.controller('libraryOrganizerController', function($scope, $http, $timeout, $
 					}) : arr;
 					return results;
 				}
+				$scope.getCurrentDateString = function() {
+					var currTime = new Date().getTime()
+					if (currTime-$scope.lastRecievedTime>1000) {
+						$scope.lastRecievedTime = currTime;
+					}
+					return $scope.lastRecievedTime;
+				}
 			},
 			templateUrl: 'web/app/main/editordialog.html',
 			parent: angular.element(document.body),
@@ -564,6 +573,13 @@ app.controller('libraryOrganizerController', function($scope, $http, $timeout, $
 	//todo
 	$scope.findBook = function() {
 		
+	}
+	$scope.getCurrentDateString = function() {
+		var currTime = new Date().getTime()
+		if (currTime-$scope.lastRecievedTime>1000) {
+			$scope.lastRecievedTime = currTime;
+		}
+		return $scope.lastRecievedTime;
 	}
 
 });
