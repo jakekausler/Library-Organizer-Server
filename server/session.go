@@ -40,7 +40,8 @@ func RunServer(username, password, database string) {
 		panic(err.Error())
 	}
 	http.Handle("./web/", http.StripPrefix("./web/", http.FileServer(http.Dir("./web"))))
-	http.HandleFunc("/", getHomePage)
+	http.HandleFunc("/", getLoginPage)
+	http.HandleFunc("/home", getHomePage)
 	http.HandleFunc("/books", getBooks)
 	http.HandleFunc("/publishers", getPublishers)
 	http.HandleFunc("/cities", getCities)
@@ -519,10 +520,18 @@ func registered(r *http.Request) bool {
 	return registered
 }
 
+func getLoginPage(w http.ResponseWriter, r *http.Request) {
+	if registered(r) {
+		http.Redirect(w, r, "/home", 301)
+	} else {
+		http.ServeFile(w, r, "../web/app/unregistered/index.html")
+	}
+}
+
 func getHomePage(w http.ResponseWriter, r *http.Request) {
 	if registered(r) {
 		http.ServeFile(w, r, "../web/app/main/index.html")
 	} else {
-		http.ServeFile(w, r, "../web/app/unregistered/index.html")
+		http.Redirect(w, r, "/", 301)
 	}
 }
