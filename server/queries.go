@@ -122,7 +122,7 @@ func SaveBook(book Book) error {
 	if book.ID != "" {
 		imageType := filepath.Ext(book.ImageURL)
 		if book.ImageURL != "" && !strings.HasPrefix(book.ImageURL, "res/bookimages/") {
-			err := downloadImage(book.ImageURL, "../../res/bookimages/"+book.ID+imageType)
+			err := downloadImage(book.ImageURL, "../web/res/bookimages/"+book.ID+imageType)
 			if err != nil {
 				log.Printf("Error while saving image: %v", err)
 				return err
