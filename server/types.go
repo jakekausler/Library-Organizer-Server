@@ -1,5 +1,40 @@
 package main
 
+type Bookcase struct {
+	ID int64 `json:"id"`
+	SpacerHeight int64 `json:"spacerheight"`
+	PaddingLeft int64 `json:"paddingleft"`
+	PaddingRight int64 `json:"paddingright"`
+	BookMargin int64 `json:"bookmargin"`
+	Width int64 `json:"width"`
+	Shelves []Bookshelf `json:"shelves"`
+	AverageBookHeight float64 `json:"averagebookheight"`
+	AverageBookWidth float64 `json:"averagebookwidth"`
+}
+
+type Bookshelf struct {
+	Height int64 `json:"height"`
+	Books []Book `json:"books"`
+}
+
+type StatChart struct {
+	Chart StatChartInfo `json:"chart"`
+	Data []StatData `json:"data"`
+}
+
+type StatChartInfo struct {
+	Caption string `json:"caption"`
+	FormatNumberScale string `json:"formatNumberScale"`
+	NumberSuffix string `json:"numberSuffix"`
+	Decimals string `json:"decimals"`
+}
+
+type StatData struct {
+	Label string `json:"label"`
+	Value string `json:"value"`
+	ToolText string `json:"tooltext"`
+}
+
 type BookIds struct {
 	BookIds []string `json:"bookids"`
 }
