@@ -1,0 +1,11 @@
+<div>
+	<md-toolbar>
+		<div id="shelf-navigation">
+			<md-button ng-hide="editingShelves" ng-click="toggleEditShelves()" class="icon edit-icon"><md-tooltip md-delay="500">Edit Shelves</md-tooltip></md-button>
+			<md-button ng-hide="!editingShelves" ng-click="toggleEditShelves()" class="icon cancel-icon"><md-tooltip md-delay="500">Stop Editing Shelves</md-tooltip></md-button>
+			<md-button ng-hide="!editingShelves" ng-click="addShelf()" class="icon add-icon"><md-tooltip md-delay="500">Add Shelf</md-tooltip></md-button>
+			<div ng-hide="editingShelves" style="display: inline-block;"><input type="text" ng-change="findBook()" ng-model="shelvesSearchString" name="shelvesSearchString" value="{{shelvesSearchString}}" /></div>
+		</div>
+	</md-toolbar>
+	<div bookcases ng-model="bookcases" style="width:100%;height:90vh;position:relative;overflow-x:auto"></div>
+</div>
