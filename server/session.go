@@ -59,6 +59,9 @@ func RunServer(username, password, database string) {
 	http.HandleFunc("/login", login)
 	http.HandleFunc("/register", register)
 	http.HandleFunc("/logout", logout)
+	http.HandleFunc("/stats", getStats)
+	http.HandleFunc("/cases", getCases)
+	http.HandleFunc("/dimensions", getDimensions)
 	http.Handle("/web/", http.StripPrefix("/web/", http.FileServer(http.Dir("./../web/"))))
 	log.Printf("Listening on port 8181")
 	http.ListenAndServe(":8181", nil)
@@ -534,4 +537,56 @@ func getHomePage(w http.ResponseWriter, r *http.Request) {
 	} else {
 		http.Redirect(w, r, "/", 301)
 	}
+}
+
+func getStats(w http.ResponseWriter, r *http.Request) {
+	params := r.URL.Query()
+	d, err := GetStats(params.Get("type"))
+	if err != nil {
+		fmt.Errorf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	data, err := json.Marshal(d);
+	if err != nil {
+		fmt.Errorf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+ 	w.Write(data)
+}
+
+func getCases(w http.ResponseWriter, r *http.Request) {
+	d, err := GetCases()
+	if err != nil {
+		fmt.Errorf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	data, err := json.Marshal(d);
+	if err != nil {
+		fmt.Errorf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+ 	w.Write(data)
+}
+
+func getDimensions(w http.ResponseWriter, r *http.Request) {
+	d, err := GetDimensions()
+	if err != nil {
+		fmt.Errorf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	data, err := json.Marshal(d);
+	if err != nil {
+		fmt.Errorf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+ 	w.Write(data)
 }
