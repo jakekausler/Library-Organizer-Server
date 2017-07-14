@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"io"
-	"log"
 	"math"
 	"math/rand"
 	"net/http"
@@ -128,101 +127,101 @@ func SaveBook(book Book) error {
 		if book.ImageURL != "" && !strings.HasPrefix(book.ImageURL, "res/bookimages/") {
 			err := downloadImage(book.ImageURL, "../web/res/bookimages/"+book.ID+imageType)
 			if err != nil {
-				log.Printf("Error while saving image: %v", err)
+				logger.Printf("Error while saving image: %v", err)
 				return err
 			}
 		}
 		publisherID, err := addOrGetPublisher(book.Publisher.Publisher, book.Publisher.City, book.Publisher.State, book.Publisher.Country)
 		if err != nil {
-			log.Printf("Error when saving publisher: %v", err)
+			logger.Printf("Error when saving publisher: %v", err)
 			return err
 		}
 		err = addDewey(book.Dewey)
 		if err != nil {
-			log.Printf("Error when saving dewey: %v", err)
+			logger.Printf("Error when saving dewey: %v", err)
 			return err
 		}
 		err = addSeries(book.Series)
 		if err != nil {
-			log.Printf("Error when saving Series: %v", err)
+			logger.Printf("Error when saving Series: %v", err)
 			return err
 		}
 		err = addFormat(book.Format)
 		if err != nil {
-			log.Printf("Error when saving Format: %v", err)
+			logger.Printf("Error when saving Format: %v", err)
 			return err
 		}
 		err = addLanguage(book.PrimaryLanguage)
 		if err != nil {
-			log.Printf("Error when saving PrimaryLanguage: %v", err)
+			logger.Printf("Error when saving PrimaryLanguage: %v", err)
 			return err
 		}
 		err = addLanguage(book.SecondaryLanguage)
 		if err != nil {
-			log.Printf("Error when saving SecondaryLanguage: %v", err)
+			logger.Printf("Error when saving SecondaryLanguage: %v", err)
 			return err
 		}
 		err = addLanguage(book.OriginalLanguage)
 		if err != nil {
-			log.Printf("Error when saving OriginalLanguage: %v", err)
+			logger.Printf("Error when saving OriginalLanguage: %v", err)
 			return err
 		}
 		_, err = db.Exec(saveBookQuery, book.Title, book.Subtitle, book.OriginallyPublished, book.EditionPublished, publisherID, book.IsRead, book.IsReference, book.IsOwned, book.IsShipping, book.IsReading, book.ISBN, book.Loanee.First, book.Loanee.Last, book.Dewey, book.Pages, book.Width, book.Height, book.Depth, book.Weight, book.PrimaryLanguage, book.SecondaryLanguage, book.OriginalLanguage, book.Series, book.Volume, book.Format, book.Edition, "res/bookimages/"+book.ID+imageType, book.ID)
 		if err != nil {
-			log.Printf("Error when saving book: %v", err)
+			logger.Printf("Error when saving book: %v", err)
 			return err
 		}
 		err = removeAllWrittenBy(book.ID)
 		if err != nil {
-			log.Printf("Error when saving authors: %v", err)
+			logger.Printf("Error when saving authors: %v", err)
 			return err
 		}
 		for _, contributor := range book.Contributors {
 			err = addContributor(book.ID, contributor)
 			if err != nil {
-				log.Printf("Error when saving authors: %v", err)
+				logger.Printf("Error when saving authors: %v", err)
 				return err
 			}
 		}
 	} else {
 		publisherID, err := addOrGetPublisher(book.Publisher.Publisher, book.Publisher.City, book.Publisher.State, book.Publisher.Country)
 		if err != nil {
-			log.Printf("Error when saving publisher: %v", err)
+			logger.Printf("Error when saving publisher: %v", err)
 			return err
 		}
 		err = addDewey(book.Dewey)
 		if err != nil {
-			log.Printf("Error when saving dewey: %v", err)
+			logger.Printf("Error when saving dewey: %v", err)
 			return err
 		}
 		err = addSeries(book.Series)
 		if err != nil {
-			log.Printf("Error when saving Series: %v", err)
+			logger.Printf("Error when saving Series: %v", err)
 			return err
 		}
 		err = addFormat(book.Format)
 		if err != nil {
-			log.Printf("Error when saving Format: %v", err)
+			logger.Printf("Error when saving Format: %v", err)
 			return err
 		}
 		err = addLanguage(book.PrimaryLanguage)
 		if err != nil {
-			log.Printf("Error when saving PrimaryLanguage: %v", err)
+			logger.Printf("Error when saving PrimaryLanguage: %v", err)
 			return err
 		}
 		err = addLanguage(book.SecondaryLanguage)
 		if err != nil {
-			log.Printf("Error when saving SecondaryLanguage: %v", err)
+			logger.Printf("Error when saving SecondaryLanguage: %v", err)
 			return err
 		}
 		err = addLanguage(book.OriginalLanguage)
 		if err != nil {
-			log.Printf("Error when saving OriginalLanguage: %v", err)
+			logger.Printf("Error when saving OriginalLanguage: %v", err)
 			return err
 		}
 		res, err := db.Exec(addBookQuery, book.Title, book.Subtitle, book.OriginallyPublished, publisherID, book.IsRead, book.IsReference, book.IsOwned, book.IsShipping, book.IsReading, book.ISBN, book.Loanee.First, book.Loanee.Last, book.Dewey, book.Pages, book.Width, book.Height, book.Depth, book.Weight, book.PrimaryLanguage, book.SecondaryLanguage, book.OriginalLanguage, book.Series, book.Volume, book.Format, book.Edition, book.EditionPublished)
 		if err != nil {
-			log.Printf("Error when saving book: %v", err)
+			logger.Printf("Error when saving book: %v", err)
 			return err
 		}
 		id, err := res.LastInsertId()
@@ -232,19 +231,19 @@ func SaveBook(book Book) error {
 			err = downloadImage(book.ImageURL, "../web/res/bookimages/"+bookid+imageType)
 		}
 		if err != nil {
-			log.Printf("Error while saving image: %v", err)
+			logger.Printf("Error while saving image: %v", err)
 			return err
 		}
 		imageQuery := "UPDATE books SET ImageURL='res/bookimages/" + bookid + imageType + "' WHERE bookid=?"
 		_, err = db.Exec(imageQuery, bookid)
 		if err != nil {
-			log.Printf("Error when saving image: %v", err)
+			logger.Printf("Error when saving image: %v", err)
 			return err
 		}
 		for _, contributor := range book.Contributors {
 			err = addContributor(bookid, contributor)
 			if err != nil {
-				log.Printf("Error when saving authors: %v", err)
+				logger.Printf("Error when saving authors: %v", err)
 				return err
 			}
 		}
@@ -256,7 +255,7 @@ func removeAllWrittenBy(bookid string) error {
 	query := "DELETE FROM written_by WHERE BookId=?"
 	_, err := db.Exec(query, bookid)
 	if err != nil {
-		log.Printf("Error when deleting written_by: %v", err)
+		logger.Printf("Error when deleting written_by: %v", err)
 		return err
 	}
 	return nil
@@ -268,7 +267,7 @@ func DeleteBook(bookid string) error {
 	query := "DELETE FROM books WHERE BookId=?"
 	_, err := db.Exec(query, bookid)
 	if err != nil {
-		log.Printf("Error when deleting book: %v", err)
+		logger.Printf("Error when deleting book: %v", err)
 		return err
 	}
 	return nil
@@ -548,25 +547,25 @@ func GetBooks(sortMethod, isread, isreference, isowned, isloaned, isreading, iss
 
 	rows, err := db.Query(query)
 	if err != nil {
-		log.Printf("Error querying books: %v", err)
+		logger.Printf("Error querying books: %v", err)
 		return nil, 0, err
 	}
 	for rows.Next() {
 		if err := rows.Scan(&b.ID, &Title, &Subtitle, &OriginallyPublished, &PublisherID, &IsRead, &IsReference, &IsOwned, &ISBN, &LoaneeFirst, &LoaneeLast, &Dewey, &b.Pages, &b.Width, &b.Height, &b.Depth, &b.Weight, &PrimaryLanguage, &SecondaryLanguage, &OriginalLanguage, &Series, &b.Volume, &Format, &b.Edition, &ImageURL, &IsReading, &IsShipping, &SpineColor, &b.CheapestNew, &b.CheapestUsed, &EditionPublished); err != nil {
-			log.Printf("Error scanning books: %v", err)
+			logger.Printf("Error scanning books: %v", err)
 			return nil, 0, err
 		}
 		if PublisherID.Valid {
 			p, err = GetPublisher(PublisherID.String)
 			if err != nil {
-				log.Printf("Error getting publisher: %v", err)
+				logger.Printf("Error getting publisher: %v", err)
 				return nil, 0, err
 			}
 		}
 		b.Publisher = p
 		c, err = GetContributors(b.ID)
 		if err != nil {
-			log.Printf("Error getting contributors: %v", err)
+			logger.Printf("Error getting contributors: %v", err)
 			return nil, 0, err
 		}
 		b.Contributors = c
@@ -642,7 +641,7 @@ func GetBooks(sortMethod, isread, isreference, isowned, isloaned, isreading, iss
 	}
 	err = rows.Err()
 	if err != nil {
-		log.Printf("Error in rows: %v", err)
+		logger.Printf("Error in rows: %v", err)
 		return nil, 0, err
 	}
 
@@ -699,12 +698,12 @@ func GetContributors(id string) ([]Contributor, error) {
 
 	rows, err := db.Query(getContributorsQuery, id)
 	if err != nil {
-		log.Printf("Error querying contributors: %v", err)
+		logger.Printf("Error querying contributors: %v", err)
 		return nil, err
 	}
 	for rows.Next() {
 		if err := rows.Scan(&c.ID, &Role, &First, &Middles, &Last); err != nil {
-			log.Printf("Error scanning contributors: %v", err)
+			logger.Printf("Error scanning contributors: %v", err)
 			return nil, err
 		}
 		c.Role = ""
@@ -760,7 +759,7 @@ func GetPublisher(id string) (Publisher, error) {
 		p.ParentCompany = ParentCompany.String
 	}
 	if err != nil {
-		log.Printf("Error scanning publisher for id %v: %v", id, err)
+		logger.Printf("Error scanning publisher for id %v: %v", id, err)
 		return p, err
 	}
 
@@ -773,12 +772,12 @@ func GetPublishers() ([]string, error) {
 	var r = make([]string, 0)
 	rows, err := db.Query(getPublishersQuery)
 	if err != nil {
-		log.Printf("Error querying publishers: %v", err)
+		logger.Printf("Error querying publishers: %v", err)
 		return nil, err
 	}
 	for rows.Next() {
 		if err := rows.Scan(&s); err != nil {
-			log.Printf("Error scanning publishers: %v", err)
+			logger.Printf("Error scanning publishers: %v", err)
 			return nil, err
 		}
 		r = append(r, s)
@@ -792,12 +791,12 @@ func GetCities() ([]string, error) {
 	var r = make([]string, 0)
 	rows, err := db.Query(getCitiesQuery)
 	if err != nil {
-		log.Printf("Error querying cities: %v", err)
+		logger.Printf("Error querying cities: %v", err)
 		return nil, err
 	}
 	for rows.Next() {
 		if err := rows.Scan(&s); err != nil {
-			log.Printf("Error scanning cities: %v", err)
+			logger.Printf("Error scanning cities: %v", err)
 			return nil, err
 		}
 		r = append(r, s)
@@ -811,12 +810,12 @@ func GetStates() ([]string, error) {
 	var r = make([]string, 0)
 	rows, err := db.Query(getStatesQuery)
 	if err != nil {
-		log.Printf("Error querying states: %v", err)
+		logger.Printf("Error querying states: %v", err)
 		return nil, err
 	}
 	for rows.Next() {
 		if err := rows.Scan(&s); err != nil {
-			log.Printf("Error scanning states: %v", err)
+			logger.Printf("Error scanning states: %v", err)
 			return nil, err
 		}
 		r = append(r, s)
@@ -830,12 +829,12 @@ func GetCountries() ([]string, error) {
 	var r = make([]string, 0)
 	rows, err := db.Query(getCountriesQuery)
 	if err != nil {
-		log.Printf("Error querying countries: %v", err)
+		logger.Printf("Error querying countries: %v", err)
 		return nil, err
 	}
 	for rows.Next() {
 		if err := rows.Scan(&s); err != nil {
-			log.Printf("Error scanning countries: %v", err)
+			logger.Printf("Error scanning countries: %v", err)
 			return nil, err
 		}
 		r = append(r, s)
@@ -849,12 +848,12 @@ func GetSeries() ([]string, error) {
 	var r = make([]string, 0)
 	rows, err := db.Query(getSeriesQuery)
 	if err != nil {
-		log.Printf("Error querying series: %v", err)
+		logger.Printf("Error querying series: %v", err)
 		return nil, err
 	}
 	for rows.Next() {
 		if err := rows.Scan(&s); err != nil {
-			log.Printf("Error scanning series: %v", err)
+			logger.Printf("Error scanning series: %v", err)
 			return nil, err
 		}
 		r = append(r, s)
@@ -868,12 +867,12 @@ func GetFormats() ([]string, error) {
 	var r = make([]string, 0)
 	rows, err := db.Query(getFormatsQuery)
 	if err != nil {
-		log.Printf("Error querying formats: %v", err)
+		logger.Printf("Error querying formats: %v", err)
 		return nil, err
 	}
 	for rows.Next() {
 		if err := rows.Scan(&s); err != nil {
-			log.Printf("Error scanning formats: %v", err)
+			logger.Printf("Error scanning formats: %v", err)
 			return nil, err
 		}
 		r = append(r, s)
@@ -887,12 +886,12 @@ func GetLanguages() ([]string, error) {
 	var r = make([]string, 0)
 	rows, err := db.Query(getLanguagesQuery)
 	if err != nil {
-		log.Printf("Error querying languages: %v", err)
+		logger.Printf("Error querying languages: %v", err)
 		return nil, err
 	}
 	for rows.Next() {
 		if err := rows.Scan(&s); err != nil {
-			log.Printf("Error scanning languages: %v", err)
+			logger.Printf("Error scanning languages: %v", err)
 			return nil, err
 		}
 		r = append(r, s)
@@ -906,12 +905,12 @@ func GetRoles() ([]string, error) {
 	var r = make([]string, 0)
 	rows, err := db.Query(getRolesQuery)
 	if err != nil {
-		log.Printf("Error querying roles: %v", err)
+		logger.Printf("Error querying roles: %v", err)
 		return nil, err
 	}
 	for rows.Next() {
 		if err := rows.Scan(&s); err != nil {
-			log.Printf("Error scanning roles: %v", err)
+			logger.Printf("Error scanning roles: %v", err)
 			return nil, err
 		}
 		r = append(r, s)
@@ -925,12 +924,12 @@ func GetDeweys() ([]string, error) {
 	var r = make([]string, 0)
 	rows, err := db.Query(getDeweysQuery)
 	if err != nil {
-		log.Printf("Error querying deweys: %v", err)
+		logger.Printf("Error querying deweys: %v", err)
 		return nil, err
 	}
 	for rows.Next() {
 		if err := rows.Scan(&s); err != nil {
-			log.Printf("Error scanning deweys: %v", err)
+			logger.Printf("Error scanning deweys: %v", err)
 			return nil, err
 		}
 		r = append(r, s)
@@ -943,12 +942,12 @@ func GetBooksForExport() ([][]string, error) {
 	query := "select * from books join publishers on books.PublisherID=publishers.PublisherID"
 	rows, err := db.Query(query)
 	if err != nil {
-		log.Printf("Error exporting books: %v", err)
+		logger.Printf("Error exporting books: %v", err)
 		return nil, err
 	}
 	cols, err := rows.Columns()
 	if err != nil {
-		log.Printf("Error exporting books: %v", err)
+		logger.Printf("Error exporting books: %v", err)
 		return nil, err
 	}
 	rawResult := make([][]byte, len(cols))
@@ -962,7 +961,7 @@ func GetBooksForExport() ([][]string, error) {
 	for rows.Next() {
 		err = rows.Scan(dest...)
 		if err != nil {
-			log.Printf("Error exporting books: %v", err)
+			logger.Printf("Error exporting books: %v", err)
 			return nil, err
 		}
 		for i, raw := range rawResult {
@@ -984,12 +983,12 @@ func GetAuthorsForExport() ([][]string, error) {
 	query := "SELECT BookID, FirstName, MiddleNames, LastName, Role from written_by JOIN persons on written_by.AuthorID=persons.PersonID"
 	rows, err := db.Query(query)
 	if err != nil {
-		log.Printf("Error exporting books: %v", err)
+		logger.Printf("Error exporting books: %v", err)
 		return nil, err
 	}
 	cols, err := rows.Columns()
 	if err != nil {
-		log.Printf("Error exporting books: %v", err)
+		logger.Printf("Error exporting books: %v", err)
 		return nil, err
 	}
 	rawResult := make([][]byte, len(cols))
@@ -1003,7 +1002,7 @@ func GetAuthorsForExport() ([][]string, error) {
 	for rows.Next() {
 		err = rows.Scan(dest...)
 		if err != nil {
-			log.Printf("Error exporting books: %v", err)
+			logger.Printf("Error exporting books: %v", err)
 			return nil, err
 		}
 		for i, raw := range rawResult {
@@ -1023,7 +1022,7 @@ func GetAuthorsForExport() ([][]string, error) {
 //ImportLibrary imports records from a csv file
 //todo finish function
 func ImportLibrary(records [][]string) error {
-	log.Printf("Importing...")
+	logger.Printf("Importing...")
 	return nil
 }
 
@@ -1639,13 +1638,17 @@ func GetCases() ([]Bookcase, error) {
 			AverageBookWidth:  dim["averagewidth"],
 			AverageBookHeight: dim["averageheight"],
 		}
-		shelfquery := "SELECT ShelfId, Height FROM shelves WHERE CaseId=? ORDER BY ShelfNumber"
-		shelfrows := db.Query(shelfquery, id)
+		shelfquery := "SELECT id, Height FROM shelves WHERE CaseId=? ORDER BY ShelfNumber"
+		shelfrows, err := db.Query(shelfquery, id)
+		if err != nil {
+			return nil, err
+		}
 		for shelfrows.Next() {
 			var shelfid, height int64
+			shelfrows.Scan(&shelfid, &height)
 			bookcase.Shelves = append(bookcase.Shelves, Bookshelf{
 				ID:     shelfid,
-				Height: shelfHeight,
+				Height: height,
 			})
 		}
 		cases = append(cases, bookcase)
