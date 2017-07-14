@@ -2,44 +2,43 @@ package main
 
 import (
 	"database/sql"
-	"log"
-	"strings"
-	"strconv"
-	"os"
-	"io"
-	"net/http"
-	"path/filepath"
-	"math/rand"
 	"fmt"
-	"time"
-	"sort"
+	"io"
 	"math"
+	"math/rand"
+	"net/http"
+	"os"
+	"path/filepath"
+	"sort"
+	"strconv"
+	"strings"
+	"time"
 
 	"github.com/go-sql-driver/mysql"
 )
 
 const (
-	getBooksQuery = "SELECT * from books";
+	getBooksQuery        = "SELECT * from books"
 	getContributorsQuery = "SELECT PersonID, Role, FirstName, MiddleNames, LastName from written_by join persons on written_by.AuthorID = persons.PersonID WHERE BookID=?"
-	getPublisherQuery = "SELECT * from publishers WHERE PublisherID=?"
-	getPublishersQuery = "SELECT DISTINCT(Publisher) from publishers"
-	getCitiesQuery = "SELECT DISTINCT(City) from publishers"
-	getStatesQuery = "SELECT DISTINCT(State) from publishers"
-	getCountriesQuery = "SELECT DISTINCT(Country) from publishers"
-	getSeriesQuery = "SELECT DISTINCT(Series) from series"
-	getFormatsQuery = "SELECT DISTINCT(Format) from formats"
-	getDeweysQuery = "SELECT DISTINCT(Number) from dewey_numbers"
-	getLanguagesQuery = "SELECT DISTINCT(Langauge) from languages"
-	getRolesQuery = "SELECT DISTINCT(Role) from written_by"
-	saveBookQuery = "UPDATE books SET Title=?, Subtitle=?, OriginallyPublished=?, EditionPublished=?, PublisherID=?, IsRead=?, IsReference=?, IsOwned=?, IsShipping=?, IsReading=?, isbn=?, LoaneeFirst=?, LoaneeLast=?, Dewey=?, Pages=?, Width=?, Height=?, Depth=?, Weight=?, PrimaryLanguage=?, SecondaryLanguage=?, OriginalLanguage=?, Series=?, Volume=?, Format=?, Edition=?, ImageURL=? WHERE BookId=?"
-	addBookQuery = "INSERT INTO books (Title, Subtitle, OriginallyPublished, PublisherID, IsRead, IsReference, IsOwned, IsShipping, IsReading, isbn, LoaneeFirst, LoaneeLast, Dewey, Pages, Width, Height, Depth, Weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, Series, Volume, Format, Edition, EditionPublished) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-	getValidUserSession = "SELECT sessionkey from usersession WHERE sessionkey=? AND EXISTS (SELECT id FROM library_members where id=userid)"
-	getUser = "SELECT id from library_members WHERE usr=? and pass=?"
-	addUser = "INSERT INTO library_members (usr,pass,email) values (?,?,?)"
-	addSession = "INSERT INTO usersession (sessionkey,userid,LastSeenTime) values (?,?,NOW())"
-	updateSessionTime = "UPDATE usersession SET LastSeenTime=NOW()"
-	isSessionNameTaken = "SELECT sessionkey from usersession where sessionkey=?"
-	deleteSession = "DELETE FROM usersession WHERE sessionkey=?"
+	getPublisherQuery    = "SELECT * from publishers WHERE PublisherID=?"
+	getPublishersQuery   = "SELECT DISTINCT(Publisher) from publishers"
+	getCitiesQuery       = "SELECT DISTINCT(City) from publishers"
+	getStatesQuery       = "SELECT DISTINCT(State) from publishers"
+	getCountriesQuery    = "SELECT DISTINCT(Country) from publishers"
+	getSeriesQuery       = "SELECT DISTINCT(Series) from series"
+	getFormatsQuery      = "SELECT DISTINCT(Format) from formats"
+	getDeweysQuery       = "SELECT DISTINCT(Number) from dewey_numbers"
+	getLanguagesQuery    = "SELECT DISTINCT(Langauge) from languages"
+	getRolesQuery        = "SELECT DISTINCT(Role) from written_by"
+	saveBookQuery        = "UPDATE books SET Title=?, Subtitle=?, OriginallyPublished=?, EditionPublished=?, PublisherID=?, IsRead=?, IsReference=?, IsOwned=?, IsShipping=?, IsReading=?, isbn=?, LoaneeFirst=?, LoaneeLast=?, Dewey=?, Pages=?, Width=?, Height=?, Depth=?, Weight=?, PrimaryLanguage=?, SecondaryLanguage=?, OriginalLanguage=?, Series=?, Volume=?, Format=?, Edition=?, ImageURL=? WHERE BookId=?"
+	addBookQuery         = "INSERT INTO books (Title, Subtitle, OriginallyPublished, PublisherID, IsRead, IsReference, IsOwned, IsShipping, IsReading, isbn, LoaneeFirst, LoaneeLast, Dewey, Pages, Width, Height, Depth, Weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, Series, Volume, Format, Edition, EditionPublished) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+	getValidUserSession  = "SELECT sessionkey from usersession WHERE sessionkey=? AND EXISTS (SELECT id FROM library_members where id=userid)"
+	getUser              = "SELECT id from library_members WHERE usr=? and pass=?"
+	addUser              = "INSERT INTO library_members (usr,pass,email) values (?,?,?)"
+	addSession           = "INSERT INTO usersession (sessionkey,userid,LastSeenTime) values (?,?,NOW())"
+	updateSessionTime    = "UPDATE usersession SET LastSeenTime=NOW()"
+	isSessionNameTaken   = "SELECT sessionkey from usersession where sessionkey=?"
+	deleteSession        = "DELETE FROM usersession WHERE sessionkey=?"
 
 	charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 )
@@ -112,7 +111,7 @@ func RegisterUser(username, password, email string) (string, error) {
 	return key, err
 }
 
-//LogoutUser logs out a user
+//LogoutSession logs out a user
 func LogoutSession(sessionkey string) error {
 	_, err := db.Exec(deleteSession, sessionkey)
 	if err != nil {
@@ -128,123 +127,123 @@ func SaveBook(book Book) error {
 		if book.ImageURL != "" && !strings.HasPrefix(book.ImageURL, "res/bookimages/") {
 			err := downloadImage(book.ImageURL, "../web/res/bookimages/"+book.ID+imageType)
 			if err != nil {
-				log.Printf("Error while saving image: %v", err)
+				logger.Printf("Error while saving image: %v", err)
 				return err
 			}
 		}
 		publisherID, err := addOrGetPublisher(book.Publisher.Publisher, book.Publisher.City, book.Publisher.State, book.Publisher.Country)
 		if err != nil {
-			log.Printf("Error when saving publisher: %v", err)
+			logger.Printf("Error when saving publisher: %v", err)
 			return err
 		}
 		err = addDewey(book.Dewey)
 		if err != nil {
-			log.Printf("Error when saving dewey: %v", err)
+			logger.Printf("Error when saving dewey: %v", err)
 			return err
 		}
 		err = addSeries(book.Series)
 		if err != nil {
-			log.Printf("Error when saving Series: %v", err)
+			logger.Printf("Error when saving Series: %v", err)
 			return err
 		}
 		err = addFormat(book.Format)
 		if err != nil {
-			log.Printf("Error when saving Format: %v", err)
+			logger.Printf("Error when saving Format: %v", err)
 			return err
 		}
 		err = addLanguage(book.PrimaryLanguage)
 		if err != nil {
-			log.Printf("Error when saving PrimaryLanguage: %v", err)
+			logger.Printf("Error when saving PrimaryLanguage: %v", err)
 			return err
 		}
 		err = addLanguage(book.SecondaryLanguage)
 		if err != nil {
-			log.Printf("Error when saving SecondaryLanguage: %v", err)
+			logger.Printf("Error when saving SecondaryLanguage: %v", err)
 			return err
 		}
 		err = addLanguage(book.OriginalLanguage)
 		if err != nil {
-			log.Printf("Error when saving OriginalLanguage: %v", err)
+			logger.Printf("Error when saving OriginalLanguage: %v", err)
 			return err
 		}
 		_, err = db.Exec(saveBookQuery, book.Title, book.Subtitle, book.OriginallyPublished, book.EditionPublished, publisherID, book.IsRead, book.IsReference, book.IsOwned, book.IsShipping, book.IsReading, book.ISBN, book.Loanee.First, book.Loanee.Last, book.Dewey, book.Pages, book.Width, book.Height, book.Depth, book.Weight, book.PrimaryLanguage, book.SecondaryLanguage, book.OriginalLanguage, book.Series, book.Volume, book.Format, book.Edition, "res/bookimages/"+book.ID+imageType, book.ID)
 		if err != nil {
-			log.Printf("Error when saving book: %v", err)
+			logger.Printf("Error when saving book: %v", err)
 			return err
 		}
 		err = removeAllWrittenBy(book.ID)
 		if err != nil {
-			log.Printf("Error when saving authors: %v", err)
+			logger.Printf("Error when saving authors: %v", err)
 			return err
 		}
 		for _, contributor := range book.Contributors {
 			err = addContributor(book.ID, contributor)
 			if err != nil {
-				log.Printf("Error when saving authors: %v", err)
+				logger.Printf("Error when saving authors: %v", err)
 				return err
 			}
 		}
 	} else {
 		publisherID, err := addOrGetPublisher(book.Publisher.Publisher, book.Publisher.City, book.Publisher.State, book.Publisher.Country)
 		if err != nil {
-			log.Printf("Error when saving publisher: %v", err)
+			logger.Printf("Error when saving publisher: %v", err)
 			return err
 		}
 		err = addDewey(book.Dewey)
 		if err != nil {
-			log.Printf("Error when saving dewey: %v", err)
+			logger.Printf("Error when saving dewey: %v", err)
 			return err
 		}
 		err = addSeries(book.Series)
 		if err != nil {
-			log.Printf("Error when saving Series: %v", err)
+			logger.Printf("Error when saving Series: %v", err)
 			return err
 		}
 		err = addFormat(book.Format)
 		if err != nil {
-			log.Printf("Error when saving Format: %v", err)
+			logger.Printf("Error when saving Format: %v", err)
 			return err
 		}
 		err = addLanguage(book.PrimaryLanguage)
 		if err != nil {
-			log.Printf("Error when saving PrimaryLanguage: %v", err)
+			logger.Printf("Error when saving PrimaryLanguage: %v", err)
 			return err
 		}
 		err = addLanguage(book.SecondaryLanguage)
 		if err != nil {
-			log.Printf("Error when saving SecondaryLanguage: %v", err)
+			logger.Printf("Error when saving SecondaryLanguage: %v", err)
 			return err
 		}
 		err = addLanguage(book.OriginalLanguage)
 		if err != nil {
-			log.Printf("Error when saving OriginalLanguage: %v", err)
+			logger.Printf("Error when saving OriginalLanguage: %v", err)
 			return err
 		}
 		res, err := db.Exec(addBookQuery, book.Title, book.Subtitle, book.OriginallyPublished, publisherID, book.IsRead, book.IsReference, book.IsOwned, book.IsShipping, book.IsReading, book.ISBN, book.Loanee.First, book.Loanee.Last, book.Dewey, book.Pages, book.Width, book.Height, book.Depth, book.Weight, book.PrimaryLanguage, book.SecondaryLanguage, book.OriginalLanguage, book.Series, book.Volume, book.Format, book.Edition, book.EditionPublished)
 		if err != nil {
-			log.Printf("Error when saving book: %v", err)
+			logger.Printf("Error when saving book: %v", err)
 			return err
 		}
 		id, err := res.LastInsertId()
 		bookid := strconv.FormatInt(id, 10)
 		imageType := filepath.Ext(book.ImageURL)
-		if (book.ImageURL != "") {
+		if book.ImageURL != "" {
 			err = downloadImage(book.ImageURL, "../web/res/bookimages/"+bookid+imageType)
 		}
 		if err != nil {
-			log.Printf("Error while saving image: %v", err)
+			logger.Printf("Error while saving image: %v", err)
 			return err
 		}
-		imageQuery := "UPDATE books SET ImageURL='res/bookimages/"+bookid+imageType+"' WHERE bookid=?"
+		imageQuery := "UPDATE books SET ImageURL='res/bookimages/" + bookid + imageType + "' WHERE bookid=?"
 		_, err = db.Exec(imageQuery, bookid)
 		if err != nil {
-			log.Printf("Error when saving image: %v", err)
+			logger.Printf("Error when saving image: %v", err)
 			return err
 		}
 		for _, contributor := range book.Contributors {
 			err = addContributor(bookid, contributor)
 			if err != nil {
-				log.Printf("Error when saving authors: %v", err)
+				logger.Printf("Error when saving authors: %v", err)
 				return err
 			}
 		}
@@ -256,18 +255,19 @@ func removeAllWrittenBy(bookid string) error {
 	query := "DELETE FROM written_by WHERE BookId=?"
 	_, err := db.Exec(query, bookid)
 	if err != nil {
-		log.Printf("Error when deleting written_by: %v", err)
+		logger.Printf("Error when deleting written_by: %v", err)
 		return err
 	}
 	return nil
 }
 
+//DeleteBook deletes a book
 func DeleteBook(bookid string) error {
 	removeAllWrittenBy(bookid)
 	query := "DELETE FROM books WHERE BookId=?"
 	_, err := db.Exec(query, bookid)
 	if err != nil {
-		log.Printf("Error when deleting book: %v", err)
+		logger.Printf("Error when deleting book: %v", err)
 		return err
 	}
 	return nil
@@ -398,9 +398,9 @@ func downloadImage(url, fileLocation string) error {
 //todo include authors in filter
 func GetBooks(sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey string) ([]Book, int64, error) {
 	var order string
-	if sortMethod=="title" {
+	if sortMethod == "title" {
 		order = "Title2, minname"
-	} else if sortMethod=="series" {
+	} else if sortMethod == "series" {
 		order = "if(Series2='' or Series2 is null,1,0), Series2, Volume, minname, Title2"
 	} else {
 		order = "Dewey, minname, Series2, Volume, Title2"
@@ -409,96 +409,96 @@ func GetBooks(sortMethod, isread, isreference, isowned, isloaned, isreading, iss
 	serieschange := "CASE WHEN Series LIKE 'The %%' THEN TRIM(SUBSTR(Series from 4)) ELSE CASE WHEN Series LIKE 'An %%' THEN TRIM(SUBSTR(Series from 3)) ELSE CASE WHEN Series LIKE 'A %%' THEN TRIM(SUBSTR(Series from 2)) ELSE Series END END END AS Series2"
 	authors := "(SELECT  PersonID, AuthorRoles.BookID, concat(COALESCE(lastname,''),COALESCE(firstname,''),COALESCE(middlenames,'')) as name FROM persons JOIN (SELECT written_by.BookID, AuthorID FROM written_by WHERE Role='Author') AS AuthorRoles ON AuthorRoles.AuthorID = persons.PersonID ORDER BY name ) AS Authors"
 	read := ""
-	if isread=="yes" {
-		read="isread=1"
-	} else if isread=="no" {
-		read="isread=0"
+	if isread == "yes" {
+		read = "isread=1"
+	} else if isread == "no" {
+		read = "isread=0"
 	}
 	reference := ""
-	if isreference=="yes" {
-		reference="isreference=1"
-	} else if isreference=="no" {
-		reference="isreference=0"
+	if isreference == "yes" {
+		reference = "isreference=1"
+	} else if isreference == "no" {
+		reference = "isreference=0"
 	}
 	owned := ""
-	if isowned=="yes" {
-		owned="isowned=1"
-	} else if isowned=="no" {
-		owned="isowned=0"
+	if isowned == "yes" {
+		owned = "isowned=1"
+	} else if isowned == "no" {
+		owned = "isowned=0"
 	}
 	loaned := ""
-	if isloaned=="yes" {
-		isloaned="LoaneeFirst IS NOT NULL OR LoaneeLast IS NOT NULL"
-	} else if isread=="no" {
-		isloaned="LoaneeFirst IS NULL AND LoaneeLast IS NULL"
+	if isloaned == "yes" {
+		isloaned = "LoaneeFirst IS NOT NULL OR LoaneeLast IS NOT NULL"
+	} else if isread == "no" {
+		isloaned = "LoaneeFirst IS NULL AND LoaneeLast IS NULL"
 	}
 	reading := ""
-	if isreading=="yes" {
-		reading="isreading=1"
-	} else if isreading=="no" {
-		reading="isreading=0"
+	if isreading == "yes" {
+		reading = "isreading=1"
+	} else if isreading == "no" {
+		reading = "isreading=0"
 	}
 	shipping := ""
-	if isshipping=="yes" {
-		shipping="isshipping=1"
-	} else if isshipping=="no" {
-		shipping="isshipping=0"
+	if isshipping == "yes" {
+		shipping = "isshipping=1"
+	} else if isshipping == "no" {
+		shipping = "isshipping=0"
 	}
-	startDewey := "Dewey >= '"+formatDewey(fromDewey)+"'"
-	endDewey := "Dewey <= '"+formatDewey(toDewey)+"'"
+	startDewey := "Dewey >= '" + formatDewey(fromDewey) + "'"
+	endDewey := "Dewey <= '" + formatDewey(toDewey) + "'"
 	filter := "WHERE "
 	if read != "" {
-		filter = filter+read
+		filter = filter + read
 	}
 	if reference != "" {
 		if filter != "WHERE " {
-			filter = filter+" AND "
+			filter = filter + " AND "
 		}
-		filter = filter+reference
+		filter = filter + reference
 	}
 	if owned != "" {
 		if filter != "WHERE " {
-			filter = filter+" AND "
+			filter = filter + " AND "
 		}
-		filter = filter+owned
+		filter = filter + owned
 	}
 	if loaned != "" {
 		if filter != "WHERE " {
-			filter = filter+" AND "
+			filter = filter + " AND "
 		}
-		filter = filter+loaned
+		filter = filter + loaned
 	}
 	if reading != "" {
 		if filter != "WHERE " {
-			filter = filter+" AND "
+			filter = filter + " AND "
 		}
-		filter = filter+reading
+		filter = filter + reading
 	}
 	if shipping != "" {
 		if filter != "WHERE " {
-			filter = filter+" AND "
+			filter = filter + " AND "
 		}
-		filter = filter+shipping
+		filter = filter + shipping
 	}
 
 	if startDewey != "" {
 		if filter != "WHERE " {
-			filter = filter+" AND "
+			filter = filter + " AND "
 		}
-		filter = filter+startDewey
+		filter = filter + startDewey
 	}
 	if endDewey != "" {
 		if filter != "WHERE " {
-			filter = filter+" AND "
+			filter = filter + " AND "
 		}
-		filter = filter+endDewey
+		filter = filter + endDewey
 	}
-	filterText := formFilterText(text);
+	filterText := formFilterText(text)
 	if filterText != "" {
 		if filter != "WHERE " {
-			filter = filter+" AND "
+			filter = filter + " AND "
 		}
-		filter = filter+filterText
+		filter = filter + filterText
 	}
 	if filter == "WHERE " || filter == "WHERE" {
 		filter = ""
@@ -511,11 +511,11 @@ func GetBooks(sortMethod, isread, isreference, isowned, isloaned, isreading, iss
 	if err != nil {
 		return nil, 0, err
 	}
-	query := "SELECT bookid, title, subtitle, OriginallyPublished, PublisherID, isread, isreference, IsOwned, ISBN, LoaneeFirst, LoaneeLast, dewey, pages, width, height, depth, weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, series, volume, format, Edition, ImageURL, IsReading, isshipping, SpineColor, CheapestNew, CheapestUsed, EditionPublished from (select books.*, "+titlechange+", "+serieschange+", min(name) as minname FROM books LEFT JOIN "+authors+" ON books.BookID = Authors.BookID "+filter+" GROUP BY books.BookID) i ORDER BY "+order
+	query := "SELECT bookid, title, subtitle, OriginallyPublished, PublisherID, isread, isreference, IsOwned, ISBN, LoaneeFirst, LoaneeLast, dewey, pages, width, height, depth, weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, series, volume, format, Edition, ImageURL, IsReading, isshipping, SpineColor, CheapestNew, CheapestUsed, EditionPublished from (select books.*, " + titlechange + ", " + serieschange + ", min(name) as minname FROM books LEFT JOIN " + authors + " ON books.BookID = Authors.BookID " + filter + " GROUP BY books.BookID) i ORDER BY " + order
 	if numberToGet != "-1" {
-		query += " LIMIT "+numberToGet+" OFFSET "+strconv.FormatInt(((pag-1)*ntg), 10)
+		query += " LIMIT " + numberToGet + " OFFSET " + strconv.FormatInt(((pag-1)*ntg), 10)
 	}
-	pageQuery := "SELECT count(bookid) from (select books.bookid, "+titlechange+", "+serieschange+", min(name) as minname FROM books LEFT JOIN "+authors+" ON books.BookID = Authors.BookID "+filter+" GROUP BY books.BookID) i"
+	pageQuery := "SELECT count(bookid) from (select books.bookid, " + titlechange + ", " + serieschange + ", min(name) as minname FROM books LEFT JOIN " + authors + " ON books.BookID = Authors.BookID " + filter + " GROUP BY books.BookID) i"
 
 	b := Book{}
 	var books = make([]Book, 0)
@@ -547,31 +547,31 @@ func GetBooks(sortMethod, isread, isreference, isowned, isloaned, isreading, iss
 
 	rows, err := db.Query(query)
 	if err != nil {
-		log.Printf("Error querying books: %v", err)
+		logger.Printf("Error querying books: %v", err)
 		return nil, 0, err
 	}
 	for rows.Next() {
 		if err := rows.Scan(&b.ID, &Title, &Subtitle, &OriginallyPublished, &PublisherID, &IsRead, &IsReference, &IsOwned, &ISBN, &LoaneeFirst, &LoaneeLast, &Dewey, &b.Pages, &b.Width, &b.Height, &b.Depth, &b.Weight, &PrimaryLanguage, &SecondaryLanguage, &OriginalLanguage, &Series, &b.Volume, &Format, &b.Edition, &ImageURL, &IsReading, &IsShipping, &SpineColor, &b.CheapestNew, &b.CheapestUsed, &EditionPublished); err != nil {
-			log.Printf("Error scanning books: %v", err)
+			logger.Printf("Error scanning books: %v", err)
 			return nil, 0, err
 		}
 		if PublisherID.Valid {
 			p, err = GetPublisher(PublisherID.String)
 			if err != nil {
-				log.Printf("Error getting publisher: %v", err)
+				logger.Printf("Error getting publisher: %v", err)
 				return nil, 0, err
 			}
 		}
 		b.Publisher = p
 		c, err = GetContributors(b.ID)
 		if err != nil {
-			log.Printf("Error getting contributors: %v", err)
+			logger.Printf("Error getting contributors: %v", err)
 			return nil, 0, err
 		}
 		b.Contributors = c
 		b.Loanee = Name{
 			First: "",
-			Last: "",
+			Last:  "",
 		}
 		if LoaneeFirst.Valid {
 			b.Loanee.First = LoaneeFirst.String
@@ -579,11 +579,11 @@ func GetBooks(sortMethod, isread, isreference, isowned, isloaned, isreading, iss
 		if LoaneeLast.Valid {
 			b.Loanee.Last = LoaneeLast.String
 		}
-		b.IsOwned = IsOwned==1
-		b.IsReference = IsReference==1
-		b.IsReading = IsReading==1
-		b.IsRead = IsRead==1
-		b.IsShipping = IsShipping==1
+		b.IsOwned = IsOwned == 1
+		b.IsReference = IsReference == 1
+		b.IsReading = IsReading == 1
+		b.IsRead = IsRead == 1
+		b.IsShipping = IsShipping == 1
 		b.Title = ""
 		if Title.Valid {
 			b.Title = Title.String
@@ -641,7 +641,7 @@ func GetBooks(sortMethod, isread, isreference, isowned, isloaned, isreading, iss
 	}
 	err = rows.Err()
 	if err != nil {
-		log.Printf("Error in rows: %v", err)
+		logger.Printf("Error in rows: %v", err)
 		return nil, 0, err
 	}
 
@@ -658,14 +658,14 @@ func formatDewey(dewey string) string {
 	retval := ""
 	i, err := strconv.ParseFloat(dewey, 64)
 	if err != nil {
-		if (dewey=="FIC") {
+		if dewey == "FIC" {
 			retval = dewey
 		}
 	} else {
-		if (i < 10) {
-			dewey = "00"+dewey
+		if i < 10 {
+			dewey = "00" + dewey
 		} else if i < 100 {
-			dewey = "0"+dewey
+			dewey = "0" + dewey
 		}
 		retval = dewey
 	}
@@ -673,11 +673,11 @@ func formatDewey(dewey string) string {
 }
 
 func formFilterText(text string) string {
-	s := "";
+	s := ""
 	filters := strings.Split(text, " ")
 	for _, filter := range filters {
-		if (filter != "") {
-			s = s+"(Title LIKE '%"+filter+"%' OR Subtitle LIKE '%"+filter+"%' OR Series LIKE '%"+filter+"%') AND "
+		if filter != "" {
+			s = s + "(Title LIKE '%" + filter + "%' OR Subtitle LIKE '%" + filter + "%' OR Series LIKE '%" + filter + "%') AND "
 		}
 	}
 	if strings.HasSuffix(s, " AND ") {
@@ -698,12 +698,12 @@ func GetContributors(id string) ([]Contributor, error) {
 
 	rows, err := db.Query(getContributorsQuery, id)
 	if err != nil {
-		log.Printf("Error querying contributors: %v", err)
+		logger.Printf("Error querying contributors: %v", err)
 		return nil, err
-	}	
+	}
 	for rows.Next() {
 		if err := rows.Scan(&c.ID, &Role, &First, &Middles, &Last); err != nil {
-			log.Printf("Error scanning contributors: %v", err)
+			logger.Printf("Error scanning contributors: %v", err)
 			return nil, err
 		}
 		c.Role = ""
@@ -759,7 +759,7 @@ func GetPublisher(id string) (Publisher, error) {
 		p.ParentCompany = ParentCompany.String
 	}
 	if err != nil {
-		log.Printf("Error scanning publisher for id %v: %v", id, err)
+		logger.Printf("Error scanning publisher for id %v: %v", id, err)
 		return p, err
 	}
 
@@ -772,12 +772,12 @@ func GetPublishers() ([]string, error) {
 	var r = make([]string, 0)
 	rows, err := db.Query(getPublishersQuery)
 	if err != nil {
-		log.Printf("Error querying publishers: %v", err)
+		logger.Printf("Error querying publishers: %v", err)
 		return nil, err
-	}	
+	}
 	for rows.Next() {
 		if err := rows.Scan(&s); err != nil {
-			log.Printf("Error scanning publishers: %v", err)
+			logger.Printf("Error scanning publishers: %v", err)
 			return nil, err
 		}
 		r = append(r, s)
@@ -791,12 +791,12 @@ func GetCities() ([]string, error) {
 	var r = make([]string, 0)
 	rows, err := db.Query(getCitiesQuery)
 	if err != nil {
-		log.Printf("Error querying cities: %v", err)
+		logger.Printf("Error querying cities: %v", err)
 		return nil, err
-	}	
+	}
 	for rows.Next() {
 		if err := rows.Scan(&s); err != nil {
-			log.Printf("Error scanning cities: %v", err)
+			logger.Printf("Error scanning cities: %v", err)
 			return nil, err
 		}
 		r = append(r, s)
@@ -810,12 +810,12 @@ func GetStates() ([]string, error) {
 	var r = make([]string, 0)
 	rows, err := db.Query(getStatesQuery)
 	if err != nil {
-		log.Printf("Error querying states: %v", err)
+		logger.Printf("Error querying states: %v", err)
 		return nil, err
-	}	
+	}
 	for rows.Next() {
 		if err := rows.Scan(&s); err != nil {
-			log.Printf("Error scanning states: %v", err)
+			logger.Printf("Error scanning states: %v", err)
 			return nil, err
 		}
 		r = append(r, s)
@@ -829,12 +829,12 @@ func GetCountries() ([]string, error) {
 	var r = make([]string, 0)
 	rows, err := db.Query(getCountriesQuery)
 	if err != nil {
-		log.Printf("Error querying countries: %v", err)
+		logger.Printf("Error querying countries: %v", err)
 		return nil, err
-	}	
+	}
 	for rows.Next() {
 		if err := rows.Scan(&s); err != nil {
-			log.Printf("Error scanning countries: %v", err)
+			logger.Printf("Error scanning countries: %v", err)
 			return nil, err
 		}
 		r = append(r, s)
@@ -848,12 +848,12 @@ func GetSeries() ([]string, error) {
 	var r = make([]string, 0)
 	rows, err := db.Query(getSeriesQuery)
 	if err != nil {
-		log.Printf("Error querying series: %v", err)
+		logger.Printf("Error querying series: %v", err)
 		return nil, err
-	}	
+	}
 	for rows.Next() {
 		if err := rows.Scan(&s); err != nil {
-			log.Printf("Error scanning series: %v", err)
+			logger.Printf("Error scanning series: %v", err)
 			return nil, err
 		}
 		r = append(r, s)
@@ -867,12 +867,12 @@ func GetFormats() ([]string, error) {
 	var r = make([]string, 0)
 	rows, err := db.Query(getFormatsQuery)
 	if err != nil {
-		log.Printf("Error querying formats: %v", err)
+		logger.Printf("Error querying formats: %v", err)
 		return nil, err
-	}	
+	}
 	for rows.Next() {
 		if err := rows.Scan(&s); err != nil {
-			log.Printf("Error scanning formats: %v", err)
+			logger.Printf("Error scanning formats: %v", err)
 			return nil, err
 		}
 		r = append(r, s)
@@ -886,12 +886,12 @@ func GetLanguages() ([]string, error) {
 	var r = make([]string, 0)
 	rows, err := db.Query(getLanguagesQuery)
 	if err != nil {
-		log.Printf("Error querying languages: %v", err)
+		logger.Printf("Error querying languages: %v", err)
 		return nil, err
-	}	
+	}
 	for rows.Next() {
 		if err := rows.Scan(&s); err != nil {
-			log.Printf("Error scanning languages: %v", err)
+			logger.Printf("Error scanning languages: %v", err)
 			return nil, err
 		}
 		r = append(r, s)
@@ -905,12 +905,12 @@ func GetRoles() ([]string, error) {
 	var r = make([]string, 0)
 	rows, err := db.Query(getRolesQuery)
 	if err != nil {
-		log.Printf("Error querying roles: %v", err)
+		logger.Printf("Error querying roles: %v", err)
 		return nil, err
-	}	
+	}
 	for rows.Next() {
 		if err := rows.Scan(&s); err != nil {
-			log.Printf("Error scanning roles: %v", err)
+			logger.Printf("Error scanning roles: %v", err)
 			return nil, err
 		}
 		r = append(r, s)
@@ -924,12 +924,12 @@ func GetDeweys() ([]string, error) {
 	var r = make([]string, 0)
 	rows, err := db.Query(getDeweysQuery)
 	if err != nil {
-		log.Printf("Error querying deweys: %v", err)
+		logger.Printf("Error querying deweys: %v", err)
 		return nil, err
-	}	
+	}
 	for rows.Next() {
 		if err := rows.Scan(&s); err != nil {
-			log.Printf("Error scanning deweys: %v", err)
+			logger.Printf("Error scanning deweys: %v", err)
 			return nil, err
 		}
 		r = append(r, s)
@@ -942,26 +942,26 @@ func GetBooksForExport() ([][]string, error) {
 	query := "select * from books join publishers on books.PublisherID=publishers.PublisherID"
 	rows, err := db.Query(query)
 	if err != nil {
-		log.Printf("Error exporting books: %v", err)
+		logger.Printf("Error exporting books: %v", err)
 		return nil, err
 	}
 	cols, err := rows.Columns()
 	if err != nil {
-		log.Printf("Error exporting books: %v", err)
+		logger.Printf("Error exporting books: %v", err)
 		return nil, err
 	}
 	rawResult := make([][]byte, len(cols))
 	result := make([]string, len(cols))
-	retval := make([][]string, 0)
+	var retval [][]string
 	retval = append(retval, cols)
 	dest := make([]interface{}, len(cols))
-	for i, _ := range rawResult {
+	for i := range rawResult {
 		dest[i] = &rawResult[i]
 	}
 	for rows.Next() {
 		err = rows.Scan(dest...)
 		if err != nil {
-			log.Printf("Error exporting books: %v", err)
+			logger.Printf("Error exporting books: %v", err)
 			return nil, err
 		}
 		for i, raw := range rawResult {
@@ -983,26 +983,26 @@ func GetAuthorsForExport() ([][]string, error) {
 	query := "SELECT BookID, FirstName, MiddleNames, LastName, Role from written_by JOIN persons on written_by.AuthorID=persons.PersonID"
 	rows, err := db.Query(query)
 	if err != nil {
-		log.Printf("Error exporting books: %v", err)
+		logger.Printf("Error exporting books: %v", err)
 		return nil, err
 	}
 	cols, err := rows.Columns()
 	if err != nil {
-		log.Printf("Error exporting books: %v", err)
+		logger.Printf("Error exporting books: %v", err)
 		return nil, err
 	}
 	rawResult := make([][]byte, len(cols))
 	result := make([]string, len(cols))
-	retval := make([][]string, 0)
+	var retval [][]string
 	retval = append(retval, cols)
 	dest := make([]interface{}, len(cols))
-	for i, _ := range rawResult {
+	for i := range rawResult {
 		dest[i] = &rawResult[i]
 	}
 	for rows.Next() {
 		err = rows.Scan(dest...)
 		if err != nil {
-			log.Printf("Error exporting books: %v", err)
+			logger.Printf("Error exporting books: %v", err)
 			return nil, err
 		}
 		for i, raw := range rawResult {
@@ -1022,7 +1022,7 @@ func GetAuthorsForExport() ([][]string, error) {
 //ImportLibrary imports records from a csv file
 //todo finish function
 func ImportLibrary(records [][]string) error {
-	log.Printf("Importing...")
+	logger.Printf("Importing...")
 	return nil
 }
 
@@ -1048,40 +1048,40 @@ func GetStats(t string) (StatChart, error) {
 				(SELECT count(*) as toread from books WHERE isread=0 and isreference=0 and isreading=0 and isowned=1) AS trd,
 				(SELECT count(*) as reference from books WHERE isreference=1 and isowned=1) AS ref,
 				(SELECT count(*) as loaned from books WHERE loaneelast is not null and loaneelast !='' and isowned=1) AS loa,
-				(SELECT count(*) as shipping from books WHERE isshipping=1 and isowned=1) AS shi)`;
+				(SELECT count(*) as shipping from books WHERE isshipping=1 and isowned=1) AS shi)`
 		err := db.QueryRow(query).Scan(&total, &read, &reading, &toread, &reference, &loaned, &shipping)
 		if err != nil {
 			return chart, err
 		}
-		chart.Chart.Caption = "Books By Count (Total: "+strconv.FormatInt(total, 10)+")"
+		chart.Chart.Caption = "Books By Count (Total: " + strconv.FormatInt(total, 10) + ")"
 		data = append(data, StatData{
-			Label: "Read",
-			Value: strconv.FormatInt(read, 10),
+			Label:    "Read",
+			Value:    strconv.FormatInt(read, 10),
 			ToolText: fmt.Sprintf("%.2f%%", float64(read)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label: "Reading",
-			Value: strconv.FormatInt(reading, 10),
+			Label:    "Reading",
+			Value:    strconv.FormatInt(reading, 10),
 			ToolText: fmt.Sprintf("%.2f%%", float64(reading)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label: "Reference",
-			Value: strconv.FormatInt(reference, 10),
+			Label:    "Reference",
+			Value:    strconv.FormatInt(reference, 10),
 			ToolText: fmt.Sprintf("%.2f%%", float64(reference)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label: "To Read",
-			Value: strconv.FormatInt(toread, 10),
+			Label:    "To Read",
+			Value:    strconv.FormatInt(toread, 10),
 			ToolText: fmt.Sprintf("%.2f%%", float64(toread)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label: "Shipping",
-			Value: strconv.FormatInt(shipping, 10),
+			Label:    "Shipping",
+			Value:    strconv.FormatInt(shipping, 10),
 			ToolText: fmt.Sprintf("%.2f%%", float64(shipping)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label: "Loaned",
-			Value: strconv.FormatInt(loaned, 10),
+			Label:    "Loaned",
+			Value:    strconv.FormatInt(loaned, 10),
 			ToolText: fmt.Sprintf("%.2f%%", float64(loaned)/float64(total)*100),
 		})
 	case "generalbysize":
@@ -1108,33 +1108,33 @@ func GetStats(t string) (StatChart, error) {
 		}
 		chart.Chart.Caption = "Books By Size"
 		data = append(data, StatData{
-			Label: "Read",
-			Value: fmt.Sprintf("%.2f", float64(read)),
+			Label:    "Read",
+			Value:    fmt.Sprintf("%.2f", float64(read)),
 			ToolText: fmt.Sprintf("%.2f%%", float64(read)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label: "Reading",
-			Value: fmt.Sprintf("%.2f", float64(reading)),
+			Label:    "Reading",
+			Value:    fmt.Sprintf("%.2f", float64(reading)),
 			ToolText: fmt.Sprintf("%.2f%%", float64(reading)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label: "Reference",
-			Value: fmt.Sprintf("%.2f", float64(reference)),
+			Label:    "Reference",
+			Value:    fmt.Sprintf("%.2f", float64(reference)),
 			ToolText: fmt.Sprintf("%.2f%%", float64(reference)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label: "To Read",
-			Value: fmt.Sprintf("%.2f", float64(toread)),
+			Label:    "To Read",
+			Value:    fmt.Sprintf("%.2f", float64(toread)),
 			ToolText: fmt.Sprintf("%.2f%%", float64(toread)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label: "Shipping",
-			Value: fmt.Sprintf("%.2f", float64(shipping)),
+			Label:    "Shipping",
+			Value:    fmt.Sprintf("%.2f", float64(shipping)),
 			ToolText: fmt.Sprintf("%.2f%%", float64(shipping)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label: "Loaned",
-			Value: fmt.Sprintf("%.2f", float64(loaned)),
+			Label:    "Loaned",
+			Value:    fmt.Sprintf("%.2f", float64(loaned)),
 			ToolText: fmt.Sprintf("%.2f%%", float64(loaned)/float64(total)*100),
 		})
 	case "generalbypages":
@@ -1161,33 +1161,33 @@ func GetStats(t string) (StatChart, error) {
 		}
 		chart.Chart.Caption = "Books By Pages"
 		data = append(data, StatData{
-			Label: "Read",
-			Value: fmt.Sprintf("%.2f", float64(read)),
+			Label:    "Read",
+			Value:    fmt.Sprintf("%.2f", float64(read)),
 			ToolText: fmt.Sprintf("%.2f%%", float64(read)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label: "Reading",
-			Value: fmt.Sprintf("%.2f", float64(reading)),
+			Label:    "Reading",
+			Value:    fmt.Sprintf("%.2f", float64(reading)),
 			ToolText: fmt.Sprintf("%.2f%%", float64(reading)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label: "Reference",
-			Value: fmt.Sprintf("%.2f", float64(reference)),
+			Label:    "Reference",
+			Value:    fmt.Sprintf("%.2f", float64(reference)),
 			ToolText: fmt.Sprintf("%.2f%%", float64(reference)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label: "To Read",
-			Value: fmt.Sprintf("%.2f", float64(toread)),
+			Label:    "To Read",
+			Value:    fmt.Sprintf("%.2f", float64(toread)),
 			ToolText: fmt.Sprintf("%.2f%%", float64(toread)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label: "Shipping",
-			Value: fmt.Sprintf("%.2f", float64(shipping)),
+			Label:    "Shipping",
+			Value:    fmt.Sprintf("%.2f", float64(shipping)),
 			ToolText: fmt.Sprintf("%.2f%%", float64(shipping)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label: "Loaned",
-			Value: fmt.Sprintf("%.2f", float64(loaned)),
+			Label:    "Loaned",
+			Value:    fmt.Sprintf("%.2f", float64(loaned)),
 			ToolText: fmt.Sprintf("%.2f%%", float64(loaned)/float64(total)*100),
 		})
 	case "publishersbooksperparent":
@@ -1220,8 +1220,8 @@ func GetStats(t string) (StatChart, error) {
 			}
 			if count > 0 && s != "" {
 				data = append(data, StatData{
-					Label: s,
-					Value: fmt.Sprintf("%d", count),
+					Label:    s,
+					Value:    fmt.Sprintf("%d", count),
 					ToolText: fmt.Sprintf("%.2f%%", float64(count)/float64(total)*100),
 				})
 			}
@@ -1248,8 +1248,8 @@ func GetStats(t string) (StatChart, error) {
 			}
 			if count > 0 && language != "" {
 				data = append(data, StatData{
-					Label: language,
-					Value: fmt.Sprintf("%d", count),
+					Label:    language,
+					Value:    fmt.Sprintf("%d", count),
 					ToolText: fmt.Sprintf("%.2f%%", float64(count)/float64(total)*100),
 				})
 			}
@@ -1276,8 +1276,8 @@ func GetStats(t string) (StatChart, error) {
 			}
 			if count > 0 && language != "" {
 				data = append(data, StatData{
-					Label: language,
-					Value: fmt.Sprintf("%d", count),
+					Label:    language,
+					Value:    fmt.Sprintf("%d", count),
 					ToolText: fmt.Sprintf("%.2f%%", float64(count)/float64(total)*100),
 				})
 			}
@@ -1304,8 +1304,8 @@ func GetStats(t string) (StatChart, error) {
 			}
 			if count > 0 && language != "" {
 				data = append(data, StatData{
-					Label: language,
-					Value: fmt.Sprintf("%d", count),
+					Label:    language,
+					Value:    fmt.Sprintf("%d", count),
 					ToolText: fmt.Sprintf("%.2f%%", float64(count)/float64(total)*100),
 				})
 			}
@@ -1343,58 +1343,58 @@ func GetStats(t string) (StatChart, error) {
 		}
 		chart.Chart.Caption = "Books By Category"
 		data = append(data, StatData{
-			Label: "Information Sciences",
-			Value: fmt.Sprintf("%d", d0),
+			Label:    "Information Sciences",
+			Value:    fmt.Sprintf("%d", d0),
 			ToolText: fmt.Sprintf("%.2f%%", float64(d0)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label: "Philosophy and Psychology",
-			Value: fmt.Sprintf("%d", d1),
+			Label:    "Philosophy and Psychology",
+			Value:    fmt.Sprintf("%d", d1),
 			ToolText: fmt.Sprintf("%.2f%%", float64(d1)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label: "Religion",
-			Value: fmt.Sprintf("%d", d2),
+			Label:    "Religion",
+			Value:    fmt.Sprintf("%d", d2),
 			ToolText: fmt.Sprintf("%.2f%%", float64(d2)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label: "Social Sciences",
-			Value: fmt.Sprintf("%d", d3),
+			Label:    "Social Sciences",
+			Value:    fmt.Sprintf("%d", d3),
 			ToolText: fmt.Sprintf("%.2f%%", float64(d3)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label: "Language",
-			Value: fmt.Sprintf("%d", d4),
+			Label:    "Language",
+			Value:    fmt.Sprintf("%d", d4),
 			ToolText: fmt.Sprintf("%.2f%%", float64(d4)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label: "Mathematics and Science",
-			Value: fmt.Sprintf("%d", d5),
+			Label:    "Mathematics and Science",
+			Value:    fmt.Sprintf("%d", d5),
 			ToolText: fmt.Sprintf("%.2f%%", float64(d5)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label: "Technology",
-			Value: fmt.Sprintf("%d", d6),
+			Label:    "Technology",
+			Value:    fmt.Sprintf("%d", d6),
 			ToolText: fmt.Sprintf("%.2f%%", float64(d6)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label: "Arts",
-			Value: fmt.Sprintf("%d", d7),
+			Label:    "Arts",
+			Value:    fmt.Sprintf("%d", d7),
 			ToolText: fmt.Sprintf("%.2f%%", float64(d7)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label: "Literature",
-			Value: fmt.Sprintf("%d", d8),
+			Label:    "Literature",
+			Value:    fmt.Sprintf("%d", d8),
 			ToolText: fmt.Sprintf("%.2f%%", float64(d8)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label: "Geography and History",
-			Value: fmt.Sprintf("%d", d9),
+			Label:    "Geography and History",
+			Value:    fmt.Sprintf("%d", d9),
 			ToolText: fmt.Sprintf("%.2f%%", float64(d9)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label: "Fiction",
-			Value: fmt.Sprintf("%d", df),
+			Label:    "Fiction",
+			Value:    fmt.Sprintf("%d", df),
 			ToolText: fmt.Sprintf("%.2f%%", float64(df)/float64(total)*100),
 		})
 	case "formats":
@@ -1419,8 +1419,8 @@ func GetStats(t string) (StatChart, error) {
 			}
 			if count > 0 && format != "" {
 				data = append(data, StatData{
-					Label: format,
-					Value: fmt.Sprintf("%d", count),
+					Label:    format,
+					Value:    fmt.Sprintf("%d", count),
 					ToolText: fmt.Sprintf("%.2f%%", float64(count)/float64(total)*100),
 				})
 			}
@@ -1454,19 +1454,19 @@ func GetStats(t string) (StatChart, error) {
 		sort.Ints(dates)
 		decadeCounts := make(map[string]int)
 		for _, date := range dates {
-			decade := math.Floor(float64(date)/10)*10
+			decade := math.Floor(float64(date)/10) * 10
 			if decade > 1000 {
 				key := fmt.Sprintf("%.0f", decade) + "-" + fmt.Sprintf("%.0f", decade+10)
 				if _, ok := decadeCounts[key]; ok {
-					decadeCounts[key] += 1
+					decadeCounts[key]++
 				} else {
 					decadeCounts[key] = 1
 				}
 			}
 		}
 		decades := []string{}
-		for d, _ := range decadeCounts {
-			decades = append(decades,d)
+		for d := range decadeCounts {
+			decades = append(decades, d)
 		}
 		sort.Slice(decades, func(i, j int) bool {
 			d1, err := strconv.ParseInt(decades[i][0:4], 10, 64)
@@ -1477,12 +1477,12 @@ func GetStats(t string) (StatChart, error) {
 			if err != nil {
 				return false
 			}
-			return d1<d2
+			return d1 < d2
 		})
 		for _, decade := range decades {
 			data = append(data, StatData{
-				Label: decade,
-				Value: fmt.Sprintf("%d", decadeCounts[decade]),
+				Label:    decade,
+				Value:    fmt.Sprintf("%d", decadeCounts[decade]),
 				ToolText: fmt.Sprintf("%.2f%%", float64(decadeCounts[decade])/float64(total)*100),
 			})
 		}
@@ -1512,19 +1512,19 @@ func GetStats(t string) (StatChart, error) {
 		sort.Ints(dates)
 		decadeCounts := make(map[string]int)
 		for _, date := range dates {
-			decade := math.Floor(float64(date)/10)*10
+			decade := math.Floor(float64(date)/10) * 10
 			if decade > 1000 {
 				key := fmt.Sprintf("%.0f", decade) + "-" + fmt.Sprintf("%.0f", decade+10)
 				if _, ok := decadeCounts[key]; ok {
-					decadeCounts[key] += 1
+					decadeCounts[key]++
 				} else {
 					decadeCounts[key] = 1
 				}
 			}
 		}
 		decades := []string{}
-		for d, _ := range decadeCounts {
-			decades = append(decades,d)
+		for d := range decadeCounts {
+			decades = append(decades, d)
 		}
 		sort.Slice(decades, func(i, j int) bool {
 			d1, err := strconv.ParseInt(decades[i][0:4], 10, 64)
@@ -1535,12 +1535,12 @@ func GetStats(t string) (StatChart, error) {
 			if err != nil {
 				return false
 			}
-			return d1<d2
+			return d1 < d2
 		})
 		for _, decade := range decades {
 			data = append(data, StatData{
-				Label: decade,
-				Value: fmt.Sprintf("%d", decadeCounts[decade]),
+				Label:    decade,
+				Value:    fmt.Sprintf("%d", decadeCounts[decade]),
 				ToolText: fmt.Sprintf("%.2f%%", float64(decadeCounts[decade])/float64(total)*100),
 			})
 		}
@@ -1550,6 +1550,7 @@ func GetStats(t string) (StatChart, error) {
 	return chart, nil
 }
 
+//GetDimensions gets dimensions
 func GetDimensions() (map[string]float64, error) {
 	dimensions := make(map[string]float64)
 	var totalwidth float64
@@ -1608,9 +1609,10 @@ func GetDimensions() (map[string]float64, error) {
 	return dimensions, nil
 }
 
+//GetCases gets cases
 func GetCases() ([]Bookcase, error) {
 	books, _, err := GetBooks("dewey", "both", "both", "yes", "both", "both", "both", "", "1", "-1", "0", "FIC")
-	query := "SELECT CaseId, Width, ShelfHeight, NumShelves, SpacerHeight, PaddingLeft, PaddingRight, BookMargin FROM bookcases ORDER BY CaseNumber"
+	query := "SELECT CaseId, Width, SpacerHeight, PaddingLeft, PaddingRight, BookMargin FROM bookcases ORDER BY CaseNumber"
 	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err
@@ -1621,24 +1623,32 @@ func GetCases() ([]Bookcase, error) {
 	}
 	var cases []Bookcase
 	for rows.Next() {
-		var id, width, shelfHeight, numShelves, spacerHeight, paddingLeft, paddingRight, bookMargin int64
-		err = rows.Scan(&id, &width, &shelfHeight, &numShelves, &spacerHeight, &paddingLeft, &paddingRight, &bookMargin)
+		var id, width, spacerHeight, paddingLeft, paddingRight, bookMargin int64
+		err = rows.Scan(&id, &width, &spacerHeight, &paddingLeft, &paddingRight, &bookMargin)
 		if err != nil {
 			return nil, err
 		}
 		bookcase := Bookcase{
-			ID: id,
-			Width: width,
-			SpacerHeight: spacerHeight,
-			PaddingLeft: paddingLeft,
-			PaddingRight: paddingRight,
-			BookMargin: bookMargin,
-			AverageBookWidth: dim["averagewidth"],
+			ID:                id,
+			Width:             width,
+			SpacerHeight:      spacerHeight,
+			PaddingLeft:       paddingLeft,
+			PaddingRight:      paddingRight,
+			BookMargin:        bookMargin,
+			AverageBookWidth:  dim["averagewidth"],
 			AverageBookHeight: dim["averageheight"],
 		}
-		for i:=int64(0); i<numShelves; i++ {
+		shelfquery := "SELECT id, Height FROM shelves WHERE CaseId=? ORDER BY ShelfNumber"
+		shelfrows, err := db.Query(shelfquery, id)
+		if err != nil {
+			return nil, err
+		}
+		for shelfrows.Next() {
+			var shelfid, height int64
+			shelfrows.Scan(&shelfid, &height)
 			bookcase.Shelves = append(bookcase.Shelves, Bookshelf{
-				Height: shelfHeight,
+				ID:     shelfid,
+				Height: height,
 			})
 		}
 		cases = append(cases, bookcase)
@@ -1646,7 +1656,7 @@ func GetCases() ([]Bookcase, error) {
 	index := 0
 	x := 0
 	for c, bookcase := range cases {
-		for s, _ := range bookcase.Shelves {
+		for s := range bookcase.Shelves {
 			x = int(bookcase.PaddingLeft)
 			useWidth := int(dim["averagewidth"])
 			if index < len(books) && books[index].Width != 0 {
@@ -1655,7 +1665,7 @@ func GetCases() ([]Bookcase, error) {
 			for index < len(books) && useWidth+x <= int(bookcase.Width) {
 				cases[c].Shelves[s].Books = append(cases[c].Shelves[s].Books, books[index])
 				x += useWidth
-				index += 1
+				index++
 				useWidth = int(dim["averagewidth"])
 				if index < len(books) && books[index].Width != 0 {
 					useWidth = int(books[index].Width)
