@@ -116,7 +116,6 @@ func saveBook(w http.ResponseWriter, r *http.Request) {
 	var b Book
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&b)
-	fmt.Printf("%+v", b)
 	if err != nil {
 		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
