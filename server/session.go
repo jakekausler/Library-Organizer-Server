@@ -544,7 +544,7 @@ func getHomePage(w http.ResponseWriter, r *http.Request) {
 
 func getStats(w http.ResponseWriter, r *http.Request) {
 	if !registered(r) {
-		fmt.Printf("Unauthorized")
+		logger.Printf("Unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
@@ -567,7 +567,7 @@ func getStats(w http.ResponseWriter, r *http.Request) {
 
 func getCases(w http.ResponseWriter, r *http.Request) {
 	if !registered(r) {
-		fmt.Printf("Unauthorized")
+		logger.Printf("Unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
@@ -591,7 +591,7 @@ func getCases(w http.ResponseWriter, r *http.Request) {
 
 func getDimensions(w http.ResponseWriter, r *http.Request) {
 	if !registered(r) {
-		fmt.Printf("Unauthorized")
+		logger.Printf("Unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
@@ -641,7 +641,7 @@ func deleteBook(w http.ResponseWriter, r *http.Request) {
 func getOwnedLibraries(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("library-organizer-session")
 	if err != nil {
-		fmt.Printf("%+v", err)
+		logger.Printf("%+v", err)
 		http.Redirect(w, r, "/", 301)
 	}
 	if cookie.Value == "" {
@@ -649,13 +649,13 @@ func getOwnedLibraries(w http.ResponseWriter, r *http.Request) {
 	}
 	d, err := GetOwnedLibraries(cookie.Value)
 	if err != nil {
-		fmt.Printf("%+v", err)
+		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
 	data, err := json.Marshal(d)
 	if err != nil {
-		fmt.Printf("%+v", err)
+		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}

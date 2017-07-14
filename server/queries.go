@@ -39,7 +39,7 @@ const (
 	updateSessionTime    = "UPDATE usersession SET LastSeenTime=NOW()"
 	isSessionNameTaken   = "SELECT sessionkey from usersession where sessionkey=?"
 	deleteSession        = "DELETE FROM usersession WHERE sessionkey=?"
-	getOwnedLibrariesQuery    = "SELECT id, name FROM libraries WHERE owned=(SELECT id from library_members join usersession on librarymembers.id=usersession.userid WHERE sessionkey=?)"
+	getOwnedLibrariesQuery    = "SELECT id, name FROM libraries WHERE id=(SELECT id from library_members join usersession on library_members.id=usersession.userid WHERE sessionkey=?)"
 
 	charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 )
@@ -50,7 +50,7 @@ func IsRegistered(session string) (bool, error) {
 	if err := db.QueryRow(getValidUserSession, session).Scan(&sessionkey); err == nil {
 		return true, nil
 	} else if err == sql.ErrNoRows {
-		return false, err
+		return false, nil
 	} else {
 		return false, err
 	}
@@ -516,7 +516,7 @@ func GetBooks(sortMethod, isread, isreference, isowned, isloaned, isreading, iss
 	if err != nil {
 		return nil, 0, err
 	}
-	query := "SELECT bookid, title, subtitle, OriginallyPublished, PublisherID, isread, isreference, IsOwned, ISBN, LoaneeFirst, LoaneeLast, dewey, pages, width, height, depth, weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, series, volume, format, Edition, ImageURL, IsReading, isshipping, SpineColor, CheapestNew, CheapestUsed, EditionPublished, LibraryID, libaries.Name from (select books.*, " + titlechange + ", " + serieschange + ", min(name) as minname FROM books LEFT JOIN " + authors + " ON books.BookID = Authors.BookID " + filter + " GROUP BY books.BookID) i LEFT JOIN libraries ON LibraryID=libraries.id ORDER BY " + order
+	query := "SELECT bookid, title, subtitle, OriginallyPublished, PublisherID, isread, isreference, IsOwned, ISBN, LoaneeFirst, LoaneeLast, dewey, pages, width, height, depth, weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, series, volume, format, Edition, ImageURL, IsReading, isshipping, SpineColor, CheapestNew, CheapestUsed, EditionPublished, LibraryID, libraries.Name from (select books.*, " + titlechange + ", " + serieschange + ", min(name) as minname FROM books LEFT JOIN " + authors + " ON books.BookID = Authors.BookID " + filter + " GROUP BY books.BookID) i LEFT JOIN libraries ON LibraryID=libraries.id ORDER BY " + order
 	if numberToGet != "-1" {
 		query += " LIMIT " + numberToGet + " OFFSET " + strconv.FormatInt(((pag-1)*ntg), 10)
 	}
@@ -1036,7 +1036,7 @@ func GetStats(t, libraryids string) (StatChart, error) {
 	var chart StatChart
 	var data []StatData
 	var query string
-	inlibrary := "libraryid IN (" + libraryids + ")"
+	inlibrary := "AND libraryid IN (" + libraryids + ")"
 	switch t {
 	case "generalbycounts":
 		chart.Chart.FormatNumberScale = "0"
@@ -1580,7 +1580,7 @@ func GetDimensions(libraryids string) (map[string]float64, error) {
 	var minimumpages float64
 	var maximumpages float64
 	var volume float64
-	inlibrary := "libraryid IN (" + libraryids + ")"
+	inlibrary := "AND libraryid IN (" + libraryids + ")"
 	query := `SELECT * FROM (
 				(SELECT SUM(Width) As TotalWidth, AVG(Width) As AvgWidth, MIN(Width) AS MinWidth, MAX(Width) AS MaxWidth FROM books WHERE Width>0 AND IsOwned=1 ` + inlibrary + `) AS w,
 				(SELECT SUM(Height) As TotalHeight, AVG(Height) As AvgHeight, MIN(Height) AS MinHeight, MAX(Height) AS MaxHeight FROM books WHERE Height>0 AND IsOwned=1 ` + inlibrary + `) AS h,
@@ -1683,7 +1683,7 @@ func GetCases(libraryid string) ([]Bookcase, error) {
 	return cases, nil
 }
 
-//GetOwnedLibraries gets the libaries available to a user
+//GetOwnedLibraries gets the libraries available to a user
 func GetOwnedLibraries(session string) ([]Library, error) {
 	var libraries []Library
 	rows, err := db.Query(getOwnedLibrariesQuery, session)
