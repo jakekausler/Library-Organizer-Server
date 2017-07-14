@@ -162,4 +162,10 @@ angular.module('libraryOrganizer')
 		return results;
 	}
 	$vm.getCurrentDateString();
+	// $scope.$watch('pastingurl', function(newValue, oldValue) {
+	// 	if (newValue) {
+	// 		console.log(document.getElementById('pastingHolder'));
+	// 		document.getElementById('editorImageUrl').focus();
+	// 	}
+	// });
 });
