@@ -22,6 +22,7 @@ type Bookcase struct {
 
 //Bookshelf is a shelf on a bookcase
 type Bookshelf struct {
+	ID     int64  `json:"id"`
 	Height int64  `json:"height"`
 	Books  []Book `json:"books"`
 }
