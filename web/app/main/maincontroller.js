@@ -15,8 +15,7 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts'])
 	$scope.round = function(v, d) {
 		return Math.round10(v, d)
 	}
-	$scope.showEditorDialog = function(ev, book) {
-		$vm = $scope;
+	$scope.showEditorDialog = function(ev, book, vm, viewType) {
 		$mdDialog.show({
 			controller: 'editorController',
 			templateUrl: 'web/app/main/editor/editordialog.html',
@@ -24,7 +23,7 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts'])
 			targetEvt: ev,
 			clickOutsideToClose: true,
 			fullscreen: false,
-			locals: {book: book}
+			locals: {book: book, $vm:vm, viewType:viewType}
 		})
 	};
 	$scope.displayGrid = function() {

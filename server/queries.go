@@ -235,7 +235,12 @@ func SaveBook(book Book) error {
 			log.Printf("Error while saving image: %v", err)
 			return err
 		}
-		//add image
+		imageQuery := "UPDATE books SET ImageURL='../../res/bookimages/"+bookid+imageType+"'"
+		_, err = db.Exec(imageQuery)
+		if err != nil {
+			log.Printf("Error when saving image: %v", err)
+			return err
+		}
 		for _, contributor := range book.Contributors {
 			err = addContributor(bookid, contributor)
 			if err != nil {
