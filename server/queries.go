@@ -1197,13 +1197,92 @@ func GetStats(t, libraryids string) (StatChart, error) {
 			ToolText: fmt.Sprintf("%.2f%%", float64(loaned)/float64(total)*100),
 		})
 	case "publishersbooksperparent":
-		return chart, nil
+		chart.Chart.FormatNumberScale = "0"
+		var total int64
+		totalquery := `SELECT count(*) FROM books WHERE isowned=1 ` + inlibrary
+		err := db.QueryRow(totalquery).Scan(&total)
+		if err != nil {
+			return chart, err
+		}
+		chart.Chart.Caption = "Books By Parent Company"
+		query := `SELECT COUNT(parentcompany) AS number, ParentCompany FROM publishers JOIN books ON publishers.PublisherID = books.PublisherID WHERE isowned = 1 and parentcompany != "" GROUP BY parentcompany ORDER BY number DESC`
+		rows, err := db.Query(query)
+		if err != nil {
+			return chart, err
+		}
+		for rows.Next() {
+			var count int64
+			var company string
+			err = rows.Scan(&count, &company)
+			if err != nil {
+				return chart, err
+			}
+			data = append(data, StatData{
+				Label:    company,
+				Value:    fmt.Sprintf("%.2f", float64(count)),
+				ToolText: fmt.Sprintf("%.2f%%", float64(count)/float64(total)*100),
+			})
+		}
 	case "publisherstopchildren":
-		return chart, nil
-	case "publisherslocations":
-		return chart, nil
+		chart.Chart.FormatNumberScale = "0"
+		var total int64
+		totalquery := `SELECT count(*) FROM books WHERE isowned=1 ` + inlibrary
+		err := db.QueryRow(totalquery).Scan(&total)
+		if err != nil {
+			return chart, err
+		}
+		chart.Chart.Caption = "Books By Top Publishers"
+		query := `SELECT COUNT(publisher) AS number, Publisher FROM publishers JOIN books ON publishers.PublisherID = books.PublisherID WHERE isowned = 1 and publisher != "" GROUP BY publisher ORDER BY number DESC LIMIT 30`
+		rows, err := db.Query(query)
+		if err != nil {
+			return chart, err
+		}
+		for rows.Next() {
+			var count int64
+			var company string
+			err = rows.Scan(&count, &company)
+			if err != nil {
+				return chart, err
+			}
+			data = append(data, StatData{
+				Label:    company,
+				Value:    fmt.Sprintf("%.2f", float64(count)),
+				ToolText: fmt.Sprintf("%.2f%%", float64(count)/float64(total)*100),
+			})
+		}
 	case "publisherstoplocations":
-		return chart, nil
+		chart.Chart.FormatNumberScale = "0"
+		var total int64
+		totalquery := `SELECT count(*) FROM books WHERE isowned=1 ` + inlibrary
+		err := db.QueryRow(totalquery).Scan(&total)
+		if err != nil {
+			return chart, err
+		}
+		chart.Chart.Caption = "Books By Top Locations"
+		query := `SELECT COUNT(*) AS number, city, state, country FROM publishers JOIN books ON publishers.PublisherID = books.PublisherID WHERE isowned = 1 and (city != "" or state != "" or country != "") GROUP BY city, state, country ORDER BY number DESC LIMIT 30`
+		rows, err := db.Query(query)
+		if err != nil {
+			return chart, err
+		}
+		for rows.Next() {
+			var count int64
+			var city, state, country string
+			err = rows.Scan(&count, &city, &state, &country)
+			if err != nil {
+				return chart, err
+			}
+			label := city + ", "
+			if state != "" {
+				label = label + state
+			} else {
+				label = label + country
+			}
+			data = append(data, StatData{
+				Label:    label,
+				Value:    fmt.Sprintf("%.2f", float64(count)),
+				ToolText: fmt.Sprintf("%.2f%%", float64(count)/float64(total)*100),
+			})
+		}
 	case "series":
 		chart.Chart.FormatNumberScale = "0"
 		var total int64
@@ -1432,9 +1511,59 @@ func GetStats(t, libraryids string) (StatChart, error) {
 			}
 		}
 	case "contributorstop":
-		return chart, nil
+		chart.Chart.FormatNumberScale = "0"
+		var total int64
+		totalquery := `SELECT count(*) FROM books WHERE isowned=1 ` + inlibrary
+		err := db.QueryRow(totalquery).Scan(&total)
+		if err != nil {
+			return chart, err
+		}
+		chart.Chart.Caption = "Books By Top Contributors"
+		query := `SELECT COUNT(authorid) AS BooksWritten, FirstName, MiddleNames, LastName, Role FROM persons JOIN written_by ON written_by.authorid = persons.personid JOIN books ON books.BookID = written_by.BookID WHERE isowned = 1 and  lastname != "" `+inlibrary+` GROUP BY AUTHORID ORDER BY BooksWritten DESC LIMIT 30`
+		rows, err := db.Query(query)
+		if err != nil {
+			return chart, err
+		}
+		for rows.Next() {
+			var count int64
+			var fn, mn, ln, role string
+			err = rows.Scan(&count, &fn, &mn, &ln, &role)
+			if err != nil {
+				return chart, err
+			}
+			name := ln+" ("+role+")"
+			if mn != "" {
+				name = strings.Join(strings.Split(mn, ";"), " ") + " " + name
+			}
+			if fn != "" {
+				name = fn + " " + name
+			}
+			data = append(data, StatData{
+				Label:    name,
+				Value:    fmt.Sprintf("%.2f", float64(count)),
+				ToolText: fmt.Sprintf("%.2f%%", float64(count)/float64(total)*100),
+			})
+		}
 	case "contributorsperrole":
-		return chart, nil
+		chart.Chart.FormatNumberScale = "0"
+		chart.Chart.Caption = "Contributors By Role"
+		query := `SELECT COUNT(role) AS InRole, Role FROM persons JOIN written_by ON written_by.authorid = persons.personid JOIN books ON books.BookID = written_by.BookID WHERE isowned = 1 and role != "" GROUP BY Role ORDER BY InRole DESC`
+		rows, err := db.Query(query)
+		if err != nil {
+			return chart, err
+		}
+		for rows.Next() {
+			var count int64
+			var role string
+			err = rows.Scan(&count, &role)
+			if err != nil {
+				return chart, err
+			}
+			data = append(data, StatData{
+				Label:    role,
+				Value:    fmt.Sprintf("%.2f", float64(count)),
+			})
+		}
 	case "datesoriginal":
 		chart.Chart.FormatNumberScale = "0"
 		var total int64

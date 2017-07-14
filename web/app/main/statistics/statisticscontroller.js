@@ -52,6 +52,7 @@ angular.module('libraryOrganizer')
             }
         }
         $scope.setStatSubView = function(view) {
+            console.log(view)
             $scope.statSubView = view;
         }
     });
