@@ -1,5 +1,12 @@
 package main
 
+//Library is a library
+type Library struct {
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
+}
+
+//Bookcase is a bookcase
 type Bookcase struct {
 	ID                int64       `json:"id"`
 	SpacerHeight      int64       `json:"spacerheight"`
@@ -10,19 +17,23 @@ type Bookcase struct {
 	Shelves           []Bookshelf `json:"shelves"`
 	AverageBookHeight float64     `json:"averagebookheight"`
 	AverageBookWidth  float64     `json:"averagebookwidth"`
+	Library           Library     `json:"library"`
 }
 
+//Bookshelf is a shelf on a bookcase
 type Bookshelf struct {
 	ID     int64  `json:"id"`
 	Height int64  `json:"height"`
 	Books  []Book `json:"books"`
 }
 
+//StatChart is data for a chart
 type StatChart struct {
 	Chart StatChartInfo `json:"chart"`
 	Data  []StatData    `json:"data"`
 }
 
+//StatChartInfo is chart metadata
 type StatChartInfo struct {
 	Caption           string `json:"caption"`
 	FormatNumberScale string `json:"formatNumberScale"`
@@ -30,12 +41,14 @@ type StatChartInfo struct {
 	Decimals          string `json:"decimals"`
 }
 
+//StatData is chart data
 type StatData struct {
 	Label    string `json:"label"`
 	Value    string `json:"value"`
 	ToolText string `json:"tooltext"`
 }
 
+//BookIds is a list of book ids
 type BookIds struct {
 	BookIds []string `json:"bookids"`
 }
@@ -79,6 +92,7 @@ type Book struct {
 	CheapestUsed        float64       `json:"cheapestused"`
 	EditionPublished    string        `json:"editionpublished"`
 	Contributors        []Contributor `json:"contributors"`
+	Library             Library       `json:"library"`
 }
 
 //Publisher is a publisher

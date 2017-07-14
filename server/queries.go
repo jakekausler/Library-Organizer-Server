@@ -30,8 +30,8 @@ const (
 	getDeweysQuery       = "SELECT DISTINCT(Number) from dewey_numbers"
 	getLanguagesQuery    = "SELECT DISTINCT(Langauge) from languages"
 	getRolesQuery        = "SELECT DISTINCT(Role) from written_by"
-	saveBookQuery        = "UPDATE books SET Title=?, Subtitle=?, OriginallyPublished=?, EditionPublished=?, PublisherID=?, IsRead=?, IsReference=?, IsOwned=?, IsShipping=?, IsReading=?, isbn=?, LoaneeFirst=?, LoaneeLast=?, Dewey=?, Pages=?, Width=?, Height=?, Depth=?, Weight=?, PrimaryLanguage=?, SecondaryLanguage=?, OriginalLanguage=?, Series=?, Volume=?, Format=?, Edition=?, ImageURL=? WHERE BookId=?"
-	addBookQuery         = "INSERT INTO books (Title, Subtitle, OriginallyPublished, PublisherID, IsRead, IsReference, IsOwned, IsShipping, IsReading, isbn, LoaneeFirst, LoaneeLast, Dewey, Pages, Width, Height, Depth, Weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, Series, Volume, Format, Edition, EditionPublished) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+	saveBookQuery        = "UPDATE books SET Title=?, Subtitle=?, OriginallyPublished=?, EditionPublished=?, PublisherID=?, IsRead=?, IsReference=?, IsOwned=?, IsShipping=?, IsReading=?, isbn=?, LoaneeFirst=?, LoaneeLast=?, Dewey=?, Pages=?, Width=?, Height=?, Depth=?, Weight=?, PrimaryLanguage=?, SecondaryLanguage=?, OriginalLanguage=?, Series=?, Volume=?, Format=?, Edition=?, ImageURL=?, LibraryId=? WHERE BookId=?"
+	addBookQuery         = "INSERT INTO books (Title, Subtitle, OriginallyPublished, PublisherID, IsRead, IsReference, IsOwned, IsShipping, IsReading, isbn, LoaneeFirst, LoaneeLast, Dewey, Pages, Width, Height, Depth, Weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, Series, Volume, Format, Edition, EditionPublished, LibaryId) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	getValidUserSession  = "SELECT sessionkey from usersession WHERE sessionkey=? AND EXISTS (SELECT id FROM library_members where id=userid)"
 	getUser              = "SELECT id from library_members WHERE usr=? and pass=?"
 	addUser              = "INSERT INTO library_members (usr,pass,email) values (?,?,?)"
@@ -39,6 +39,7 @@ const (
 	updateSessionTime    = "UPDATE usersession SET LastSeenTime=NOW()"
 	isSessionNameTaken   = "SELECT sessionkey from usersession where sessionkey=?"
 	deleteSession        = "DELETE FROM usersession WHERE sessionkey=?"
+	getOwnedLibrariesQuery    = "SELECT id, name FROM libraries WHERE id=(SELECT id from library_members join usersession on library_members.id=usersession.userid WHERE sessionkey=?)"
 
 	charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 )
@@ -49,7 +50,7 @@ func IsRegistered(session string) (bool, error) {
 	if err := db.QueryRow(getValidUserSession, session).Scan(&sessionkey); err == nil {
 		return true, nil
 	} else if err == sql.ErrNoRows {
-		return false, err
+		return false, nil
 	} else {
 		return false, err
 	}
@@ -166,7 +167,7 @@ func SaveBook(book Book) error {
 			logger.Printf("Error when saving OriginalLanguage: %v", err)
 			return err
 		}
-		_, err = db.Exec(saveBookQuery, book.Title, book.Subtitle, book.OriginallyPublished, book.EditionPublished, publisherID, book.IsRead, book.IsReference, book.IsOwned, book.IsShipping, book.IsReading, book.ISBN, book.Loanee.First, book.Loanee.Last, book.Dewey, book.Pages, book.Width, book.Height, book.Depth, book.Weight, book.PrimaryLanguage, book.SecondaryLanguage, book.OriginalLanguage, book.Series, book.Volume, book.Format, book.Edition, "res/bookimages/"+book.ID+imageType, book.ID)
+		_, err = db.Exec(saveBookQuery, book.Title, book.Subtitle, book.OriginallyPublished, book.EditionPublished, publisherID, book.IsRead, book.IsReference, book.IsOwned, book.IsShipping, book.IsReading, book.ISBN, book.Loanee.First, book.Loanee.Last, book.Dewey, book.Pages, book.Width, book.Height, book.Depth, book.Weight, book.PrimaryLanguage, book.SecondaryLanguage, book.OriginalLanguage, book.Series, book.Volume, book.Format, book.Edition, "res/bookimages/"+book.ID+imageType, book.Library.ID, book.ID)
 		if err != nil {
 			logger.Printf("Error when saving book: %v", err)
 			return err
@@ -219,7 +220,7 @@ func SaveBook(book Book) error {
 			logger.Printf("Error when saving OriginalLanguage: %v", err)
 			return err
 		}
-		res, err := db.Exec(addBookQuery, book.Title, book.Subtitle, book.OriginallyPublished, publisherID, book.IsRead, book.IsReference, book.IsOwned, book.IsShipping, book.IsReading, book.ISBN, book.Loanee.First, book.Loanee.Last, book.Dewey, book.Pages, book.Width, book.Height, book.Depth, book.Weight, book.PrimaryLanguage, book.SecondaryLanguage, book.OriginalLanguage, book.Series, book.Volume, book.Format, book.Edition, book.EditionPublished)
+		res, err := db.Exec(addBookQuery, book.Title, book.Subtitle, book.OriginallyPublished, publisherID, book.IsRead, book.IsReference, book.IsOwned, book.IsShipping, book.IsReading, book.ISBN, book.Loanee.First, book.Loanee.Last, book.Dewey, book.Pages, book.Width, book.Height, book.Depth, book.Weight, book.PrimaryLanguage, book.SecondaryLanguage, book.OriginalLanguage, book.Series, book.Volume, book.Format, book.Edition, book.EditionPublished, book.Library.ID)
 		if err != nil {
 			logger.Printf("Error when saving book: %v", err)
 			return err
@@ -396,7 +397,7 @@ func downloadImage(url, fileLocation string) error {
 
 //GetBooks gets all books
 //todo include authors in filter
-func GetBooks(sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey string) ([]Book, int64, error) {
+func GetBooks(sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, libraryids string) ([]Book, int64, error) {
 	var order string
 	if sortMethod == "title" {
 		order = "Title2, minname"
@@ -500,6 +501,10 @@ func GetBooks(sortMethod, isread, isreference, isowned, isloaned, isreading, iss
 		}
 		filter = filter + filterText
 	}
+	if filter != "WHERE " {
+		filter = filter + " AND "
+	}
+	filter = filter + "libraryid IN (" + libraryids + ")"
 	if filter == "WHERE " || filter == "WHERE" {
 		filter = ""
 	}
@@ -511,7 +516,7 @@ func GetBooks(sortMethod, isread, isreference, isowned, isloaned, isreading, iss
 	if err != nil {
 		return nil, 0, err
 	}
-	query := "SELECT bookid, title, subtitle, OriginallyPublished, PublisherID, isread, isreference, IsOwned, ISBN, LoaneeFirst, LoaneeLast, dewey, pages, width, height, depth, weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, series, volume, format, Edition, ImageURL, IsReading, isshipping, SpineColor, CheapestNew, CheapestUsed, EditionPublished from (select books.*, " + titlechange + ", " + serieschange + ", min(name) as minname FROM books LEFT JOIN " + authors + " ON books.BookID = Authors.BookID " + filter + " GROUP BY books.BookID) i ORDER BY " + order
+	query := "SELECT bookid, title, subtitle, OriginallyPublished, PublisherID, isread, isreference, IsOwned, ISBN, LoaneeFirst, LoaneeLast, dewey, pages, width, height, depth, weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, series, volume, format, Edition, ImageURL, IsReading, isshipping, SpineColor, CheapestNew, CheapestUsed, EditionPublished, LibraryID, libraries.Name from (select books.*, " + titlechange + ", " + serieschange + ", min(name) as minname FROM books LEFT JOIN " + authors + " ON books.BookID = Authors.BookID " + filter + " GROUP BY books.BookID) i LEFT JOIN libraries ON LibraryID=libraries.id ORDER BY " + order
 	if numberToGet != "-1" {
 		query += " LIMIT " + numberToGet + " OFFSET " + strconv.FormatInt(((pag-1)*ntg), 10)
 	}
@@ -551,7 +556,7 @@ func GetBooks(sortMethod, isread, isreference, isowned, isloaned, isreading, iss
 		return nil, 0, err
 	}
 	for rows.Next() {
-		if err := rows.Scan(&b.ID, &Title, &Subtitle, &OriginallyPublished, &PublisherID, &IsRead, &IsReference, &IsOwned, &ISBN, &LoaneeFirst, &LoaneeLast, &Dewey, &b.Pages, &b.Width, &b.Height, &b.Depth, &b.Weight, &PrimaryLanguage, &SecondaryLanguage, &OriginalLanguage, &Series, &b.Volume, &Format, &b.Edition, &ImageURL, &IsReading, &IsShipping, &SpineColor, &b.CheapestNew, &b.CheapestUsed, &EditionPublished); err != nil {
+		if err := rows.Scan(&b.ID, &Title, &Subtitle, &OriginallyPublished, &PublisherID, &IsRead, &IsReference, &IsOwned, &ISBN, &LoaneeFirst, &LoaneeLast, &Dewey, &b.Pages, &b.Width, &b.Height, &b.Depth, &b.Weight, &PrimaryLanguage, &SecondaryLanguage, &OriginalLanguage, &Series, &b.Volume, &Format, &b.Edition, &ImageURL, &IsReading, &IsShipping, &SpineColor, &b.CheapestNew, &b.CheapestUsed, &EditionPublished, &b.Library.ID, &b.Library.Name); err != nil {
 			logger.Printf("Error scanning books: %v", err)
 			return nil, 0, err
 		}
@@ -1019,18 +1024,19 @@ func GetAuthorsForExport() ([][]string, error) {
 	return retval, nil
 }
 
-//ImportLibrary imports records from a csv file
+//ImportBooks imports records from a csv file
 //todo finish function
-func ImportLibrary(records [][]string) error {
+func ImportBooks(records [][]string) error {
 	logger.Printf("Importing...")
 	return nil
 }
 
 //GetStats gets statistics by type
-func GetStats(t string) (StatChart, error) {
+func GetStats(t, libraryids string) (StatChart, error) {
 	var chart StatChart
 	var data []StatData
 	var query string
+	inlibrary := "AND libraryid IN (" + libraryids + ")"
 	switch t {
 	case "generalbycounts":
 		chart.Chart.FormatNumberScale = "0"
@@ -1042,13 +1048,13 @@ func GetStats(t string) (StatChart, error) {
 		var shipping int64
 		var toread int64
 		query = `SELECT * FROM (
-				(SELECT count(*) as total from books WHERE isowned=1) AS t,
-				(SELECT count(*) as rea from books WHERE isread=1 and isowned=1) AS red,
-				(SELECT count(*) as reading from books WHERE isreading=1 and isowned=1) AS rng,
-				(SELECT count(*) as toread from books WHERE isread=0 and isreference=0 and isreading=0 and isowned=1) AS trd,
-				(SELECT count(*) as reference from books WHERE isreference=1 and isowned=1) AS ref,
-				(SELECT count(*) as loaned from books WHERE loaneelast is not null and loaneelast !='' and isowned=1) AS loa,
-				(SELECT count(*) as shipping from books WHERE isshipping=1 and isowned=1) AS shi)`
+				(SELECT count(*) as total from books WHERE isowned=1 ` + inlibrary + `) AS t,
+				(SELECT count(*) as rea from books WHERE isread=1 and isowned=1 ` + inlibrary + `) AS red,
+				(SELECT count(*) as reading from books WHERE isreading=1 and isowned=1 ` + inlibrary + `) AS rng,
+				(SELECT count(*) as toread from books WHERE isread=0 and isreference=0 and isreading=0 and isowned=1 ` + inlibrary + `) AS trd,
+				(SELECT count(*) as reference from books WHERE isreference=1 and isowned=1 ` + inlibrary + `) AS ref,
+				(SELECT count(*) as loaned from books WHERE loaneelast is not null and loaneelast !='' and isowned=1 ` + inlibrary + `) AS loa,
+				(SELECT count(*) as shipping from books WHERE isshipping=1 and isowned=1 ` + inlibrary + `) AS shi)`
 		err := db.QueryRow(query).Scan(&total, &read, &reading, &toread, &reference, &loaned, &shipping)
 		if err != nil {
 			return chart, err
@@ -1095,13 +1101,13 @@ func GetStats(t string) (StatChart, error) {
 		var shipping int64
 		var toread int64
 		query = `SELECT * FROM (
-				(SELECT SUM(width*height*depth) as total from books WHERE isowned=1) AS t,
-				(SELECT SUM(width*height*depth) as rea from books WHERE isread=1 and isowned=1) AS red,
-				(SELECT SUM(width*height*depth) as reading from books WHERE isreading=1 and isowned=1) AS rng,
-				(SELECT SUM(width*height*depth) as toread from books WHERE isread=0 and isreference=0 and isreading=0 and isowned=1) AS trd,
-				(SELECT SUM(width*height*depth) as reference from books WHERE isreference=1 and isowned=1) AS ref,
-				(SELECT SUM(width*height*depth) as loaned from books WHERE loaneelast is not null and isowned=1) AS loa,
-				(SELECT SUM(width*height*depth) as shipping from books WHERE isshipping=1 and isowned=1) AS shi)`
+				(SELECT SUM(width*height*depth) as total from books WHERE isowned=1 ` + inlibrary + `) AS t,
+				(SELECT SUM(width*height*depth) as rea from books WHERE isread=1 and isowned=1 ` + inlibrary + `) AS red,
+				(SELECT SUM(width*height*depth) as reading from books WHERE isreading=1 and isowned=1 ` + inlibrary + `) AS rng,
+				(SELECT SUM(width*height*depth) as toread from books WHERE isread=0 and isreference=0 and isreading=0 and isowned=1 ` + inlibrary + `) AS trd,
+				(SELECT SUM(width*height*depth) as reference from books WHERE isreference=1 and isowned=1 ` + inlibrary + `) AS ref,
+				(SELECT SUM(width*height*depth) as loaned from books WHERE loaneelast is not null and isowned=1 ` + inlibrary + `) AS loa,
+				(SELECT SUM(width*height*depth) as shipping from books WHERE isshipping=1 and isowned=1 ` + inlibrary + `) AS shi)`
 		err := db.QueryRow(query).Scan(&total, &read, &reading, &toread, &reference, &loaned, &shipping)
 		if err != nil {
 			return chart, err
@@ -1148,13 +1154,13 @@ func GetStats(t string) (StatChart, error) {
 		var shipping int64
 		var toread int64
 		query = `SELECT * FROM (
-				(SELECT SUM(pages) as total from books WHERE isowned=1) AS t,
-				(SELECT SUM(pages) as rea from books WHERE isread=1 and isowned=1) AS red,
-				(SELECT SUM(pages) as reading from books WHERE isreading=1 and isowned=1) AS rng,
-				(SELECT SUM(pages) as toread from books WHERE isread=0 and isreference=0 and isreading=0 and isowned=1) AS trd,
-				(SELECT SUM(pages) as reference from books WHERE isreference=1 and isowned=1) AS ref,
-				(SELECT SUM(pages) as loaned from books WHERE loaneelast is not null and isowned=1) AS loa,
-				(SELECT SUM(pages) as shipping from books WHERE isshipping=1 and isowned=1) AS shi)`
+				(SELECT SUM(pages) as total from books WHERE isowned=1 ` + inlibrary + `) AS t,
+				(SELECT SUM(pages) as rea from books WHERE isread=1 and isowned=1 ` + inlibrary + `) AS red,
+				(SELECT SUM(pages) as reading from books WHERE isreading=1 and isowned=1 ` + inlibrary + `) AS rng,
+				(SELECT SUM(pages) as toread from books WHERE isread=0 and isreference=0 and isreading=0 and isowned=1 ` + inlibrary + `) AS trd,
+				(SELECT SUM(pages) as reference from books WHERE isreference=1 and isowned=1 ` + inlibrary + `) AS ref,
+				(SELECT SUM(pages) as loaned from books WHERE loaneelast is not null and isowned=1 ` + inlibrary + `) AS loa,
+				(SELECT SUM(pages) as shipping from books WHERE isshipping=1 and isowned=1 ` + inlibrary + `) AS shi)`
 		err := db.QueryRow(query).Scan(&total, &read, &reading, &toread, &reference, &loaned, &shipping)
 		if err != nil {
 			return chart, err
@@ -1201,7 +1207,7 @@ func GetStats(t string) (StatChart, error) {
 	case "series":
 		chart.Chart.FormatNumberScale = "0"
 		var total int64
-		totalquery := `SELECT count(*) FROM books WHERE isowned=1`
+		totalquery := `SELECT count(*) FROM books WHERE isowned=1 ` + inlibrary
 		err := db.QueryRow(totalquery).Scan(&total)
 		if err != nil {
 			return chart, err
@@ -1213,7 +1219,7 @@ func GetStats(t string) (StatChart, error) {
 		}
 		for _, s := range series {
 			var count int64
-			seriesquery := `SELECT COUNT(*) FROM books WHERE series=? AND IsOwned=1`
+			seriesquery := `SELECT COUNT(*) FROM books WHERE series=? AND IsOwned=1 ` + inlibrary
 			err := db.QueryRow(seriesquery, s).Scan(&count)
 			if err != nil {
 				return chart, err
@@ -1229,7 +1235,7 @@ func GetStats(t string) (StatChart, error) {
 	case "languagesprimary":
 		chart.Chart.FormatNumberScale = "0"
 		var total int64
-		totalquery := `SELECT count(*) FROM books WHERE isowned=1`
+		totalquery := `SELECT count(*) FROM books WHERE isowned=1 ` + inlibrary
 		err := db.QueryRow(totalquery).Scan(&total)
 		if err != nil {
 			return chart, err
@@ -1241,7 +1247,7 @@ func GetStats(t string) (StatChart, error) {
 		}
 		for _, language := range languages {
 			var count int64
-			languagequery := `SELECT COUNT(*) FROM books WHERE PrimaryLanguage=? AND IsOwned=1`
+			languagequery := `SELECT COUNT(*) FROM books WHERE PrimaryLanguage=? AND IsOwned=1 ` + inlibrary
 			err := db.QueryRow(languagequery, language).Scan(&count)
 			if err != nil {
 				return chart, err
@@ -1257,7 +1263,7 @@ func GetStats(t string) (StatChart, error) {
 	case "languagessecondary":
 		chart.Chart.FormatNumberScale = "0"
 		var total int64
-		totalquery := `SELECT count(*) FROM books WHERE isowned=1`
+		totalquery := `SELECT count(*) FROM books WHERE isowned=1 ` + inlibrary
 		err := db.QueryRow(totalquery).Scan(&total)
 		if err != nil {
 			return chart, err
@@ -1269,7 +1275,7 @@ func GetStats(t string) (StatChart, error) {
 		}
 		for _, language := range languages {
 			var count int64
-			languagequery := `SELECT COUNT(*) FROM books WHERE SecondaryLanguage=? AND IsOwned=1`
+			languagequery := `SELECT COUNT(*) FROM books WHERE SecondaryLanguage=? AND IsOwned=1 ` + inlibrary
 			err := db.QueryRow(languagequery, language).Scan(&count)
 			if err != nil {
 				return chart, err
@@ -1285,7 +1291,7 @@ func GetStats(t string) (StatChart, error) {
 	case "languagesoriginal":
 		chart.Chart.FormatNumberScale = "0"
 		var total int64
-		totalquery := `SELECT count(*) FROM books WHERE isowned=1`
+		totalquery := `SELECT count(*) FROM books WHERE isowned=1 ` + inlibrary
 		err := db.QueryRow(totalquery).Scan(&total)
 		if err != nil {
 			return chart, err
@@ -1297,7 +1303,7 @@ func GetStats(t string) (StatChart, error) {
 		}
 		for _, language := range languages {
 			var count int64
-			languagequery := `SELECT COUNT(*) FROM books WHERE OriginalLanguage=? AND IsOwned=1`
+			languagequery := `SELECT COUNT(*) FROM books WHERE OriginalLanguage=? AND IsOwned=1 ` + inlibrary
 			err := db.QueryRow(languagequery, language).Scan(&count)
 			if err != nil {
 				return chart, err
@@ -1325,18 +1331,18 @@ func GetStats(t string) (StatChart, error) {
 		var d9 int64
 		var df int64
 		query = `SELECT * FROM (
-				(SELECT count(*) as total from books WHERE isowned=1) AS t,
-				(SELECT count(*) as d0 from books where dewey<100 and dewey >= 0 and dewey != 'fic' and IsOwned=1) as dewey0,
-				(SELECT count(*) as d1 from books where dewey<200 and dewey >= 100 and dewey != 'fic' and IsOwned=1) as dewey1,
-				(SELECT count(*) as d2 from books where dewey<300 and dewey >= 200 and dewey != 'fic' and IsOwned=1) as dewey2,
-				(SELECT count(*) as d3 from books where dewey<400 and dewey >= 300 and dewey != 'fic' and IsOwned=1) as dewey3,
-				(SELECT count(*) as d4 from books where dewey<500 and dewey >= 400 and dewey != 'fic' and IsOwned=1) as dewey4,
-				(SELECT count(*) as d5 from books where dewey<600 and dewey >= 500 and dewey != 'fic' and IsOwned=1) as dewey5,
-				(SELECT count(*) as d6 from books where dewey<700 and dewey >= 600 and dewey != 'fic' and IsOwned=1) as dewey6,
-				(SELECT count(*) as d7 from books where dewey<800 and dewey >= 700 and dewey != 'fic' and IsOwned=1) as dewey7,
-				(SELECT count(*) as d8 from books where dewey<900 and dewey >= 800 and dewey != 'fic' and IsOwned=1) as dewey8,
-				(SELECT count(*) as d9 from books where dewey<1000 and dewey >= 900 and dewey != 'fic' and IsOwned=1) as dewey9,
-				(SELECT count(*) as fic from books where dewey='FIC' and IsOwned=1) as deweyfic)`
+				(SELECT count(*) as total from books WHERE isowned=1 ` + inlibrary + `) AS t,
+				(SELECT count(*) as d0 from books where dewey<100 and dewey >= 0 and dewey != 'fic' and IsOwned=1 ` + inlibrary + `) as dewey0,
+				(SELECT count(*) as d1 from books where dewey<200 and dewey >= 100 and dewey != 'fic' and IsOwned=1 ` + inlibrary + `) as dewey1,
+				(SELECT count(*) as d2 from books where dewey<300 and dewey >= 200 and dewey != 'fic' and IsOwned=1 ` + inlibrary + `) as dewey2,
+				(SELECT count(*) as d3 from books where dewey<400 and dewey >= 300 and dewey != 'fic' and IsOwned=1 ` + inlibrary + `) as dewey3,
+				(SELECT count(*) as d4 from books where dewey<500 and dewey >= 400 and dewey != 'fic' and IsOwned=1 ` + inlibrary + `) as dewey4,
+				(SELECT count(*) as d5 from books where dewey<600 and dewey >= 500 and dewey != 'fic' and IsOwned=1 ` + inlibrary + `) as dewey5,
+				(SELECT count(*) as d6 from books where dewey<700 and dewey >= 600 and dewey != 'fic' and IsOwned=1 ` + inlibrary + `) as dewey6,
+				(SELECT count(*) as d7 from books where dewey<800 and dewey >= 700 and dewey != 'fic' and IsOwned=1 ` + inlibrary + `) as dewey7,
+				(SELECT count(*) as d8 from books where dewey<900 and dewey >= 800 and dewey != 'fic' and IsOwned=1 ` + inlibrary + `) as dewey8,
+				(SELECT count(*) as d9 from books where dewey<1000 and dewey >= 900 and dewey != 'fic' and IsOwned=1 ` + inlibrary + `) as dewey9,
+				(SELECT count(*) as fic from books where dewey='FIC' and IsOwned=1 ` + inlibrary + `) as deweyfic)`
 		err := db.QueryRow(query).Scan(&total, &d0, &d1, &d2, &d3, &d4, &d5, &d6, &d7, &d8, &d9, &df)
 		if err != nil {
 			return chart, err
@@ -1400,7 +1406,7 @@ func GetStats(t string) (StatChart, error) {
 	case "formats":
 		chart.Chart.FormatNumberScale = "0"
 		var total int64
-		totalquery := `SELECT count(*) FROM books WHERE isowned=1`
+		totalquery := `SELECT count(*) FROM books WHERE isowned=1 ` + inlibrary
 		err := db.QueryRow(totalquery).Scan(&total)
 		if err != nil {
 			return chart, err
@@ -1412,7 +1418,7 @@ func GetStats(t string) (StatChart, error) {
 		}
 		for _, format := range formats {
 			var count int64
-			formatquery := `SELECT COUNT(*) FROM books WHERE format=? AND IsOwned=1`
+			formatquery := `SELECT COUNT(*) FROM books WHERE format=? AND IsOwned=1 ` + inlibrary
 			err := db.QueryRow(formatquery, format).Scan(&count)
 			if err != nil {
 				return chart, err
@@ -1432,12 +1438,12 @@ func GetStats(t string) (StatChart, error) {
 	case "datesoriginal":
 		chart.Chart.FormatNumberScale = "0"
 		var total int64
-		totalquery := `SELECT count(*) FROM books WHERE isowned=1`
+		totalquery := `SELECT count(*) FROM books WHERE isowned=1 ` + inlibrary
 		err := db.QueryRow(totalquery).Scan(&total)
 		if err != nil {
 			return chart, err
 		}
-		query = `Select OriginallyPublished from books where OriginallyPublished != '0000-00-00' AND isowned=1`
+		query = `Select OriginallyPublished from books where OriginallyPublished != '0000-00-00' AND isowned=1 ` + inlibrary
 		rows, err := db.Query(query)
 		if err != nil {
 			return chart, err
@@ -1490,12 +1496,12 @@ func GetStats(t string) (StatChart, error) {
 	case "datespublication":
 		chart.Chart.FormatNumberScale = "0"
 		var total int64
-		totalquery := `SELECT count(*) FROM books WHERE isowned=1`
+		totalquery := `SELECT count(*) FROM books WHERE isowned=1 ` + inlibrary
 		err := db.QueryRow(totalquery).Scan(&total)
 		if err != nil {
 			return chart, err
 		}
-		query = `Select EditionPublished from books where EditionPublished != '0000-00-00' AND isowned=1`
+		query = `Select EditionPublished from books where EditionPublished != '0000-00-00' AND isowned=1 ` + inlibrary
 		rows, err := db.Query(query)
 		if err != nil {
 			return chart, err
@@ -1551,7 +1557,7 @@ func GetStats(t string) (StatChart, error) {
 }
 
 //GetDimensions gets dimensions
-func GetDimensions() (map[string]float64, error) {
+func GetDimensions(libraryids string) (map[string]float64, error) {
 	dimensions := make(map[string]float64)
 	var totalwidth float64
 	var averagewidth float64
@@ -1574,13 +1580,14 @@ func GetDimensions() (map[string]float64, error) {
 	var minimumpages float64
 	var maximumpages float64
 	var volume float64
+	inlibrary := "AND libraryid IN (" + libraryids + ")"
 	query := `SELECT * FROM (
-				(SELECT SUM(Width) As TotalWidth, AVG(Width) As AvgWidth, MIN(Width) AS MinWidth, MAX(Width) AS MaxWidth FROM books WHERE Width>0 AND IsOwned=1) AS w,
-				(SELECT SUM(Height) As TotalHeight, AVG(Height) As AvgHeight, MIN(Height) AS MinHeight, MAX(Height) AS MaxHeight FROM books WHERE Height>0 AND IsOwned=1) AS h,
-				(SELECT SUM(Depth) As TotalDepth, AVG(Depth) As AvgDepth, MIN(Depth) AS MinDepth, MAX(Depth) AS MaxDepth FROM books WHERE Depth>0 AND IsOwned=1) AS d,
-				(SELECT SUM(Weight) As TotalWeight, AVG(Weight) As AvgWeight, MIN(Weight) AS MinWeight, MAX(Weight) AS MaxWeight FROM books WHERE Weight>0 AND IsOwned=1) AS we,
-				(SELECT SUM(Pages) As TotalPages, AVG(Pages) As AvgPages, MIN(Pages) AS MinPages, MAX(Pages) AS MaxPages FROM books WHERE pages>0 AND IsOwned=1) AS p,
-				(SELECT SUM(Width*Height*Depth) as Volume FROM books WHERE IsOwned=1) as v)`
+				(SELECT SUM(Width) As TotalWidth, AVG(Width) As AvgWidth, MIN(Width) AS MinWidth, MAX(Width) AS MaxWidth FROM books WHERE Width>0 AND IsOwned=1 ` + inlibrary + `) AS w,
+				(SELECT SUM(Height) As TotalHeight, AVG(Height) As AvgHeight, MIN(Height) AS MinHeight, MAX(Height) AS MaxHeight FROM books WHERE Height>0 AND IsOwned=1 ` + inlibrary + `) AS h,
+				(SELECT SUM(Depth) As TotalDepth, AVG(Depth) As AvgDepth, MIN(Depth) AS MinDepth, MAX(Depth) AS MaxDepth FROM books WHERE Depth>0 AND IsOwned=1 ` + inlibrary + `) AS d,
+				(SELECT SUM(Weight) As TotalWeight, AVG(Weight) As AvgWeight, MIN(Weight) AS MinWeight, MAX(Weight) AS MaxWeight FROM books WHERE Weight>0 AND IsOwned=1 ` + inlibrary + `) AS we,
+				(SELECT SUM(Pages) As TotalPages, AVG(Pages) As AvgPages, MIN(Pages) AS MinPages, MAX(Pages) AS MaxPages FROM books WHERE pages>0 AND IsOwned=1 ` + inlibrary + `) AS p,
+				(SELECT SUM(Width*Height*Depth) as Volume FROM books WHERE IsOwned=1 ` + inlibrary + `) as v)`
 	err := db.QueryRow(query).Scan(&totalwidth, &averagewidth, &minimumwidth, &maximumwidth, &totalheight, &averageheight, &minimumheight, &maximumheight, &totaldepth, &averagedepth, &minimumdepth, &maximumdepth, &totalweight, &averageweight, &minimumweight, &maximumweight, &totalpages, &averagepages, &minimumpages, &maximumpages, &volume)
 	if err != nil {
 		return nil, err
@@ -1610,14 +1617,14 @@ func GetDimensions() (map[string]float64, error) {
 }
 
 //GetCases gets cases
-func GetCases() ([]Bookcase, error) {
-	books, _, err := GetBooks("dewey", "both", "both", "yes", "both", "both", "both", "", "1", "-1", "0", "FIC")
-	query := "SELECT CaseId, Width, SpacerHeight, PaddingLeft, PaddingRight, BookMargin FROM bookcases ORDER BY CaseNumber"
-	rows, err := db.Query(query)
+func GetCases(libraryid string) ([]Bookcase, error) {
+	books, _, err := GetBooks("dewey", "both", "both", "yes", "both", "both", "both", "", "1", "-1", "0", "FIC", libraryid)
+	query := "SELECT CaseId, Width, SpacerHeight, PaddingLeft, PaddingRight, BookMargin FROM bookcases WHERE libraryid=? ORDER BY CaseNumber"
+	rows, err := db.Query(query, libraryid)
 	if err != nil {
 		return nil, err
 	}
-	dim, err := GetDimensions()
+	dim, err := GetDimensions(libraryid)
 	if err != nil {
 		return nil, err
 	}
@@ -1674,4 +1681,21 @@ func GetCases() ([]Bookcase, error) {
 		}
 	}
 	return cases, nil
+}
+
+//GetOwnedLibraries gets the libraries available to a user
+func GetOwnedLibraries(session string) ([]Library, error) {
+	var libraries []Library
+	rows, err := db.Query(getOwnedLibrariesQuery, session)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var l Library
+		if err := rows.Scan(&l.ID, &l.Name); err != nil {
+			return nil, err
+		}
+		libraries = append(libraries, l)
+	}
+	return libraries, nil
 }
