@@ -13,7 +13,10 @@ angular.module('libraryOrganizer')
         $scope.loaned = 'no';
         $scope.shipping = 'no';
         $scope.reading = 'no';
-        $scope.libraryids = [];
+        $scope.libraryids = ['1'];
+        $scope.stringLibraryIds = function() {
+            return $scope.libraryids.join(',')
+        }
         $scope.updateRecieved = function() {
             $http.get('/books', {
                 params: {
@@ -29,7 +32,7 @@ angular.module('libraryOrganizer')
                     isloaned: $scope.loaned,
                     isshipping: $scope.shipping,
                     isreading: $scope.reading,
-                    libraries: $scope.libraryids.stringLibraryIds()
+                    libraryids: $scope.stringLibraryIds()
                 }
             }).then(function(response) {
                 $scope.books = response.data.books;
@@ -108,8 +111,5 @@ angular.module('libraryOrganizer')
                 "contributors": []
             }
             $scope.showEditorDialog(ev, book, $scope, 'gridadd');
-        }
-        $scope.stringLibraryIds = function() {
-            return $scope.libraryids.join(',')
         }
     });

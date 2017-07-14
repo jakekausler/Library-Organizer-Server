@@ -3,12 +3,12 @@
 		<md-toolbar>
 			<div id="stats-navigation">
 				<md-button ng-disabled="statView=='general'" ng-click="setStatView('general')">General</md-button>
-				<!-- <md-button ng-disabled="statView=='publishers'" ng-click="setStatView('publishers')">Publishers</md-button> -->
+				<md-button ng-disabled="statView=='publishers'" ng-click="setStatView('publishers')">Publishers</md-button>
 				<md-button ng-disabled="statView=='series'" ng-click="setStatView('series')">Series</md-button>
 				<md-button ng-disabled="statView=='languages'" ng-click="setStatView('languages')">Languages</md-button>
 				<md-button ng-disabled="statView=='deweys'" ng-click="setStatView('deweys')">Deweys</md-button>
 				<md-button ng-disabled="statView=='formats'" ng-click="setStatView('formats')">Formats</md-button>
-				<!-- <md-button ng-disabled="statView=='contributors'" ng-click="setStatView('contributors')">Contributors</md-button> -->
+				<md-button ng-disabled="statView=='contributors'" ng-click="setStatView('contributors')">Contributors</md-button>
 				<md-button ng-disabled="statView=='dates'" ng-click="setStatView('dates')">Dates</md-button>
 				<md-button ng-disabled="statView=='dimensions'" ng-click="setStatView('dimensions')">Dimensions</md-button>
 			</div>
@@ -16,18 +16,18 @@
 				<md-button ng-disabled="statSubView=='bycounts'" ng-hide="statView!='general'" ng-click="setStatSubView('bycounts')">By Counts</md-button>
 				<md-button ng-disabled="statSubView=='bypages'" ng-hide="statView!='general'" ng-click="setStatSubView('bypages')">By Pages</md-button>
 				<md-button ng-disabled="statSubView=='bysize'" ng-hide="statView!='general'" ng-click="setStatSubView('bysize')">By Size</md-button>
-				<!-- <md-button ng-disabled="statSubView=='bybooksperparent'" ng-hide="statView!='publishers'" ng-click="setStatSubView('bybooksperparent')">By Parent Company</md-button>
+				<md-button ng-disabled="statSubView=='bybooksperparent'" ng-hide="statView!='publishers'" ng-click="setStatSubView('bybooksperparent')">By Parent Company</md-button>
 				<md-button ng-disabled="statSubView=='bytopchildren'" ng-hide="statView!='publishers'" ng-click="setStatSubView('bytopchildren')">Top Publishers</md-button>
 				<md-button ng-disabled="statSubView=='bylocations'" ng-hide="statView!='publishers'" ng-click="setStatSubView('bylocations')">Publisher Locations</md-button>
-				<md-button ng-disabled="statSubView=='bytoplocations'" ng-hide="statView!='publishers'" ng-click="setStatSubView('bytoplocations')">Top Locations</md-button> -->
+				<md-button ng-disabled="statSubView=='bytoplocations'" ng-hide="statView!='publishers'" ng-click="setStatSubView('bytoplocations')">Top Locations</md-button>
 				<md-button ng-disabled="statSubView=='byseries'" ng-hide="statView!='series'" ng-click="setStatSubView('byseries')">By Series</md-button>
 				<md-button ng-disabled="statSubView=='byprimary'" ng-hide="statView!='languages'" ng-click="setStatSubView('byprimary')">By Primary Language</md-button>
 				<md-button ng-disabled="statSubView=='bysecondary'" ng-hide="statView!='languages'" ng-click="setStatSubView('bysecondary')">By Secondary Language</md-button>
 				<md-button ng-disabled="statSubView=='byoriginal'" ng-hide="statView!='languages'" ng-click="setStatSubView('byoriginal')">By Original Language</md-button>
 				<md-button ng-disabled="statSubView=='bydeweys'" ng-hide="statView!='deweys'" ng-click="setStatSubView('bydeweys')">By Category</md-button>
 				<md-button ng-disabled="statSubView=='byformats'" ng-hide="statView!='formats'" ng-click="setStatSubView('byformats')">By Format</md-button>
-				<!-- <md-button ng-disabled="statSubView=='bycontributorstop'" ng-hide="statView!='contributors'" ng-click="setStatSubView('bycontributorstop')">Top Contributors</md-button>
-				<md-button ng-disabled="statSubView=='bycontributorsperrole'" ng-hide="statView!='contributors'" ng-click="setStatSubView('bycontributorsperrole')">Roles</md-button> -->
+				<md-button ng-disabled="statSubView=='bycontributorstop'" ng-hide="statView!='contributors'" ng-click="setStatSubView('bycontributorstop')">Top Contributors</md-button>
+				<md-button ng-disabled="statSubView=='bycontributorsperrole'" ng-hide="statView!='contributors'" ng-click="setStatSubView('bycontributorsperrole')">Roles</md-button>
 				<md-button ng-disabled="statSubView=='byvolumes'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('byvolumes')">Volume</md-button>
 				<md-button ng-disabled="statSubView=='bywidths'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('bywidths')">Width</md-button>
 				<md-button ng-disabled="statSubView=='byheights'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('byheights')">Height</md-button>
@@ -41,39 +41,39 @@
 	</div>
 	<div>
 		<div id="Read-Reference-Reading-ToRead-Shipping-OnLoan" ng-hide="statView!='general'" flex>
-			<fusioncharts ng-hide="statSubView!='bycounts'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=generalbycounts' ></fusioncharts>
-			<fusioncharts ng-hide="statSubView!='bypages'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=generalbypages&libraryids={{stringLibraryIds()'></fusioncharts}}>
-			<fusioncharts ng-hide="statSubView!='bysize'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=generalbysize&libraryids={{stringLibraryIds()'></fusioncharts}}>
+			<fusioncharts ng-hide="statSubView!='bycounts'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=generalbycounts&libraryids={{stringLibraryIds()}}' ></fusioncharts>
+			<fusioncharts ng-hide="statSubView!='bypages'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=generalbypages&libraryids={{stringLibraryIds()}}'></fusioncharts}}>
+			<fusioncharts ng-hide="statSubView!='bysize'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=generalbysize&libraryids={{stringLibraryIds()}}'></fusioncharts}}>
 		</div>
 
 		<!-- <div id="Publishers" ng-hide="statView!='publishers'">
-			<fusioncharts ng-hide="statSubView!='bybooksperparent'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=publishersbooksperparent&libraryids={{stringLibraryIds()'></fusioncharts}}>
-			<fusioncharts ng-hide="statSubView!='bytopchildren'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=publisherstopchildren&libraryids={{stringLibraryIds()'></fusioncharts}}>
-			<fusioncharts ng-hide="statSubView!='bylocations'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=publisherslocations&libraryids={{stringLibraryIds()'></fusioncharts}}>
-			<fusioncharts ng-hide="statSubView!='bytoplocations'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=publisherstoplocations&libraryids={{stringLibraryIds()'></fusioncharts}}>
+			<fusioncharts ng-hide="statSubView!='bybooksperparent'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=publishersbooksperparent&libraryids={{stringLibraryIds()}}'></fusioncharts}}>
+			<fusioncharts ng-hide="statSubView!='bytopchildren'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=publisherstopchildren&libraryids={{stringLibraryIds()}}'></fusioncharts}}>
+			<fusioncharts ng-hide="statSubView!='bylocations'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=publisherslocations&libraryids={{stringLibraryIds()}}'></fusioncharts}}>
+			<fusioncharts ng-hide="statSubView!='bytoplocations'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=publisherstoplocations&libraryids={{stringLibraryIds()}}'></fusioncharts}}>
 		</div> -->
 
 		<div id="Series" ng-hide="statView!='series'">
-			<fusioncharts ng-hide="statSubView!='byseries'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=series&libraryids={{stringLibraryIds()'></fusioncharts}}>
+			<fusioncharts ng-hide="statSubView!='byseries'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=series&libraryids={{stringLibraryIds()}}'></fusioncharts}}>
 		</div>
 
 		<div id="Languages" ng-hide="statView!='languages'">
-			<fusioncharts ng-hide="statSubView!='byprimary'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=languagesprimary&libraryids={{stringLibraryIds()'></fusioncharts}}>
-			<fusioncharts ng-hide="statSubView!='bysecondary'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=languagessecondary&libraryids={{stringLibraryIds()'></fusioncharts}}>
-			<fusioncharts ng-hide="statSubView!='byoriginal'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=languagesoriginal&libraryids={{stringLibraryIds()'></fusioncharts}}>
+			<fusioncharts ng-hide="statSubView!='byprimary'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=languagesprimary&libraryids={{stringLibraryIds()}}'></fusioncharts}}>
+			<fusioncharts ng-hide="statSubView!='bysecondary'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=languagessecondary&libraryids={{stringLibraryIds()}}'></fusioncharts}}>
+			<fusioncharts ng-hide="statSubView!='byoriginal'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=languagesoriginal&libraryids={{stringLibraryIds()}}'></fusioncharts}}>
 		</div>
 
 		<div id="Deweys" ng-hide="statView!='deweys'">
-			<fusioncharts ng-hide="statSubView!='bydeweys'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=deweys&libraryids={{stringLibraryIds()'></fusioncharts}}>
+			<fusioncharts ng-hide="statSubView!='bydeweys'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=deweys&libraryids={{stringLibraryIds()}}'></fusioncharts}}>
 		</div>
 
 		<div id="Formats" ng-hide="statView!='formats'">
-			<fusioncharts ng-hide="statSubView!='byformats'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=formats&libraryids={{stringLibraryIds()'></fusioncharts}}>
+			<fusioncharts ng-hide="statSubView!='byformats'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=formats&libraryids={{stringLibraryIds()}}'></fusioncharts}}>
 		</div>
 
 		<!-- <div id="Contributors" ng-hide="statView!='contributors'">
-			<fusioncharts ng-hide="statSubView!='bycontributorstop'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=contributorstop&libraryids={{stringLibraryIds()'></fusioncharts}}>
-			<fusioncharts ng-hide="statSubView!='bycontributorsperrole'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=contributorsperrole&libraryids={{stringLibraryIds()'></fusioncharts}}>
+			<fusioncharts ng-hide="statSubView!='bycontributorstop'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=contributorstop&libraryids={{stringLibraryIds()}}'></fusioncharts}}>
+			<fusioncharts ng-hide="statSubView!='bycontributorsperrole'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=contributorsperrole&libraryids={{stringLibraryIds()}}'></fusioncharts}}>
 		</div> -->
 
 		<div id="Dimensions" ng-hide="statView!='dimensions'">
@@ -197,8 +197,8 @@
 		</div>
 
 		<div id="Dates" ng-hide="statView!='dates'">
-			<fusioncharts ng-hide="statSubView!='bydatesoriginal'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=datesoriginal&libraryids={{stringLibraryIds()'></fusioncharts}}>
-			<fusioncharts ng-hide="statSubView!='bydatespublication'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=datespublication&libraryids={{stringLibraryIds()'></fusioncharts}}>
+			<fusioncharts ng-hide="statSubView!='bydatesoriginal'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=datesoriginal&libraryids={{stringLibraryIds()}}'></fusioncharts}}>
+			<fusioncharts ng-hide="statSubView!='bydatespublication'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='stats?type=datespublication&libraryids={{stringLibraryIds()}}'></fusioncharts}}>
 		</div>
 	</div>
 </div>

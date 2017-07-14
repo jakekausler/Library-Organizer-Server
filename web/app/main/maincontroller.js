@@ -68,9 +68,9 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts'])
         }
         $scope.OwnedLibraries = [];
         $scope.updateLibraries = function() {
-            $http.get('/ownedlibraries', {}.then(function(response) {
+            $http.get('/ownedlibraries', {}).then(function(response) {
                     $scope.libraries = response.data;
                 });
-            });
+            };
         $scope.updateLibraries();
     })
