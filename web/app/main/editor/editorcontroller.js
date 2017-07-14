@@ -1,5 +1,5 @@
 angular.module('libraryOrganizer')
-.controller('editorController', function($scope, $http, $mdDialog, book, $vm, viewType) {
+.controller('editorController', function($scope, $http, $mdDialog, book) {
 	$scope.publishers = [];
 	$scope.cities = [];
 	$scope.states = [];
@@ -116,13 +116,8 @@ angular.module('libraryOrganizer')
 			method: 'POST',
 			data: JSON.stringify(book)
 		}).then(function(response){
-			if (viewType=='gridadd') {
-				$vm.updateRecieved();
-			} else if (viewType=='shelves') {
-				$vm.updateCases();
-			} else if (viewType=='grid') {
-				$vm.$parent.$parent.updateRecieved();
-			}
+			$vm.updateRecieved();
+			$vm.updateCases();
 			$mdDialog.cancel();
 		});
 	}
@@ -134,20 +129,8 @@ angular.module('libraryOrganizer')
 			.ok('Yes')
 			.cancel('Cancel');
 		$mdDialog.show(confirm).then(function() {
-			$http({
-			url: '/deletebook',
-			method: 'POST',
-			data: book.bookid
-		}).then(function(response) {
-			if (viewType=='gridadd') {
-				$vm.updateRecieved();
-			} else if (viewType=='shelves') {
-				$vm.updateCases();
-			} else if (viewType=='grid') {
-				$vm.$parent.$parent.updateRecieved();
-			}
-			$mdDialog.cancel();
-		})
+			//todo remove book
+			console.log(book);
 		}, function() {});
 	}
 	$scope.cancel = function() {
@@ -178,4 +161,5 @@ angular.module('libraryOrganizer')
 		}) : arr;
 		return results;
 	}
+	$vm.getCurrentDateString();
 });

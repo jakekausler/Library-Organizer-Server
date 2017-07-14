@@ -229,18 +229,13 @@ func SaveBook(book Book) error {
 		bookid := strconv.FormatInt(id, 10)
 		imageType := filepath.Ext(book.ImageURL)
 		if (book.ImageURL != "") {
-			err = downloadImage(book.ImageURL, "../web/res/bookimages/"+bookid+imageType)
+			err = downloadImage(book.ImageURL, "../../res/bookimages/"+bookid+imageType)
 		}
 		if err != nil {
 			log.Printf("Error while saving image: %v", err)
 			return err
 		}
-		imageQuery := "UPDATE books SET ImageURL='res/bookimages/"+bookid+imageType+"' WHERE bookid=?"
-		_, err = db.Exec(imageQuery, bookid)
-		if err != nil {
-			log.Printf("Error when saving image: %v", err)
-			return err
-		}
+		//add image
 		for _, contributor := range book.Contributors {
 			err = addContributor(bookid, contributor)
 			if err != nil {
@@ -256,18 +251,7 @@ func removeAllWrittenBy(bookid string) error {
 	query := "DELETE FROM written_by WHERE BookId=?"
 	_, err := db.Exec(query, bookid)
 	if err != nil {
-		log.Printf("Error when deleting written_by: %v", err)
-		return err
-	}
-	return nil
-}
-
-func DeleteBook(bookid string) error {
-	removeAllWrittenBy(bookid)
-	query := "DELETE FROM books WHERE BookId=?"
-	_, err := db.Exec(query, bookid)
-	if err != nil {
-		log.Printf("Error when deleting book: %v", err)
+		log.Printf("Error when saving book: %v", err)
 		return err
 	}
 	return nil

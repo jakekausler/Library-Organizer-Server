@@ -94,7 +94,7 @@
 				</div>
 				<md-input-container ng-show="pastingurl">
 					<label>Image URL</label>
-					<input focus-on="pastingurl" id="editorImageUrl" type="text" ng-model="book.imageurl" name="newUrl" value="{{book.imageurl}}"/>
+					<input type="text" ng-model="book.imageurl" name="newUrl" value="{{book.imageurl}}"/>
 				</md-input-container>
 			</div>
 		</div>
@@ -210,7 +210,7 @@
 			<md-divider></md-divider>
 			<div flex layout="row" flex>
 				<md-button ng-click="save(book)" flex class="icon save-icon"></md-button>
-				<md-button ng-disabled="book.bookid==''" ng-click="remove(book)" flex class="icon remove-icon"></md-button>
+				<md-button ng-disabled="book.bookid=='' || true" ng-click="remove(book)" flex class="icon remove-icon"></md-button>
 				<md-button ng-click="cancel()" flex class="icon cancel-icon"></md-button>
 			</div>
 		</div>
