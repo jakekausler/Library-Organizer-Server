@@ -1,17 +1,17 @@
 package main
 
 import (
-	"net/http"
-	"encoding/json"
-	"log"
-	"fmt"
+	"bytes"
 	"database/sql"
 	"encoding/csv"
-	"bytes"
+	"encoding/json"
+	"fmt"
 	"io"
-	"strconv"
+	"log"
 	"mime/multipart"
+	"net/http"
 	"os"
+	"strconv"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -88,14 +88,15 @@ func getBooks(w http.ResponseWriter, r *http.Request) {
 	numberToGet := params.Get("numbertoget")
 	fromDewey := params.Get("fromdewey")
 	toDewey := params.Get("todewey")
-	books, numberOfBooks, err := GetBooks(sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey)
+	libaryids := params.Get("libaryids")
+	books, numberOfBooks, err := GetBooks(sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, libraryids)
 	if err != nil {
 		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
 	data, err := json.Marshal(BookSet{
-		Books: books,
+		Books:         books,
 		NumberOfBooks: numberOfBooks,
 	})
 	if err != nil {
@@ -104,7 +105,7 @@ func getBooks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
- 	w.Write(data)
+	w.Write(data)
 }
 
 func saveBook(w http.ResponseWriter, r *http.Request) {
@@ -137,20 +138,20 @@ func getPublishers(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	d, err := GetPublishers();
+	d, err := GetPublishers()
 	if err != nil {
 		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
-	data, err := json.Marshal(d);
+	data, err := json.Marshal(d)
 	if err != nil {
 		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
- 	w.Write(data)
+	w.Write(data)
 }
 
 func getCities(w http.ResponseWriter, r *http.Request) {
@@ -159,20 +160,20 @@ func getCities(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	d, err := GetCities();
+	d, err := GetCities()
 	if err != nil {
 		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
-	data, err := json.Marshal(d);
+	data, err := json.Marshal(d)
 	if err != nil {
 		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
- 	w.Write(data)
+	w.Write(data)
 }
 
 func getStates(w http.ResponseWriter, r *http.Request) {
@@ -181,20 +182,20 @@ func getStates(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	d, err := GetStates();
+	d, err := GetStates()
 	if err != nil {
 		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
-	data, err := json.Marshal(d);
+	data, err := json.Marshal(d)
 	if err != nil {
 		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
- 	w.Write(data)
+	w.Write(data)
 }
 
 func getCountries(w http.ResponseWriter, r *http.Request) {
@@ -203,20 +204,20 @@ func getCountries(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	d, err := GetCountries();
+	d, err := GetCountries()
 	if err != nil {
 		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
-	data, err := json.Marshal(d);
+	data, err := json.Marshal(d)
 	if err != nil {
 		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
- 	w.Write(data)
+	w.Write(data)
 }
 
 func getSeries(w http.ResponseWriter, r *http.Request) {
@@ -225,20 +226,20 @@ func getSeries(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	d, err := GetSeries();
+	d, err := GetSeries()
 	if err != nil {
 		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
-	data, err := json.Marshal(d);
+	data, err := json.Marshal(d)
 	if err != nil {
 		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
- 	w.Write(data)
+	w.Write(data)
 }
 
 func getFormats(w http.ResponseWriter, r *http.Request) {
@@ -247,20 +248,20 @@ func getFormats(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	d, err := GetFormats();
+	d, err := GetFormats()
 	if err != nil {
 		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
-	data, err := json.Marshal(d);
+	data, err := json.Marshal(d)
 	if err != nil {
 		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
- 	w.Write(data)
+	w.Write(data)
 }
 
 func getLanguages(w http.ResponseWriter, r *http.Request) {
@@ -269,20 +270,20 @@ func getLanguages(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	d, err := GetLanguages();
+	d, err := GetLanguages()
 	if err != nil {
 		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
-	data, err := json.Marshal(d);
+	data, err := json.Marshal(d)
 	if err != nil {
 		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
- 	w.Write(data)
+	w.Write(data)
 }
 
 func getRoles(w http.ResponseWriter, r *http.Request) {
@@ -291,20 +292,20 @@ func getRoles(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	d, err := GetRoles();
+	d, err := GetRoles()
 	if err != nil {
 		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
-	data, err := json.Marshal(d);
+	data, err := json.Marshal(d)
 	if err != nil {
 		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
- 	w.Write(data)
+	w.Write(data)
 }
 
 func getDeweys(w http.ResponseWriter, r *http.Request) {
@@ -313,20 +314,20 @@ func getDeweys(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	d, err := GetDeweys();
+	d, err := GetDeweys()
 	if err != nil {
 		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
-	data, err := json.Marshal(d);
+	data, err := json.Marshal(d)
 	if err != nil {
 		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
- 	w.Write(data)
+	w.Write(data)
 }
 
 func exportBooks(w http.ResponseWriter, r *http.Request) {
@@ -388,13 +389,13 @@ func importLibrary(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var (
-		err	error
+		err error
 	)
 	defer func() {
 		if nil != err {
 			fmt.Printf("%+v", err)
-				http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
-				return
+			http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+			return
 		}
 	}()
 	// parse request with maximum memory of _24Kilobits
@@ -428,19 +429,19 @@ func importLibrary(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 				return
 			}
-			reader, err := os.Open("./tmp/"+hdr.Filename)
+			reader, err := os.Open("./tmp/" + hdr.Filename)
 			if err != nil {
 				fmt.Printf("%+v", err)
 				http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 				return
 			}
-			c_reader := csv.NewReader(reader)
+			cReader := csv.NewReader(reader)
 			if err != nil {
 				fmt.Printf("%+v", err)
 				http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 				return
 			}
-			records, err := c_reader.ReadAll()
+			records, err := cReader.ReadAll()
 			if err != nil {
 				fmt.Printf("%+v", err)
 				http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -464,13 +465,13 @@ func login(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Printf("%+v", err)
 	}
-	http.SetCookie(w, &http.Cookie{Name:"library-organizer-session",Value:key})
+	http.SetCookie(w, &http.Cookie{Name: "library-organizer-session", Value: key})
 	http.Redirect(w, r, "/", 301)
 	return
 }
 
 //todo - Allow registering after set up for multiple members
-func register (w http.ResponseWriter, r *http.Request) {
+func register(w http.ResponseWriter, r *http.Request) {
 	// if r.Method == "GET" {
 	// 	http.Redirect(w, r, "/", 301)
 	// 	return
@@ -516,7 +517,7 @@ func registered(r *http.Request) bool {
 		return false
 	}
 	registered, err := IsRegistered(cookie.Value)
-	if  err != nil {
+	if err != nil {
 		fmt.Printf("%+v", err)
 		return false
 	}
@@ -541,54 +542,58 @@ func getHomePage(w http.ResponseWriter, r *http.Request) {
 
 func getStats(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
-	d, err := GetStats(params.Get("type"))
+	d, err := GetStats(params.Get("type"), params.Get("libraryids"))
 	if err != nil {
 		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
-	data, err := json.Marshal(d);
+	data, err := json.Marshal(d)
 	if err != nil {
 		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
- 	w.Write(data)
+	w.Write(data)
 }
 
 func getCases(w http.ResponseWriter, r *http.Request) {
-	d, err := GetCases()
+	params := r.URL.Query()
+	libraryid := params.get("libraryid")
+	d, err := GetCases(libraryid)
 	if err != nil {
 		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
-	data, err := json.Marshal(d);
+	data, err := json.Marshal(d)
 	if err != nil {
 		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
- 	w.Write(data)
+	w.Write(data)
 }
 
 func getDimensions(w http.ResponseWriter, r *http.Request) {
-	d, err := GetDimensions()
+	params := r.URL.Query()
+	libraryids := params.Get("libraryids")
+	d, err := GetDimensions(libraryids)
 	if err != nil {
 		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
-	data, err := json.Marshal(d);
+	data, err := json.Marshal(d)
 	if err != nil {
 		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
- 	w.Write(data)
+	w.Write(data)
 }
 
 func deleteBook(w http.ResponseWriter, r *http.Request) {
