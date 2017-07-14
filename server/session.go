@@ -55,7 +55,7 @@ func RunServer(username, password, database string) {
 	http.HandleFunc("/savebook", saveBook)
 	http.HandleFunc("/exportbooks", exportBooks)
 	http.HandleFunc("/exportauthors", exportAuthors)
-	http.HandleFunc("/import", importLibrary)
+	http.HandleFunc("/import", importBooks)
 	http.HandleFunc("/login", login)
 	http.HandleFunc("/register", register)
 	http.HandleFunc("/logout", logout)
@@ -63,6 +63,7 @@ func RunServer(username, password, database string) {
 	http.HandleFunc("/cases", getCases)
 	http.HandleFunc("/dimensions", getDimensions)
 	http.HandleFunc("/deletebook", deleteBook)
+	http.HandleFunc("/ownedlibraries", getOwnedLibraries)
 	http.Handle("/web/", http.StripPrefix("/web/", http.FileServer(http.Dir("./../web/"))))
 	log.Printf("Listening on port 8181")
 	http.ListenAndServe(":8181", nil)
@@ -88,7 +89,7 @@ func getBooks(w http.ResponseWriter, r *http.Request) {
 	numberToGet := params.Get("numbertoget")
 	fromDewey := params.Get("fromdewey")
 	toDewey := params.Get("todewey")
-	libaryids := params.Get("libaryids")
+	libraryids := params.Get("libraryids")
 	books, numberOfBooks, err := GetBooks(sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, libraryids)
 	if err != nil {
 		fmt.Printf("%+v", err)
@@ -382,7 +383,7 @@ func exportAuthors(w http.ResponseWriter, r *http.Request) {
 	w.Write(b.Bytes())
 }
 
-func importLibrary(w http.ResponseWriter, r *http.Request) {
+func importBooks(w http.ResponseWriter, r *http.Request) {
 	if !registered(r) {
 		fmt.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
@@ -447,7 +448,7 @@ func importLibrary(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 				return
 			}
-			ImportLibrary(records)
+			ImportBooks(records)
 			w.Write([]byte("uploaded file:" + hdr.Filename + ";length:" + strconv.Itoa(int(written))))
 		}
 	}
@@ -541,6 +542,11 @@ func getHomePage(w http.ResponseWriter, r *http.Request) {
 }
 
 func getStats(w http.ResponseWriter, r *http.Request) {
+	if !registered(r) {
+		fmt.Printf("Unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
+		return
+	}
 	params := r.URL.Query()
 	d, err := GetStats(params.Get("type"), params.Get("libraryids"))
 	if err != nil {
@@ -559,6 +565,11 @@ func getStats(w http.ResponseWriter, r *http.Request) {
 }
 
 func getCases(w http.ResponseWriter, r *http.Request) {
+	if !registered(r) {
+		fmt.Printf("Unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
+		return
+	}
 	params := r.URL.Query()
 	libraryid := params.get("libraryid")
 	d, err := GetCases(libraryid)
@@ -578,6 +589,11 @@ func getCases(w http.ResponseWriter, r *http.Request) {
 }
 
 func getDimensions(w http.ResponseWriter, r *http.Request) {
+	if !registered(r) {
+		fmt.Printf("Unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
+		return
+	}
 	params := r.URL.Query()
 	libraryids := params.Get("libraryids")
 	d, err := GetDimensions(libraryids)
@@ -619,4 +635,29 @@ func deleteBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	return
+}
+
+func getOwnedLibraries(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("library-organizer-session")
+	if err != nil {
+		fmt.Printf("%+v", err)
+		http.Redirect(w, r, "/", 301)
+	}
+	if cookie.Value == "" {
+		http.Redirect(w, r, "/", 301)
+	}
+	d, err := GetOwnedLibraries(cookie.Value)
+	if err != nil {
+		fmt.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	data, err := json.Marshal(d)
+	if err != nil {
+		fmt.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
 }

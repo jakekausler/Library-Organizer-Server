@@ -1,5 +1,11 @@
 package main
 
+//Library is a library
+type Library struct {
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
+}
+
 //Bookcase is a bookcase
 type Bookcase struct {
 	ID                int64       `json:"id"`
@@ -11,7 +17,7 @@ type Bookcase struct {
 	Shelves           []Bookshelf `json:"shelves"`
 	AverageBookHeight float64     `json:"averagebookheight"`
 	AverageBookWidth  float64     `json:"averagebookwidth"`
-	LibraryID         string      `json:"libraryid"`
+	Library           Library     `json:"library"`
 }
 
 //Bookshelf is a shelf on a bookcase
@@ -85,7 +91,7 @@ type Book struct {
 	CheapestUsed        float64       `json:"cheapestused"`
 	EditionPublished    string        `json:"editionpublished"`
 	Contributors        []Contributor `json:"contributors"`
-	LibraryID           string        `json:"libraryid"`
+	Library             Library       `json:"library"`
 }
 
 //Publisher is a publisher

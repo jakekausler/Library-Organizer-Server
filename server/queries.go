@@ -40,6 +40,7 @@ const (
 	updateSessionTime    = "UPDATE usersession SET LastSeenTime=NOW()"
 	isSessionNameTaken   = "SELECT sessionkey from usersession where sessionkey=?"
 	deleteSession        = "DELETE FROM usersession WHERE sessionkey=?"
+	getOwnedLibraries    = "SELECT id, name FROM libraries WHERE owned=(SELECT id from library_members join usersession on librarymembers.id=usersession.userid WHERE sessionkey=?)"
 
 	charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 )
@@ -516,7 +517,7 @@ func GetBooks(sortMethod, isread, isreference, isowned, isloaned, isreading, iss
 	if err != nil {
 		return nil, 0, err
 	}
-	query := "SELECT bookid, title, subtitle, OriginallyPublished, PublisherID, isread, isreference, IsOwned, ISBN, LoaneeFirst, LoaneeLast, dewey, pages, width, height, depth, weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, series, volume, format, Edition, ImageURL, IsReading, isshipping, SpineColor, CheapestNew, CheapestUsed, EditionPublished from (select books.*, " + titlechange + ", " + serieschange + ", min(name) as minname FROM books LEFT JOIN " + authors + " ON books.BookID = Authors.BookID " + filter + " GROUP BY books.BookID) i ORDER BY " + order
+	query := "SELECT bookid, title, subtitle, OriginallyPublished, PublisherID, isread, isreference, IsOwned, ISBN, LoaneeFirst, LoaneeLast, dewey, pages, width, height, depth, weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, series, volume, format, Edition, ImageURL, IsReading, isshipping, SpineColor, CheapestNew, CheapestUsed, EditionPublished, LibraryID, libaries.Name from (select books.*, " + titlechange + ", " + serieschange + ", min(name) as minname FROM books LEFT JOIN " + authors + " ON books.BookID = Authors.BookID " + filter + " GROUP BY books.BookID) i LEFT JOIN libraries ON LibraryID=libraries.id ORDER BY " + order
 	if numberToGet != "-1" {
 		query += " LIMIT " + numberToGet + " OFFSET " + strconv.FormatInt(((pag-1)*ntg), 10)
 	}
@@ -556,7 +557,7 @@ func GetBooks(sortMethod, isread, isreference, isowned, isloaned, isreading, iss
 		return nil, 0, err
 	}
 	for rows.Next() {
-		if err := rows.Scan(&b.ID, &Title, &Subtitle, &OriginallyPublished, &PublisherID, &IsRead, &IsReference, &IsOwned, &ISBN, &LoaneeFirst, &LoaneeLast, &Dewey, &b.Pages, &b.Width, &b.Height, &b.Depth, &b.Weight, &PrimaryLanguage, &SecondaryLanguage, &OriginalLanguage, &Series, &b.Volume, &Format, &b.Edition, &ImageURL, &IsReading, &IsShipping, &SpineColor, &b.CheapestNew, &b.CheapestUsed, &EditionPublished); err != nil {
+		if err := rows.Scan(&b.ID, &Title, &Subtitle, &OriginallyPublished, &PublisherID, &IsRead, &IsReference, &IsOwned, &ISBN, &LoaneeFirst, &LoaneeLast, &Dewey, &b.Pages, &b.Width, &b.Height, &b.Depth, &b.Weight, &PrimaryLanguage, &SecondaryLanguage, &OriginalLanguage, &Series, &b.Volume, &Format, &b.Edition, &ImageURL, &IsReading, &IsShipping, &SpineColor, &b.CheapestNew, &b.CheapestUsed, &EditionPublished, &b.Library.ID, &b.Library.Name); err != nil {
 			log.Printf("Error scanning books: %v", err)
 			return nil, 0, err
 		}
@@ -1024,9 +1025,9 @@ func GetAuthorsForExport() ([][]string, error) {
 	return retval, nil
 }
 
-//ImportLibrary imports records from a csv file
+//ImportBooks imports records from a csv file
 //todo finish function
-func ImportLibrary(records [][]string) error {
+func ImportBooks(records [][]string) error {
 	log.Printf("Importing...")
 	return nil
 }
@@ -1672,4 +1673,21 @@ func GetCases(libraryid string) ([]Bookcase, error) {
 		}
 	}
 	return cases, nil
+}
+
+//GetOwnedLibraries gets the libaries available to a user
+func GetOwnedLibraries(session string) ([]Library, error) {
+	var libraries []Library
+	rows, err := db.Query(getOwnedLibraries, session)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var Library l
+		if err := rows.Scan(&l.ID, &l.Name); err != nil {
+			return nil, err
+		}
+		libraries = append(libraries, l)
+	}
+	return libraries, nil
 }
