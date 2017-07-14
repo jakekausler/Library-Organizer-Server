@@ -22,7 +22,7 @@ var (
 
 //RunServer runs the library server
 func RunServer(username, password, database string) {
-	fmt.Errorf("Creating the database")
+	fmt.Printf("Creating the database")
 
 	var err error
 	// Create sql.DB
@@ -33,7 +33,7 @@ func RunServer(username, password, database string) {
 	}
 	defer db.Close()
 
-	fmt.Errorf("Pinging the database")
+	fmt.Printf("Pinging the database")
 	// Test the connection
 	err = db.Ping()
 	if err != nil {
@@ -62,6 +62,7 @@ func RunServer(username, password, database string) {
 	http.HandleFunc("/stats", getStats)
 	http.HandleFunc("/cases", getCases)
 	http.HandleFunc("/dimensions", getDimensions)
+	http.HandleFunc("/deletebook", deleteBook)
 	http.Handle("/web/", http.StripPrefix("/web/", http.FileServer(http.Dir("./../web/"))))
 	log.Printf("Listening on port 8181")
 	http.ListenAndServe(":8181", nil)
@@ -70,7 +71,7 @@ func RunServer(username, password, database string) {
 
 func getBooks(w http.ResponseWriter, r *http.Request) {
 	if !registered(r) {
-		fmt.Errorf("Unauthorized")
+		fmt.Printf("Unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
@@ -89,7 +90,7 @@ func getBooks(w http.ResponseWriter, r *http.Request) {
 	toDewey := params.Get("todewey")
 	books, numberOfBooks, err := GetBooks(sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey)
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
@@ -98,7 +99,7 @@ func getBooks(w http.ResponseWriter, r *http.Request) {
 		NumberOfBooks: numberOfBooks,
 	})
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
@@ -108,23 +109,23 @@ func getBooks(w http.ResponseWriter, r *http.Request) {
 
 func saveBook(w http.ResponseWriter, r *http.Request) {
 	if !registered(r) {
-		fmt.Errorf("unauthorized")
+		fmt.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
 	var b Book
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&b)
-	fmt.Errorf("%+v", b)
+	fmt.Printf("%+v", b)
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
 	defer r.Body.Close()
 	err = SaveBook(b)
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
@@ -133,19 +134,19 @@ func saveBook(w http.ResponseWriter, r *http.Request) {
 
 func getPublishers(w http.ResponseWriter, r *http.Request) {
 	if !registered(r) {
-		fmt.Errorf("unauthorized")
+		fmt.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
 	d, err := GetPublishers();
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
 	data, err := json.Marshal(d);
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
@@ -155,19 +156,19 @@ func getPublishers(w http.ResponseWriter, r *http.Request) {
 
 func getCities(w http.ResponseWriter, r *http.Request) {
 	if !registered(r) {
-		fmt.Errorf("unauthorized")
+		fmt.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
 	d, err := GetCities();
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
 	data, err := json.Marshal(d);
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
@@ -177,19 +178,19 @@ func getCities(w http.ResponseWriter, r *http.Request) {
 
 func getStates(w http.ResponseWriter, r *http.Request) {
 	if !registered(r) {
-		fmt.Errorf("unauthorized")
+		fmt.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
 	d, err := GetStates();
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
 	data, err := json.Marshal(d);
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
@@ -199,19 +200,19 @@ func getStates(w http.ResponseWriter, r *http.Request) {
 
 func getCountries(w http.ResponseWriter, r *http.Request) {
 	if !registered(r) {
-		fmt.Errorf("unauthorized")
+		fmt.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
 	d, err := GetCountries();
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
 	data, err := json.Marshal(d);
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
@@ -221,19 +222,19 @@ func getCountries(w http.ResponseWriter, r *http.Request) {
 
 func getSeries(w http.ResponseWriter, r *http.Request) {
 	if !registered(r) {
-		fmt.Errorf("unauthorized")
+		fmt.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
 	d, err := GetSeries();
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
 	data, err := json.Marshal(d);
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
@@ -243,19 +244,19 @@ func getSeries(w http.ResponseWriter, r *http.Request) {
 
 func getFormats(w http.ResponseWriter, r *http.Request) {
 	if !registered(r) {
-		fmt.Errorf("unauthorized")
+		fmt.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
 	d, err := GetFormats();
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
 	data, err := json.Marshal(d);
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
@@ -265,19 +266,19 @@ func getFormats(w http.ResponseWriter, r *http.Request) {
 
 func getLanguages(w http.ResponseWriter, r *http.Request) {
 	if !registered(r) {
-		fmt.Errorf("unauthorized")
+		fmt.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
 	d, err := GetLanguages();
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
 	data, err := json.Marshal(d);
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
@@ -287,19 +288,19 @@ func getLanguages(w http.ResponseWriter, r *http.Request) {
 
 func getRoles(w http.ResponseWriter, r *http.Request) {
 	if !registered(r) {
-		fmt.Errorf("unauthorized")
+		fmt.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
 	d, err := GetRoles();
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
 	data, err := json.Marshal(d);
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
@@ -309,19 +310,19 @@ func getRoles(w http.ResponseWriter, r *http.Request) {
 
 func getDeweys(w http.ResponseWriter, r *http.Request) {
 	if !registered(r) {
-		fmt.Errorf("unauthorized")
+		fmt.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
 	d, err := GetDeweys();
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
 	data, err := json.Marshal(d);
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
@@ -331,13 +332,13 @@ func getDeweys(w http.ResponseWriter, r *http.Request) {
 
 func exportBooks(w http.ResponseWriter, r *http.Request) {
 	if !registered(r) {
-		fmt.Errorf("unauthorized")
+		fmt.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
 	l, err := GetBooksForExport()
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
@@ -345,7 +346,7 @@ func exportBooks(w http.ResponseWriter, r *http.Request) {
 	writer := csv.NewWriter(b)
 	err = writer.WriteAll(l)
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
@@ -357,13 +358,13 @@ func exportBooks(w http.ResponseWriter, r *http.Request) {
 
 func exportAuthors(w http.ResponseWriter, r *http.Request) {
 	if !registered(r) {
-		fmt.Errorf("unauthorized")
+		fmt.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
 	l, err := GetAuthorsForExport()
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
@@ -371,7 +372,7 @@ func exportAuthors(w http.ResponseWriter, r *http.Request) {
 	writer := csv.NewWriter(b)
 	err = writer.WriteAll(l)
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
@@ -383,7 +384,7 @@ func exportAuthors(w http.ResponseWriter, r *http.Request) {
 
 func importLibrary(w http.ResponseWriter, r *http.Request) {
 	if !registered(r) {
-		fmt.Errorf("unauthorized")
+		fmt.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
@@ -392,7 +393,7 @@ func importLibrary(w http.ResponseWriter, r *http.Request) {
 	)
 	defer func() {
 		if nil != err {
-			fmt.Errorf("%+v", err)
+			fmt.Printf("%+v", err)
 				http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 				return
 		}
@@ -400,49 +401,49 @@ func importLibrary(w http.ResponseWriter, r *http.Request) {
 	// parse request with maximum memory of _24Kilobits
 	const _24K = (1 << 20) * 24
 	if err = r.ParseMultipartForm(_24K); nil != err {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
-	fmt.Errorf("starting to write")
+	fmt.Printf("starting to write")
 	for _, fheaders := range r.MultipartForm.File {
 		for _, hdr := range fheaders {
 			// open uploaded
 			var infile multipart.File
 			if infile, err = hdr.Open(); nil != err {
-				fmt.Errorf("%+v", err)
+				fmt.Printf("%+v", err)
 				http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 				return
 			}
 			// open destination
 			var outfile *os.File
 			if outfile, err = os.Create("./tmp/" + hdr.Filename); nil != err {
-				fmt.Errorf("%+v", err)
+				fmt.Printf("%+v", err)
 				http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 				return
 			}
 			// 32K buffer copy
 			var written int64
 			if written, err = io.Copy(outfile, infile); nil != err {
-				fmt.Errorf("%+v", err)
+				fmt.Printf("%+v", err)
 				http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 				return
 			}
 			reader, err := os.Open("./tmp/"+hdr.Filename)
 			if err != nil {
-				fmt.Errorf("%+v", err)
+				fmt.Printf("%+v", err)
 				http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 				return
 			}
 			c_reader := csv.NewReader(reader)
 			if err != nil {
-				fmt.Errorf("%+v", err)
+				fmt.Printf("%+v", err)
 				http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 				return
 			}
 			records, err := c_reader.ReadAll()
 			if err != nil {
-				fmt.Errorf("%+v", err)
+				fmt.Printf("%+v", err)
 				http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 				return
 			}
@@ -462,7 +463,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	key, err := LoginUser(r.Form["username"][0], r.Form["password"][0])
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 	}
 	http.SetCookie(w, &http.Cookie{Name:"library-organizer-session",Value:key})
 	http.Redirect(w, r, "/", 301)
@@ -478,7 +479,7 @@ func register (w http.ResponseWriter, r *http.Request) {
 	// r.ParseForm()
 	// key, err := RegisterUser(r.Form["username"][0], r.Form["password"][0], r.Form["email"][0])
 	// if err != nil {
-	// 	fmt.Errorf("%+v", err)
+	// 	fmt.Printf("%+v", err)
 	// }
 	// http.SetCookie(w, &http.Cookie{Name:"library-organizer-session",Value:key})
 	http.Redirect(w, r, "/", 301)
@@ -492,7 +493,7 @@ func logout(w http.ResponseWriter, r *http.Request) {
 	}
 	cookie, err := r.Cookie("library-organizer-session")
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Redirect(w, r, "/", 301)
 	}
 	if cookie.Value == "" {
@@ -500,7 +501,7 @@ func logout(w http.ResponseWriter, r *http.Request) {
 	}
 	err = LogoutSession(cookie.Value)
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 	}
 	http.Redirect(w, r, "/", 301)
 	return
@@ -509,7 +510,7 @@ func logout(w http.ResponseWriter, r *http.Request) {
 func registered(r *http.Request) bool {
 	cookie, err := r.Cookie("library-organizer-session")
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		return false
 	}
 	if cookie.Value == "" {
@@ -517,7 +518,7 @@ func registered(r *http.Request) bool {
 	}
 	registered, err := IsRegistered(cookie.Value)
 	if  err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		return false
 	}
 	return registered
@@ -543,13 +544,13 @@ func getStats(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
 	d, err := GetStats(params.Get("type"))
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
 	data, err := json.Marshal(d);
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
@@ -560,13 +561,13 @@ func getStats(w http.ResponseWriter, r *http.Request) {
 func getCases(w http.ResponseWriter, r *http.Request) {
 	d, err := GetCases()
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
 	data, err := json.Marshal(d);
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
@@ -577,16 +578,41 @@ func getCases(w http.ResponseWriter, r *http.Request) {
 func getDimensions(w http.ResponseWriter, r *http.Request) {
 	d, err := GetDimensions()
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
 	data, err := json.Marshal(d);
 	if err != nil {
-		fmt.Errorf("%+v", err)
+		fmt.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
  	w.Write(data)
+}
+
+func deleteBook(w http.ResponseWriter, r *http.Request) {
+	if !registered(r) {
+		fmt.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
+		return
+	}
+	var i int
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&i)
+	if err != nil {
+		fmt.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
+	id := strconv.Itoa(i)
+	err = DeleteBook(id)
+	if err != nil {
+		fmt.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	return
 }
