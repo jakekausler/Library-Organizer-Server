@@ -571,7 +571,7 @@ func getCases(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	params := r.URL.Query()
-	libraryid := params.get("libraryid")
+	libraryid := params.Get("libraryid")
 	d, err := GetCases(libraryid)
 	if err != nil {
 		fmt.Printf("%+v", err)

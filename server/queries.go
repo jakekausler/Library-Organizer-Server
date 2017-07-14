@@ -40,7 +40,7 @@ const (
 	updateSessionTime    = "UPDATE usersession SET LastSeenTime=NOW()"
 	isSessionNameTaken   = "SELECT sessionkey from usersession where sessionkey=?"
 	deleteSession        = "DELETE FROM usersession WHERE sessionkey=?"
-	getOwnedLibraries    = "SELECT id, name FROM libraries WHERE owned=(SELECT id from library_members join usersession on librarymembers.id=usersession.userid WHERE sessionkey=?)"
+	getOwnedLibrariesQuery    = "SELECT id, name FROM libraries WHERE owned=(SELECT id from library_members join usersession on librarymembers.id=usersession.userid WHERE sessionkey=?)"
 
 	charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 )
@@ -168,7 +168,7 @@ func SaveBook(book Book) error {
 			log.Printf("Error when saving OriginalLanguage: %v", err)
 			return err
 		}
-		_, err = db.Exec(saveBookQuery, book.Title, book.Subtitle, book.OriginallyPublished, book.EditionPublished, publisherID, book.IsRead, book.IsReference, book.IsOwned, book.IsShipping, book.IsReading, book.ISBN, book.Loanee.First, book.Loanee.Last, book.Dewey, book.Pages, book.Width, book.Height, book.Depth, book.Weight, book.PrimaryLanguage, book.SecondaryLanguage, book.OriginalLanguage, book.Series, book.Volume, book.Format, book.Edition, "res/bookimages/"+book.ID+imageType, book.LibraryID, book.ID)
+		_, err = db.Exec(saveBookQuery, book.Title, book.Subtitle, book.OriginallyPublished, book.EditionPublished, publisherID, book.IsRead, book.IsReference, book.IsOwned, book.IsShipping, book.IsReading, book.ISBN, book.Loanee.First, book.Loanee.Last, book.Dewey, book.Pages, book.Width, book.Height, book.Depth, book.Weight, book.PrimaryLanguage, book.SecondaryLanguage, book.OriginalLanguage, book.Series, book.Volume, book.Format, book.Edition, "res/bookimages/"+book.ID+imageType, book.Library.ID, book.ID)
 		if err != nil {
 			log.Printf("Error when saving book: %v", err)
 			return err
@@ -221,7 +221,7 @@ func SaveBook(book Book) error {
 			log.Printf("Error when saving OriginalLanguage: %v", err)
 			return err
 		}
-		res, err := db.Exec(addBookQuery, book.Title, book.Subtitle, book.OriginallyPublished, publisherID, book.IsRead, book.IsReference, book.IsOwned, book.IsShipping, book.IsReading, book.ISBN, book.Loanee.First, book.Loanee.Last, book.Dewey, book.Pages, book.Width, book.Height, book.Depth, book.Weight, book.PrimaryLanguage, book.SecondaryLanguage, book.OriginalLanguage, book.Series, book.Volume, book.Format, book.Edition, book.EditionPublished, book.LibraryID)
+		res, err := db.Exec(addBookQuery, book.Title, book.Subtitle, book.OriginallyPublished, publisherID, book.IsRead, book.IsReference, book.IsOwned, book.IsShipping, book.IsReading, book.ISBN, book.Loanee.First, book.Loanee.Last, book.Dewey, book.Pages, book.Width, book.Height, book.Depth, book.Weight, book.PrimaryLanguage, book.SecondaryLanguage, book.OriginalLanguage, book.Series, book.Volume, book.Format, book.Edition, book.EditionPublished, book.Library.ID)
 		if err != nil {
 			log.Printf("Error when saving book: %v", err)
 			return err
@@ -1033,7 +1033,7 @@ func ImportBooks(records [][]string) error {
 }
 
 //GetStats gets statistics by type
-func GetStats(t, libraryIds string) (StatChart, error) {
+func GetStats(t, libraryids string) (StatChart, error) {
 	var chart StatChart
 	var data []StatData
 	var query string
@@ -1523,7 +1523,7 @@ func GetStats(t, libraryIds string) (StatChart, error) {
 			if decade > 1000 {
 				key := fmt.Sprintf("%.0f", decade) + "-" + fmt.Sprintf("%.0f", decade+10)
 				if _, ok := decadeCounts[key]; ok {
-					decadeCounts[key] + 1
+					decadeCounts[key]++
 				} else {
 					decadeCounts[key] = 1
 				}
@@ -1558,7 +1558,7 @@ func GetStats(t, libraryIds string) (StatChart, error) {
 }
 
 //GetDimensions gets dimensions
-func GetDimensions() (map[string]float64, error) {
+func GetDimensions(libraryids string) (map[string]float64, error) {
 	dimensions := make(map[string]float64)
 	var totalwidth float64
 	var averagewidth float64
@@ -1581,6 +1581,7 @@ func GetDimensions() (map[string]float64, error) {
 	var minimumpages float64
 	var maximumpages float64
 	var volume float64
+	inlibrary := "libraryid IN (" + libraryids + ")"
 	query := `SELECT * FROM (
 				(SELECT SUM(Width) As TotalWidth, AVG(Width) As AvgWidth, MIN(Width) AS MinWidth, MAX(Width) AS MaxWidth FROM books WHERE Width>0 AND IsOwned=1 ` + inlibrary + `) AS w,
 				(SELECT SUM(Height) As TotalHeight, AVG(Height) As AvgHeight, MIN(Height) AS MinHeight, MAX(Height) AS MaxHeight FROM books WHERE Height>0 AND IsOwned=1 ` + inlibrary + `) AS h,
@@ -1618,13 +1619,13 @@ func GetDimensions() (map[string]float64, error) {
 
 //GetCases gets cases
 func GetCases(libraryid string) ([]Bookcase, error) {
-	books, _, err := GetBooks("dewey", "both", "both", "yes", "both", "both", "both", "", "1", "-1", "0", "FIC")
+	books, _, err := GetBooks("dewey", "both", "both", "yes", "both", "both", "both", "", "1", "-1", "0", "FIC", libraryid)
 	query := "SELECT CaseId, Width, ShelfHeight, NumShelves, SpacerHeight, PaddingLeft, PaddingRight, BookMargin FROM bookcases WHERE libraryid=? ORDER BY CaseNumber"
 	rows, err := db.Query(query, libraryid)
 	if err != nil {
 		return nil, err
 	}
-	dim, err := GetDimensions()
+	dim, err := GetDimensions(libraryid)
 	if err != nil {
 		return nil, err
 	}
@@ -1678,12 +1679,12 @@ func GetCases(libraryid string) ([]Bookcase, error) {
 //GetOwnedLibraries gets the libaries available to a user
 func GetOwnedLibraries(session string) ([]Library, error) {
 	var libraries []Library
-	rows, err := db.Query(getOwnedLibraries, session)
+	rows, err := db.Query(getOwnedLibrariesQuery, session)
 	if err != nil {
 		return nil, err
 	}
 	for rows.Next() {
-		var Library l
+		var l Library
 		if err := rows.Scan(&l.ID, &l.Name); err != nil {
 			return nil, err
 		}
