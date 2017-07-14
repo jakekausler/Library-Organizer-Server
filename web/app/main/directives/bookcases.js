@@ -38,7 +38,7 @@ angular.module('libraryOrganizer')
 				if (vm.hashes) {
 					for (b in vm.hashes[i][j]) {
 						if (x < vm.hashes[i][j][b].x+vm.hashes[i][j][b].newwidth && x > vm.hashes[i][j][b].x && y<vm.hashes[i][j][b].y+vm.hashes[i][j][b].newheight && y>vm.hashes[i][j][b].y) {
-							vm.$parent.showEditorDialog(e, vm.hashes[i][j][b]);
+							vm.$parent.showEditorDialog(e, vm.hashes[i][j][b], vm, 'shelves');
 						}
 					}
 				}

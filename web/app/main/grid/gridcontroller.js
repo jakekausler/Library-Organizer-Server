@@ -105,6 +105,6 @@ angular.module('libraryOrganizer')
 			"editionpublished": "",
 			"contributors": []
 		}
-		$scope.showEditorDialog(ev, book);
+		$scope.showEditorDialog(ev, book, $scope, 'gridadd');
 	}
 });

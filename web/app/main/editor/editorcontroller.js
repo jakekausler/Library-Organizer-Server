@@ -1,5 +1,5 @@
 angular.module('libraryOrganizer')
-.controller('editorController', function($scope, $http, $mdDialog, book) {
+.controller('editorController', function($scope, $http, $mdDialog, book, $vm, viewType) {
 	$scope.publishers = [];
 	$scope.cities = [];
 	$scope.states = [];
@@ -116,8 +116,13 @@ angular.module('libraryOrganizer')
 			method: 'POST',
 			data: JSON.stringify(book)
 		}).then(function(response){
-			$vm.updateRecieved();
-			$vm.updateCases();
+			if (viewType=='gridadd') {
+				$vm.updateRecieved();
+			} else if (viewType=='shelves') {
+				$vm.updateCases();
+			} else if (viewType=='grid') {
+				$vm.$parent.$parent.updateRecieved();
+			}
 			$mdDialog.cancel();
 		});
 	}
@@ -161,11 +166,4 @@ angular.module('libraryOrganizer')
 		}) : arr;
 		return results;
 	}
-	$vm.getCurrentDateString();
-	// $scope.$watch('pastingurl', function(newValue, oldValue) {
-	// 	if (newValue) {
-	// 		console.log(document.getElementById('pastingHolder'));
-	// 		document.getElementById('editorImageUrl').focus();
-	// 	}
-	// });
 });
