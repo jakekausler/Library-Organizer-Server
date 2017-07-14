@@ -134,8 +134,20 @@ angular.module('libraryOrganizer')
 			.ok('Yes')
 			.cancel('Cancel');
 		$mdDialog.show(confirm).then(function() {
-			//todo remove book
-			console.log(book);
+			$http({
+			url: '/deletebook',
+			method: 'POST',
+			data: book.bookid
+		}).then(function(response) {
+			if (viewType=='gridadd') {
+				$vm.updateRecieved();
+			} else if (viewType=='shelves') {
+				$vm.updateCases();
+			} else if (viewType=='grid') {
+				$vm.$parent.$parent.updateRecieved();
+			}
+			$mdDialog.cancel();
+		})
 		}, function() {});
 	}
 	$scope.cancel = function() {
