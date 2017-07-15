@@ -39,8 +39,8 @@ const (
 	updateSessionTime    = "UPDATE usersession SET LastSeenTime=NOW()"
 	isSessionNameTaken   = "SELECT sessionkey from usersession where sessionkey=?"
 	deleteSession        = "DELETE FROM usersession WHERE sessionkey=?"
-	getOwnedLibrariesQuery    = "SELECT id, name FROM libraries WHERE id=(SELECT id from library_members join usersession on library_members.id=usersession.userid WHERE sessionkey=?)"
-
+	getLibrariesQuery    = "SELECT libraries.id, name, permission, usr FROM libraries JOIN permissions ON libraries.id=permissions.libraryid join library_members on libraries.ownerid=library_members.id WHERE permissions.permission & 1 and permissions.userid=(SELECT id from library_members join usersession on library_members.id=usersession.userid WHERE sessionkey=?)"
+	getBreaks = "SELECT BreakType, ValueType, Value FROM breaks WHERE libraryid=? AND (ValueType=? OR ValueType='ID')"
 	charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 )
 
@@ -118,7 +118,18 @@ logger.Printf("Error: %+v", err)
 return "", err
 	}
 	query := "INSERT INTO libraries (name, ownerid) VALUES (?,?)"
-	_, err = db.Exec(query, "default", id)
+	result, err = db.Exec(query, "default", id)
+	if err != nil {
+logger.Printf("Error: %+v", err)
+return "", err
+	}
+	lib_id, err := result.LastInsertId()
+	if err != nil {
+logger.Printf("Error: %+v", err)
+return "", err
+	}
+	query = "INSERT INTO permissions (userid, libraryid, permission) VALUES (?,?,7)"
+	_, err = db.Exec(query, id, lib_id)
 	return key, err
 }
 
@@ -424,6 +435,9 @@ return err
 //GetBooks gets all books
 //todo include authors in filter
 func GetBooks(sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, libraryids string) ([]Book, int64, error) {
+	if libraryids == "" {
+		return nil, 0, nil
+	}
 	var order string
 	if sortMethod == "title" {
 		order = "Title2, minname"
@@ -1825,8 +1839,13 @@ return nil, err
 }
 
 //GetCases gets cases
-func GetCases(libraryid string) ([]Bookcase, error) {
+func GetCases(libraryid, sortMethod string) ([]Bookcase, error) {
 	books, _, err := GetBooks("dewey", "both", "both", "yes", "both", "both", "both", "", "1", "-1", "0", "FIC", libraryid)
+	breaks, err := GetBreaks(libraryid, sortMethod)
+	if err != nil {
+logger.Printf("Error: %+v", err)
+return nil, err
+	}
 	query := "SELECT CaseId, Width, SpacerHeight, PaddingLeft, PaddingRight, BookMargin FROM bookcases WHERE libraryid=? ORDER BY CaseNumber"
 	rows, err := db.Query(query, libraryid)
 	if err != nil {
@@ -1875,7 +1894,11 @@ return nil, err
 	index := 0
 	x := 0
 	for c, bookcase := range cases {
+		breakcase := false
 		for s := range bookcase.Shelves {
+			if breakcase {
+				break;
+			}
 			x = int(bookcase.PaddingLeft)
 			useWidth := int(dim["averagewidth"])
 			if index < len(books) && books[index].Width != 0 {
@@ -1889,26 +1912,80 @@ return nil, err
 				if index < len(books) && books[index].Width != 0 {
 					useWidth = int(books[index].Width)
 				}
+				if breaktype, present := breaks[0][books[index-1].ID]; present {
+					if breaktype == "CASE" {
+						breakcase = true
+					}
+					break
+				}
+				if len(books) > index {
+					if sortMethod == "DEWEY" {
+						if breaktype, present := breaks[1][books[index-1].Dewey]; present && books[index-1].Dewey != books[index].Dewey {
+							if breaktype == "CASE" {
+								breakcase = true
+							}
+							break
+						}
+					}
+					if sortMethod == "SERIES" {
+						if breaktype, present := breaks[1][books[index-1].Series]; present && books[index-1].Series != books[index].Series {
+							if breaktype == "CASE" {
+								breakcase = true
+							}
+							break
+						}
+					}
+				}
 			}
 		}
 	}
 	return cases, nil
 }
 
-//GetOwnedLibraries gets the libraries available to a user
-func GetOwnedLibraries(session string) ([]Library, error) {
+//GetLibraries gets the libraries available to a user
+func GetLibraries(session string) ([]Library, error) {
 	var libraries []Library
-	rows, err := db.Query(getOwnedLibrariesQuery, session)
+	rows, err := db.Query(getLibrariesQuery, session)
 	if err != nil {
 		logger.Printf("%+v", err)
 		return nil, err
 	}
 	for rows.Next() {
 		var l Library
-		if err := rows.Scan(&l.ID, &l.Name); err != nil {
+		if err := rows.Scan(&l.ID, &l.Name, &l.Permissions, &l.Owner); err != nil {
+logger.Printf("Error: %+v", err)
 			return nil, err
 		}
 		libraries = append(libraries, l)
 	}
 	return libraries, nil
+}
+
+func GetUsername(session string) (string, error) {
+	var name string
+	query := "SELECT usr FROM library_members JOIN usersession ON UserID=ID WHERE sessionkey=?"
+	err := db.QueryRow(query, session).Scan(&name)
+	return name, err
+}
+
+func GetBreaks(libraryid, valuetype string) ([]map[string]string, error) {
+	idBreaks := make(map[string]string)
+	customBreaks := make(map[string]string)
+	rows, err := db.Query(getBreaks, libraryid, valuetype)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return nil, err
+	}
+	for rows.Next() {
+		var breaktype string
+		var valuetype string
+		var value string
+		rows.Scan(&breaktype, &valuetype, &value)
+		if valuetype == "ID" {
+			idBreaks[value] = breaktype
+		} else {
+			customBreaks[value] = breaktype
+		}
+	}
+	return []map[string]string{idBreaks, customBreaks}, nil
 }

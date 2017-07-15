@@ -64,7 +64,8 @@ func RunServer(username, password, database string) {
 	http.HandleFunc("/cases", getCases)
 	http.HandleFunc("/dimensions", getDimensions)
 	http.HandleFunc("/deletebook", deleteBook)
-	http.HandleFunc("/ownedlibraries", getOwnedLibraries)
+	http.HandleFunc("/libraries", getLibraries)
+	http.HandleFunc("/username", getUsername)
 	http.Handle("/web/", http.StripPrefix("/web/", http.FileServer(http.Dir("./../web/"))))
 	logger.Printf("Listening on port 8181")
 	http.ListenAndServe(":8181", nil)
@@ -573,7 +574,8 @@ func getCases(w http.ResponseWriter, r *http.Request) {
 	}
 	params := r.URL.Query()
 	libraryid := params.Get("libraryid")
-	d, err := GetCases(libraryid)
+	sortmethod := params.Get("sortmethod")
+	d, err := GetCases(libraryid, sortmethod)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -638,7 +640,7 @@ func deleteBook(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func getOwnedLibraries(w http.ResponseWriter, r *http.Request) {
+func getLibraries(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("library-organizer-session")
 	if err != nil {
 		logger.Printf("%+v", err)
@@ -647,7 +649,32 @@ func getOwnedLibraries(w http.ResponseWriter, r *http.Request) {
 	if cookie.Value == "" {
 		http.Redirect(w, r, "/", 301)
 	}
-	d, err := GetOwnedLibraries(cookie.Value)
+	d, err := GetLibraries(cookie.Value)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	data, err := json.Marshal(d)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+}
+
+func getUsername(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("library-organizer-session")
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Redirect(w, r, "/", 301)
+	}
+	if cookie.Value == "" {
+		http.Redirect(w, r, "/", 301)
+	}
+	d, err := GetUsername(cookie.Value)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
