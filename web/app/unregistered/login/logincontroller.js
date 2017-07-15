@@ -1,6 +1,6 @@
 angular.module('unregistered')
-.controller('loginController', function($scope, $mdDialog) {
-	$scope.cancel = function() {
-		$mdDialog.cancel()
-	};
-});
+.controller('logincontroller', function($scope, vm) {
+	$scope.reset = function(ev) {
+		vm.resetPassword(ev);
+	}
+})

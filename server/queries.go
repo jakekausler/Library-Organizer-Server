@@ -44,6 +44,18 @@ const (
 	charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 )
 
+//Todo
+func ResetPassword(email string) error {
+	// query := "SELECT id FROM library_members WHERE email=?"
+	// var userid int64
+	// err := db.QueryRow(query, email).Scan(&userid)
+	// if err != nil {
+	// 	logger.Printf("%+v", err)
+	// 	return err
+	// }
+	return nil
+}
+
 //IsRegistered returns whether a user session is registered and the corresponding user exists
 func IsRegistered(session string) (bool, error) {
 	var sessionkey string
