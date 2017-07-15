@@ -9,6 +9,13 @@ angular.module('libraryOrganizer')
 	$scope.languages = [];
 	$scope.roles = [];
 	$scope.deweys = [];
+	$scope.libraries = [];
+	$scope.updateLibraries = function() {
+        $http.get('/ownedlibraries', {}).then(function(response) {
+            $scope.libraries = response.data;
+        });
+    };
+	$scope.updateLibraries();
 	$scope.updatePublishers = function() {
 		$http({
 			url: '/publishers',

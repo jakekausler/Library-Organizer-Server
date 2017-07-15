@@ -2,9 +2,13 @@ angular.module('libraryOrganizer')
     .controller('statisticsController', function($scope, $http) {
         $scope.statView = 'general';
         $scope.statSubView = 'bycounts';
-        $scope.libraryids = ['1'];
+        $scope.libraries = [];
         $scope.stringLibraryIds = function() {
-            return $scope.libraryids.join(',')
+            var retval = "";
+            for (l in $scope.libraries) {
+                retval += $scope.libraries[l].id;
+            }
+            return retval;
         }
         $scope.dimensions = {};
         $scope.updateDimensions = function() {
@@ -18,7 +22,6 @@ angular.module('libraryOrganizer')
                 $scope.dimensions = response.data;
             });
         }
-        $scope.updateDimensions();
         $scope.setStatView = function(view) {
             $scope.statView = view;
             switch (view) {
@@ -52,7 +55,13 @@ angular.module('libraryOrganizer')
             }
         }
         $scope.setStatSubView = function(view) {
-            console.log(view)
             $scope.statSubView = view;
         }
+        $scope.updateLibraries = function() {
+            $http.get('/ownedlibraries', {}).then(function(response) {
+                $scope.libraries = response.data;
+                $scope.updateDimensions();
+            });
+        };
+        $scope.updateLibraries();
     });

@@ -474,16 +474,16 @@ func login(w http.ResponseWriter, r *http.Request) {
 
 //todo - Allow registering after set up for multiple members
 func register(w http.ResponseWriter, r *http.Request) {
-	// if r.Method == "GET" {
-	// 	http.Redirect(w, r, "/", 301)
-	// 	return
-	// }
-	// r.ParseForm()
-	// key, err := RegisterUser(r.Form["username"][0], r.Form["password"][0], r.Form["email"][0])
-	// if err != nil {
-	// 	logger.Printf("%+v", err)
-	// }
-	// http.SetCookie(w, &http.Cookie{Name:"library-organizer-session",Value:key})
+	if r.Method == "GET" {
+		http.Redirect(w, r, "/", 301)
+		return
+	}
+	r.ParseForm()
+	key, err := RegisterUser(r.Form["username"][0], r.Form["password"][0], r.Form["email"][0])
+	if err != nil {
+		logger.Printf("%+v", err)
+	}
+	http.SetCookie(w, &http.Cookie{Name:"library-organizer-session",Value:key})
 	http.Redirect(w, r, "/", 301)
 	return
 }
