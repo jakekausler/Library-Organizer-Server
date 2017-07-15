@@ -31,7 +31,7 @@ const (
 	getLanguagesQuery    = "SELECT DISTINCT(Langauge) from languages"
 	getRolesQuery        = "SELECT DISTINCT(Role) from written_by"
 	saveBookQuery        = "UPDATE books SET Title=?, Subtitle=?, OriginallyPublished=?, EditionPublished=?, PublisherID=?, IsRead=?, IsReference=?, IsOwned=?, IsShipping=?, IsReading=?, isbn=?, LoaneeFirst=?, LoaneeLast=?, Dewey=?, Pages=?, Width=?, Height=?, Depth=?, Weight=?, PrimaryLanguage=?, SecondaryLanguage=?, OriginalLanguage=?, Series=?, Volume=?, Format=?, Edition=?, ImageURL=?, LibraryId=? WHERE BookId=?"
-	addBookQuery         = "INSERT INTO books (Title, Subtitle, OriginallyPublished, PublisherID, IsRead, IsReference, IsOwned, IsShipping, IsReading, isbn, LoaneeFirst, LoaneeLast, Dewey, Pages, Width, Height, Depth, Weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, Series, Volume, Format, Edition, EditionPublished, LibaryId) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+	addBookQuery         = "INSERT INTO books (Title, Subtitle, OriginallyPublished, PublisherID, IsRead, IsReference, IsOwned, IsShipping, IsReading, isbn, LoaneeFirst, LoaneeLast, Dewey, Pages, Width, Height, Depth, Weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, Series, Volume, Format, Edition, EditionPublished, LibraryId) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	getValidUserSession  = "SELECT sessionkey from usersession WHERE sessionkey=? AND EXISTS (SELECT id FROM library_members where id=userid)"
 	getUser              = "SELECT id from library_members WHERE usr=? and pass=?"
 	addUser              = "INSERT INTO library_members (usr,pass,email) values (?,?,?)"
@@ -60,7 +60,8 @@ func IsRegistered(session string) (bool, error) {
 func MarkAsSeen(session string) error {
 	_, err := db.Exec(updateSessionTime, session)
 	if err != nil {
-		return err
+logger.Printf("Error: %+v", err)
+return err
 	}
 	return nil
 }
@@ -90,25 +91,34 @@ func GenerateSessionKey() string {
 func LoginUser(username, password string) (string, error) {
 	id, err := IsUser(username, password)
 	if err != nil {
-		return "", err
+logger.Printf("Error: %+v", err)
+return "", err
 	}
 	key := GenerateSessionKey()
 	_, err = db.Exec(addSession, key, id)
 	return key, err
 }
 
-//RegisterUser registers a user
+//RegisterUser registers a user and creates a default library for him
 func RegisterUser(username, password, email string) (string, error) {
 	result, err := db.Exec(addUser, username, password, email)
 	if err != nil {
-		return "", err
+logger.Printf("Error: %+v", err)
+return "", err
 	}
 	id, err := result.LastInsertId()
 	if err != nil {
-		return "", err
+logger.Printf("Error: %+v", err)
+return "", err
 	}
 	key := GenerateSessionKey()
 	_, err = db.Exec(addSession, key, id)
+	if err != nil {
+logger.Printf("Error: %+v", err)
+return "", err
+	}
+	query := "INSERT INTO libraries (name, ownerid) VALUES (?,?)"
+	_, err = db.Exec(query, "default", id)
 	return key, err
 }
 
@@ -116,7 +126,8 @@ func RegisterUser(username, password, email string) (string, error) {
 func LogoutSession(sessionkey string) error {
 	_, err := db.Exec(deleteSession, sessionkey)
 	if err != nil {
-		return err
+logger.Printf("Error: %+v", err)
+return err
 	}
 	return nil
 }
@@ -277,12 +288,14 @@ func DeleteBook(bookid string) error {
 func addContributor(bookid string, contributor Contributor) error {
 	personID, err := addOrGetPerson(contributor.Name.First, contributor.Name.Middles, contributor.Name.Last)
 	if err != nil {
-		return err
+logger.Printf("Error: %+v", err)
+return err
 	}
 	query := "REPLACE INTO written_by (BookID, AuthorID, Role) VALUES (?,?,?)"
 	_, err = db.Exec(query, bookid, personID, contributor.Role)
 	if err != nil {
-		return err
+logger.Printf("Error: %+v", err)
+return err
 	}
 	return nil
 }
@@ -293,7 +306,8 @@ func addOrGetPerson(first, middles, last string) (string, error) {
 	query := "SELECT PersonID FROM persons WHERE FirstName=? AND MiddleNames=? AND LastName=?"
 	rows, err := db.Query(query, first, middles, last)
 	if err != nil {
-		return "", err
+logger.Printf("Error: %+v", err)
+return "", err
 	}
 	for rows.Next() {
 		if err := rows.Scan(&id); err != nil {
@@ -304,11 +318,13 @@ func addOrGetPerson(first, middles, last string) (string, error) {
 		query = "INSERT INTO persons (FirstName, MiddleNames, LastName) VALUES (?,?,?)"
 		res, err := db.Exec(query, first, middles, last)
 		if err != nil {
-			return "", err
+logger.Printf("Error: %+v", err)
+return "", err
 		}
 		id, err = res.LastInsertId()
 		if err != nil {
-			return "", err
+logger.Printf("Error: %+v", err)
+return "", err
 		}
 	}
 	return strconv.FormatInt(id, 10), nil
@@ -320,7 +336,8 @@ func addOrGetPublisher(publisher, city, state, country string) (string, error) {
 	query := "SELECT PublisherID FROM publishers WHERE Publisher=? AND City=? AND State=? AND Country=?"
 	rows, err := db.Query(query, publisher, city, state, country)
 	if err != nil {
-		return "", err
+logger.Printf("Error: %+v", err)
+return "", err
 	}
 	for rows.Next() {
 		if err := rows.Scan(&id); err != nil {
@@ -331,11 +348,13 @@ func addOrGetPublisher(publisher, city, state, country string) (string, error) {
 		query = "INSERT INTO publishers (Publisher, City, State, Country) VALUES (?,?,?,?)"
 		res, err := db.Exec(query, publisher, city, state, country)
 		if err != nil {
-			return "", err
+logger.Printf("Error: %+v", err)
+return "", err
 		}
 		id, err = res.LastInsertId()
 		if err != nil {
-			return "", err
+logger.Printf("Error: %+v", err)
+return "", err
 		}
 	}
 	return strconv.FormatInt(id, 10), nil
@@ -345,7 +364,8 @@ func addDewey(v string) error {
 	query := "REPLACE INTO dewey_numbers (Number) VALUES (?)"
 	_, err := db.Exec(query, v)
 	if err != nil {
-		return err
+logger.Printf("Error: %+v", err)
+return err
 	}
 	return nil
 }
@@ -354,7 +374,8 @@ func addFormat(v string) error {
 	query := "REPLACE INTO formats (Format) VALUES (?)"
 	_, err := db.Exec(query, v)
 	if err != nil {
-		return err
+logger.Printf("Error: %+v", err)
+return err
 	}
 	return nil
 }
@@ -363,7 +384,8 @@ func addSeries(v string) error {
 	query := "REPLACE INTO series (Series) VALUES (?)"
 	_, err := db.Exec(query, v)
 	if err != nil {
-		return err
+logger.Printf("Error: %+v", err)
+return err
 	}
 	return nil
 }
@@ -372,7 +394,8 @@ func addLanguage(v string) error {
 	query := "REPLACE INTO languages (Langauge) VALUES (?)"
 	_, err := db.Exec(query, v)
 	if err != nil {
-		return err
+logger.Printf("Error: %+v", err)
+return err
 	}
 	return nil
 }
@@ -380,16 +403,19 @@ func addLanguage(v string) error {
 func downloadImage(url, fileLocation string) error {
 	response, err := http.Get(url)
 	if err != nil {
-		return err
+logger.Printf("Error: %+v", err)
+return err
 	}
 	defer response.Body.Close()
 	file, err := os.Create(fileLocation)
 	if err != nil {
-		return err
+logger.Printf("Error: %+v", err)
+return err
 	}
 	_, err = io.Copy(file, response.Body)
 	if err != nil {
-		return err
+logger.Printf("Error: %+v", err)
+return err
 	}
 	file.Close()
 	return nil
@@ -510,11 +536,13 @@ func GetBooks(sortMethod, isread, isreference, isowned, isloaned, isreading, iss
 	}
 	pag, err := strconv.ParseInt(page, 10, 64)
 	if err != nil {
-		return nil, 0, err
+logger.Printf("Error: %+v", err)
+return nil, 0, err
 	}
 	ntg, err := strconv.ParseInt(numberToGet, 10, 64)
 	if err != nil {
-		return nil, 0, err
+logger.Printf("Error: %+v", err)
+return nil, 0, err
 	}
 	query := "SELECT bookid, title, subtitle, OriginallyPublished, PublisherID, isread, isreference, IsOwned, ISBN, LoaneeFirst, LoaneeLast, dewey, pages, width, height, depth, weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, series, volume, format, Edition, ImageURL, IsReading, isshipping, SpineColor, CheapestNew, CheapestUsed, EditionPublished, LibraryID, libraries.Name from (select books.*, " + titlechange + ", " + serieschange + ", min(name) as minname FROM books LEFT JOIN " + authors + " ON books.BookID = Authors.BookID " + filter + " GROUP BY books.BookID) i LEFT JOIN libraries ON LibraryID=libraries.id ORDER BY " + order
 	if numberToGet != "-1" {
@@ -653,7 +681,8 @@ func GetBooks(sortMethod, isread, isreference, isowned, isloaned, isreading, iss
 	var numberOfBooks int64
 	err = db.QueryRow(pageQuery).Scan(&numberOfBooks)
 	if err != nil {
-		return nil, 0, err
+logger.Printf("Error: %+v", err)
+return nil, 0, err
 	}
 
 	return books, numberOfBooks, rows.Close()
@@ -1035,6 +1064,9 @@ func ImportBooks(records [][]string) error {
 func GetStats(t, libraryids string) (StatChart, error) {
 	var chart StatChart
 	var data []StatData
+	if libraryids == "" {
+		return chart, nil
+	}
 	var query string
 	inlibrary := "AND libraryid IN (" + libraryids + ")"
 	switch t {
@@ -1057,7 +1089,8 @@ func GetStats(t, libraryids string) (StatChart, error) {
 				(SELECT count(*) as shipping from books WHERE isshipping=1 and isowned=1 ` + inlibrary + `) AS shi)`
 		err := db.QueryRow(query).Scan(&total, &read, &reading, &toread, &reference, &loaned, &shipping)
 		if err != nil {
-			return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 		}
 		chart.Chart.Caption = "Books By Count (Total: " + strconv.FormatInt(total, 10) + ")"
 		data = append(data, StatData{
@@ -1093,13 +1126,13 @@ func GetStats(t, libraryids string) (StatChart, error) {
 	case "generalbysize":
 		chart.Chart.NumberSuffix = " mm³"
 		chart.Chart.Decimals = "0"
-		var total int64
-		var read int64
-		var reading int64
-		var reference int64
-		var loaned int64
-		var shipping int64
-		var toread int64
+		var total sql.NullInt64
+		var read sql.NullInt64
+		var reading sql.NullInt64
+		var reference sql.NullInt64
+		var loaned sql.NullInt64
+		var shipping sql.NullInt64
+		var toread sql.NullInt64
 		query = `SELECT * FROM (
 				(SELECT SUM(width*height*depth) as total from books WHERE isowned=1 ` + inlibrary + `) AS t,
 				(SELECT SUM(width*height*depth) as rea from books WHERE isread=1 and isowned=1 ` + inlibrary + `) AS red,
@@ -1110,49 +1143,50 @@ func GetStats(t, libraryids string) (StatChart, error) {
 				(SELECT SUM(width*height*depth) as shipping from books WHERE isshipping=1 and isowned=1 ` + inlibrary + `) AS shi)`
 		err := db.QueryRow(query).Scan(&total, &read, &reading, &toread, &reference, &loaned, &shipping)
 		if err != nil {
-			return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 		}
 		chart.Chart.Caption = "Books By Size"
 		data = append(data, StatData{
 			Label:    "Read",
-			Value:    fmt.Sprintf("%.2f", float64(read)),
-			ToolText: fmt.Sprintf("%.2f%%", float64(read)/float64(total)*100),
+			Value:    fmt.Sprintf("%.2f", float64(read.Int64)),
+			ToolText: fmt.Sprintf("%.2f%%", float64(read.Int64)/float64(total.Int64)*100),
 		})
 		data = append(data, StatData{
 			Label:    "Reading",
-			Value:    fmt.Sprintf("%.2f", float64(reading)),
-			ToolText: fmt.Sprintf("%.2f%%", float64(reading)/float64(total)*100),
+			Value:    fmt.Sprintf("%.2f", float64(reading.Int64)),
+			ToolText: fmt.Sprintf("%.2f%%", float64(reading.Int64)/float64(total.Int64)*100),
 		})
 		data = append(data, StatData{
 			Label:    "Reference",
-			Value:    fmt.Sprintf("%.2f", float64(reference)),
-			ToolText: fmt.Sprintf("%.2f%%", float64(reference)/float64(total)*100),
+			Value:    fmt.Sprintf("%.2f", float64(reference.Int64)),
+			ToolText: fmt.Sprintf("%.2f%%", float64(reference.Int64)/float64(total.Int64)*100),
 		})
 		data = append(data, StatData{
 			Label:    "To Read",
-			Value:    fmt.Sprintf("%.2f", float64(toread)),
-			ToolText: fmt.Sprintf("%.2f%%", float64(toread)/float64(total)*100),
+			Value:    fmt.Sprintf("%.2f", float64(toread.Int64)),
+			ToolText: fmt.Sprintf("%.2f%%", float64(toread.Int64)/float64(total.Int64)*100),
 		})
 		data = append(data, StatData{
 			Label:    "Shipping",
-			Value:    fmt.Sprintf("%.2f", float64(shipping)),
-			ToolText: fmt.Sprintf("%.2f%%", float64(shipping)/float64(total)*100),
+			Value:    fmt.Sprintf("%.2f", float64(shipping.Int64)),
+			ToolText: fmt.Sprintf("%.2f%%", float64(shipping.Int64)/float64(total.Int64)*100),
 		})
 		data = append(data, StatData{
 			Label:    "Loaned",
-			Value:    fmt.Sprintf("%.2f", float64(loaned)),
-			ToolText: fmt.Sprintf("%.2f%%", float64(loaned)/float64(total)*100),
+			Value:    fmt.Sprintf("%.2f", float64(loaned.Int64)),
+			ToolText: fmt.Sprintf("%.2f%%", float64(loaned.Int64)/float64(total.Int64)*100),
 		})
 	case "generalbypages":
 		chart.Chart.NumberSuffix = " pages"
 		chart.Chart.Decimals = "0"
-		var total int64
-		var read int64
-		var reading int64
-		var reference int64
-		var loaned int64
-		var shipping int64
-		var toread int64
+		var total sql.NullInt64
+		var read sql.NullInt64
+		var reading sql.NullInt64
+		var reference sql.NullInt64
+		var loaned sql.NullInt64
+		var shipping sql.NullInt64
+		var toread sql.NullInt64
 		query = `SELECT * FROM (
 				(SELECT SUM(pages) as total from books WHERE isowned=1 ` + inlibrary + `) AS t,
 				(SELECT SUM(pages) as rea from books WHERE isread=1 and isowned=1 ` + inlibrary + `) AS red,
@@ -1163,38 +1197,39 @@ func GetStats(t, libraryids string) (StatChart, error) {
 				(SELECT SUM(pages) as shipping from books WHERE isshipping=1 and isowned=1 ` + inlibrary + `) AS shi)`
 		err := db.QueryRow(query).Scan(&total, &read, &reading, &toread, &reference, &loaned, &shipping)
 		if err != nil {
-			return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 		}
 		chart.Chart.Caption = "Books By Pages"
 		data = append(data, StatData{
 			Label:    "Read",
-			Value:    fmt.Sprintf("%.2f", float64(read)),
-			ToolText: fmt.Sprintf("%.2f%%", float64(read)/float64(total)*100),
+			Value:    fmt.Sprintf("%.2f", float64(read.Int64)),
+			ToolText: fmt.Sprintf("%.2f%%", float64(read.Int64)/float64(total.Int64)*100),
 		})
 		data = append(data, StatData{
 			Label:    "Reading",
-			Value:    fmt.Sprintf("%.2f", float64(reading)),
-			ToolText: fmt.Sprintf("%.2f%%", float64(reading)/float64(total)*100),
+			Value:    fmt.Sprintf("%.2f", float64(reading.Int64)),
+			ToolText: fmt.Sprintf("%.2f%%", float64(reading.Int64)/float64(total.Int64)*100),
 		})
 		data = append(data, StatData{
 			Label:    "Reference",
-			Value:    fmt.Sprintf("%.2f", float64(reference)),
-			ToolText: fmt.Sprintf("%.2f%%", float64(reference)/float64(total)*100),
+			Value:    fmt.Sprintf("%.2f", float64(reference.Int64)),
+			ToolText: fmt.Sprintf("%.2f%%", float64(reference.Int64)/float64(total.Int64)*100),
 		})
 		data = append(data, StatData{
 			Label:    "To Read",
-			Value:    fmt.Sprintf("%.2f", float64(toread)),
-			ToolText: fmt.Sprintf("%.2f%%", float64(toread)/float64(total)*100),
+			Value:    fmt.Sprintf("%.2f", float64(toread.Int64)),
+			ToolText: fmt.Sprintf("%.2f%%", float64(toread.Int64)/float64(total.Int64)*100),
 		})
 		data = append(data, StatData{
 			Label:    "Shipping",
-			Value:    fmt.Sprintf("%.2f", float64(shipping)),
-			ToolText: fmt.Sprintf("%.2f%%", float64(shipping)/float64(total)*100),
+			Value:    fmt.Sprintf("%.2f", float64(shipping.Int64)),
+			ToolText: fmt.Sprintf("%.2f%%", float64(shipping.Int64)/float64(total.Int64)*100),
 		})
 		data = append(data, StatData{
 			Label:    "Loaned",
-			Value:    fmt.Sprintf("%.2f", float64(loaned)),
-			ToolText: fmt.Sprintf("%.2f%%", float64(loaned)/float64(total)*100),
+			Value:    fmt.Sprintf("%.2f", float64(loaned.Int64)),
+			ToolText: fmt.Sprintf("%.2f%%", float64(loaned.Int64)/float64(total.Int64)*100),
 		})
 	case "publishersbooksperparent":
 		chart.Chart.FormatNumberScale = "0"
@@ -1202,20 +1237,23 @@ func GetStats(t, libraryids string) (StatChart, error) {
 		totalquery := `SELECT count(*) FROM books WHERE isowned=1 ` + inlibrary
 		err := db.QueryRow(totalquery).Scan(&total)
 		if err != nil {
-			return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 		}
 		chart.Chart.Caption = "Books By Parent Company"
-		query := `SELECT COUNT(parentcompany) AS number, ParentCompany FROM publishers JOIN books ON publishers.PublisherID = books.PublisherID WHERE isowned = 1 and parentcompany != "" GROUP BY parentcompany ORDER BY number DESC`
+		query := `SELECT COUNT(parentcompany) AS number, ParentCompany FROM publishers JOIN books ON publishers.PublisherID = books.PublisherID WHERE isowned = 1 and parentcompany != "" ` + inlibrary + ` GROUP BY parentcompany ORDER BY number DESC`
 		rows, err := db.Query(query)
 		if err != nil {
-			return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 		}
 		for rows.Next() {
 			var count int64
 			var company string
 			err = rows.Scan(&count, &company)
 			if err != nil {
-				return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 			}
 			data = append(data, StatData{
 				Label:    company,
@@ -1229,20 +1267,23 @@ func GetStats(t, libraryids string) (StatChart, error) {
 		totalquery := `SELECT count(*) FROM books WHERE isowned=1 ` + inlibrary
 		err := db.QueryRow(totalquery).Scan(&total)
 		if err != nil {
-			return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 		}
 		chart.Chart.Caption = "Books By Top Publishers"
-		query := `SELECT COUNT(publisher) AS number, Publisher FROM publishers JOIN books ON publishers.PublisherID = books.PublisherID WHERE isowned = 1 and publisher != "" GROUP BY publisher ORDER BY number DESC LIMIT 30`
+		query := `SELECT COUNT(publisher) AS number, Publisher FROM publishers JOIN books ON publishers.PublisherID = books.PublisherID WHERE isowned = 1 and publisher != "" ` + inlibrary + ` GROUP BY publisher ORDER BY number DESC LIMIT 30`
 		rows, err := db.Query(query)
 		if err != nil {
-			return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 		}
 		for rows.Next() {
 			var count int64
 			var company string
 			err = rows.Scan(&count, &company)
 			if err != nil {
-				return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 			}
 			data = append(data, StatData{
 				Label:    company,
@@ -1256,20 +1297,23 @@ func GetStats(t, libraryids string) (StatChart, error) {
 		totalquery := `SELECT count(*) FROM books WHERE isowned=1 ` + inlibrary
 		err := db.QueryRow(totalquery).Scan(&total)
 		if err != nil {
-			return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 		}
 		chart.Chart.Caption = "Books By Top Locations"
-		query := `SELECT COUNT(*) AS number, city, state, country FROM publishers JOIN books ON publishers.PublisherID = books.PublisherID WHERE isowned = 1 and (city != "" or state != "" or country != "") GROUP BY city, state, country ORDER BY number DESC LIMIT 30`
+		query := `SELECT COUNT(*) AS number, city, state, country FROM publishers JOIN books ON publishers.PublisherID = books.PublisherID WHERE isowned = 1 and (city != "" or state != "" or country != "") ` + inlibrary + ` GROUP BY city, state, country ORDER BY number DESC LIMIT 30`
 		rows, err := db.Query(query)
 		if err != nil {
-			return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 		}
 		for rows.Next() {
 			var count int64
 			var city, state, country string
 			err = rows.Scan(&count, &city, &state, &country)
 			if err != nil {
-				return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 			}
 			label := city + ", "
 			if state != "" {
@@ -1289,19 +1333,22 @@ func GetStats(t, libraryids string) (StatChart, error) {
 		totalquery := `SELECT count(*) FROM books WHERE isowned=1 ` + inlibrary
 		err := db.QueryRow(totalquery).Scan(&total)
 		if err != nil {
-			return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 		}
 		chart.Chart.Caption = "Books By Series"
 		series, err := GetSeries()
 		if err != nil {
-			return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 		}
 		for _, s := range series {
 			var count int64
 			seriesquery := `SELECT COUNT(*) FROM books WHERE series=? AND IsOwned=1 ` + inlibrary
 			err := db.QueryRow(seriesquery, s).Scan(&count)
 			if err != nil {
-				return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 			}
 			if count > 0 && s != "" {
 				data = append(data, StatData{
@@ -1317,19 +1364,22 @@ func GetStats(t, libraryids string) (StatChart, error) {
 		totalquery := `SELECT count(*) FROM books WHERE isowned=1 ` + inlibrary
 		err := db.QueryRow(totalquery).Scan(&total)
 		if err != nil {
-			return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 		}
 		chart.Chart.Caption = "Books By Primary Language"
 		languages, err := GetLanguages()
 		if err != nil {
-			return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 		}
 		for _, language := range languages {
 			var count int64
 			languagequery := `SELECT COUNT(*) FROM books WHERE PrimaryLanguage=? AND IsOwned=1 ` + inlibrary
 			err := db.QueryRow(languagequery, language).Scan(&count)
 			if err != nil {
-				return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 			}
 			if count > 0 && language != "" {
 				data = append(data, StatData{
@@ -1345,19 +1395,22 @@ func GetStats(t, libraryids string) (StatChart, error) {
 		totalquery := `SELECT count(*) FROM books WHERE isowned=1 ` + inlibrary
 		err := db.QueryRow(totalquery).Scan(&total)
 		if err != nil {
-			return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 		}
 		chart.Chart.Caption = "Books By Secondary Language"
 		languages, err := GetLanguages()
 		if err != nil {
-			return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 		}
 		for _, language := range languages {
 			var count int64
 			languagequery := `SELECT COUNT(*) FROM books WHERE SecondaryLanguage=? AND IsOwned=1 ` + inlibrary
 			err := db.QueryRow(languagequery, language).Scan(&count)
 			if err != nil {
-				return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 			}
 			if count > 0 && language != "" {
 				data = append(data, StatData{
@@ -1373,19 +1426,22 @@ func GetStats(t, libraryids string) (StatChart, error) {
 		totalquery := `SELECT count(*) FROM books WHERE isowned=1 ` + inlibrary
 		err := db.QueryRow(totalquery).Scan(&total)
 		if err != nil {
-			return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 		}
 		chart.Chart.Caption = "Books By Original Language"
 		languages, err := GetLanguages()
 		if err != nil {
-			return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 		}
 		for _, language := range languages {
 			var count int64
 			languagequery := `SELECT COUNT(*) FROM books WHERE OriginalLanguage=? AND IsOwned=1 ` + inlibrary
 			err := db.QueryRow(languagequery, language).Scan(&count)
 			if err != nil {
-				return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 			}
 			if count > 0 && language != "" {
 				data = append(data, StatData{
@@ -1424,7 +1480,8 @@ func GetStats(t, libraryids string) (StatChart, error) {
 				(SELECT count(*) as fic from books where dewey='FIC' and IsOwned=1 ` + inlibrary + `) as deweyfic)`
 		err := db.QueryRow(query).Scan(&total, &d0, &d1, &d2, &d3, &d4, &d5, &d6, &d7, &d8, &d9, &df)
 		if err != nil {
-			return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 		}
 		chart.Chart.Caption = "Books By Category"
 		data = append(data, StatData{
@@ -1488,19 +1545,22 @@ func GetStats(t, libraryids string) (StatChart, error) {
 		totalquery := `SELECT count(*) FROM books WHERE isowned=1 ` + inlibrary
 		err := db.QueryRow(totalquery).Scan(&total)
 		if err != nil {
-			return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 		}
 		chart.Chart.Caption = "Books By Format"
 		formats, err := GetFormats()
 		if err != nil {
-			return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 		}
 		for _, format := range formats {
 			var count int64
 			formatquery := `SELECT COUNT(*) FROM books WHERE format=? AND IsOwned=1 ` + inlibrary
 			err := db.QueryRow(formatquery, format).Scan(&count)
 			if err != nil {
-				return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 			}
 			if count > 0 && format != "" {
 				data = append(data, StatData{
@@ -1516,20 +1576,23 @@ func GetStats(t, libraryids string) (StatChart, error) {
 		totalquery := `SELECT count(*) FROM books WHERE isowned=1 ` + inlibrary
 		err := db.QueryRow(totalquery).Scan(&total)
 		if err != nil {
-			return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 		}
 		chart.Chart.Caption = "Books By Top Contributors"
-		query := `SELECT COUNT(authorid) AS BooksWritten, FirstName, MiddleNames, LastName, Role FROM persons JOIN written_by ON written_by.authorid = persons.personid JOIN books ON books.BookID = written_by.BookID WHERE isowned = 1 and  lastname != "" `+inlibrary+` GROUP BY AUTHORID ORDER BY BooksWritten DESC LIMIT 30`
+		query := `SELECT COUNT(authorid) AS BooksWritten, FirstName, MiddleNames, LastName, Role FROM persons JOIN written_by ON written_by.authorid = persons.personid JOIN books ON books.BookID = written_by.BookID WHERE isowned = 1 and lastname != "" `+inlibrary+` GROUP BY AUTHORID ORDER BY BooksWritten DESC LIMIT 30`
 		rows, err := db.Query(query)
 		if err != nil {
-			return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 		}
 		for rows.Next() {
 			var count int64
 			var fn, mn, ln, role string
 			err = rows.Scan(&count, &fn, &mn, &ln, &role)
 			if err != nil {
-				return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 			}
 			name := ln+" ("+role+")"
 			if mn != "" {
@@ -1547,17 +1610,19 @@ func GetStats(t, libraryids string) (StatChart, error) {
 	case "contributorsperrole":
 		chart.Chart.FormatNumberScale = "0"
 		chart.Chart.Caption = "Contributors By Role"
-		query := `SELECT COUNT(role) AS InRole, Role FROM persons JOIN written_by ON written_by.authorid = persons.personid JOIN books ON books.BookID = written_by.BookID WHERE isowned = 1 and role != "" GROUP BY Role ORDER BY InRole DESC`
+		query := `SELECT COUNT(role) AS InRole, Role FROM persons JOIN written_by ON written_by.authorid = persons.personid JOIN books ON books.BookID = written_by.BookID WHERE isowned = 1 and role != "" ` + inlibrary + ` GROUP BY Role ORDER BY InRole DESC`
 		rows, err := db.Query(query)
 		if err != nil {
-			return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 		}
 		for rows.Next() {
 			var count int64
 			var role string
 			err = rows.Scan(&count, &role)
 			if err != nil {
-				return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 			}
 			data = append(data, StatData{
 				Label:    role,
@@ -1570,19 +1635,22 @@ func GetStats(t, libraryids string) (StatChart, error) {
 		totalquery := `SELECT count(*) FROM books WHERE isowned=1 ` + inlibrary
 		err := db.QueryRow(totalquery).Scan(&total)
 		if err != nil {
-			return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 		}
 		query = `Select OriginallyPublished from books where OriginallyPublished != '0000-00-00' AND isowned=1 ` + inlibrary
 		rows, err := db.Query(query)
 		if err != nil {
-			return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 		}
 		var dates []int
 		for rows.Next() {
 			var date time.Time
 			err := rows.Scan(&date)
 			if err != nil {
-				return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 			}
 			dates = append(dates, date.Year())
 		}
@@ -1606,11 +1674,13 @@ func GetStats(t, libraryids string) (StatChart, error) {
 		sort.Slice(decades, func(i, j int) bool {
 			d1, err := strconv.ParseInt(decades[i][0:4], 10, 64)
 			if err != nil {
-				return false
+logger.Printf("Error: %+v", err)
+return false
 			}
 			d2, err := strconv.ParseInt(decades[j][0:4], 10, 64)
 			if err != nil {
-				return false
+logger.Printf("Error: %+v", err)
+return false
 			}
 			return d1 < d2
 		})
@@ -1628,19 +1698,22 @@ func GetStats(t, libraryids string) (StatChart, error) {
 		totalquery := `SELECT count(*) FROM books WHERE isowned=1 ` + inlibrary
 		err := db.QueryRow(totalquery).Scan(&total)
 		if err != nil {
-			return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 		}
 		query = `Select EditionPublished from books where EditionPublished != '0000-00-00' AND isowned=1 ` + inlibrary
 		rows, err := db.Query(query)
 		if err != nil {
-			return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 		}
 		var dates []int
 		for rows.Next() {
 			var date time.Time
 			err := rows.Scan(&date)
 			if err != nil {
-				return chart, err
+logger.Printf("Error: %+v", err)
+return chart, err
 			}
 			dates = append(dates, date.Year())
 		}
@@ -1664,11 +1737,13 @@ func GetStats(t, libraryids string) (StatChart, error) {
 		sort.Slice(decades, func(i, j int) bool {
 			d1, err := strconv.ParseInt(decades[i][0:4], 10, 64)
 			if err != nil {
-				return false
+logger.Printf("Error: %+v", err)
+return false
 			}
 			d2, err := strconv.ParseInt(decades[j][0:4], 10, 64)
 			if err != nil {
-				return false
+logger.Printf("Error: %+v", err)
+return false
 			}
 			return d1 < d2
 		})
@@ -1688,27 +1763,30 @@ func GetStats(t, libraryids string) (StatChart, error) {
 //GetDimensions gets dimensions
 func GetDimensions(libraryids string) (map[string]float64, error) {
 	dimensions := make(map[string]float64)
-	var totalwidth float64
-	var averagewidth float64
-	var minimumwidth float64
-	var maximumwidth float64
-	var totalheight float64
-	var averageheight float64
-	var minimumheight float64
-	var maximumheight float64
-	var totaldepth float64
-	var averagedepth float64
-	var minimumdepth float64
-	var maximumdepth float64
-	var totalweight float64
-	var averageweight float64
-	var minimumweight float64
-	var maximumweight float64
-	var totalpages float64
-	var averagepages float64
-	var minimumpages float64
-	var maximumpages float64
-	var volume float64
+	if libraryids == "" {
+		return dimensions, nil
+	}
+	var totalwidth sql.NullFloat64
+	var averagewidth sql.NullFloat64
+	var minimumwidth sql.NullFloat64
+	var maximumwidth sql.NullFloat64
+	var totalheight sql.NullFloat64
+	var averageheight sql.NullFloat64
+	var minimumheight sql.NullFloat64
+	var maximumheight sql.NullFloat64
+	var totaldepth sql.NullFloat64
+	var averagedepth sql.NullFloat64
+	var minimumdepth sql.NullFloat64
+	var maximumdepth sql.NullFloat64
+	var totalweight sql.NullFloat64
+	var averageweight sql.NullFloat64
+	var minimumweight sql.NullFloat64
+	var maximumweight sql.NullFloat64
+	var totalpages sql.NullFloat64
+	var averagepages sql.NullFloat64
+	var minimumpages sql.NullFloat64
+	var maximumpages sql.NullFloat64
+	var volume sql.NullFloat64
 	inlibrary := "AND libraryid IN (" + libraryids + ")"
 	query := `SELECT * FROM (
 				(SELECT SUM(Width) As TotalWidth, AVG(Width) As AvgWidth, MIN(Width) AS MinWidth, MAX(Width) AS MaxWidth FROM books WHERE Width>0 AND IsOwned=1 ` + inlibrary + `) AS w,
@@ -1719,29 +1797,30 @@ func GetDimensions(libraryids string) (map[string]float64, error) {
 				(SELECT SUM(Width*Height*Depth) as Volume FROM books WHERE IsOwned=1 ` + inlibrary + `) as v)`
 	err := db.QueryRow(query).Scan(&totalwidth, &averagewidth, &minimumwidth, &maximumwidth, &totalheight, &averageheight, &minimumheight, &maximumheight, &totaldepth, &averagedepth, &minimumdepth, &maximumdepth, &totalweight, &averageweight, &minimumweight, &maximumweight, &totalpages, &averagepages, &minimumpages, &maximumpages, &volume)
 	if err != nil {
-		return nil, err
+logger.Printf("Error: %+v", err)
+return nil, err
 	}
-	dimensions["totalwidth"] = totalwidth
-	dimensions["averagewidth"] = averagewidth
-	dimensions["minimumwidth"] = minimumwidth
-	dimensions["maximumwidth"] = maximumwidth
-	dimensions["totalheight"] = totalheight
-	dimensions["averageheight"] = averageheight
-	dimensions["minimumheight"] = minimumheight
-	dimensions["maximumheight"] = maximumheight
-	dimensions["totaldepth"] = totaldepth
-	dimensions["averagedepth"] = averagedepth
-	dimensions["minimumdepth"] = minimumdepth
-	dimensions["maximumdepth"] = maximumdepth
-	dimensions["totalweight"] = totalweight
-	dimensions["averageweight"] = averageweight
-	dimensions["minimumweight"] = minimumweight
-	dimensions["maximumweight"] = maximumweight
-	dimensions["totalpages"] = totalpages
-	dimensions["averagepages"] = averagepages
-	dimensions["minimumpages"] = minimumpages
-	dimensions["maximumpages"] = maximumpages
-	dimensions["volume"] = volume
+	dimensions["totalwidth"] = totalwidth.Float64
+	dimensions["averagewidth"] = averagewidth.Float64
+	dimensions["minimumwidth"] = minimumwidth.Float64
+	dimensions["maximumwidth"] = maximumwidth.Float64
+	dimensions["totalheight"] = totalheight.Float64
+	dimensions["averageheight"] = averageheight.Float64
+	dimensions["minimumheight"] = minimumheight.Float64
+	dimensions["maximumheight"] = maximumheight.Float64
+	dimensions["totaldepth"] = totaldepth.Float64
+	dimensions["averagedepth"] = averagedepth.Float64
+	dimensions["minimumdepth"] = minimumdepth.Float64
+	dimensions["maximumdepth"] = maximumdepth.Float64
+	dimensions["totalweight"] = totalweight.Float64
+	dimensions["averageweight"] = averageweight.Float64
+	dimensions["minimumweight"] = minimumweight.Float64
+	dimensions["maximumweight"] = maximumweight.Float64
+	dimensions["totalpages"] = totalpages.Float64
+	dimensions["averagepages"] = averagepages.Float64
+	dimensions["minimumpages"] = minimumpages.Float64
+	dimensions["maximumpages"] = maximumpages.Float64
+	dimensions["volume"] = volume.Float64
 	return dimensions, nil
 }
 
@@ -1751,18 +1830,21 @@ func GetCases(libraryid string) ([]Bookcase, error) {
 	query := "SELECT CaseId, Width, SpacerHeight, PaddingLeft, PaddingRight, BookMargin FROM bookcases WHERE libraryid=? ORDER BY CaseNumber"
 	rows, err := db.Query(query, libraryid)
 	if err != nil {
-		return nil, err
+logger.Printf("Error: %+v", err)
+return nil, err
 	}
 	dim, err := GetDimensions(libraryid)
 	if err != nil {
-		return nil, err
+logger.Printf("Error: %+v", err)
+return nil, err
 	}
 	var cases []Bookcase
 	for rows.Next() {
 		var id, width, spacerHeight, paddingLeft, paddingRight, bookMargin int64
 		err = rows.Scan(&id, &width, &spacerHeight, &paddingLeft, &paddingRight, &bookMargin)
 		if err != nil {
-			return nil, err
+logger.Printf("Error: %+v", err)
+return nil, err
 		}
 		bookcase := Bookcase{
 			ID:                id,
@@ -1777,7 +1859,8 @@ func GetCases(libraryid string) ([]Bookcase, error) {
 		shelfquery := "SELECT id, Height FROM shelves WHERE CaseId=? ORDER BY ShelfNumber"
 		shelfrows, err := db.Query(shelfquery, id)
 		if err != nil {
-			return nil, err
+logger.Printf("Error: %+v", err)
+return nil, err
 		}
 		for shelfrows.Next() {
 			var shelfid, height int64
@@ -1817,6 +1900,7 @@ func GetOwnedLibraries(session string) ([]Library, error) {
 	var libraries []Library
 	rows, err := db.Query(getOwnedLibrariesQuery, session)
 	if err != nil {
+		logger.Printf("%+v", err)
 		return nil, err
 	}
 	for rows.Next() {

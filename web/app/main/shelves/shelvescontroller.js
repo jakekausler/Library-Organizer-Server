@@ -3,17 +3,17 @@ angular.module('libraryOrganizer')
 	$scope.editingShelves = false;
 	$scope.shelfSearchString = "";
 	$scope.bookcases = [];
-	$scope.libraryid = '1';
+	$scope.libraries = [];
+	$scope.currentLibrary = 0;
 	$scope.updateCases = function() {
 		$http.get('/cases', {
 			params: {
-				libraryid: $scope.libraryid
+				libraryid: $scope.libraries[$scope.currentLibrary].id
 			}
 		}).then(function(response){
 			$scope.bookcases = response.data;
 		});
 	}
-	$scope.updateCases();
 	//todo
 	$scope.addShelf = function() {
 
@@ -26,4 +26,11 @@ angular.module('libraryOrganizer')
 	$scope.findBook = function() {
 		
 	}
+    $scope.updateLibraries = function() {
+        $http.get('/ownedlibraries', {}).then(function(response) {
+            $scope.libraries = response.data;
+			$scope.updateCases();
+        });
+    };
+    $scope.updateLibraries();
 });

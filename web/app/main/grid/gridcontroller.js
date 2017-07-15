@@ -13,9 +13,13 @@ angular.module('libraryOrganizer')
         $scope.loaned = 'no';
         $scope.shipping = 'no';
         $scope.reading = 'no';
-        $scope.libraryids = ['1'];
+        $scope.libraries = [];
         $scope.stringLibraryIds = function() {
-            return $scope.libraryids.join(',')
+            var retval = "";
+            for (l in $scope.libraries) {
+                retval += $scope.libraries[l].id;
+            }
+            return retval;
         }
         $scope.updateRecieved = function() {
             $http.get('/books', {
@@ -44,7 +48,6 @@ angular.module('libraryOrganizer')
                 $scope.numberOfBooks = response.data.numbooks;
             });
         };
-        $scope.updateRecieved();
         $scope.previousPage = function() {
             $scope.page -= 1;
             $scope.updateRecieved();
@@ -112,4 +115,11 @@ angular.module('libraryOrganizer')
             }
             $scope.showEditorDialog(ev, book, $scope, 'gridadd');
         }
+        $scope.updateLibraries = function() {
+            $http.get('/ownedlibraries', {}).then(function(response) {
+                $scope.libraries = response.data;
+                $scope.updateRecieved();
+            });
+        };
+        $scope.updateLibraries();
     });
