@@ -4,6 +4,8 @@ package main
 type Library struct {
 	ID   int64  `json:"id"`
 	Name string `json:"name"`
+	Permissions int64 `json:"permissions"`
+	Owner string `json:"owner"`
 }
 
 //Bookcase is a bookcase

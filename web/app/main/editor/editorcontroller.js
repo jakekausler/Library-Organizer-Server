@@ -1,5 +1,5 @@
 angular.module('libraryOrganizer')
-.controller('editorController', function($scope, $http, $mdDialog, book, $vm, viewType) {
+.controller('editorController', function($scope, $http, $mdDialog, book, $vm, viewType, username) {
 	$scope.publishers = [];
 	$scope.cities = [];
 	$scope.states = [];
@@ -11,8 +11,19 @@ angular.module('libraryOrganizer')
 	$scope.deweys = [];
 	$scope.libraries = [];
 	$scope.updateLibraries = function() {
-        $http.get('/ownedlibraries', {}).then(function(response) {
-            $scope.libraries = response.data;
+        $http.get('/libraries', {}).then(function(response) {
+            for (l in response.data) {
+	            if ((response.data[l].permissions&4)==4) {
+	            	$scope.libraries.push(response.data[l])
+	            }
+	        }
+            for (l in $scope.libraries) {
+            	if ($scope.libraries[l].owner != username) {
+            		$scope.libraries[l].display = $scope.libraries[l].name + " (" + $scope.libraries[l].owner + ")"
+            	} else {
+	            	$scope.libraries[l].display = $scope.libraries[l].name
+            	}
+            }
         });
     };
 	$scope.updateLibraries();

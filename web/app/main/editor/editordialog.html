@@ -7,7 +7,7 @@
 						<label>Library</label>
 						<md-select ng-model="book.library.id" required>
 							<md-option ng-repeat="library in libraries" ng-value="library.id">
-								{{library.name}}
+								{{library.display}}
 							</md-option>
 						</md-select>
 					</md-input-container>

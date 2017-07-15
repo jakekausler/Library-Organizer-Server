@@ -1,4 +1,4 @@
-angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts'])
+angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselect-searchtree'])
     .config(function($mdThemingProvider) {
         $mdThemingProvider.theme('default')
             .primaryPalette('indigo')
@@ -8,12 +8,23 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts'])
     })
     .controller('libraryOrganizerController', function($scope, $http, $timeout, $mdSidenav, $mdDialog) {
         $scope.display = "grid";
+        $scope.username = "";
         $scope.lastRecievedTime = new Date().getTime();
         $scope.parseFloat = function(v) {
             return parseFloat(v);
         }
         $scope.round = function(v, d) {
             return Math.round10(v, d)
+        }
+        $scope.showBookDialog = function(ev, book, vm, viewType) {
+            console.log(book.library)
+            if ((book.library.permissions&4)==4) {
+                $scope.showEditorDialog(ev, book, vm, viewType);
+            } else if ((book.library.permissions&2)==2) {
+                $scope.showCheckOutDialog(ev, book, vm, viewType);
+            } else if ((book.library.permissions&1)==1) {
+                $scope.showViewDialog(ev, book, vm, viewType);
+            }
         }
         $scope.showEditorDialog = function(ev, book, vm, viewType) {
             $mdDialog.show({
@@ -26,7 +37,8 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts'])
                 locals: {
                     book: book,
                     $vm: vm,
-                    viewType: viewType
+                    viewType: viewType,
+                    username: $scope.username
                 }
             })
         };
@@ -66,4 +78,24 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts'])
             }
             return $scope.lastRecievedTime;
         }
+        $scope.updateUsername = function() {
+            $http.get('/username', {}).then(function(response) {
+                $scope.username = response.data;
+            })
+        }
+        $scope.updateUsername()
+        $scope.showLibraryChooserDialog = function(ev, vm, multiselect) {
+            $mdDialog.show({
+                controller: 'librarychooserController',
+                templateUrl: 'web/app/main/librarychooser/librarychooser.html',
+                parent: angular.element(document.body),
+                targetEvt: ev,
+                clickOutsideToClose: true,
+                fullscreen: false,
+                locals: {
+                    vm: vm,
+                    multiselect: multiselect
+                }
+            })
+        };
     })
