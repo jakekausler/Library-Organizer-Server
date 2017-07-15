@@ -8,21 +8,32 @@ angular.module('unregistered', ['ngMaterial'])
 })
 .controller('unregisteredController', function($scope, $http, $mdDialog) {
 	$scope.login = function(ev) {
+		$mdDialog.show({
+			controller: 'logincontroller',
+			templateUrl: 'web/app/unregistered/login/login.html',
+			parent: angular.element(document.body),
+			targetEvt: ev,
+			clickOutsideToClose: true,
+			fullscreen: false,
+			locals: {
+				vm: $scope
+			}
+		});
+	};
+	$scope.register = function(ev) {
 		$vm = $scope;
 		$mdDialog.show({
-			controller: 'loginController',
-			templateUrl: 'web/app/unregistered/login/login.html',
+			templateUrl: 'web/app/unregistered/register/register.html',
 			parent: angular.element(document.body),
 			targetEvt: ev,
 			clickOutsideToClose: true,
 			fullscreen: false
 		});
 	};
-	$scope.register = function(ev) {
+	$scope.resetPassword = function(ev) {
 		$vm = $scope;
 		$mdDialog.show({
-			controller: 'registerController',
-			templateUrl: 'web/app/unregistered/register/register.html',
+			templateUrl: 'web/app/unregistered/reset/reset.html',
 			parent: angular.element(document.body),
 			targetEvt: ev,
 			clickOutsideToClose: true,

@@ -66,6 +66,7 @@ func RunServer(username, password, database string) {
 	http.HandleFunc("/deletebook", deleteBook)
 	http.HandleFunc("/libraries", getLibraries)
 	http.HandleFunc("/username", getUsername)
+	http.HandleFunc("/reset", resetPassword)
 	http.Handle("/web/", http.StripPrefix("/web/", http.FileServer(http.Dir("./../web/"))))
 	logger.Printf("Listening on port 8181")
 	http.ListenAndServe(":8181", nil)
@@ -472,6 +473,20 @@ func login(w http.ResponseWriter, r *http.Request) {
 		logger.Printf("%+v", err)
 	}
 	http.SetCookie(w, &http.Cookie{Name: "library-organizer-session", Value: key})
+	http.Redirect(w, r, "/", 301)
+	return
+}
+
+func resetPassword(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		http.Redirect(w, r, "/", 301)
+		return
+	}
+	r.ParseForm()
+	err := ResetPassword(r.Form["email"][0])
+	if err != nil {
+		logger.Printf("%+v", err)
+	}
 	http.Redirect(w, r, "/", 301)
 	return
 }
