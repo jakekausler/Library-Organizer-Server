@@ -2,6 +2,7 @@
 	<div>
 		<md-toolbar>
 			<div id="stats-navigation">
+			<md-button class="icon filter-icon" ng-click="chooseLibrary($event)"><md-tooltip md-delay="500">Choose Libraries</md-tooltip></md-button>
 				<md-button ng-disabled="statView=='general'" ng-click="setStatView('general')">General</md-button>
 				<md-button ng-disabled="statView=='publishers'" ng-click="setStatView('publishers')">Publishers</md-button>
 				<md-button ng-disabled="statView=='series'" ng-click="setStatView('series')">Series</md-button>

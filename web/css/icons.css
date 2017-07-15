@@ -47,6 +47,9 @@
 .url-icon:before{
 	content:'\f0ea';
 }
+.settings-icon:before{
+	content:'\f013';
+}
 
 figcaption {
 	margin: auto;

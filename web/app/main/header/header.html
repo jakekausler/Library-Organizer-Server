@@ -5,10 +5,14 @@
 			<md-button class="icon shelves-icon" ng-disabled="display=='shelves'" ng-click="displayShelves()"><md-tooltip md-delay="500">Open Library View</md-tooltip></md-button>
 			<md-button class="icon statistics-icon" ng-disabled="display=='stats'" ng-click="displayStats()"><md-tooltip md-delay="500">View Statistics</md-tooltip></md-button>
 		</div>
-		<form action="/logout" method="post">
-			<div id="authentification" style="display: inline-block; float:right">
-				<input type="submit" class="md-button md-raised md-primary" value="Log Out">
+		<div style="display: inline-block; float: right;">
+			<md-button class="icon settings-icon"><md-tooltip md-delay="500">Open Settings</md-tooltip></md-button>
+			<span class="md-body-1">You are logged in as {{username}}</span>
+			<div id="authentification" style="display: inline-block;">
+				<form action="/logout" method="post">
+					<input type="submit" class="md-button" value="Log Out">
+				</form>
 			</div>
-		</form>
+		</div>
 	</div>
 </md-toolbar>

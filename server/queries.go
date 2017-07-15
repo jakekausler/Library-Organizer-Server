@@ -434,7 +434,7 @@ return err
 
 //GetBooks gets all books
 //todo include authors in filter
-func GetBooks(sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, libraryids string) ([]Book, int64, error) {
+func GetBooks(sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, libraryids, session string) ([]Book, int64, error) {
 	if libraryids == "" {
 		return nil, 0, nil
 	}
@@ -558,7 +558,7 @@ return nil, 0, err
 logger.Printf("Error: %+v", err)
 return nil, 0, err
 	}
-	query := "SELECT bookid, title, subtitle, OriginallyPublished, PublisherID, isread, isreference, IsOwned, ISBN, LoaneeFirst, LoaneeLast, dewey, pages, width, height, depth, weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, series, volume, format, Edition, ImageURL, IsReading, isshipping, SpineColor, CheapestNew, CheapestUsed, EditionPublished, LibraryID, libraries.Name from (select books.*, " + titlechange + ", " + serieschange + ", min(name) as minname FROM books LEFT JOIN " + authors + " ON books.BookID = Authors.BookID " + filter + " GROUP BY books.BookID) i LEFT JOIN libraries ON LibraryID=libraries.id ORDER BY " + order
+	query := "SELECT bookid, title, subtitle, OriginallyPublished, PublisherID, isread, isreference, IsOwned, ISBN, LoaneeFirst, LoaneeLast, dewey, pages, width, height, depth, weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, series, volume, format, Edition, ImageURL, IsReading, isshipping, SpineColor, CheapestNew, CheapestUsed, EditionPublished, blid, libraries.Name, library_members.usr, permissions.Permission from (select books.*, books.libraryid as blid, " + titlechange + ", " + serieschange + ", min(name) as minname FROM books LEFT JOIN " + authors + " ON books.BookID = Authors.BookID " + filter + " GROUP BY books.BookID) i LEFT JOIN libraries ON blid=libraries.id JOIN library_members on libraries.ownerid=library_members.id JOIN permissions on permissions.userid=? and libraries.id=permissions.libraryid ORDER BY " + order
 	if numberToGet != "-1" {
 		query += " LIMIT " + numberToGet + " OFFSET " + strconv.FormatInt(((pag-1)*ntg), 10)
 	}
@@ -592,13 +592,18 @@ return nil, 0, err
 	var p Publisher
 	var c []Contributor
 
-	rows, err := db.Query(query)
+	userid, err := GetUserId(session)
+	if err != nil {
+		logger.Printf("Error getting username: %v", err)
+		return nil, 0, err
+	}
+	rows, err := db.Query(query, userid)
 	if err != nil {
 		logger.Printf("Error querying books: %v", err)
 		return nil, 0, err
 	}
 	for rows.Next() {
-		if err := rows.Scan(&b.ID, &Title, &Subtitle, &OriginallyPublished, &PublisherID, &IsRead, &IsReference, &IsOwned, &ISBN, &LoaneeFirst, &LoaneeLast, &Dewey, &b.Pages, &b.Width, &b.Height, &b.Depth, &b.Weight, &PrimaryLanguage, &SecondaryLanguage, &OriginalLanguage, &Series, &b.Volume, &Format, &b.Edition, &ImageURL, &IsReading, &IsShipping, &SpineColor, &b.CheapestNew, &b.CheapestUsed, &EditionPublished, &b.Library.ID, &b.Library.Name); err != nil {
+		if err := rows.Scan(&b.ID, &Title, &Subtitle, &OriginallyPublished, &PublisherID, &IsRead, &IsReference, &IsOwned, &ISBN, &LoaneeFirst, &LoaneeLast, &Dewey, &b.Pages, &b.Width, &b.Height, &b.Depth, &b.Weight, &PrimaryLanguage, &SecondaryLanguage, &OriginalLanguage, &Series, &b.Volume, &Format, &b.Edition, &ImageURL, &IsReading, &IsShipping, &SpineColor, &b.CheapestNew, &b.CheapestUsed, &EditionPublished, &b.Library.ID, &b.Library.Name, &b.Library.Owner, &b.Library.Permissions); err != nil {
 			logger.Printf("Error scanning books: %v", err)
 			return nil, 0, err
 		}
@@ -1839,8 +1844,8 @@ return nil, err
 }
 
 //GetCases gets cases
-func GetCases(libraryid, sortMethod string) ([]Bookcase, error) {
-	books, _, err := GetBooks("dewey", "both", "both", "yes", "both", "both", "both", "", "1", "-1", "0", "FIC", libraryid)
+func GetCases(libraryid, sortMethod, session string) ([]Bookcase, error) {
+	books, _, err := GetBooks("dewey", "both", "both", "yes", "both", "both", "both", "", "1", "-1", "0", "FIC", libraryid, session)
 	breaks, err := GetBreaks(libraryid, sortMethod)
 	if err != nil {
 logger.Printf("Error: %+v", err)
@@ -1964,6 +1969,13 @@ logger.Printf("Error: %+v", err)
 func GetUsername(session string) (string, error) {
 	var name string
 	query := "SELECT usr FROM library_members JOIN usersession ON UserID=ID WHERE sessionkey=?"
+	err := db.QueryRow(query, session).Scan(&name)
+	return name, err
+}
+
+func GetUserId(session string) (string, error) {
+	var name string
+	query := "SELECT id FROM library_members JOIN usersession ON UserID=ID WHERE sessionkey=?"
 	err := db.QueryRow(query, session).Scan(&name)
 	return name, err
 }

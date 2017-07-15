@@ -73,10 +73,13 @@ func RunServer(username, password, database string) {
 }
 
 func getBooks(w http.ResponseWriter, r *http.Request) {
-	if !registered(r) {
-		logger.Printf("Unauthorized")
-		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
-		return
+	cookie, err := r.Cookie("library-organizer-session")
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Redirect(w, r, "/", 301)
+	}
+	if cookie.Value == "" {
+		http.Redirect(w, r, "/", 301)
 	}
 	params := r.URL.Query()
 	sortMethod := params.Get("sortmethod")
@@ -92,7 +95,7 @@ func getBooks(w http.ResponseWriter, r *http.Request) {
 	fromDewey := params.Get("fromdewey")
 	toDewey := params.Get("todewey")
 	libraryids := params.Get("libraryids")
-	books, numberOfBooks, err := GetBooks(sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, libraryids)
+	books, numberOfBooks, err := GetBooks(sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, libraryids, cookie.Value)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -567,15 +570,18 @@ func getStats(w http.ResponseWriter, r *http.Request) {
 }
 
 func getCases(w http.ResponseWriter, r *http.Request) {
-	if !registered(r) {
-		logger.Printf("Unauthorized")
-		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
-		return
+	cookie, err := r.Cookie("library-organizer-session")
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Redirect(w, r, "/", 301)
+	}
+	if cookie.Value == "" {
+		http.Redirect(w, r, "/", 301)
 	}
 	params := r.URL.Query()
 	libraryid := params.Get("libraryid")
 	sortmethod := params.Get("sortmethod")
-	d, err := GetCases(libraryid, sortmethod)
+	d, err := GetCases(libraryid, sortmethod, cookie.Value)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
