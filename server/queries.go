@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/go-sql-driver/mysql"
+	"golang.org/x/crypto/bcrypt"
 )
 
 const (
@@ -33,7 +34,6 @@ const (
 	saveBookQuery        = "UPDATE books SET Title=?, Subtitle=?, OriginallyPublished=?, EditionPublished=?, PublisherID=?, IsRead=?, IsReference=?, IsOwned=?, IsShipping=?, IsReading=?, isbn=?, LoaneeFirst=?, LoaneeLast=?, Dewey=?, Pages=?, Width=?, Height=?, Depth=?, Weight=?, PrimaryLanguage=?, SecondaryLanguage=?, OriginalLanguage=?, Series=?, Volume=?, Format=?, Edition=?, ImageURL=?, LibraryId=? WHERE BookId=?"
 	addBookQuery         = "INSERT INTO books (Title, Subtitle, OriginallyPublished, PublisherID, IsRead, IsReference, IsOwned, IsShipping, IsReading, isbn, LoaneeFirst, LoaneeLast, Dewey, Pages, Width, Height, Depth, Weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, Series, Volume, Format, Edition, EditionPublished, LibraryId) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	getValidUserSession  = "SELECT sessionkey from usersession WHERE sessionkey=? AND EXISTS (SELECT id FROM library_members where id=userid)"
-	getUser              = "SELECT id from library_members WHERE usr=? and pass=?"
 	addUser              = "INSERT INTO library_members (usr,pass,email) values (?,?,?)"
 	addSession           = "INSERT INTO usersession (sessionkey,userid,LastSeenTime) values (?,?,NOW())"
 	updateSessionTime    = "UPDATE usersession SET LastSeenTime=NOW()"
@@ -68,8 +68,13 @@ return err
 
 //IsUser returns whether a username and password is valid. If they are, return the userid. If not, return -1
 func IsUser(username, password string) (int64, error) {
+	query := "SELECT id, pass FROM library_members WHERE usr=?"
 	var id int64
-	if err := db.QueryRow(getUser, username, password).Scan(&id); err == nil {
+	var hash string
+	if err := db.QueryRow(query, username).Scan(&id, &hash); err == nil {
+		if err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password)); err != nil {
+			return -1, err
+		}
 		return id, nil
 	} else if err == sql.ErrNoRows {
 		return -1, nil
@@ -101,7 +106,12 @@ return "", err
 
 //RegisterUser registers a user and creates a default library for him
 func RegisterUser(username, password, email string) (string, error) {
-	result, err := db.Exec(addUser, username, password, email)
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+logger.Printf("Error: %+v", err)
+return "", err
+	}
+	result, err := db.Exec(addUser, username, hash, email)
 	if err != nil {
 logger.Printf("Error: %+v", err)
 return "", err
