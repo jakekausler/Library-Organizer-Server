@@ -110,11 +110,11 @@ angular.module('libraryOrganizer')
 	$scope.updateDeweys();
 	$scope.book = angular.copy(book);
 	$scope.newContributor = {
-		role: '',
+		role: 'Role',
 		name: {
 			first: '',
 			middles: '',
-			last: ''
+			last: 'Last'
 		}
 	};
 	$scope.oldUrl = $scope.book.imageurl;
@@ -177,11 +177,11 @@ angular.module('libraryOrganizer')
 	$scope.addContributor = function() {
 		$scope.book.contributors.push(angular.copy($scope.newContributor));
 		$scope.newContributor = {
-			role: '',
+			role: 'Role',
 			name: {
 				first: '',
 				middles: '',
-				last: ''
+				last: 'Last'
 			}
 		};
 	}
@@ -195,5 +195,8 @@ angular.module('libraryOrganizer')
 			return (angular.lowercase(s).indexOf(angular.lowercase(str)) !== -1);
 		}) : arr;
 		return results;
+	}
+	$scope.log = function(item) {
+		console.log(item)
 	}
 });
