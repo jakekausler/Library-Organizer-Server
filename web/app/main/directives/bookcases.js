@@ -2,14 +2,14 @@ angular.module('libraryOrganizer')
 .directive('bookcases', function() {
 	var directive = {
 		require: 'ngModel',
-		template: '<canvas id="bookcase-canvas" tabindex="1"></canvas>',
+		template: '<div id="bookcases"></div>',
 		link: function(vm, element, attrs) {
 			vm.$watch(attrs['ngModel'], function(cases) {
 				vm.cases = cases;
-				vm.canvas = document.getElementById('bookcase-canvas');
+				vm.container = document.getElementById('bookcases');
 				vm.drawShelf()
-				document.getElementById('bookcase-canvas').removeEventListener('keypress', vm.zoomListener);
-				document.getElementById('bookcase-canvas').addEventListener('keypress', vm.zoomListener);
+				// document.getElementById('bookcase-canvas').removeEventListener('keypress', vm.zoomListener);
+				// document.getElementById('bookcase-canvas').addEventListener('keypress', vm.zoomListener);
 			});
 			vm.zoomListener = function(e) {
 				// switch (e.key) {
@@ -61,10 +61,10 @@ angular.module('libraryOrganizer')
 					vm.cases[c].spacerheight*=vm.zoom;
 					vm.cases[c].width*=vm.zoom;
 					vm.cases[c].bookmargin*=vm.zoom;
-					var h = 0;
+					var h = vm.cases[c].spacerheight;
 					for (s in vm.cases[c].shelves) {
 						vm.cases[c].shelves[s].height*=vm.zoom;
-						h += vm.cases[c].spacerheight+vm.cases[c].shelves[s].height
+						h += vm.cases[c].spacerheight+vm.cases[c].shelves[s].height;
 					}
 					if (height < h) {
 						height = h;
@@ -73,23 +73,27 @@ angular.module('libraryOrganizer')
 					x += vm.cases[c].spacerheight + vm.cases[c].width + vm.cases[c].spacerheight + margin
 					width=x
 				}
-				vm.canvas.width=width+margin;
-				vm.canvas.height=height+margin*2;
-				for (i=0;i<vm.canvas.width/100;i++) {
+				vm.container.style.width=(width+margin)+"px";
+				vm.container.style.height=(height+margin)+"px";
+				for (i=0;i<width/100;i++) {
 					vm.hashes.push([]);
-					for (j=0;j<vm.canvas.width/100;j++) {
+					for (j=0;j<width/100;j++) {
 						vm.hashes[i].push([]);
 						vm.hashes[i][j] = []
 					}
 				}
-				vm.canvas.addEventListener('click', vm.mouseclick);
-				// canvas.style.height = "100%";
-				x = margin;
-				var ctx = vm.canvas.getContext("2d");
-				ctx.font = (vm.zoom*10)+"px Arial"
-				// ctx.scale(vm.zoom, vm.zoom)
 				for (c in vm.cases) {
-					y = height+margin-caseHeights[c];
+					var canvas = document.createElement('canvas');
+					vm.container.appendChild(canvas);
+					canvas.style.position = "inline-block";
+					canvas.width = vm.cases[c].width+vm.cases[c].spacerheight*2;
+					canvas.height = height;
+					canvas.style.margin = (margin/2)+"px";
+					canvas.addEventListener('click', vm.mouseclick);
+					x = 0;
+					var ctx = canvas.getContext("2d");
+					ctx.font = (vm.zoom*10)+"px Arial"
+					y = height-caseHeights[c];
 					var wood = document.getElementById('wood');
 					if (wood) {
 						ctx.drawImage(wood, x, y, vm.cases[c].width, caseHeights[c]);
@@ -153,8 +157,8 @@ angular.module('libraryOrganizer')
 						y += vm.cases[c].spacerheight+vm.cases[c].shelves[s].height
 					}
 					ctx.fillRect(x, y, vm.cases[c].width+vm.cases[c].spacerheight, vm.cases[c].spacerheight)
-					y = margin
-					x += vm.cases[c].spacerheight + vm.cases[c].width + vm.cases[c].spacerheight + margin
+					y = 0;
+					x += vm.cases[c].spacerheight + vm.cases[c].width + vm.cases[c].spacerheight;
 				}
 			}
 		}
