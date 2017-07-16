@@ -15,6 +15,7 @@ angular.module('libraryOrganizer')
         $scope.reading = 'no';
         $scope.libraries = [];
         $scope.output = [];
+        $scope.isFiltersOpen = false;
         $scope.stringLibraryIds = function() {
             var retval = "";
             for (o in $scope.output) {
@@ -74,11 +75,8 @@ angular.module('libraryOrganizer')
             }
             return Math.ceil($scope.numberOfBooks / $scope.numberToGet);
         };
-        $scope.closeFiltersNav = function() {
-            $mdSidenav('filterSideNav').close();
-        };
         $scope.toggleFilters = function() {
-            $mdSidenav('filterSideNav').open();
+            $scope.isFiltersOpen = !$scope.isFiltersOpen
         };
         $scope.addBook = function(ev) {
             var book = {
