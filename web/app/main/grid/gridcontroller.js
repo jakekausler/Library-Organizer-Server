@@ -1,18 +1,19 @@
 angular.module('libraryOrganizer')
     .controller('gridController', function($scope, $http, $mdSidenav) {
-        $scope.sort = "dewey";
-        $scope.numberToGet = 50;
-        $scope.page = 1;
+        $scope.sort = $scope.getParameterByName("sort", "dewey");
+        $scope.numberToGet = parseInt($scope.getParameterByName("numbertoget", "50"));
+        $scope.page = parseInt($scope.getParameterByName("page", "1"));
         $scope.numberOfBooks = 0;
-        $scope.fromdewey = "0";
-        $scope.todewey = 'FIC';
-        $scope.filter = "";
-        $scope.read = 'both';
-        $scope.reference = 'both';
-        $scope.owned = 'yes';
-        $scope.loaned = 'no';
-        $scope.shipping = 'no';
-        $scope.reading = 'no';
+        $scope.fromdewey = $scope.getParameterByName("fromdewey", "0");
+        $scope.todewey = $scope.getParameterByName("todewey", "FIC");
+        $scope.filter = $scope.getParameterByName("filter", "");
+        $scope.read = $scope.getParameterByName("read", "both");
+        $scope.reference = $scope.getParameterByName("reference", "both");
+        $scope.owned = $scope.getParameterByName("owned", "yes");
+        $scope.loaned = $scope.getParameterByName("loaned", "no");
+        $scope.shipping = $scope.getParameterByName("shipping", "no");
+        $scope.reading = $scope.getParameterByName("reading", "no");
+        $scope.gridSelectedLibraries = $scope.getParameterByName("gridselectedlibraries", "").split(',')
         $scope.libraries = [];
         $scope.output = [];
         $scope.isFiltersOpen = false;
@@ -35,6 +36,21 @@ angular.module('libraryOrganizer')
             return retval;
         }
         $scope.updateRecieved = function() {
+            $scope.setParameters({
+                    sort: $scope.sort,
+                    numbertoget: $scope.numberToGet,
+                    page: $scope.page,
+                    fromdewey: $scope.fromdewey.toUpperCase(),
+                    todewey: $scope.todewey.toUpperCase(),
+                    filter: $scope.filter,
+                    read: $scope.read,
+                    reference: $scope.reference,
+                    owned: $scope.owned,
+                    loaned: $scope.loaned,
+                    shipping: $scope.shipping,
+                    reading: $scope.reading,
+                    gridselectedlibraries: $scope.stringLibraryIds()
+                })
             $http.get('/books', {
                 params: {
                     sortmethod: $scope.sort,
@@ -129,7 +145,7 @@ angular.module('libraryOrganizer')
             $http.get('/libraries', {}).then(function(response) {
                 $scope.libraries = response.data;
                 var data = [];
-                var libStructure = {}
+                var libStructure = {};
                 for (l in $scope.libraries) {
                     if (!libStructure[$scope.libraries[l].owner]) {
                         libStructure[$scope.libraries[l].owner] = [];
@@ -138,11 +154,11 @@ angular.module('libraryOrganizer')
                         id: $scope.libraries[l].id,
                         name: $scope.libraries[l].name,
                         children: [],
-                        selected: false
+                        selected: $.inArray($scope.libraries[l].id+"", $scope.gridSelectedLibraries)!=-1
                     });
                 }
                 for (k in libStructure) {
-                    if (!$scope.currentLibraryId && k == $scope.username) {
+                    if ((!$scope.gridSelectedLibraries || !$scope.gridSelectedLibraries[0]) && !$scope.currentLibraryId && k == $scope.username) {
                         $scope.currentLibraryId = libStructure[k][0].id
                         libStructure[k][0].selected = true;
                     }

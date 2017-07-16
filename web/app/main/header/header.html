@@ -1,12 +1,12 @@
 <md-toolbar class="md-toolbar md-primary" flex>
 	<div>
 		<div id="grid-control-buttons" style="display: inline-block; float:left">
-			<md-button ng-disabled="display=='grid'" class="icon grid-icon" ng-click="displayGrid()"><md-tooltip md-delay="500">Open Grid View</md-tooltip></md-button>
-			<md-button class="icon shelves-icon" ng-disabled="display=='shelves'" ng-click="displayShelves()"><md-tooltip md-delay="500">Open Library View</md-tooltip></md-button>
-			<md-button class="icon statistics-icon" ng-disabled="display=='stats'" ng-click="displayStats()"><md-tooltip md-delay="500">View Statistics</md-tooltip></md-button>
+			<md-button aria-label="Open Grid View" ng-disabled="display=='grid'" class="icon grid-icon" ng-click="displayGrid()"><md-tooltip md-delay="500">Open Grid View</md-tooltip></md-button>
+			<md-button aria-label="Open Library View" class="icon shelves-icon" ng-disabled="display=='shelves'" ng-click="displayShelves()"><md-tooltip md-delay="500">Open Library View</md-tooltip></md-button>
+			<md-button aria-label="Open Statistics View" class="icon statistics-icon" ng-disabled="display=='stats'" ng-click="displayStats()"><md-tooltip md-delay="500">View Statistics</md-tooltip></md-button>
 		</div>
 		<div style="display: inline-block; float: right;">
-			<md-button class="icon settings-icon"><md-tooltip md-delay="500">Open Settings</md-tooltip></md-button>
+			<md-button aria-label="Open Settings" class="icon settings-icon"><md-tooltip md-delay="500">Open Settings</md-tooltip></md-button>
 			<span class="md-body-1">You are logged in as {{username}}</span>
 			<div id="authentification" style="display: inline-block;">
 				<form action="/logout" method="post">

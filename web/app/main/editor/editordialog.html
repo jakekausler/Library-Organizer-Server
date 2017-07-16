@@ -32,9 +32,9 @@
 								</div>
 								<div layout-gt-md="row" layout="column">
 									<div style="display: block; margin: auto">
-										<div style="display: inline-block; margin: auto"><md-button ng-hide="pastingurl" class="icon url-icon" ng-click="pastingurl=true"></md-button></div>
-										<div style="display: inline-block; margin: auto"><md-button ng-show="pastingurl" class="icon cancel-icon" ng-click="cancelPastingURL()"></md-button></div>
-										<!-- <div style="display: inline-block; margin: auto"><md-button class="icon import-icon"></md-button></div> -->
+										<div style="display: inline-block; margin: auto"><md-button aria-label="Paste URL" ng-hide="pastingurl" class="icon url-icon" ng-click="pastingurl=true"></md-button></div>
+										<div style="display: inline-block; margin: auto"><md-button aria-label="Cancel Pasting URL" ng-show="pastingurl" class="icon cancel-icon" ng-click="cancelPastingURL()"></md-button></div>
+										<!-- <div style="display: inline-block; margin: auto"><md-button aria-label="Import Image" class="icon import-icon"></md-button></div> -->
 									</div>
 								</div>
 								<md-input-container ng-show="pastingurl">
@@ -62,9 +62,9 @@
 								<md-list style="max-height: 20vh">
 									<md-list-item ng-repeat="contributor in book.contributors">
 										<ng-form name="editAuthorForm" layout="row" data-isolate-form>
-											<md-button ng-click="contributor.editing=true" ng-hide="contributor.editing" class="icon edit-icon"></md-button>
-											<md-button ng-disabled="editAuthorForm.$invalid" ng-click="contributor.editing=false" ng-show="contributor.editing" class="icon save-icon"></md-button>
-											<md-button ng-click="removeContributor($index)" ng-hide="contributor.editing" class="icon remove-icon"></md-button>
+											<md-button ng-click="contributor.editing=true" aria-label="Edit Contributor" ng-hide="contributor.editing" class="icon edit-icon"></md-button>
+											<md-button ng-disabled="editAuthorForm.$invalid" aria-label="Save Contributor" ng-click="contributor.editing=false" ng-show="contributor.editing" class="icon save-icon"></md-button>
+											<md-button ng-click="removeContributor($index)" aria-label="Remove Contributor" ng-hide="contributor.editing" class="icon remove-icon"></md-button>
 											<!-- <span ng-hide="contributor.editing">{{contributor.name.first}} {{contributor.name.middles.replace(';',' ')}} {{contributor.name.last}}: {{contributor.role}}</span> -->
 											<div layout="row">
 												<md-input-container flex>
@@ -90,7 +90,7 @@
 									<md-list-item>
 										<ng-form name="addAuthorForm" data=isolate-form>
 											<div layout="row">
-												<md-button ng-disabled="addAuthorForm.$invalid" style="margin:auto" class="icon add-icon" ng-click="addContributor()"></md-button>
+												<md-button aria-label="Add Contributor" ng-disabled="addAuthorForm.$invalid" style="margin:auto" class="icon add-icon" ng-click="addContributor()"></md-button>
 												<md-input-container flex>
 													<label>First</label>
 													<input type="text" ng-model="newContributor.name.first" name="newFirst" value="{{newContributor.name.first}}"/>
@@ -230,10 +230,9 @@
 				</md-tab>
 			</md-tabs>
 			<div flex layout="row" flex>
-				<md-button ng-disabled="editorForm.$invalid" ng-click="save(book)" flex class="icon save-icon"></md-button>
-				<md-button ng-disabled="book.bookid==''" ng-click="remove(book)" flex class="icon remove-icon"></md-button>
-				<!-- <md-button ng-click="cancel()" flex class="icon cancel-icon"></md-button> -->
-				<md-button ng-click="log(editorForm)" flex class="icon cancel-icon"></md-button>
+				<md-button aria-label="Save Book" ng-disabled="editorForm.$invalid" ng-click="save(book)" flex class="icon save-icon"></md-button>
+				<md-button aria-label="Remove Book" ng-disabled="book.bookid==''" ng-click="remove(book)" flex class="icon remove-icon"></md-button>
+				<md-button aria-label="Cancel Editing" ng-click="cancel()" flex class="icon cancel-icon"></md-button>
 			</div>
 		</md-content>
 	</form>

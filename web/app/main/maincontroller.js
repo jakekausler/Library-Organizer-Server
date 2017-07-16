@@ -7,7 +7,63 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
             .backgroundPalette('indigo');
     })
     .controller('libraryOrganizerController', function($scope, $http, $timeout, $mdSidenav, $mdDialog) {
-        $scope.display = "grid";
+        $scope.getParameters = function() {
+            var h = window.location.hash.slice(1);
+            if (!h) {
+                return {};
+            }
+            var hash;
+            if (h.includes('%3F')) {
+                hash = h.split('%3F');
+            } else {
+                hash = h.split('?');
+            }
+            var p = {};
+            var ps = hash[1].split("&");
+            for (v in ps) {
+                var pm = ps[v].split("=");
+                p[pm[0]] = pm[1];
+            }
+            return p;
+        }
+        $scope.parameters = $scope.getParameters();
+        $scope.setParameters = function(params) {
+            var h = window.location.hash.slice(1);
+            if (!h) {
+                h = '#state?';
+            }
+            var hash;
+            if (h.includes('%3F')) {
+                hash = h.split('%3F');
+            } else {
+                hash = h.split('?');
+            }
+            var p = {};
+            var ps = hash[1].split("&");
+            for (v in ps) {
+                if (ps[v]) {
+                    var pm = ps[v].split("=");
+                    p[pm[0]] = pm[1];
+                }
+            }
+            for (key in params) {
+                p[key] = params[key];
+            }
+            var s = [];
+            for (m in p) {
+                s.push( m + "=" + p[m])
+            }
+            var qs = '?'+s.join('&');
+            var newhash = hash[0]+qs
+            window.location.hash = newhash
+        }
+        $scope.getParameterByName = function(name, def) {
+            if ($scope.parameters[name]) {
+                return $scope.parameters[name];
+            }
+            return def;
+        }
+        $scope.display = $scope.getParameterByName("display", "grid");
         $scope.username = "";
         $scope.lastRecievedTime = new Date().getTime();
         $scope.parseFloat = function(v) {
@@ -43,12 +99,15 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
             })
         };
         $scope.displayGrid = function() {
+            $scope.setParameters({'display': 'grid'})
             $scope.display = 'grid';
         }
         $scope.displayStats = function() {
+            $scope.setParameters({'display': 'stats'})
             $scope.display = 'stats';
         }
         $scope.displayShelves = function() {
+            $scope.setParameters({'display': 'shelves'})
             $scope.display = 'shelves';
         }
         $scope.import = function(ev) {

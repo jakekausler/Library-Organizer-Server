@@ -2,40 +2,40 @@
 	<div>
 		<md-toolbar>
 			<div id="stats-navigation">
-			<md-button class="icon filter-icon" ng-click="chooseLibrary($event)"><md-tooltip md-delay="500">Choose Libraries</md-tooltip></md-button>
-				<md-button ng-disabled="statView=='general'" ng-click="setStatView('general')">General</md-button>
-				<md-button ng-disabled="statView=='publishers'" ng-click="setStatView('publishers')">Publishers</md-button>
-				<md-button ng-disabled="statView=='series'" ng-click="setStatView('series')">Series</md-button>
-				<md-button ng-disabled="statView=='languages'" ng-click="setStatView('languages')">Languages</md-button>
-				<md-button ng-disabled="statView=='deweys'" ng-click="setStatView('deweys')">Deweys</md-button>
-				<md-button ng-disabled="statView=='formats'" ng-click="setStatView('formats')">Formats</md-button>
-				<md-button ng-disabled="statView=='contributors'" ng-click="setStatView('contributors')">Contributors</md-button>
-				<md-button ng-disabled="statView=='dates'" ng-click="setStatView('dates')">Dates</md-button>
-				<md-button ng-disabled="statView=='dimensions'" ng-click="setStatView('dimensions')">Dimensions</md-button>
+				<md-button aria-label="Choose Libraries" class="icon filter-icon" ng-click="chooseLibrary($event)"><md-tooltip md-delay="500">Choose Libraries</md-tooltip></md-button>
+				<md-button aria-label="Show General Statistics" ng-disabled="statView=='general'" ng-click="setStatView('general')">General</md-button>
+				<md-button aria-label="Show Publisher Statistics" ng-disabled="statView=='publishers'" ng-click="setStatView('publishers')">Publishers</md-button>
+				<md-button aria-label="Show Series Statistics" ng-disabled="statView=='series'" ng-click="setStatView('series')">Series</md-button>
+				<md-button aria-label="Show Language Statistics" ng-disabled="statView=='languages'" ng-click="setStatView('languages')">Languages</md-button>
+				<md-button aria-label="Show Dewey Statistics" ng-disabled="statView=='deweys'" ng-click="setStatView('deweys')">Deweys</md-button>
+				<md-button aria-label="Show Format Statistics" ng-disabled="statView=='formats'" ng-click="setStatView('formats')">Formats</md-button>
+				<md-button aria-label="Show Contributor Statistics" ng-disabled="statView=='contributors'" ng-click="setStatView('contributors')">Contributors</md-button>
+				<md-button aria-label="Show Date Statistics" ng-disabled="statView=='dates'" ng-click="setStatView('dates')">Dates</md-button>
+				<md-button aria-label="Show Dimension Statistics" ng-disabled="statView=='dimensions'" ng-click="setStatView('dimensions')">Dimensions</md-button>
 			</div>
 			<div id="stats-navigation-sub" ng-hide="display!='stats'">
-				<md-button ng-disabled="statSubView=='bycounts'" ng-hide="statView!='general'" ng-click="setStatSubView('bycounts')">By Counts</md-button>
-				<md-button ng-disabled="statSubView=='bypages'" ng-hide="statView!='general'" ng-click="setStatSubView('bypages')">By Pages</md-button>
-				<md-button ng-disabled="statSubView=='bysize'" ng-hide="statView!='general'" ng-click="setStatSubView('bysize')">By Size</md-button>
-				<md-button ng-disabled="statSubView=='bybooksperparent'" ng-hide="statView!='publishers'" ng-click="setStatSubView('bybooksperparent')">By Parent Company</md-button>
-				<md-button ng-disabled="statSubView=='bytopchildren'" ng-hide="statView!='publishers'" ng-click="setStatSubView('bytopchildren')">Top Publishers</md-button>
-				<md-button ng-disabled="statSubView=='bytoplocations'" ng-hide="statView!='publishers'" ng-click="setStatSubView('bytoplocations')">Top Locations</md-button>
-				<md-button ng-disabled="statSubView=='byseries'" ng-hide="statView!='series'" ng-click="setStatSubView('byseries')">By Series</md-button>
-				<md-button ng-disabled="statSubView=='byprimary'" ng-hide="statView!='languages'" ng-click="setStatSubView('byprimary')">By Primary Language</md-button>
-				<md-button ng-disabled="statSubView=='bysecondary'" ng-hide="statView!='languages'" ng-click="setStatSubView('bysecondary')">By Secondary Language</md-button>
-				<md-button ng-disabled="statSubView=='byoriginal'" ng-hide="statView!='languages'" ng-click="setStatSubView('byoriginal')">By Original Language</md-button>
-				<md-button ng-disabled="statSubView=='bydeweys'" ng-hide="statView!='deweys'" ng-click="setStatSubView('bydeweys')">By Category</md-button>
-				<md-button ng-disabled="statSubView=='byformats'" ng-hide="statView!='formats'" ng-click="setStatSubView('byformats')">By Format</md-button>
-				<md-button ng-disabled="statSubView=='bycontributorstop'" ng-hide="statView!='contributors'" ng-click="setStatSubView('bycontributorstop')">Top Contributors</md-button>
-				<md-button ng-disabled="statSubView=='bycontributorsperrole'" ng-hide="statView!='contributors'" ng-click="setStatSubView('bycontributorsperrole')">Roles</md-button>
-				<md-button ng-disabled="statSubView=='byvolumes'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('byvolumes')">Volume</md-button>
-				<md-button ng-disabled="statSubView=='bywidths'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('bywidths')">Width</md-button>
-				<md-button ng-disabled="statSubView=='byheights'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('byheights')">Height</md-button>
-				<md-button ng-disabled="statSubView=='bydepths'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('bydepths')">Depth</md-button>
-				<md-button ng-disabled="statSubView=='byweights'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('byweights')">Weight</md-button>
-				<md-button ng-disabled="statSubView=='bypages'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('bypages')">Pages</md-button>
-				<md-button ng-disabled="statSubView=='bydatesoriginal'" ng-hide="statView!='dates'" ng-click="setStatSubView('bydatesoriginal')">By Original Publication Date</md-button>
-				<md-button ng-disabled="statSubView=='bydatespublication'" ng-hide="statView!='dates'" ng-click="setStatSubView('bydatespublication')">By Edition Publication Date</md-button>
+				<md-button aria-label="View By Count" ng-disabled="statSubView=='bycounts'" ng-hide="statView!='general'" ng-click="setStatSubView('bycounts')">By Counts</md-button>
+				<md-button aria-label="View By Pages" ng-disabled="statSubView=='bypages'" ng-hide="statView!='general'" ng-click="setStatSubView('bypages')">By Pages</md-button>
+				<md-button aria-label="View By Size" ng-disabled="statSubView=='bysize'" ng-hide="statView!='general'" ng-click="setStatSubView('bysize')">By Size</md-button>
+				<md-button aria-label="View By Parent Company" ng-disabled="statSubView=='bybooksperparent'" ng-hide="statView!='publishers'" ng-click="setStatSubView('bybooksperparent')">By Parent Company</md-button>
+				<md-button aria-label="View By Top Publishers" ng-disabled="statSubView=='bytopchildren'" ng-hide="statView!='publishers'" ng-click="setStatSubView('bytopchildren')">Top Publishers</md-button>
+				<md-button aria-label="View By Top Locations" ng-disabled="statSubView=='bytoplocations'" ng-hide="statView!='publishers'" ng-click="setStatSubView('bytoplocations')">Top Locations</md-button>
+				<md-button aria-label="View By Series" ng-disabled="statSubView=='byseries'" ng-hide="statView!='series'" ng-click="setStatSubView('byseries')">By Series</md-button>
+				<md-button aria-label="View By Primary Language" ng-disabled="statSubView=='byprimary'" ng-hide="statView!='languages'" ng-click="setStatSubView('byprimary')">By Primary Language</md-button>
+				<md-button aria-label="View By Secondary Language" ng-disabled="statSubView=='bysecondary'" ng-hide="statView!='languages'" ng-click="setStatSubView('bysecondary')">By Secondary Language</md-button>
+				<md-button aria-label="View By Original Language" ng-disabled="statSubView=='byoriginal'" ng-hide="statView!='languages'" ng-click="setStatSubView('byoriginal')">By Original Language</md-button>
+				<md-button aria-label="View By Dewey" ng-disabled="statSubView=='bydeweys'" ng-hide="statView!='deweys'" ng-click="setStatSubView('bydeweys')">By Category</md-button>
+				<md-button aria-label="View By Format" ng-disabled="statSubView=='byformats'" ng-hide="statView!='formats'" ng-click="setStatSubView('byformats')">By Format</md-button>
+				<md-button aria-label="View By Top Contributors" ng-disabled="statSubView=='bycontributorstop'" ng-hide="statView!='contributors'" ng-click="setStatSubView('bycontributorstop')">Top Contributors</md-button>
+				<md-button aria-label="View By Contributors Per Role" ng-disabled="statSubView=='bycontributorsperrole'" ng-hide="statView!='contributors'" ng-click="setStatSubView('bycontributorsperrole')">Roles</md-button>
+				<md-button aria-label="View By Volume" ng-disabled="statSubView=='byvolumes'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('byvolumes')">Volume</md-button>
+				<md-button aria-label="View By Width" ng-disabled="statSubView=='bywidths'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('bywidths')">Width</md-button>
+				<md-button aria-label="View By Height" ng-disabled="statSubView=='byheights'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('byheights')">Height</md-button>
+				<md-button aria-label="View By Depth" ng-disabled="statSubView=='bydepths'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('bydepths')">Depth</md-button>
+				<md-button aria-label="View By Weight" ng-disabled="statSubView=='byweights'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('byweights')">Weight</md-button>
+				<md-button aria-label="View By Pages" ng-disabled="statSubView=='bypages'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('bypages')">Pages</md-button>
+				<md-button aria-label="View By Original Date" ng-disabled="statSubView=='bydatesoriginal'" ng-hide="statView!='dates'" ng-click="setStatSubView('bydatesoriginal')">By Original Publication Date</md-button>
+				<md-button aria-label="View By Publication Date" ng-disabled="statSubView=='bydatespublication'" ng-hide="statView!='dates'" ng-click="setStatSubView('bydatespublication')">By Edition Publication Date</md-button>
 			</div>
 		</md-toolbar>
 	</div>

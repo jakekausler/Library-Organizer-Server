@@ -1,7 +1,6 @@
 angular.module('libraryOrganizer')
     .controller('statisticsController', function($scope, $http) {
-        $scope.statView = 'general';
-        $scope.statSubView = 'bycounts';
+        $scope.gridSelectedLibraries = $scope.getParameterByName("statsselectedlibraries", "").split(',')
         $scope.libraries = [];
         $scope.output = [];
         $scope.stringLibraryIds = function() {
@@ -24,6 +23,7 @@ angular.module('libraryOrganizer')
         }
         $scope.dimensions = {};
         $scope.updateDimensions = function() {
+            $scope.setParameters({statsselectedlibraries: $scope.stringLibraryIds()})
             $http({
                 url: '/dimensions',
                 method: 'GET',
@@ -36,39 +36,45 @@ angular.module('libraryOrganizer')
         }
         $scope.setStatView = function(view) {
             $scope.statView = view;
+            $scope.setParameters({'statview': view})
             switch (view) {
             case 'general':
-                $scope.statSubView = 'bycounts';
+                $scope.setStatSubView('bycounts');
                 break;
             case 'series':
-                $scope.statSubView = 'byseries';
+                $scope.setStatSubView('byseries');
                 break;
             case 'publishers':
-                $scope.statSubView = 'bybooksperparent';
+                $scope.setStatSubView('bybooksperparent');
                 break;
             case 'languages':
-                $scope.statSubView = 'byprimary';
+                $scope.setStatSubView('byprimary');
                 break;
             case 'deweys':
-                $scope.statSubView = 'bydeweys';
+                $scope.setStatSubView('bydeweys');
                 break;
             case 'formats':
-                $scope.statSubView = 'byformats';
+                $scope.setStatSubView('byformats');
                 break;
             case 'contributors':
-                $scope.statSubView = 'bycontributorstop';
+                $scope.setStatSubView('bycontributorstop');
                 break;
             case 'dimensions':
-                $scope.statSubView = 'byvolumes';
+                $scope.setStatSubView('byvolumes');
                 break;
             case 'dates':
-                $scope.statSubView = 'bydatesoriginal';
+                $scope.setStatSubView('bydatesoriginal');
                 break;
             }
         }
         $scope.setStatSubView = function(view) {
-            $scope.statSubView = view;
+            if (view) {
+                $scope.statSubView = view;
+                $scope.setParameters({'statsubview': view})
+            }
         }
+        $scope.setStatView($scope.getParameterByName("statview", "general"));
+        $scope.setStatSubView($scope.getParameterByName("statsubview", ""));
         $scope.setSelected = function(data) {
             for (d in data) {
                 if (data[d].selected) {
@@ -97,11 +103,11 @@ angular.module('libraryOrganizer')
                         id: $scope.libraries[l].id,
                         name: $scope.libraries[l].name,
                         children: [],
-                        selected: false
+                        selected: $.inArray($scope.libraries[l].id+"", $scope.gridSelectedLibraries)!=-1
                     });
                 }
                 for (k in libStructure) {
-                    if (!$scope.currentLibraryId && k == $scope.username) {
+                    if ((!$scope.gridSelectedLibraries || !$scope.gridSelectedLibraries[0]) && !$scope.currentLibraryId && k == $scope.username) {
                         $scope.currentLibraryId = libStructure[k][0].id
                         libStructure[k][0].selected = true;
                     }

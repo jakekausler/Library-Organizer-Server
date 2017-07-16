@@ -1,10 +1,10 @@
 <div layout="column" flex>
 	<md-toolbar>
 		<div id="shelf-navigation">
-			<md-button class="icon filter-icon" ng-click="chooseLibrary($event)"><md-tooltip md-delay="500">Choose Library</md-tooltip></md-button>
-			<md-button ng-disabled="!canEditCurrentShelf" ng-hide="editingShelves" ng-click="toggleEditShelves()" class="icon edit-icon"><md-tooltip md-delay="500">Edit Shelves</md-tooltip></md-button>
-			<md-button ng-hide="!editingShelves" ng-click="toggleEditShelves()" class="icon cancel-icon"><md-tooltip md-delay="500">Stop Editing Shelves</md-tooltip></md-button>
-			<md-button ng-hide="!editingShelves" ng-click="addShelf()" class="icon add-icon"><md-tooltip md-delay="500">Add Shelf</md-tooltip></md-button>
+			<md-button aria-label="Change Library" class="icon filter-icon" ng-click="chooseLibrary($event)"><md-tooltip md-delay="500">Choose Library</md-tooltip></md-button>
+			<md-button aria-label="Edit Shelves" ng-disabled="!canEditCurrentShelf" ng-hide="editingShelves" ng-click="toggleEditShelves()" class="icon edit-icon"><md-tooltip md-delay="500">Edit Shelves</md-tooltip></md-button>
+			<md-button aria-label="Cancel Editing Shelves" ng-hide="!editingShelves" ng-click="toggleEditShelves()" class="icon cancel-icon"><md-tooltip md-delay="500">Stop Editing Shelves</md-tooltip></md-button>
+			<md-button aria-label="Add Shelf" ng-hide="!editingShelves" ng-click="addShelf()" class="icon add-icon"><md-tooltip md-delay="500">Add Shelf</md-tooltip></md-button>
 			<div ng-hide="editingShelves" style="display: inline-block;"><input type="text" ng-change="findBook()" ng-model="shelvesSearchString" name="shelvesSearchString" value="{{shelvesSearchString}}" /></div>
 		</div>
 	</md-toolbar>

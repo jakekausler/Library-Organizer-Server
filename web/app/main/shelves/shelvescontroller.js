@@ -5,7 +5,7 @@ angular.module('libraryOrganizer')
 	$scope.bookcases = [];
 	$scope.libraries = [];
 	$scope.output = [];
-	$scope.currentLibraryId = "";
+	$scope.currentLibraryId = $scope.getParameterByName("shelfselectedlibrary", "");
 	$scope.canEditCurrentShelf = false;
 	$scope.updateCases = function() {
 		for (o in $scope.libraries) {
@@ -16,6 +16,7 @@ angular.module('libraryOrganizer')
 				}
 			}
 		}
+        $scope.setParameters({shelfselectedlibrary: $scope.currentLibraryId})
 		$http.get('/cases', {
 			params: {
 				libraryid: $scope.currentLibraryId,
@@ -51,7 +52,7 @@ angular.module('libraryOrganizer')
                     name: $scope.libraries[l].name,
                     permissions: $scope.libraries[l].permissions,
                     children: [],
-                    selected: false
+                    selected: $scope.libraries[l].id == $scope.currentLibraryId
                 });
             }
             for (k in libStructure) {

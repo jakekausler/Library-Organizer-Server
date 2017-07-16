@@ -1,11 +1,11 @@
 <md-toolbar flex>
 	<div id="grid-navigation">
-		<md-button class="icon filter-icon" ng-click="toggleFilters()"><md-tooltip md-delay="500">Open Filters</md-tooltip></md-button>
-		<md-button class="icon previous-icon" ng-disabled="page<=1" ng-click="previousPage()"><md-tooltip md-delay="500">Previous Page</md-tooltip></md-button>
-		<md-button class="icon next-icon" ng-disabled="page>=pages" ng-click="nextPage()"><md-tooltip md-delay="500">Next Page</md-tooltip></md-button>
-		<md-button class="icon add-icon" ng-click="addBook($event)"><md-tooltip md-delay="500">Add Book</md-tooltip></md-button>
-		<md-button ng-disabled="true" class="icon import-icon" ng-click="import($event)"><md-tooltip md-delay="500">Import Books</md-tooltip md-delay="500"></md-button>
-		<md-button class="icon export-icon" ng-click="export($event)"><md-tooltip md-delay="500">Export Books</md-tooltip></md-button>
+		<md-button aria-label="Toggle Filters" class="icon filter-icon" ng-click="toggleFilters()"><md-tooltip md-delay="500">Open Filters</md-tooltip></md-button>
+		<md-button aria-label="Previous Page" class="icon previous-icon" ng-disabled="page<=1" ng-click="previousPage()"><md-tooltip md-delay="500">Previous Page</md-tooltip></md-button>
+		<md-button aria-label="Next Page" class="icon next-icon" ng-disabled="page>=pages" ng-click="nextPage()"><md-tooltip md-delay="500">Next Page</md-tooltip></md-button>
+		<md-button aria-label="Add Book" class="icon add-icon" ng-click="addBook($event)"><md-tooltip md-delay="500">Add Book</md-tooltip></md-button>
+		<md-button aria-label="Import Books" ng-disabled="true" class="icon import-icon" ng-click="import($event)"><md-tooltip md-delay="500">Import Books</md-tooltip md-delay="500"></md-button>
+		<md-button aria-label="Export Books" class="icon export-icon" ng-click="export($event)"><md-tooltip md-delay="500">Export Books</md-tooltip></md-button>
 	</div>
 </md-toolbar>
 <div layout="row" >
@@ -20,6 +20,7 @@
 						<md-radio-button value="dewey">Dewey</md-radio-button>
 					</md-radio-group>
 				</md-input-container>
+				<div layout="row">
 					<div id="number-to-get" class="sort-group">
 						<md-input-container>
 							<label id="number-to-get-label">Limit</label>
@@ -32,6 +33,8 @@
 							<input id="page" class="pagination-input" type="text" ng-change="updateRecieved()" ng-model="$parent.page" name="page" required pages-input> of {{countPages()}}
 						</md-input-container>
 					</div>
+				</div>
+				<div layout="row">
 					<div id="from-dewey" class="sort-group">
 						<md-input-container>
 							<label id="from-dewey-label">From Dewey</label>
@@ -44,6 +47,7 @@
 							<input id="to-dewey-input" class="dewey-input" type="text" ng-change="updateRecieved()" ng-model="$parent.todewey" name="todewey" value="FIC" dewey-input/>
 						</md-input-container>
 					</div>
+				</div>
 			</div>
 			<div id="filter"  layout="column">
 				<div id="filter-text">
@@ -113,7 +117,7 @@
 					</md-input-container>
 				</div>
 			</div>
-			<md-button ng-click="chooseLibrary($event)">Choose Libraries</md-button>
+			<md-button aria-label="Choose Libraries" ng-click="chooseLibrary($event)">Choose Libraries</md-button>
 		</form>
 	</md-sidenav>
 	<md-content flex style="">
@@ -124,7 +128,7 @@
 							<md-grid-tile-header class="md-accent" style="background: rgba(48, 63, 159, .75)">
 								<span style="text-align: center;margin: auto;display:inline-block;">{{book.title}}</span>
 							</md-grid-tile-header>
-							<md-button ng-click="showBookDialog($event, book, this, 'grid')" style="z-index: 5;position: absolute;margin-top: auto;margin-bottom: auto;right: 10px" class=" md-fab md-secondary"><md-icon md-svg-src="{{getBookIcon(book)}}"></md-icon></md-button>
+							<md-button aria-label="View Book" ng-click="showBookDialog($event, book, this, 'grid')" style="z-index: 5;position: absolute;margin-top: auto;margin-bottom: auto;right: 10px" class=" md-fab md-secondary"><md-icon md-svg-src="{{getBookIcon(book)}}"></md-icon></md-button>
 							<img ng-src="web/{{book.imageurl}}{{'?'+getCurrentDateString()}}" alt="Image not found" onerror="this.onerror=null;this.src='web/res/book.jpg';" height="100%">
 							<md-grid-tile-footer ng-hide="book.subtitle==''" style="background: rgba(48, 63, 159, .75)">
 								<span style="text-align: center;margin: auto;display:inline-block;">{{book.subtitle}}</span>
