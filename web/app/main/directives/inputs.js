@@ -85,6 +85,9 @@ angular.module('libraryOrganizer')
 		require: 'ngModel',
 		link: function(scope, element, attr, mCtrl) {
 			function validation(value) {
+				if (value.length == 0) {
+					return true;
+				}
 				valid = false;
 				value = value.replace(/[^\dX]/gi, '');
 				if(value.length == 10) {

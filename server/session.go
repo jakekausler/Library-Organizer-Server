@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"mime/multipart"
 	"net/http"
@@ -68,6 +69,8 @@ func RunServer(username, password, database string) {
 	http.HandleFunc("/username", getUsername)
 	http.HandleFunc("/reset", resetPassword)
 	http.HandleFunc("/settings", getSettings)
+	http.HandleFunc("/updatesettings", updateSettings)
+	http.HandleFunc("/getsetting", getSetting)
 	http.Handle("/web/", http.StripPrefix("/web/", http.FileServer(http.Dir("./../web/"))))
 	logger.Printf("Listening on port 8181")
 	http.ListenAndServe(":8181", nil)
@@ -722,6 +725,61 @@ func getSettings(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", 301)
 	}
 	d, err := GetSettings(cookie.Value)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	data, err := json.Marshal(d)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+}
+
+func updateSettings(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("library-organizer-session")
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Redirect(w, r, "/", 301)
+	}
+	if cookie.Value == "" {
+		http.Redirect(w, r, "/", 301)
+	}
+	var settings []Setting
+	decoder := json.NewDecoder(r.Body)
+	err = decoder.Decode(&settings)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
+	err = UpdateSettings(settings, cookie.Value)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	return
+}
+
+func getSetting(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("library-organizer-session")
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Redirect(w, r, "/", 301)
+	}
+	if cookie.Value == "" {
+		http.Redirect(w, r, "/", 301)
+	}
+	b, err := ioutil.ReadAll(r.Body)
+	name := string(b)
+	defer r.Body.Close()
+	d, err := GetSetting(name, cookie.Value)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)

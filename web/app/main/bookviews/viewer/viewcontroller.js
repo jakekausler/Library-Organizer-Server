@@ -6,22 +6,6 @@ angular.module('libraryOrganizer')
 	$scope.username = username;
 	$scope.canEdit = (book.library.permissions&4)==4;
 	$scope.canCheckout = (book.library.permissions&2)==2;
-	$scope.edit = function(ev) {
-	    $mdDialog.show({
-	        controller: 'editorController',
-	        templateUrl: 'web/app/main/bookviews/editor/editordialog.html',
-	        parent: angular.element(document.body),
-	        targetEvt: ev,
-	        clickOutsideToClose: true,
-	        fullscreen: false,
-	        locals: {
-	            book: $scope.book,
-	            $vm: $scope.vm,
-	            viewType: $scope.viewType,
-	            username: $scope.username
-	        }
-	    })
-	}
 	$scope.checkout = function(ev) {
 	    $mdDialog.show({
 	        controller: 'checkoutController',
@@ -36,6 +20,9 @@ angular.module('libraryOrganizer')
 	            viewType: $scope.viewType
 	        }
 	    })
+	}
+	$scope.edit = function(ev) {
+		$scope.vm.showEditDialog(ev, $scope.book, $scope.vm, $scope.viewType);
 	}
 	$scope.cancel = function() {
 		$mdDialog.cancel();

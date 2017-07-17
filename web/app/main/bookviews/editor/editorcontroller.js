@@ -1,5 +1,141 @@
 angular.module('libraryOrganizer')
 .controller('editorController', function($scope, $http, $mdDialog, book, $vm, viewType, username) {
+	$scope.book = angular.copy(book);
+	if (!$scope.book.title) {
+		$vm.getSettingByName('Title', function(value) {
+			$scope.book.title = value;
+		});
+	}
+	if (!$scope.book.subtitle) {
+		$vm.getSettingByName('Subtitle', function(value) {
+			$scope.book.subtitle = value;
+		});
+	}
+	if (!$scope.book.series) {
+		$vm.getSettingByName('Series', function(value) {
+			$scope.book.series = value;
+		});
+	}
+	if (!$scope.book.volume) {
+		$vm.getSettingByName('Volume', function(value) {
+			$scope.book.volume = value;
+		});
+	}
+	if (!$scope.book.imageurl) {
+		$vm.getSettingByName('ImageURL', function(value) {
+			$scope.book.imageurl = value;
+		});
+	}
+	if (!$scope.book.publisher.publisher) {
+		$vm.getSettingByName('Publisher', function(value) {
+			$scope.book.publisher.publisher = value;
+		});
+	}
+	if (!$scope.book.publisher.city) {
+		$vm.getSettingByName('City', function(value) {
+			$scope.book.publisher.city = value;
+		});
+	}
+	if (!$scope.book.publisher.state) {
+		$vm.getSettingByName('State', function(value) {
+			$scope.book.publisher.state = value;
+		});
+	}
+	if (!$scope.book.publisher.country) {
+		$vm.getSettingByName('Country', function(value) {
+			$scope.book.publisher.country = value;
+		});
+	}
+	if (!$scope.book.originallypublished) {
+		$vm.getSettingByName('Originally Published', function(value) {
+			$scope.book.originallypublished = value;
+		});
+	}
+	if (!$scope.book.editionpublished) {
+		$vm.getSettingByName('Edition Published', function(value) {
+			$scope.book.editionpublished = value;
+		});
+	}
+	if (!$scope.book.dewey) {
+		$vm.getSettingByName('Dewey', function(value) {
+			$scope.book.dewey = value;
+		});
+	}
+	if (!$scope.book.format) {
+		$vm.getSettingByName('Format', function(value) {
+			$scope.book.format = value;
+		});
+	}
+	if (!$scope.book.pages) {
+		$vm.getSettingByName('Pages', function(value) {
+			$scope.book.pages = value;
+		});
+	}
+	if (!$scope.book.width) {
+		$vm.getSettingByName('Width', function(value) {
+			$scope.book.width = value;
+		});
+	}
+	if (!$scope.book.height) {
+		$vm.getSettingByName('Height', function(value) {
+			$scope.book.height = value;
+		});
+	}
+	if (!$scope.book.depth) {
+		$vm.getSettingByName('Depth', function(value) {
+			$scope.book.depth = value;
+		});
+	}
+	if (!$scope.book.weight) {
+		$vm.getSettingByName('Weight', function(value) {
+			$scope.book.weight = value;
+		});
+	}
+	if (!$scope.book.primarylanguage) {
+		$vm.getSettingByName('Primary Language', function(value) {
+			$scope.book.primarylanguage = value;
+		});
+	}
+	if (!$scope.book.secondarylanguage) {
+		$vm.getSettingByName('Secondary Language', function(value) {
+			$scope.book.secondarylanguage = value;
+		});
+	}
+	if (!$scope.book.originallanguage) {
+		$vm.getSettingByName('Original Language', function(value) {
+			$scope.book.originallanguage = value;
+		});
+	}
+	if (!$scope.book.isowned) {
+		$vm.getSettingByName('Owned', function(value) {
+			$scope.book.isowned = (value=="true");
+		});
+	}
+	if (!$scope.book.isread) {
+		$vm.getSettingByName('Read', function(value) {
+			$scope.book.isread = (value=="true");
+		});
+	}
+	if (!$scope.book.isreference) {
+		$vm.getSettingByName('Reference', function(value) {
+			$scope.book.isreference = (value=="true");
+		});
+	}
+	if (!$scope.book.isshipping) {
+		$vm.getSettingByName('Shipping', function(value) {
+			$scope.book.isshipping = (value=="true");
+		});
+	}
+	if (!$scope.book.isreading) {
+		$vm.getSettingByName('Reading', function(value) {
+			$scope.book.isreading = (value=="true");
+		});
+	}
+	if (!$scope.book.edition) {
+		$vm.getSettingByName('Edition', function(value) {
+			$scope.book.edition = value;
+		});
+	}
 	$scope.publishers = [];
 	$scope.cities = [];
 	$scope.states = [];
@@ -21,12 +157,17 @@ angular.module('libraryOrganizer')
             	if ($scope.libraries[l].owner != username) {
             		$scope.libraries[l].display = $scope.libraries[l].name + " (" + $scope.libraries[l].owner + ")"
             	} else {
+            		if (!$scope.book.library.id) {
+            			$scope.book.library.id = $scope.libraries[l].id;
+            			$scope.book.library.name = $scope.libraries[l].name;
+            			$scope.book.library.permissions = $scope.libraries[l].permissions;
+            			$scope.book.library.owner = $scope.libraries[l].owner;
+            		}
 	            	$scope.libraries[l].display = $scope.libraries[l].name
             	}
             }
         });
     };
-	$scope.updateLibraries();
 	$scope.updatePublishers = function() {
 		$http({
 			url: '/publishers',
@@ -108,7 +249,6 @@ angular.module('libraryOrganizer')
 		});
 	}
 	$scope.updateDeweys();
-	$scope.book = angular.copy(book);
 	$scope.newContributor = {
 		role: 'Role',
 		name: {
@@ -199,4 +339,5 @@ angular.module('libraryOrganizer')
 	$scope.log = function(item) {
 		console.log(item)
 	}
+	$scope.updateLibraries();
 });

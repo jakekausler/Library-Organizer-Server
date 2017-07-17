@@ -2,7 +2,7 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
     .config(function($mdThemingProvider) {
         $mdThemingProvider.theme('default')
             .primaryPalette('indigo')
-            .accentPalette('indigo')
+            .accentPalette('pink')
             .warnPalette('red')
             .backgroundPalette('indigo');
     })
@@ -62,6 +62,15 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
                 return $scope.parameters[name];
             }
             return def;
+        }
+        $scope.getSettingByName = function(name, callback) {
+            $http({
+                url: '/getsetting',
+                method: 'POST',
+                data: name
+            }).then(function(response) {
+                callback(response.data);
+            });
         }
         $scope.display = $scope.getParameterByName("display", "grid");
         $scope.username = "";
@@ -161,4 +170,20 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
                 }
             })
         };
-    })
+        $scope.showEditDialog = function(ev, book, vm, viewType) {
+            $mdDialog.show({
+                controller: 'editorController',
+                templateUrl: 'web/app/main/bookviews/editor/editordialog.html',
+                parent: angular.element(document.body),
+                targetEvt: ev,
+                clickOutsideToClose: true,
+                fullscreen: false,
+                locals: {
+                    book: book,
+                    $vm: vm,
+                    viewType: viewType,
+                    username: $scope.username
+                }
+            })
+        }
+})

@@ -2035,41 +2035,47 @@ func GetSettings(session string) ([]Setting, error) {
 	}
 	for rows.Next() {
 		var setting Setting
+		var value sql.NullString
+		var valuetype sql.NullString
+		var group sql.NullString
 		rows.Scan(&setting.Name)
 		query = `SELECT IF 
 					(EXISTS 
-						(SELECT value FROM librarysettings WHERE userid=? AND value=? ORDER BY setting),
-				     	(SELECT value FROM librarysettings WHERE userid=? AND value=? ORDER BY setting LIMIT 1),
-				     	(SELECT value FROM librarysettings WHERE userid=? AND value=? ORDER BY setting LIMIT 1)
+						(SELECT value FROM librarysettings WHERE userid=? AND setting=?),
+				     	(SELECT value FROM librarysettings WHERE userid=? AND setting=? LIMIT 1),
+				     	(SELECT value FROM librarysettings WHERE userid=0 AND setting=? LIMIT 1)
 				    )`
-		err = db.QueryRow(query, userid, setting.Name, userid, setting.Name, userid, setting.Name).Scan(&setting.Value)
+		err = db.QueryRow(query, userid, setting.Name, userid, setting.Name, setting.Name).Scan(&value)
 		if err != nil {
 			logger.Printf("Error: %+v", err)
 			return nil, err
 		}
 		query = `SELECT IF 
 					(EXISTS 
-						(SELECT value FROM librarysettings WHERE userid=? AND valuetype=? ORDER BY setting),
-				     	(SELECT value FROM librarysettings WHERE userid=? AND valuetype=? ORDER BY setting LIMIT 1),
-				     	(SELECT value FROM librarysettings WHERE userid=? AND valuetype=? ORDER BY setting LIMIT 1)
+						(SELECT valuetype FROM librarysettings WHERE userid=? AND setting=?),
+				     	(SELECT valuetype FROM librarysettings WHERE userid=? AND setting=? LIMIT 1),
+				     	(SELECT valuetype FROM librarysettings WHERE userid=0 AND setting=? LIMIT 1)
 				    )`
-		err = db.QueryRow(query, userid, setting.Name, userid, setting.Name, userid, setting.Name).Scan(&setting.ValueType)
+		err = db.QueryRow(query, userid, setting.Name, userid, setting.Name, setting.Name).Scan(&valuetype)
 		if err != nil {
 			logger.Printf("Error: %+v", err)
 			return nil, err
 		}
 		query = `SELECT IF 
 					(EXISTS 
-						(SELECT value FROM librarysettings WHERE userid=? AND group=? ORDER BY setting),
-				     	(SELECT value FROM librarysettings WHERE userid=? AND group=? ORDER BY setting LIMIT 1),
-				     	(SELECT value FROM librarysettings WHERE userid=? AND group=? ORDER BY setting LIMIT 1)
+						(SELECT settinggroup FROM librarysettings WHERE userid=? AND setting=?),
+				     	(SELECT settinggroup FROM librarysettings WHERE userid=? AND setting=? LIMIT 1),
+				     	(SELECT settinggroup FROM librarysettings WHERE userid=0 AND setting=? LIMIT 1)
 				    )`
-		err = db.QueryRow(query, userid, setting.Name, userid, setting.Name, userid, setting.Name).Scan(&setting.Group)
+		err = db.QueryRow(query, userid, setting.Name, userid, setting.Name, setting.Name).Scan(&group)
 		if err != nil {
 			logger.Printf("Error: %+v", err)
 			return nil, err
 		}
-		query = "SELECT possiblevalue FROM librarysettingspossiblevalues WHERE setting=?"
+		setting.Value = value.String
+		setting.ValueType = valuetype.String
+		setting.Group = group.String
+		query = "SELECT possiblevalue FROM librarysettingspossiblevalues WHERE setting=? ORDER BY possiblevalue"
 		innerrows, err := db.Query(query, setting.Name)
 		if err != nil {
 			logger.Printf("Error: %+v", err)
@@ -2087,4 +2093,38 @@ func GetSettings(session string) ([]Setting, error) {
 		settings = append(settings, setting)
 	}
 	return settings, nil
+}
+
+func UpdateSettings(settings []Setting, session string) error {
+	userid, err := GetUserId(session)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return err
+	}
+	query := "REPLACE INTO librarysettings (userid, setting, value, valuetype, settinggroup) VALUES (?,?,?,?,?)"
+	for _, setting := range settings {
+		_, err = db.Exec(query, userid, setting.Name, setting.Value, setting.ValueType, setting.Group)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return err
+		}
+	}
+	return nil
+}
+
+func GetSetting(name, session string) (string, error) {
+	userid, err := GetUserId(session)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return "", err
+	}
+	var value string
+	var query = `SELECT IF 
+					(EXISTS 
+						(SELECT value FROM librarysettings WHERE userid=? AND setting=?),
+				     	(SELECT value FROM librarysettings WHERE userid=? AND setting=? LIMIT 1),
+				     	(SELECT value FROM librarysettings WHERE userid=0 AND setting=? LIMIT 1)
+				    )`
+	err = db.QueryRow(query, userid, name, userid, name, name).Scan(&value)
+	return value, err
 }

@@ -1,13 +1,45 @@
-<md-dialog aria-label="Settings" label="Settings" layout="column" flex>
+<md-dialog aria-label="Settings" label="Settings"  flex>
 	<div flex style="position: relative; height: 60vh">
 		<md-tabs style="position: absolute;top: 0;bottom: 0;left: 0;right: 0" md-stretch-tabs="always">
 			<md-tab ng-repeat="group in settings" label="{{group.group}}">
 				<div flex style="height: 100%">
 					<md-list>
-						<md-list-item ng-repeat="setting in group.settings">
-							<md-input-container>
+						<md-list-item style="float:left" ng-repeat="setting in group.settings">
+							<md-input-container style="min-width: 200px" ng-hide="setting.valuetype != 'string'">
 								<label>{{setting.setting}}</label>
-								<input ng-model="setting.value" />
+								<input ng-model="setting.value" ng-change="pushSettings()" />
+							</md-input-container>
+							<md-input-container style="min-width: 200px" ng-hide="setting.valuetype != 'dewey'">
+								<label>{{setting.setting}}</label>
+								<input ng-model="setting.value" ng-change="pushSettings()" dewey-input required />
+							</md-input-container>
+							<md-input-container style="min-width: 200px" ng-hide="setting.valuetype != 'isbn'">
+								<label>{{setting.setting}}</label>
+								<input ng-model="setting.value" ng-change="pushSettings()" isbn-input />
+							</md-input-container>
+							<md-input-container style="min-width: 200px" ng-hide="setting.valuetype != 'nonnegativefloat'">
+								<label>{{setting.setting}}</label>
+								<input ng-model="setting.value" ng-change="pushSettings()" required non-negative-number-input />
+							</md-input-container>
+							<md-input-container style="min-width: 200px" ng-hide="setting.valuetype != 'nonnegativeint'">
+								<label>{{setting.setting}}</label>
+								<input ng-model="setting.value" ng-change="pushSettings()" required non-negative-integer-input />
+							</md-input-container>
+							<md-input-container style="min-width: 200px" ng-hide="setting.valuetype != 'positiveint'">
+								<label>{{setting.setting}}</label>
+								<input ng-model="setting.value" ng-change="pushSettings()" positive-integer-input required />
+							</md-input-container>
+							<md-input-container style="min-width: 200px" ng-hide="setting.valuetype != 'year'">
+								<label>{{setting.setting}}</label>
+								<input ng-model="setting.value" ng-change="pushSettings()" year-input required />
+							</md-input-container>
+							<md-input-container style="min-width: 200px" ng-hide="setting.valuetype != 'selection'">
+								<label>{{setting.setting}}</label>
+								<md-select ng-model="setting.value" ng-change="pushSettings()" required>
+									<md-option ng-value="value" ng-repeat="value in setting.possiblevalues">
+										{{value}}
+									</md-option>
+								</md-select>
 							</md-input-container>
 						</md-list-item>
 					</md-list>

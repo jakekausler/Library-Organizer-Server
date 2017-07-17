@@ -137,9 +137,10 @@ angular.module('libraryOrganizer')
                 "cheapestnew": 0,
                 "cheapestused": 0,
                 "editionpublished": "",
-                "contributors": []
+                "contributors": [],
+                "library": {}
             }
-            $scope.showEditorDialog(ev, book, $scope, 'gridadd');
+            $scope.showEditDialog(ev, book, $scope, 'gridadd');
         }
         $scope.updateLibraries = function() {
             $http.get('/libraries', {}).then(function(response) {
