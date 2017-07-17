@@ -124,11 +124,10 @@
 		<md-content flex style="padding: 10px; height: calc(100vh - 100px);">
 			<div flex layout="column" id="grid" style="/*-webkit-overflow-scrolling: touch; display: block; position: fixed; top: 370px; bottom: 0px;*/">
 				<md-grid-list md-cols-xs="1" md-cols-sm="2" md-cols-md="4" md-cols-gt-md="6" md-row-height-gt-md="1:1" md-row-height="2:2" md-gutter="12px" md-gutter-gt-sm="8px">
-						<md-grid-tile ng-repeat="book in books" >
+						<md-grid-tile ng-repeat="book in books" ng-click="showBookDialog($event, book, this, 'grid')">
 							<md-grid-tile-header class="md-accent" style="background: rgba(48, 63, 159, .75)">
 								<span style="text-align: center;margin: auto;display:inline-block;">{{book.title}}</span>
 							</md-grid-tile-header>
-							<md-button aria-label="View Book" ng-click="showBookDialog($event, book, this, 'grid')" style="z-index: 5;position: absolute;margin-top: auto;margin-bottom: auto;right: 10px" class=" md-fab md-secondary"><md-icon md-svg-src="{{getBookIcon(book)}}"></md-icon></md-button>
 							<img ng-src="web/{{book.imageurl}}{{'?'+getCurrentDateString()}}" alt="Image not found" onerror="this.onerror=null;this.src='web/res/book.jpg';" height="100%">
 							<md-grid-tile-footer ng-hide="book.subtitle==''" style="background: rgba(48, 63, 159, .75)">
 								<span style="text-align: center;margin: auto;display:inline-block;">{{book.subtitle}}</span>

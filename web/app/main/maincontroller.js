@@ -73,19 +73,9 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
             return Math.round10(v, d)
         }
         $scope.showBookDialog = function(ev, book, vm, viewType) {
-            console.log(book.library)
-            if ((book.library.permissions&4)==4) {
-                $scope.showEditorDialog(ev, book, vm, viewType);
-            } else if ((book.library.permissions&2)==2) {
-                $scope.showCheckOutDialog(ev, book, vm, viewType);
-            } else if ((book.library.permissions&1)==1) {
-                $scope.showViewDialog(ev, book, vm, viewType);
-            }
-        }
-        $scope.showEditorDialog = function(ev, book, vm, viewType) {
             $mdDialog.show({
-                controller: 'editorController',
-                templateUrl: 'web/app/main/editor/editordialog.html',
+                controller: 'viewController',
+                templateUrl: 'web/app/main/bookviews/viewer/viewdialog.html',
                 parent: angular.element(document.body),
                 targetEvt: ev,
                 clickOutsideToClose: true,
@@ -97,7 +87,23 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
                     username: $scope.username
                 }
             })
-        };
+        }
+        // $scope.showEditorDialog = function(ev, book, vm, viewType) {
+        //     $mdDialog.show({
+        //         controller: 'editorController',
+        //         templateUrl: 'web/app/main/bookviews/editor/editordialog.html',
+        //         parent: angular.element(document.body),
+        //         targetEvt: ev,
+        //         clickOutsideToClose: true,
+        //         fullscreen: false,
+        //         locals: {
+        //             book: book,
+        //             $vm: vm,
+        //             viewType: viewType,
+        //             username: $scope.username
+        //         }
+        //     })
+        // };
         $scope.displayGrid = function() {
             $scope.setParameters({'display': 'grid'})
             $scope.display = 'grid';

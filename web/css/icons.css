@@ -50,6 +50,9 @@
 .settings-icon:before{
 	content:'\f013';
 }
+.checkout-icon:before{
+	content:'\f07a';
+}
 
 figcaption {
 	margin: auto;
