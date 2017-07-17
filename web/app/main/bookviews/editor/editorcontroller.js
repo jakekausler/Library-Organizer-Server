@@ -108,27 +108,27 @@ angular.module('libraryOrganizer')
 	}
 	if (!$scope.book.isowned) {
 		$vm.getSettingByName('Owned', function(value) {
-			$scope.book.isowned = (value=="true");
+			$scope.book.isowned = (value=="True");
 		});
 	}
 	if (!$scope.book.isread) {
 		$vm.getSettingByName('Read', function(value) {
-			$scope.book.isread = (value=="true");
+			$scope.book.isread = (value=="True");
 		});
 	}
 	if (!$scope.book.isreference) {
 		$vm.getSettingByName('Reference', function(value) {
-			$scope.book.isreference = (value=="true");
+			$scope.book.isreference = (value=="True");
 		});
 	}
 	if (!$scope.book.isshipping) {
 		$vm.getSettingByName('Shipping', function(value) {
-			$scope.book.isshipping = (value=="true");
+			$scope.book.isshipping = (value=="True");
 		});
 	}
 	if (!$scope.book.isreading) {
 		$vm.getSettingByName('Reading', function(value) {
-			$scope.book.isreading = (value=="true");
+			$scope.book.isreading = (value=="True");
 		});
 	}
 	if (!$scope.book.edition) {
