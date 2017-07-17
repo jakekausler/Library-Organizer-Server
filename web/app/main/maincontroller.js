@@ -88,22 +88,20 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
                 }
             })
         }
-        // $scope.showEditorDialog = function(ev, book, vm, viewType) {
-        //     $mdDialog.show({
-        //         controller: 'editorController',
-        //         templateUrl: 'web/app/main/bookviews/editor/editordialog.html',
-        //         parent: angular.element(document.body),
-        //         targetEvt: ev,
-        //         clickOutsideToClose: true,
-        //         fullscreen: false,
-        //         locals: {
-        //             book: book,
-        //             $vm: vm,
-        //             viewType: viewType,
-        //             username: $scope.username
-        //         }
-        //     })
-        // };
+        $scope.settings = {};
+        $scope.openSettings = function(ev, vm) {
+            $mdDialog.show({
+                controller: 'settingsController',
+                templateUrl: 'web/app/main/settings/settingsdialog.html',
+                parent: angular.element(document.body),
+                targetEvt: ev,
+                clickOutsideToClose: true,
+                fullscreen: false,
+                locals: {
+                    vm: $scope
+                }
+            })
+        }
         $scope.displayGrid = function() {
             $scope.setParameters({'display': 'grid'})
             $scope.display = 'grid';

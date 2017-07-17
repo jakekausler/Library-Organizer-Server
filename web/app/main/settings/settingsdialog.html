@@ -1,0 +1,21 @@
+<md-dialog aria-label="Settings" label="Settings" layout="column" flex>
+	<div flex style="position: relative; height: 60vh">
+		<md-tabs style="position: absolute;top: 0;bottom: 0;left: 0;right: 0" md-stretch-tabs="always">
+			<md-tab ng-repeat="group in settings" label="{{group.group}}">
+				<div flex style="height: 100%">
+					<md-list>
+						<md-list-item ng-repeat="setting in group.settings">
+							<md-input-container>
+								<label>{{setting.setting}}</label>
+								<input ng-model="setting.value" />
+							</md-input-container>
+						</md-list-item>
+					</md-list>
+				</div>
+			</md-tab>
+		</md-tabs>
+	</div>
+	<div layout="row">
+		<md-button aria-label="Close" ng-click="cancel()" flex class="icon cancel-icon"></md-button>
+	</div>
+</md-dialog>

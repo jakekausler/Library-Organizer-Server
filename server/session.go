@@ -67,6 +67,7 @@ func RunServer(username, password, database string) {
 	http.HandleFunc("/libraries", getLibraries)
 	http.HandleFunc("/username", getUsername)
 	http.HandleFunc("/reset", resetPassword)
+	http.HandleFunc("/settings", getSettings)
 	http.Handle("/web/", http.StripPrefix("/web/", http.FileServer(http.Dir("./../web/"))))
 	logger.Printf("Listening on port 8181")
 	http.ListenAndServe(":8181", nil)
@@ -696,6 +697,31 @@ func getUsername(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", 301)
 	}
 	d, err := GetUsername(cookie.Value)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	data, err := json.Marshal(d)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+}
+
+func getSettings(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("library-organizer-session")
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Redirect(w, r, "/", 301)
+	}
+	if cookie.Value == "" {
+		http.Redirect(w, r, "/", 301)
+	}
+	d, err := GetSettings(cookie.Value)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)

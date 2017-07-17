@@ -2023,3 +2023,68 @@ func GetBreaks(libraryid, valuetype string) ([]map[string]string, error) {
 	}
 	return []map[string]string{idBreaks, customBreaks}, nil
 }
+
+func GetSettings(session string) ([]Setting, error) {
+	var settings []Setting
+	userid, err := GetUserId(session)
+	query := "SELECT setting from librarysettings group by setting"
+	rows, err := db.Query(query)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return nil, err
+	}
+	for rows.Next() {
+		var setting Setting
+		rows.Scan(&setting.Name)
+		query = `SELECT IF 
+					(EXISTS 
+						(SELECT value FROM librarysettings WHERE userid=? AND value=? ORDER BY setting),
+				     	(SELECT value FROM librarysettings WHERE userid=? AND value=? ORDER BY setting LIMIT 1),
+				     	(SELECT value FROM librarysettings WHERE userid=? AND value=? ORDER BY setting LIMIT 1)
+				    )`
+		err = db.QueryRow(query, userid, setting.Name, userid, setting.Name, userid, setting.Name).Scan(&setting.Value)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return nil, err
+		}
+		query = `SELECT IF 
+					(EXISTS 
+						(SELECT value FROM librarysettings WHERE userid=? AND valuetype=? ORDER BY setting),
+				     	(SELECT value FROM librarysettings WHERE userid=? AND valuetype=? ORDER BY setting LIMIT 1),
+				     	(SELECT value FROM librarysettings WHERE userid=? AND valuetype=? ORDER BY setting LIMIT 1)
+				    )`
+		err = db.QueryRow(query, userid, setting.Name, userid, setting.Name, userid, setting.Name).Scan(&setting.ValueType)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return nil, err
+		}
+		query = `SELECT IF 
+					(EXISTS 
+						(SELECT value FROM librarysettings WHERE userid=? AND group=? ORDER BY setting),
+				     	(SELECT value FROM librarysettings WHERE userid=? AND group=? ORDER BY setting LIMIT 1),
+				     	(SELECT value FROM librarysettings WHERE userid=? AND group=? ORDER BY setting LIMIT 1)
+				    )`
+		err = db.QueryRow(query, userid, setting.Name, userid, setting.Name, userid, setting.Name).Scan(&setting.Group)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return nil, err
+		}
+		query = "SELECT possiblevalue FROM librarysettingspossiblevalues WHERE setting=?"
+		innerrows, err := db.Query(query, setting.Name)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return nil, err
+		}
+		for innerrows.Next() {
+			var value string
+			err = innerrows.Scan(&value)
+			if err != nil {
+				logger.Printf("Error: %+v", err)
+				return nil, err
+			}
+			setting.PossibleValues = append(setting.PossibleValues, value)
+		}
+		settings = append(settings, setting)
+	}
+	return settings, nil
+}

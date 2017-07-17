@@ -1,5 +1,14 @@
 package main
 
+//Setting is a setting
+type Setting struct {
+	Name string `json:"name"`
+	Value string `json:"value"`
+	ValueType string `json:"valuetype"`
+	Group string `json:"group"`
+	PossibleValues []string `json:"possiblevalues"`
+}
+
 //Library is a library
 type Library struct {
 	ID   int64  `json:"id"`
