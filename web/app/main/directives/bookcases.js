@@ -29,16 +29,16 @@ angular.module('libraryOrganizer')
 				// 	break;
 				// }
 			}
-			vm.mouseclick = function(e) {
-				var rect = vm.canvas.getBoundingClientRect();
+			vm.mouseclick = function(e, canvas, num) {
+				var rect = canvas.getBoundingClientRect();
 				var x = e.clientX - rect.left;
 				var y = e.clientY - rect.top;
 				var i = Math.floor(x/100);
 				var j = Math.floor(y/100);
-				if (vm.hashes) {
-					for (b in vm.hashes[i][j]) {
-						if (x < vm.hashes[i][j][b].x+vm.hashes[i][j][b].newwidth && x > vm.hashes[i][j][b].x && y<vm.hashes[i][j][b].y+vm.hashes[i][j][b].newheight && y>vm.hashes[i][j][b].y) {
-							vm.$parent.showBookDialog(e, vm.hashes[i][j][b], vm, 'shelves');
+				if (vm.hashes[num]) {
+					for (b in vm.hashes[num][i][j]) {
+						if (x < vm.hashes[num][i][j][b].x+vm.hashes[num][i][j][b].newwidth && x > vm.hashes[num][i][j][b].x && y<vm.hashes[num][i][j][b].y+vm.hashes[num][i][j][b].newheight && y>vm.hashes[num][i][j][b].y) {
+							vm.$parent.showBookDialog(e, vm.hashes[num][i][j][b], vm, 'shelves');
 						}
 					}
 				}
@@ -51,6 +51,7 @@ angular.module('libraryOrganizer')
 				return !(a.x > b.x+b.width || a.x+a.width < b.x || a.y > b.y+b.height || a.y+a.height < b.y)
 			}
 			vm.drawShelf = function() {
+				vm.container.innerHTML = "";
 				var margin = 50;
 				var x = margin;
 				var y = margin;
@@ -75,21 +76,26 @@ angular.module('libraryOrganizer')
 				}
 				vm.container.style.width=(width+margin)+"px";
 				vm.container.style.height=(height+margin)+"px";
-				for (i=0;i<width/100;i++) {
-					vm.hashes.push([]);
-					for (j=0;j<width/100;j++) {
-						vm.hashes[i].push([]);
-						vm.hashes[i][j] = []
-					}
-				}
-				for (c in vm.cases) {
+				vm.hashes = [];
+				vm.cases.forEach(function(_, c) {
 					var canvas = document.createElement('canvas');
 					vm.container.appendChild(canvas);
 					canvas.style.position = "inline-block";
 					canvas.width = vm.cases[c].width+vm.cases[c].spacerheight*2;
 					canvas.height = height;
 					canvas.style.margin = (margin/2)+"px";
-					canvas.addEventListener('click', vm.mouseclick);
+					canvas.addEventListener('click', function(e) {
+						vm.mouseclick(e, canvas, c);
+					});
+					hashes = [];
+					for (i=0;i<canvas.width/100;i++) {
+						hashes.push([]);
+						for (j=0;j<canvas.height/100;j++) {
+							hashes[i].push([]);
+							hashes[i][j] = []
+						}
+					}
+					vm.hashes.push(hashes);
 					x = 0;
 					var ctx = canvas.getContext("2d");
 					ctx.font = (vm.zoom*10)+"px Arial"
@@ -147,7 +153,7 @@ angular.module('libraryOrganizer')
 							for (i=Math.floor((ix-1)/100);i<Math.floor(((ix-1)+(bookwidth+2))/100)+1; i++) {
 								for (j=Math.floor((y-bookheight+vm.cases[c].shelves[s].height+vm.cases[c].spacerheight-1)/100);j<Math.floor(((y-bookheight+vm.cases[c].shelves[s].height+vm.cases[c].spacerheight-1)+(bookheight+2))/100)+1; j++) {
 									if (i >= 0 && j >= 0 && vm.doBoxesIntersect({x:i*100,y:j*100,width:100,height:100}, {x:ix-1, y:y-bookheight+vm.cases[c].shelves[s].height+vm.cases[c].spacerheight-1, width:bookwidth+2, height:bookheight+2})) {
-										vm.hashes[i][j].push(vm.cases[c].shelves[s].books[b]);
+										vm.hashes[c][i][j].push(vm.cases[c].shelves[s].books[b]);
 									}
 								}
 							}
@@ -159,7 +165,7 @@ angular.module('libraryOrganizer')
 					ctx.fillRect(x, y, vm.cases[c].width+vm.cases[c].spacerheight, vm.cases[c].spacerheight)
 					y = 0;
 					x += vm.cases[c].spacerheight + vm.cases[c].width + vm.cases[c].spacerheight;
-				}
+				})
 			}
 		}
 	}
