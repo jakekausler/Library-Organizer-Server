@@ -53,6 +53,9 @@
 .checkout-icon:before{
 	content:'\f07a';
 }
+.scan-icon:before{
+	content:'\f02a';
+}
 
 figcaption {
 	margin: auto;

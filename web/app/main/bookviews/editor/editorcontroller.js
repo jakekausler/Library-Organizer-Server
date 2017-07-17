@@ -280,6 +280,8 @@ angular.module('libraryOrganizer')
 				$vm.updateCases();
 			} else if (viewType=='grid') {
 				$vm.$parent.$parent.updateRecieved();
+			} else if (viewType=='scanadd') {
+				$vm.$parent.$parent.updateRecieved();
 			}
 			$mdDialog.cancel();
 		});

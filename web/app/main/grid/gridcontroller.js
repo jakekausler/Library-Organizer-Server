@@ -1,5 +1,5 @@
 angular.module('libraryOrganizer')
-    .controller('gridController', function($scope, $http, $mdSidenav) {
+    .controller('gridController', function($scope, $http, $mdSidenav, $mdDialog) {
         $scope.sort = $scope.getParameterByName("sort", "dewey");
         $scope.numberToGet = parseInt($scope.getParameterByName("numbertoget", "50"));
         $scope.page = parseInt($scope.getParameterByName("page", "1"));
@@ -192,5 +192,23 @@ angular.module('libraryOrganizer')
             } else if ((book.library.permissions&1)==1) {
                 return "web/res/view.svg";
             }
+        }
+        $scope.scan = function(ev) {
+            $mdDialog.show({
+                controller: 'scanController',
+                templateUrl: 'web/app/main/grid/scan/scandialog.html',
+                parent: angular.element(document.body),
+                targetEvt: ev,
+                clickOutsideToClose: true,
+                fullscreen: false,
+                locals: {
+                    vm: $scope
+                }
+            });
+        }
+        $scope.searchByISBN = function(isbn) {
+            // 1. Query for isbn in current libraries
+            // 2a. If not found, return false and display
+            // 2b. If found, close the dialog and navigate to the book
         }
     });
