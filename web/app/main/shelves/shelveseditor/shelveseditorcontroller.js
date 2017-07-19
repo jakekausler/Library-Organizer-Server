@@ -9,6 +9,30 @@ angular.module('libraryOrganizer')
 		$scope.shelves[i].shelfheight = $scope.shelves[i].shelves[0].height;
 	}
 	$scope.numberOfCases = $scope.shelves.length;
+	$scope.defaultWidth = 0;
+	$scope.defaultNumberOfShelves = 0;
+	$scope.defaultPaddingLeft = 0;
+	$scope.defaultPaddingRight = 0;
+	$scope.defaultShelfHeight = 0;
+	$scope.defaultSpacerSize = 0;
+	$scope.vm.getSettingByName('Case Width', function(value) {
+		$scope.defaultWidth = value;
+	});
+	$scope.vm.getSettingByName('Number of Shelves', function(value) {
+		$scope.defaultNumberOfShelves = value;
+	});
+	$scope.vm.getSettingByName('Padding Left', function(value) {
+		$scope.defaultPaddingLeft = value;
+	});
+	$scope.vm.getSettingByName('Padding Right', function(value) {
+		$scope.defaultPaddingRight = value;
+	});
+	$scope.vm.getSettingByName('Shelf Height', function(value) {
+		$scope.defaultShelfHeight = value;
+	});
+	$scope.vm.getSettingByName('Spacer Size', function(value) {
+		$scope.defaultSpacerSize = value;
+	});
 	$scope.cancel = function() {
 		$mdDialog.cancel();
 	};
@@ -53,12 +77,12 @@ angular.module('libraryOrganizer')
 		}
 		$scope.shelves.push({
 			casenumber: c+1,
-			numberofshelves: '',
-			width: '',
-			shelfheight: '',
-			paddingleft: '',
-			paddingright: '',
-			spacerheight: '',
+			numberofshelves: $scope.defaultNumberOfShelves,
+			width: $scope.defaultWidth,
+			shelfheight: $scope.defaultShelfHeight,
+			paddingleft: $scope.defaultPaddingLeft,
+			paddingright: $scope.defaultPaddingRight,
+			spacerheight: $scope.defaultSpacerSize,
 			libraryid: $scope.libraryid
 		});
 		$scope.shelves.sort(function(a, b) {
