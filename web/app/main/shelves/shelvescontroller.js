@@ -1,5 +1,5 @@
 angular.module('libraryOrganizer')
-.controller('shelvesController', function($scope, $http) {
+.controller('shelvesController', function($scope, $http, $mdDialog) {
 	$scope.editingShelves = false;
 	$scope.shelfSearchString = "";
 	$scope.bookcases = [];
@@ -26,18 +26,25 @@ angular.module('libraryOrganizer')
 			$scope.bookcases = response.data;
 		});
 	}
-	//todo
-	$scope.addShelf = function() {
+	$scope.editShelves = function(ev) {
+        $mdDialog.show({
+            controller: 'shelveseditorController',
+            templateUrl: 'web/app/main/shelves/shelveseditor/shelveseditordialog.html',
+            parent: angular.element(document.body),
+            targetEvt: ev,
+            clickOutsideToClose: true,
+            fullscreen: false,
+            locals: {
+                vm: $scope,
+                shelves: $scope.bookcases,
+                libraryid: $scope.currentLibraryId
+            }
+        })
+    }
+    //todo
+    $scope.findBook = function() {
 
-	}
-	//todo
-	$scope.toggleEditShelves = function() {
-		$scope.editingShelves = !$scope.editingShelves
-	}
-	//todo
-	$scope.findBook = function() {
-		
-	}
+    }
     $scope.updateLibraries = function() {
         $http.get('/libraries', {}).then(function(response) {
             $scope.libraries = response.data;

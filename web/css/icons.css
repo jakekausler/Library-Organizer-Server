@@ -56,6 +56,12 @@
 .scan-icon:before{
 	content:'\f02a';
 }
+.up-icon:before{
+	content:'\f151';
+}
+.down-icon:before{
+	content:'\f150';
+}
 
 figcaption {
 	margin: auto;

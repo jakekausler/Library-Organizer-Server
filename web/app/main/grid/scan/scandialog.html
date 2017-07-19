@@ -1,6 +1,6 @@
 <md-dialog layout-padding="5" style="text-align: center" flex>
-	<h1 class="md-title">Scan Book</h1>
-	<p>Scan</p>
+	<h1 class="md-title">Insert by ISBN</h1>
+	<p>Insert a book by ISBN. Either type in the ISBN below and press enter, or use a barcode scanner. If using a barcode scanner, the input will be split on spaces the second part (or first if only one part) will be interpreted as the isbn.</p>
 	<md-input-container>
 		<label>ISBN</label>
 		<input ng-model="isbn" type="text" scan="scan()" md-autofocus />

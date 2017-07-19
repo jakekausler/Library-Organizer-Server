@@ -1,5 +1,22 @@
 package main
 
+type EditedCases struct {
+	EditedCases []EditedCase `json:"editedcases"`
+	ToRemoveIds []int64 `json:"toremoveids"`
+	LibraryID int64 `json:"libraryid"`
+}
+
+type EditedCase struct {
+	ID                int64       `json:"id"`
+	SpacerHeight      int64       `json:"spacerheight"`
+	PaddingLeft       int64       `json:"paddingleft"`
+	PaddingRight      int64       `json:"paddingright"`
+	Width             int64       `json:"width"`
+	ShelfHeight int64 `json:"shelfheight"`
+	NumberOfShelves int64 `json:"numberofshelves"`
+	CaseNumber	int64 `json:"casenumber"`
+}
+
 //Setting is a setting
 type Setting struct {
 	Name string `json:"name"`
@@ -29,6 +46,7 @@ type Bookcase struct {
 	AverageBookHeight float64     `json:"averagebookheight"`
 	AverageBookWidth  float64     `json:"averagebookwidth"`
 	Library           Library     `json:"library"`
+	CaseNumber	int64 `json:"casenumber"`
 }
 
 //Bookshelf is a shelf on a bookcase

@@ -269,6 +269,16 @@ angular.module('libraryOrganizer')
 		book.weight = parseFloat(book.weight);
 		book.originallypublished = book.originallypublished+'-01-01';
 		book.editionpublished = book.editionpublished+'-01-01';
+		book.series = book.series?book.series:$scope.seriesSearchText;
+		book.publisher.publisher = book.publisher.publisher?book.publisher.publisher:$scope.PublisherSearchText;
+		book.publisher.city = book.publisher.city?book.publisher.city:$scope.CitySearchText;
+		book.publisher.state = book.publisher.state?book.publisher.state:$scope.stateSearchText;
+		book.publisher.country = book.publisher.country?book.publisher.country:$scope.countrySearchText;
+		book.dewey = book.dewey?book.dewey:$scope.deweySearchText;
+		book.format = book.format?book.format:$scope.formatSearchText;
+		book.primarylanguage = book.primarylanguage?book.primarylanguage:$scope.primaryLanguageSearchText;
+		book.secondarylanguage = book.secondarylanguage?book.secondarylanguage:$scope.secondaryLanguageSearchText;
+		book.originallanguage = book.originallanguage?book.originallanguage:$scope.originalLanguageSearchText;
 		$http({
 			url: '/savebook',
 			method: 'POST',

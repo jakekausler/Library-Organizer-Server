@@ -1873,7 +1873,7 @@ func GetCases(libraryid, sortMethod, session string) ([]Bookcase, error) {
 logger.Printf("Error: %+v", err)
 return nil, err
 	}
-	query := "SELECT CaseId, Width, SpacerHeight, PaddingLeft, PaddingRight, BookMargin FROM bookcases WHERE libraryid=? ORDER BY CaseNumber"
+	query := "SELECT CaseId, Width, SpacerHeight, PaddingLeft, PaddingRight, BookMargin, CaseNumber, NumberOfShelves, ShelfHeight FROM bookcases WHERE libraryid=? ORDER BY CaseNumber"
 	rows, err := db.Query(query, libraryid)
 	if err != nil {
 logger.Printf("Error: %+v", err)
@@ -1886,8 +1886,8 @@ return nil, err
 	}
 	var cases []Bookcase
 	for rows.Next() {
-		var id, width, spacerHeight, paddingLeft, paddingRight, bookMargin int64
-		err = rows.Scan(&id, &width, &spacerHeight, &paddingLeft, &paddingRight, &bookMargin)
+		var id, width, spacerHeight, paddingLeft, paddingRight, bookMargin, caseNumber, numberOfShelves, shelfHeight int64
+		err = rows.Scan(&id, &width, &spacerHeight, &paddingLeft, &paddingRight, &bookMargin, &caseNumber, &numberOfShelves, &shelfHeight)
 		if err != nil {
 logger.Printf("Error: %+v", err)
 return nil, err
@@ -1901,19 +1901,26 @@ return nil, err
 			BookMargin:        bookMargin,
 			AverageBookWidth:  dim["averagewidth"],
 			AverageBookHeight: dim["averageheight"],
+			CaseNumber: 		caseNumber,
 		}
-		shelfquery := "SELECT id, Height FROM shelves WHERE CaseId=? ORDER BY ShelfNumber"
-		shelfrows, err := db.Query(shelfquery, id)
-		if err != nil {
-logger.Printf("Error: %+v", err)
-return nil, err
-		}
-		for shelfrows.Next() {
-			var shelfid, height int64
-			shelfrows.Scan(&shelfid, &height)
+// 		shelfquery := "SELECT id, Height FROM shelves WHERE CaseId=? ORDER BY ShelfNumber"
+// 		shelfrows, err := db.Query(shelfquery, id)
+// 		if err != nil {
+// logger.Printf("Error: %+v", err)
+// return nil, err
+// 		}
+// 		for shelfrows.Next() {
+// 			var shelfid, height int64
+// 			shelfrows.Scan(&shelfid, &height)
+// 			bookcase.Shelves = append(bookcase.Shelves, Bookshelf{
+// 				ID:     shelfid,
+// 				Height: height,
+// 			})
+// 		}
+		for i := 0; i < int(numberOfShelves); i++ {
 			bookcase.Shelves = append(bookcase.Shelves, Bookshelf{
-				ID:     shelfid,
-				Height: height,
+				ID:     0,
+				Height: shelfHeight,
 			})
 		}
 		cases = append(cases, bookcase)
@@ -1931,7 +1938,7 @@ return nil, err
 			if index < len(books) && books[index].Width != 0 {
 				useWidth = int(books[index].Width)
 			}
-			for index < len(books) && useWidth+x <= int(bookcase.Width) {
+			for index < len(books) && useWidth+x <= int(bookcase.Width)-int(bookcase.PaddingRight) {
 				cases[c].Shelves[s].Books = append(cases[c].Shelves[s].Books, books[index])
 				x += useWidth
 				index++
@@ -2127,4 +2134,47 @@ func GetSetting(name, session string) (string, error) {
 				    )`
 	err = db.QueryRow(query, userid, name, userid, name, name).Scan(&value)
 	return value, err
+}
+
+func SaveCases(cases EditedCases) error {
+	libraryid := cases.LibraryID
+	for _, c := range cases.EditedCases {
+		id := c.ID
+		caseNumber := c.CaseNumber
+		width := c.Width
+		spacerHeight := c.SpacerHeight
+		paddingLeft := c.PaddingLeft
+		paddingRight := c.PaddingRight
+		shelfHeight := c.ShelfHeight
+		numberOfShelves := c.NumberOfShelves
+		if id == 0 {
+			query := "INSERT INTO bookcases (casenumber, width, spacerheight, paddingleft, paddingright, libraryid, numberofshelves, shelfheight) VALUES (?,?,?,?,?,?,?,?)"
+			_, err := db.Exec(query, caseNumber, width, spacerHeight, paddingLeft, paddingRight, libraryid, numberOfShelves, shelfHeight)
+			if err != nil {
+		logger.Printf("Error: %+v", err)
+				return err
+			}
+		} else {
+			query := "UPDATE bookcases SET casenumber=?, width=?, spacerheight=?, paddingleft=?, paddingright=?, libraryid=?, numberOfShelves=?, shelfheight=? WHERE caseid=?"
+			_, err := db.Exec(query, caseNumber, width, spacerHeight, paddingLeft, paddingRight, libraryid, numberOfShelves, shelfHeight, id)
+			if err != nil {
+		logger.Printf("Error: %+v", err)
+				return err
+			}
+		}
+	}
+	var removedCases []string
+	for _, id := range(cases.ToRemoveIds) {
+		i := strconv.FormatInt(id, 10)
+		removedCases = append(removedCases, i)
+	}
+	if (len(removedCases) > 0) {
+		query := "DELETE FROM bookcases WHERE CaseId IN ("+strings.Join(removedCases, ",")+")";
+		_, err := db.Exec(query);
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return err
+		}
+	}
+	return nil;
 }

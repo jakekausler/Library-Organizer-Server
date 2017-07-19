@@ -71,6 +71,7 @@ func RunServer(username, password, database string) {
 	http.HandleFunc("/settings", getSettings)
 	http.HandleFunc("/updatesettings", updateSettings)
 	http.HandleFunc("/getsetting", getSetting)
+	http.HandleFunc("/savecases", saveCases)
 	http.Handle("/web/", http.StripPrefix("/web/", http.FileServer(http.Dir("./../web/"))))
 	logger.Printf("Listening on port 8181")
 	http.ListenAndServe(":8181", nil)
@@ -594,7 +595,7 @@ func getCases(w http.ResponseWriter, r *http.Request) {
 		logger.Printf("%+v", err)
 		http.Redirect(w, r, "/", 301)
 	}
-	if cookie.Value == "" {
+	if cookie == nil || cookie.Value == "" {
 		http.Redirect(w, r, "/", 301)
 	}
 	params := r.URL.Query()
@@ -793,4 +794,28 @@ func getSetting(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(data)
+}
+
+func saveCases(w http.ResponseWriter, r *http.Request) {
+	if !registered(r) {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
+		return
+	}
+	var editedCases EditedCases
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&editedCases)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
+	err = SaveCases(editedCases)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	return
 }
