@@ -155,15 +155,23 @@
 								<label>ISBN</label>
 								<input type="text" ng-model="book.isbn" name="isbn" value="{{book.isbn}}" isbn-input/>
 							</md-input-container>
-							<md-input-container flex=10>
+							<md-input-container flex="10">
 								<label>Edition</label>
 								<input type="text" ng-model="book.edition" name="edition" value="{{book.edition}}" required non-negative-integer-input/>
 							</md-input-container>
-							<md-autocomplete flex="40" md-input-name="dewey" md-search-text="deweySearchText" md-selected-item="book.dewey" md-items="s in query(deweys, deweySearchText)" md-item-text="s" md-floating-label="Dewey">
+							<md-autocomplete flex md-input-name="dewey" md-search-text="deweySearchText" md-selected-item="book.dewey" md-items="s in query(deweys, deweySearchText)" md-item-text="s" md-floating-label="Dewey">
 								<md-item-template>
 						          <span md-highlight-text="deweySearchText" md-highlight-flags="^i">{{s}}</span>
 						        </md-item-template>
 							</md-autocomplete>
+							<p flex="30">
+								{{getGenre()}}
+							</p>
+							<!-- <md-input-container flex="30">
+								<label>Genre</label>
+								<textarea name="Genre" value="{{getGenre()}}" ng-disabled="true">
+								</textarea>
+							</md-input-container> -->
 						</div>
 						<div flex layout="row" flex>
 							<md-autocomplete flex="25" md-input-name="format" md-search-text="formatSearchText" md-selected-item="book.format" md-items="s in query(formats, formatSearchText)" md-item-text="s" md-floating-label="Format">

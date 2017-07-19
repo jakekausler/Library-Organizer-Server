@@ -20,7 +20,7 @@ const (
 	getCountriesQuery  = "SELECT DISTINCT(Country) from publishers"
 	getSeriesQuery     = "SELECT DISTINCT(Series) from series"
 	getFormatsQuery    = "SELECT DISTINCT(Format) from formats"
-	getDeweysQuery     = "SELECT DISTINCT(Number) from dewey_numbers"
+	getDeweysQuery     = "SELECT Number, Genre from dewey_numbers"
 	getLanguagesQuery  = "SELECT DISTINCT(Langauge) from languages"
 	getRolesQuery      = "SELECT DISTINCT(Role) from written_by"
 	getContributorsQuery = "SELECT PersonID, Role, FirstName, MiddleNames, LastName from written_by join persons on written_by.AuthorID = persons.PersonID WHERE BookID=?"
@@ -71,6 +71,12 @@ type Publisher struct {
 	State         string `json:"state"`
 	Country       string `json:"country"`
 	ParentCompany string `json:"parentcompany"`
+}
+
+//Dewey is a dewey
+type Dewey struct {
+	Dewey string `json:"dewey"`
+	Genre string `json:"genre"`
 }
 
 //GetStats gets statistics by type
@@ -1070,20 +1076,22 @@ func GetRoles(db *sql.DB) ([]string, error) {
 }
 
 //GetDeweys gets all deweys
-func GetDeweys(db *sql.DB) ([]string, error) {
-	var s string
-	var r = make([]string, 0)
+func GetDeweys(db *sql.DB) ([]Dewey, error) {
+	var r = make([]Dewey, 0)
 	rows, err := db.Query(getDeweysQuery)
 	if err != nil {
 		logger.Printf("Error querying deweys: %v", err)
 		return nil, err
 	}
 	for rows.Next() {
-		if err := rows.Scan(&s); err != nil {
+		var d Dewey
+		var s sql.NullString
+		if err := rows.Scan(&d.Dewey, &s); err != nil {
 			logger.Printf("Error scanning deweys: %v", err)
 			return nil, err
 		}
-		r = append(r, s)
+		d.Genre = s.String
+		r = append(r, d)
 	}
 	return r, nil
 }

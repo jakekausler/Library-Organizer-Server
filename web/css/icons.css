@@ -62,6 +62,9 @@
 .down-icon:before{
 	content:'\f150';
 }
+.search-icon:before{
+	content:'\f002';
+}
 
 figcaption {
 	margin: auto;

@@ -11,7 +11,7 @@ import (
 
 //GetSettingsHandler gets settings
 func GetSettingsHandler(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("library-organizer-session")
+	cookie, err := r.Cookie("libraryorganizersession")
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Redirect(w, r, "/", 301)
@@ -37,13 +37,15 @@ func GetSettingsHandler(w http.ResponseWriter, r *http.Request) {
 
 //GetSettingHandler gets a setting
 func GetSettingHandler(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("library-organizer-session")
+	cookie, err := r.Cookie("libraryorganizersession")
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Redirect(w, r, "/", 301)
+		return
 	}
 	if cookie.Value == "" {
 		http.Redirect(w, r, "/", 301)
+		return
 	}
 	b, err := ioutil.ReadAll(r.Body)
 	name := string(b)
@@ -66,7 +68,7 @@ func GetSettingHandler(w http.ResponseWriter, r *http.Request) {
 
 //UpdateSettingsHandler updates settings
 func UpdateSettingsHandler(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("library-organizer-session")
+	cookie, err := r.Cookie("libraryorganizersession")
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Redirect(w, r, "/", 301)

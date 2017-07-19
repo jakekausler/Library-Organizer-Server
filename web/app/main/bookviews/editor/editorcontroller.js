@@ -145,7 +145,9 @@ angular.module('libraryOrganizer')
 	$scope.languages = [];
 	$scope.roles = [];
 	$scope.deweys = [];
+	$scope.genres = {};
 	$scope.libraries = [];
+	$scope.deweySearchText = $scope.book.dewey;
 	$scope.updateLibraries = function() {
         $http.get('/libraries', {}).then(function(response) {
             for (l in response.data) {
@@ -245,7 +247,10 @@ angular.module('libraryOrganizer')
 			url: '/deweys',
 			method: 'POST'
 		}).then(function(response){
-			$scope.deweys = response.data;
+			for (i in response.data) {
+				$scope.deweys.push(response.data[i].dewey);
+				$scope.genres[response.data[i].dewey] = response.data[i].genre;
+			}
 		});
 	}
 	$scope.updateDeweys();
@@ -352,4 +357,10 @@ angular.module('libraryOrganizer')
 		console.log(item)
 	}
 	$scope.updateLibraries();
+	$scope.getGenre = function() {
+		if ($scope.deweySearchText == "FIC") {
+			return 'Fiction';
+		}
+		return $scope.genres[$scope.deweySearchText]?$scope.genres[$scope.deweySearchText].replace(">", "\u003e"):'';
+	}
 });
