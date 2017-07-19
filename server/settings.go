@@ -74,16 +74,16 @@ func UpdateSettingsHandler(w http.ResponseWriter, r *http.Request) {
 	if cookie.Value == "" {
 		http.Redirect(w, r, "/", 301)
 	}
-	var settings []Setting
+	var s []settings.Setting
 	decoder := json.NewDecoder(r.Body)
-	err = decoder.Decode(&settings)
+	err = decoder.Decode(&s)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
 	defer r.Body.Close()
-	err = settings.UpdateSettings(db, settings, cookie.Value)
+	err = settings.UpdateSettings(db, s, cookie.Value)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)

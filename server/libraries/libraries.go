@@ -4,8 +4,11 @@ import (
 	"database/sql"
 	"log"
 	"os"
+	"strconv"
+	"strings"
 
 	"./../books"
+	"./../information"
 )
 
 const (
@@ -66,8 +69,8 @@ type Bookshelf struct {
 
 //GetCases gets cases
 func GetCases(db *sql.DB, libraryid, sortMethod, session string) ([]Bookcase, error) {
-	books, _, err := GetBooks("dewey", "both", "both", "yes", "both", "both", "both", "", "1", "-1", "0", "FIC", libraryid, session)
-	breaks, err := GetBreaks(libraryid, sortMethod)
+	books, _, err := books.GetBooks(db, "dewey", "both", "both", "yes", "both", "both", "both", "", "1", "-1", "0", "FIC", libraryid, session)
+	breaks, err := GetBreaks(db, libraryid, sortMethod)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return nil, err
@@ -78,7 +81,7 @@ func GetCases(db *sql.DB, libraryid, sortMethod, session string) ([]Bookcase, er
 		logger.Printf("Error: %+v", err)
 		return nil, err
 	}
-	dim, err := GetDimensions(libraryid)
+	dim, err := information.GetDimensions(db, libraryid)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return nil, err
@@ -176,15 +179,15 @@ func GetCases(db *sql.DB, libraryid, sortMethod, session string) ([]Bookcase, er
 }
 
 //GetLibraries gets the libraries available to a user
-func GetLibraries(db *sql.DB, session string) ([]Library, error) {
-	var libraries []Library
+func GetLibraries(db *sql.DB, session string) ([]books.Library, error) {
+	var libraries []books.Library
 	rows, err := db.Query(getLibrariesQuery, session)
 	if err != nil {
 		logger.Printf("%+v", err)
 		return nil, err
 	}
 	for rows.Next() {
-		var l Library
+		var l books.Library
 		if err := rows.Scan(&l.ID, &l.Name, &l.Permissions, &l.Owner); err != nil {
 			logger.Printf("Error: %+v", err)
 			return nil, err

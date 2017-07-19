@@ -10,8 +10,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"./../books"
 )
 
 const (
@@ -25,6 +23,7 @@ const (
 	getDeweysQuery     = "SELECT DISTINCT(Number) from dewey_numbers"
 	getLanguagesQuery  = "SELECT DISTINCT(Langauge) from languages"
 	getRolesQuery      = "SELECT DISTINCT(Role) from written_by"
+	getContributorsQuery = "SELECT PersonID, Role, FirstName, MiddleNames, LastName from written_by join persons on written_by.AuthorID = persons.PersonID WHERE BookID=?"
 )
 
 var logger = log.New(os.Stderr, "log: ", log.LstdFlags|log.Lshortfile)
@@ -48,6 +47,30 @@ type StatData struct {
 	Label    string `json:"label"`
 	Value    string `json:"value"`
 	ToolText string `json:"tooltext"`
+}
+
+//Name is a name
+type Name struct {
+	First   string `json:"first"`
+	Middles string `json:"middles"`
+	Last    string `json:"last"`
+}
+
+//Contributor is a contributor
+type Contributor struct {
+	ID   string `json:"id"`
+	Name Name   `json:"name"`
+	Role string `json:"role"`
+}
+
+//Publisher is a publisher
+type Publisher struct {
+	ID            string `json:"id"`
+	Publisher     string `json:"publisher"`
+	City          string `json:"city"`
+	State         string `json:"state"`
+	Country       string `json:"country"`
+	ParentCompany string `json:"parentcompany"`
 }
 
 //GetStats gets statistics by type
@@ -815,9 +838,9 @@ func GetDimensions(db *sql.DB, libraryids string) (map[string]float64, error) {
 }
 
 //GetContributors gets all contributors for a book id
-func GetContributors(db *sql.DB, id string) ([]books.Contributor, error) {
-	c := books.Contributor{}
-	var contributors = make([]books.Contributor, 0)
+func GetContributors(db *sql.DB, id string) ([]Contributor, error) {
+	c := Contributor{}
+	var contributors = make([]Contributor, 0)
 
 	var Role sql.NullString
 	var First sql.NullString

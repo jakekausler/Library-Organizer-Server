@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 
 	"./libraries"
@@ -71,7 +70,7 @@ func SaveCasesHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	var editedCases EditedCases
+	var editedCases libraries.EditedCases
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&editedCases)
 	if err != nil {
@@ -96,7 +95,7 @@ func AddBreakHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	var b Break
+	var b libraries.Break
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&b)
 	if err != nil {

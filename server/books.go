@@ -1,14 +1,15 @@
 package main
 
 import (
+	"bytes"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"os"
+	"strconv"
 
 	"./books"
 )
@@ -37,14 +38,14 @@ func GetBooksHandler(w http.ResponseWriter, r *http.Request) {
 	fromDewey := params.Get("fromdewey")
 	toDewey := params.Get("todewey")
 	libraryids := params.Get("libraryids")
-	books, numberOfBooks, err := books.GetBooks(db, sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, libraryids, cookie.Value)
+	bs, numberOfBooks, err := books.GetBooks(db, sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, libraryids, cookie.Value)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
-	data, err := json.Marshal(BookSet{
-		Books:         books,
+	data, err := json.Marshal(books.BookSet{
+		Books:         bs,
 		NumberOfBooks: numberOfBooks,
 	})
 	if err != nil {
@@ -63,7 +64,7 @@ func SaveBookHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	var b Book
+	var b books.Book
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&b)
 	if err != nil {

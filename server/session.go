@@ -1,15 +1,10 @@
 package main
 
 import (
-	"bytes"
 	"database/sql"
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 
 	_ "github.com/go-sql-driver/mysql"
 )

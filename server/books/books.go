@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 
+	"../users"
+	"../information"
 	"github.com/go-sql-driver/mysql"
 )
 
@@ -37,12 +39,12 @@ type Book struct {
 	Title               string        `json:"title"`
 	Subtitle            string        `json:"subtitle"`
 	OriginallyPublished string        `json:"originallypublished"`
-	Publisher           Publisher     `json:"publisher"`
+	Publisher           information.Publisher     `json:"publisher"`
 	IsRead              bool          `json:"isread"`
 	IsReference         bool          `json:"isreference"`
 	IsOwned             bool          `json:"isowned"`
 	ISBN                string        `json:"isbn"`
-	Loanee              Name          `json:"loanee"`
+	Loanee              information.Name          `json:"loanee"`
 	Dewey               string        `json:"dewey"`
 	Pages               int64         `json:"pages"`
 	Width               int64         `json:"width"`
@@ -63,32 +65,8 @@ type Book struct {
 	CheapestNew         float64       `json:"cheapestnew"`
 	CheapestUsed        float64       `json:"cheapestused"`
 	EditionPublished    string        `json:"editionpublished"`
-	Contributors        []Contributor `json:"contributors"`
+	Contributors        []information.Contributor `json:"contributors"`
 	Library             Library       `json:"library"`
-}
-
-//Publisher is a publisher
-type Publisher struct {
-	ID            string `json:"id"`
-	Publisher     string `json:"publisher"`
-	City          string `json:"city"`
-	State         string `json:"state"`
-	Country       string `json:"country"`
-	ParentCompany string `json:"parentcompany"`
-}
-
-//Name is a name
-type Name struct {
-	First   string `json:"first"`
-	Middles string `json:"middles"`
-	Last    string `json:"last"`
-}
-
-//Contributor is a contributor
-type Contributor struct {
-	ID   string `json:"id"`
-	Name Name   `json:"name"`
-	Role string `json:"role"`
 }
 
 //Library is a library
@@ -220,7 +198,7 @@ func SaveBook(db *sql.DB, book Book) error {
 			return err
 		}
 		for _, contributor := range book.Contributors {
-			err = addContributor(bookid, contributor)
+			err = addContributor(db, bookid, contributor)
 			if err != nil {
 				logger.Printf("Error when saving authors: %v", err)
 				return err
@@ -242,7 +220,7 @@ func removeAllWrittenBy(db *sql.DB, bookid string) error {
 
 //DeleteBook deletes a book
 func DeleteBook(db *sql.DB, bookid string) error {
-	removeAllWrittenBy(bookid)
+	removeAllWrittenBy(db, bookid)
 	query := "DELETE FROM books WHERE BookId=?"
 	_, err := db.Exec(query, bookid)
 	if err != nil {
@@ -252,7 +230,7 @@ func DeleteBook(db *sql.DB, bookid string) error {
 	return nil
 }
 
-func addContributor(db *sql.DB, bookid string, contributor Contributor) error {
+func addContributor(db *sql.DB, bookid string, contributor information.Contributor) error {
 	personID, err := addOrGetPerson(db, contributor.Name.First, contributor.Name.Middles, contributor.Name.Last)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
@@ -545,8 +523,8 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 	var SpineColor sql.NullString
 	var EditionPublished mysql.NullTime
 
-	var p Publisher
-	var c []Contributor
+	var p information.Publisher
+	var c []information.Contributor
 
 	userid, err := users.GetUserID(db, session)
 	if err != nil {
@@ -564,20 +542,20 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 			return nil, 0, err
 		}
 		if PublisherID.Valid {
-			p, err = information.GetPublisher(PublisherID.String)
+			p, err = information.GetPublisher(db, PublisherID.String)
 			if err != nil {
 				logger.Printf("Error getting publisher: %v", err)
 				return nil, 0, err
 			}
 		}
 		b.Publisher = p
-		c, err = users.GetContributors(b.ID)
+		c, err = information.GetContributors(db, b.ID)
 		if err != nil {
 			logger.Printf("Error getting contributors: %v", err)
 			return nil, 0, err
 		}
 		b.Contributors = c
-		b.Loanee = Name{
+		b.Loanee = information.Name{
 			First: "",
 			Last:  "",
 		}

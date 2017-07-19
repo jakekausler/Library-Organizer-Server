@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"./../users"
+	"../users"
 )
 
 const ()
