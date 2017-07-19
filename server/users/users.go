@@ -5,6 +5,7 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -75,6 +76,7 @@ func IsUser(db *sql.DB, username, password string) (int64, error) {
 
 //GenerateSessionKey generates a random unique session key
 func GenerateSessionKey(db *sql.DB) string {
+	rand.Seed(time.Now().UTC().UnixNano())
 	b := make([]byte, 50)
 	for i := range b {
 		b[i] = charset[rand.Intn(len(charset))]

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"./users"
 )
@@ -19,7 +20,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logger.Printf("%+v", err)
 	}
-	http.SetCookie(w, &http.Cookie{Name: "library-organizer-session", Value: key})
+	http.SetCookie(w, &http.Cookie{Name: "libraryorganizersession", Value: key, Expires: time.Now().Add(14*24*time.Hour)})
 	http.Redirect(w, r, "/", 301)
 	return
 }
@@ -35,7 +36,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logger.Printf("%+v", err)
 	}
-	http.SetCookie(w, &http.Cookie{Name: "library-organizer-session", Value: key})
+	http.SetCookie(w, &http.Cookie{Name: "libraryorganizersession", Value: key})
 	http.Redirect(w, r, "/", 301)
 	return
 }
@@ -46,13 +47,18 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", 301)
 		return
 	}
-	cookie, err := r.Cookie("library-organizer-session")
-	if err != nil {
+	cookie, err := r.Cookie("libraryorganizersession")
+	if err == http.ErrNoCookie {
+		http.Redirect(w, r, "/", 301)
+		return
+	} else if err != nil {
 		logger.Printf("%+v", err)
 		http.Redirect(w, r, "/", 301)
+		return
 	}
 	if cookie.Value == "" {
 		http.Redirect(w, r, "/", 301)
+		return
 	}
 	err = users.LogoutSession(db, cookie.Value)
 	if err != nil {
@@ -79,8 +85,10 @@ func ResetPasswordHandler(w http.ResponseWriter, r *http.Request) {
 
 //Registered determines whether a user is registered
 func Registered(r *http.Request) bool {
-	cookie, err := r.Cookie("library-organizer-session")
-	if err != nil {
+	cookie, err := r.Cookie("libraryorganizersession")
+	if err == http.ErrNoCookie {
+		return false
+	} else if err != nil {
 		logger.Printf("%+v", err)
 		return false
 	}
@@ -97,13 +105,18 @@ func Registered(r *http.Request) bool {
 
 //GetUsernameHandler gets a username
 func GetUsernameHandler(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("library-organizer-session")
-	if err != nil {
+	cookie, err := r.Cookie("libraryorganizersession")
+	if err == http.ErrNoCookie {
+		http.Redirect(w, r, "/", 301)
+		return
+	} else if err != nil {
 		logger.Printf("%+v", err)
 		http.Redirect(w, r, "/", 301)
+		return
 	}
 	if cookie.Value == "" {
 		http.Redirect(w, r, "/", 301)
+		return
 	}
 	d, err := users.GetUsername(db, cookie.Value)
 	if err != nil {

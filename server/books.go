@@ -16,13 +16,15 @@ import (
 
 //GetBooksHandler gets books from a filter query
 func GetBooksHandler(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("library-organizer-session")
+	cookie, err := r.Cookie("libraryorganizersession")
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Redirect(w, r, "/", 301)
+		return
 	}
 	if cookie.Value == "" {
 		http.Redirect(w, r, "/", 301)
+		return
 	}
 	params := r.URL.Query()
 	sortMethod := params.Get("sortmethod")

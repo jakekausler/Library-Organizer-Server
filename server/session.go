@@ -33,7 +33,6 @@ func RunServer(username, password, database string) {
 	if err != nil {
 		panic(err.Error())
 	}
-	http.Handle("./web/", http.StripPrefix("./web/", http.FileServer(http.Dir("./web"))))
 	http.HandleFunc("/", GetLoginPageHandler)
 	http.HandleFunc("/home", GetHomePageHandler)
 	http.HandleFunc("/books", GetBooksHandler)

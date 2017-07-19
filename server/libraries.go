@@ -10,13 +10,15 @@ import (
 
 //GetLibrariesHandler gets libraries
 func GetLibrariesHandler(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("library-organizer-session")
+	cookie, err := r.Cookie("libraryorganizersession")
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Redirect(w, r, "/", 301)
+		return
 	}
 	if cookie.Value == "" {
 		http.Redirect(w, r, "/", 301)
+		return
 	}
 	d, err := libraries.GetLibraries(db, cookie.Value)
 	if err != nil {
@@ -36,13 +38,15 @@ func GetLibrariesHandler(w http.ResponseWriter, r *http.Request) {
 
 //GetCasesHandler gets cases
 func GetCasesHandler(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("library-organizer-session")
+	cookie, err := r.Cookie("libraryorganizersession")
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Redirect(w, r, "/", 301)
+		return
 	}
 	if cookie == nil || cookie.Value == "" {
 		http.Redirect(w, r, "/", 301)
+		return
 	}
 	params := r.URL.Query()
 	libraryid := params.Get("libraryid")
