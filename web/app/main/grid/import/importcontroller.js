@@ -7,7 +7,7 @@ angular.module('libraryOrganizer')
 		var formData = new FormData();
 		formData.append('file', file);
 		$.ajax({
-			url: '/import',
+			url: '/books/books',
 			method: 'POST',
 			data: formData,
 			contentType: false,

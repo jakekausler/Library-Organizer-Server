@@ -6,7 +6,7 @@ angular.module('unregistered', ['ngMaterial'])
 		.warnPalette('red')
 		.backgroundPalette('indigo');
 })
-.controller('unregisteredController', function($scope, $http, $mdDialog) {
+.controller('unregisteredController', function($scope, $mdDialog) {
 	$scope.login = function(ev) {
 		$mdDialog.show({
 			controller: 'logincontroller',

@@ -7,7 +7,9 @@ angular.module('libraryOrganizer')
 			vm.$watch(attrs['ngModel'], function(cases) {
 				vm.cases = cases;
 				vm.container = document.getElementById('bookcases');
-				vm.drawShelf()
+				if (vm.cases) {
+					vm.drawShelf()
+				}
 				// document.getElementById('bookcase-canvas').removeEventListener('keypress', vm.zoomListener);
 				// document.getElementById('bookcase-canvas').addEventListener('keypress', vm.zoomListener);
 			});

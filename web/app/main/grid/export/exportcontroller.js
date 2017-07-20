@@ -4,7 +4,10 @@ angular.module('libraryOrganizer')
 		$mdDialog.cancel()
 	};
 	$scope.export = function() {
-		$http.get('/exportbooks').then(function(data) {
+		$http({
+			url: '/books/books',
+			method: 'GET'
+		}).then(function(data) {
 			var anchor = angular.element('<a/>');
 			anchor.attr({
 				href: 'data:attachment/csv;charset=utf-8,' + encodeURI(data.data),
@@ -12,7 +15,10 @@ angular.module('libraryOrganizer')
 				download: 'books.csv'
 			})[0].click();
 		});
-		$http.get('/exportauthors').then(function(data) {
+		$http({
+			url: '/books/contributors',
+			method: 'GET'
+		}).then(function(data) {
 			var anchor = angular.element('<a/>');
 			anchor.attr({
 				href: 'data:attachment/csv;charset=utf-8,' + encodeURI(data.data),

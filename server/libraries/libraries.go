@@ -213,8 +213,7 @@ func GetLibraries(db *sql.DB, session string) ([]books.Library, error) {
 }
 
 //SaveCases saves book cases
-func SaveCases(db *sql.DB, cases EditedCases) error {
-	libraryid := cases.LibraryID
+func SaveCases(db *sql.DB, libraryid string, cases EditedCases) error {
 	for _, c := range cases.EditedCases {
 		id := c.ID
 		caseNumber := c.CaseNumber
@@ -257,7 +256,7 @@ func SaveCases(db *sql.DB, cases EditedCases) error {
 }
 
 //AddBreak adds a shelf break
-func AddBreak(db *sql.DB, libraryid int, valuetype, value, breaktype string) error {
+func AddBreak(db *sql.DB, libraryid string, valuetype, value, breaktype string) error {
 	query := "REPLACE INTO breaks (libaryid, valuetype, value, breaktype) VALUES (?,?,?,?)"
 	_, err := db.Exec(query, libraryid, valuetype, value, breaktype)
 	return err

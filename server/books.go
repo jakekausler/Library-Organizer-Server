@@ -59,6 +59,31 @@ func GetBooksHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
+//AddBookHandler saves a book
+func AddBookHandler(w http.ResponseWriter, r *http.Request) {
+	if !Registered(r) {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
+		return
+	}
+	var b books.Book
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&b)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
+	err = books.SaveBook(db, b)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	return
+}
+
 //SaveBookHandler saves a book
 func SaveBookHandler(w http.ResponseWriter, r *http.Request) {
 	if !Registered(r) {

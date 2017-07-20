@@ -16,7 +16,9 @@ angular.module('libraryOrganizer')
 				}
 			}
 		}
-		$http.get('/cases', {
+		$http({
+            url: '/libraries/'+$scope.currentLibraryId+'/cases',
+            method: 'GET',
 			params: {
 				libraryid: $scope.currentLibraryId,
 				sortmethod: 'DEWEY'
@@ -45,7 +47,10 @@ angular.module('libraryOrganizer')
 
     }
     $scope.updateLibraries = function() {
-        $http.get('/libraries', {}).then(function(response) {
+        $http({
+            url: '/libraries',
+            method: 'GET'
+        }).then(function(response) {
             $scope.libraries = response.data;
             var data = [];
             var libStructure = {}
@@ -83,6 +88,8 @@ angular.module('libraryOrganizer')
     	$scope.showLibraryChooserDialog($ev, $scope, false)
     }
     $scope.$watch('output', function() {
-        $scope.updateCases();
+        if ($scope.libraries.length > 0) {
+            $scope.updateCases();
+        }
     })
 });

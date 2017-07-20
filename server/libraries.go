@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"./libraries"
+	"github.com/gorilla/mux"
 )
 
 //GetLibrariesHandler gets libraries
@@ -48,8 +49,8 @@ func GetCasesHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", 301)
 		return
 	}
+	libraryid := mux.Vars(r)["libraryid"]
 	params := r.URL.Query()
-	libraryid := params.Get("libraryid")
 	sortmethod := params.Get("sortmethod")
 	d, err := libraries.GetCases(db, libraryid, sortmethod, cookie.Value)
 	if err != nil {
@@ -74,6 +75,7 @@ func SaveCasesHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
+	libraryid := mux.Vars(r)["libraryid"]
 	var editedCases libraries.EditedCases
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&editedCases)
@@ -83,12 +85,17 @@ func SaveCasesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
-	err = libraries.SaveCases(db, editedCases)
+	err = libraries.SaveCases(db, libraryid, editedCases)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
+	return
+}
+
+//GetBreaksHandler gets the breaks for a library
+func GetBreaksHandler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
@@ -99,6 +106,7 @@ func AddBreakHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
+	libraryid := mux.Vars(r)["libraryid"]
 	var b libraries.Break
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&b)
@@ -108,12 +116,22 @@ func AddBreakHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
-	err = libraries.AddBreak(db, b.LibraryID, b.ValueType, b.Value, b.BreakType)
+	err = libraries.AddBreak(db, libraryid, b.ValueType, b.Value, b.BreakType)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
+	return
+}
+
+//SaveBreakHandler saves a break
+func SaveBreakHandler(w http.ResponseWriter, r *http.Request) {
+	return
+}
+
+//DeleteBreakHandler deletes a break
+func DeleteBreakHandler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 

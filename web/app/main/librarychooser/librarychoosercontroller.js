@@ -1,5 +1,5 @@
 angular.module('libraryOrganizer')
-.controller('librarychooserController', function($scope, $http, $mdDialog, vm, multiselect) {
+.controller('librarychooserController', function($scope, $mdDialog, vm, multiselect) {
 	$scope.vm = vm;
 	$scope.multiselect = multiselect;
 	$scope.cancel = function() {

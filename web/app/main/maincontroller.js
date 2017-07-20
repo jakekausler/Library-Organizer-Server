@@ -65,8 +65,8 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
         }
         $scope.getSettingByName = function(name, callback) {
             $http({
-                url: '/getsetting',
-                method: 'POST',
+                url: '/settings/'+name,
+                method: 'GET',
                 data: name
             }).then(function(response) {
                 callback(response.data);
@@ -151,7 +151,10 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
             return $scope.lastRecievedTime;
         }
         $scope.updateUsername = function() {
-            $http.get('/username', {}).then(function(response) {
+            $http({
+                url: '/users/username',
+                method: 'GET'
+            }).then(function(response) {
                 $scope.username = response.data;
             })
         }

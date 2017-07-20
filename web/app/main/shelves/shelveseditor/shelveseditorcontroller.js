@@ -37,6 +37,7 @@ angular.module('libraryOrganizer')
 		$mdDialog.cancel();
 	};
 	$scope.save = function() {
+		var cases = [];
 		for (i in $scope.shelves) {
 			$scope.shelves[i].numberofshelves = parseInt($scope.shelves[i].numberofshelves);
 			$scope.shelves[i].shelfheight = parseInt($scope.shelves[i].shelfheight);
@@ -44,11 +45,21 @@ angular.module('libraryOrganizer')
 			$scope.shelves[i].paddingleft = parseInt($scope.shelves[i].paddingleft);
 			$scope.shelves[i].paddingright = parseInt($scope.shelves[i].paddingright);
 			$scope.shelves[i].spacerheight = parseInt($scope.shelves[i].spacerheight);
+			cases.push({
+				id: $scope.shelves[i].id,	
+				casenumber: $scope.shelves[i].casenumber,
+				numberofshelves: $scope.shelves[i].numberofshelves,
+				shelfheight: $scope.shelves[i].shelfheight,
+				width: $scope.shelves[i].width,
+				paddingleft: $scope.shelves[i].paddingleft,
+				paddingright: $scope.shelves[i].paddingright,
+				spacerheight: $scope.shelves[i].spacerheight
+			})
 		}
 		$http({
-			url: '/savecases',
-			method: 'POST',
-			data: JSON.stringify({editedcases: $scope.shelves, toremoveids: $scope.toRemoveIds, libraryid: $scope.libraryid})
+			url: '/libraries/'+$scope.libraryid+'/cases',
+			method: 'PUT',
+			data: JSON.stringify({editedcases: cases, toremoveids: $scope.toRemoveIds, libraryid: $scope.libraryid})
 		}).then(function(response) {
 			$scope.vm.updateCases();
 			$mdDialog.cancel();

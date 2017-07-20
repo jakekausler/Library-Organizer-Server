@@ -50,7 +50,9 @@ angular.module('libraryOrganizer')
                     shipping: $scope.shipping,
                     reading: $scope.reading,
                 })
-            $http.get('/books', {
+            $http({
+                url: '/books',
+                method: 'GET',
                 params: {
                     sortmethod: $scope.sort,
                     numbertoget: $scope.numberToGet,
@@ -142,7 +144,10 @@ angular.module('libraryOrganizer')
             $scope.showEditDialog(ev, book, $scope, 'gridadd');
         }
         $scope.updateLibraries = function() {
-            $http.get('/libraries', {}).then(function(response) {
+            $http({
+                url: '/libraries',
+                method: 'GET'
+            }).then(function(response) {
                 $scope.libraries = response.data;
                 var data = [];
                 var libStructure = {};

@@ -83,6 +83,11 @@ func ResetPasswordHandler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+//FinishResetPasswordHandler sends a link to reset a password
+func FinishResetPasswordHandler(w http.ResponseWriter, r *http.Request) {
+	return
+}
+
 //Registered determines whether a user is registered
 func Registered(r *http.Request) bool {
 	cookie, err := r.Cookie("libraryorganizersession")

@@ -24,7 +24,7 @@ angular.module('libraryOrganizer')
         $scope.dimensions = {};
         $scope.updateDimensions = function() {
             $http({
-                url: '/dimensions',
+                url: '/information/dimensions',
                 method: 'GET',
                 params: {
                     libraryids: $scope.stringLibraryIds()
@@ -90,7 +90,10 @@ angular.module('libraryOrganizer')
             }
         }
         $scope.updateLibraries = function() {
-            $http.get('/libraries', {}).then(function(response) {
+            $http({
+                url: '/libraries',
+                method: 'GET'
+            }).then(function(response) {
                 $scope.libraries = response.data;
                 var data = [];
                 var libStructure = {}

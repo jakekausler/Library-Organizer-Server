@@ -7,6 +7,7 @@ import (
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/gorilla/mux"
 )
 
 var (
@@ -17,7 +18,6 @@ var (
 //RunServer runs the library server
 func RunServer(username, password, database string) {
 	logger.Printf("Creating the database")
-
 	var err error
 	// Create sql.DB
 	db, err = sql.Open("mysql", "root:@/library?parseTime=true")
@@ -26,60 +26,56 @@ func RunServer(username, password, database string) {
 		panic(err.Error())
 	}
 	defer db.Close()
-
 	logger.Printf("Pinging the database")
 	// Test the connection
 	err = db.Ping()
 	if err != nil {
 		panic(err.Error())
 	}
-	http.HandleFunc("/", GetLoginPageHandler)
-	http.HandleFunc("/home", GetHomePageHandler)
-	http.HandleFunc("/books", GetBooksHandler)
-	http.HandleFunc("/publishers", GetPublishersHandler)
-	http.HandleFunc("/cities", GetCitiesHandler)
-	http.HandleFunc("/states", GetStatesHandler)
-	http.HandleFunc("/countries", GetCountriesHandler)
-	http.HandleFunc("/series", GetSeriesHandler)
-	http.HandleFunc("/formats", GetFormatsHandler)
-	http.HandleFunc("/languages", GetLanguagesHandler)
-	http.HandleFunc("/roles", GetRolesHandler)
-	http.HandleFunc("/deweys", GetDeweysHandler)
-	http.HandleFunc("/savebook", SaveBookHandler)
-	http.HandleFunc("/exportbooks", ExportBooksHandler)
-	http.HandleFunc("/exportauthors", ExportAuthorsHandler)
-	http.HandleFunc("/import", ImportBooksHandler)
-	http.HandleFunc("/login", LoginHandler)
-	http.HandleFunc("/register", RegisterHandler)
-	http.HandleFunc("/logout", LogoutHandler)
-	http.HandleFunc("/stats", GetStatsHandler)
-	http.HandleFunc("/cases", GetCasesHandler)
-	http.HandleFunc("/dimensions", GetDimensionsHandler)
-	http.HandleFunc("/deletebook", DeleteBookHandler)
-	http.HandleFunc("/libraries", GetLibrariesHandler)
-	http.HandleFunc("/username", GetUsernameHandler)
-	http.HandleFunc("/reset", ResetPasswordHandler)
-	http.HandleFunc("/settings", GetSettingsHandler)
-	http.HandleFunc("/updatesettings", UpdateSettingsHandler)
-	http.HandleFunc("/getsetting", GetSettingHandler)
-	http.HandleFunc("/savecases", SaveCasesHandler)
-	http.HandleFunc("/addbreak", AddBreakHandler)
-	http.HandleFunc("/getownedlibraries", GetOwnedLibrariesHandler)
-	http.HandleFunc("/getusers", GetUsersHandler)
-	http.HandleFunc("/saveownedlibraries", SaveOwnedLibrariesHandler)
-	http.Handle("/web/", http.StripPrefix("/web/", http.FileServer(http.Dir("./../web/"))))
+	r := mux.NewRouter()
+	r.HandleFunc("/", GetHomePageHandler)
+	r.HandleFunc("/books", GetBooksHandler).Methods("GET")
+	r.HandleFunc("/books", AddBookHandler).Methods("POST")
+	r.HandleFunc("/books", SaveBookHandler).Methods("PUT")
+	r.HandleFunc("/books", DeleteBookHandler).Methods("DELETE")
+	r.HandleFunc("/books/books", ExportBooksHandler).Methods("GET")
+	r.HandleFunc("/books/contributors", ExportAuthorsHandler).Methods("GET")
+	r.HandleFunc("/books/books", ImportBooksHandler).Methods("POST")
+	r.HandleFunc("/information/statistics", GetStatsHandler).Methods("GET")
+	r.HandleFunc("/information/dimensions", GetDimensionsHandler).Methods("GET")
+	r.HandleFunc("/information/publishers", GetPublishersHandler).Methods("GET")
+	r.HandleFunc("/information/cities", GetCitiesHandler).Methods("GET")
+	r.HandleFunc("/information/states", GetStatesHandler).Methods("GET")
+	r.HandleFunc("/information/countries", GetCountriesHandler).Methods("GET")
+	r.HandleFunc("/information/formats", GetFormatsHandler).Methods("GET")
+	r.HandleFunc("/information/roles", GetRolesHandler).Methods("GET")
+	r.HandleFunc("/information/series", GetSeriesHandler).Methods("GET")
+	r.HandleFunc("/information/languages", GetLanguagesHandler).Methods("GET")
+	r.HandleFunc("/information/deweys", GetDeweysHandler).Methods("GET")
+	r.HandleFunc("/libraries", GetLibrariesHandler).Methods("GET")
+	r.HandleFunc("/libraries/owned", GetOwnedLibrariesHandler).Methods("GET")
+	r.HandleFunc("/libraries/owned", SaveOwnedLibrariesHandler).Methods("PUT")
+	r.HandleFunc("/libraries/{libraryid}/breaks", GetBreaksHandler).Methods("GET")
+	r.HandleFunc("/libraries/{libraryid}/breaks", AddBreakHandler).Methods("POST")
+	r.HandleFunc("/libraries/{libraryid}/breaks", SaveBreakHandler).Methods("PUT")
+	r.HandleFunc("/libraries/{libraryid}/breaks", DeleteBreakHandler).Methods("DELETE")
+	r.HandleFunc("/libraries/{libraryid}/cases", GetCasesHandler).Methods("GET")
+	r.HandleFunc("/libraries/{libraryid}/cases", SaveCasesHandler).Methods("PUT")
+	r.HandleFunc("/settings", GetSettingsHandler).Methods("GET")
+	r.HandleFunc("/settings", SaveSettingsHandler).Methods("PUT")
+	r.HandleFunc("/settings/{setting}", GetSettingHandler).Methods("GET")
+	r.HandleFunc("/users", GetUsersHandler).Methods("GET")
+	r.HandleFunc("/users", LoginHandler).Methods("PUT")
+	r.HandleFunc("/users", RegisterHandler).Methods("POST")
+	r.HandleFunc("/users", LogoutHandler).Methods("DELETE")
+	r.HandleFunc("/users/reset", ResetPasswordHandler).Methods("PUT")
+	r.HandleFunc("/users/reset/{token}", FinishResetPasswordHandler).Methods("GET")
+	r.HandleFunc("/users/username", GetUsernameHandler).Methods("GET")
+	r.PathPrefix("/web/").Handler(http.StripPrefix("/web/", http.FileServer(http.Dir("./../web/"))))
 	logger.Printf("Listening on port 8181")
-	http.ListenAndServe(":8181", nil)
+	http.ListenAndServe(":8181", r)
+	// http.ListenAndServe(":8181", nil)
 	logger.Printf("Closing")
-}
-
-//GetLoginPageHandler gets the login page
-func GetLoginPageHandler(w http.ResponseWriter, r *http.Request) {
-	if Registered(r) {
-		http.Redirect(w, r, "/home", 301)
-	} else {
-		http.ServeFile(w, r, "../web/app/unregistered/index.html")
-	}
 }
 
 //GetHomePageHandler gets the home page
@@ -87,6 +83,6 @@ func GetHomePageHandler(w http.ResponseWriter, r *http.Request) {
 	if Registered(r) {
 		http.ServeFile(w, r, "../web/app/main/index.html")
 	} else {
-		http.Redirect(w, r, "/", 301)
+		http.ServeFile(w, r, "../web/app/unregistered/index.html")
 	}
 }

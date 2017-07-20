@@ -16,14 +16,17 @@ angular.module('libraryOrganizer')
 			}
 		}
 		$http({
-			url: '/updatesettings',
-			method: 'POST',
+			url: '/settings',
+			method: 'PUT',
 			data: JSON.stringify(settings)
 		});
 	}
     $scope.updateSettings = function() {
         $scope.settings = [];
-        $http.get('/settings').then(function(response) {
+        $http({
+            url: '/settings',
+            method: 'GET'
+        }).then(function(response) {
             var settinggroups = {}
             response.data.forEach(function(v, i) {
                 if (!settinggroups[v.group]) {
@@ -60,7 +63,10 @@ angular.module('libraryOrganizer')
     $scope.ownedLibraries = [];
     $scope.selectedLibrary = 0;
     $scope.updateOwnedLibraries = function() {
-        $http.get('/getownedlibraries').then(function(response) {
+        $http({
+            url: '/libraries/owned',
+            method: 'GET'
+        }).then(function(response) {
             $scope.ownedLibraries = response.data;
             for (i in $scope.ownedLibraries) {
                 $scope.ownedLibraries[i].editusers = [];
@@ -90,7 +96,10 @@ angular.module('libraryOrganizer')
     }
     $scope.users = [];
     $scope.updateUsers = function() {
-        $http.get('/getusers').then(function(response) {
+        $http({
+            url: '/getusers',
+            method: 'GET'
+        }).then(function(response) {
             $scope.users = response.data;
         })
     }
@@ -205,8 +214,8 @@ angular.module('libraryOrganizer')
             }
         }
         $http({
-            url: '/saveownedlibraries',
-            method: 'POST',
+            url: '/libraries/owned',
+            method: 'PUT',
             data: $scope.ownedLibraries
         }).then(function(response){});
     }

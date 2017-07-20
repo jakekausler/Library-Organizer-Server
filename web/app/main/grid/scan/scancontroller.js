@@ -20,7 +20,9 @@ angular.module('libraryOrganizer')
 			$scope.isbn = parts[1];
 		}
 		$scope.vm.searchByISBN($scope.isbn);
-		$http.get($scope.GOOGLE_BOOKS_API_BASE+$scope.GOOGLE_BOOKS_API_BOOK+'?q='+$scope.isbn, {}).then(function(response) {
+		$http({
+			url: $scope.GOOGLE_BOOKS_API_BASE+$scope.GOOGLE_BOOKS_API_BOOK+'?q='+$scope.isbn
+		}).then(function(response) {
 			response.data.items.forEach(function(v, i) {
 				$scope.results.push(v)
 			})

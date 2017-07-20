@@ -3,10 +3,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 
 	"./settings"
+	"github.com/gorilla/mux"
 )
 
 //GetSettingsHandler gets settings
@@ -47,9 +47,7 @@ func GetSettingHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", 301)
 		return
 	}
-	b, err := ioutil.ReadAll(r.Body)
-	name := string(b)
-	defer r.Body.Close()
+	name := mux.Vars(r)["setting"]
 	d, err := settings.GetSetting(db, name, cookie.Value)
 	if err != nil {
 		logger.Printf("%+v", err)
@@ -66,8 +64,8 @@ func GetSettingHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
-//UpdateSettingsHandler updates settings
-func UpdateSettingsHandler(w http.ResponseWriter, r *http.Request) {
+//SaveSettingsHandler updates settings
+func SaveSettingsHandler(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("libraryorganizersession")
 	if err != nil {
 		logger.Printf("%+v", err)

@@ -149,7 +149,9 @@ angular.module('libraryOrganizer')
 	$scope.libraries = [];
 	$scope.deweySearchText = $scope.book.dewey;
 	$scope.updateLibraries = function() {
-        $http.get('/libraries', {}).then(function(response) {
+        $http({
+        	url: '/libraries'
+        }).then(function(response) {
             for (l in response.data) {
 	            if ((response.data[l].permissions&4)==4) {
 	            	$scope.libraries.push(response.data[l])
@@ -172,8 +174,8 @@ angular.module('libraryOrganizer')
     };
 	$scope.updatePublishers = function() {
 		$http({
-			url: '/publishers',
-			method: 'POST',
+			url: '/information/publishers',
+			method: 'GET',
 		}).then(function(response){
 			$scope.publishers = response.data;
 		});
@@ -181,8 +183,8 @@ angular.module('libraryOrganizer')
 	$scope.updatePublishers();
 	$scope.updateCities = function() {
 		$http({
-			url: '/cities',
-			method: 'POST'
+			url: '/information/cities',
+			method: 'GET'
 		}).then(function(response){
 			$scope.cities = response.data;
 		});
@@ -190,8 +192,8 @@ angular.module('libraryOrganizer')
 	$scope.updateCities();
 	$scope.updateStates = function() {
 		$http({
-			url: '/states',
-			method: 'POST'
+			url: '/information/states',
+			method: 'GET'
 		}).then(function(response){
 			$scope.states = response.data;
 		});
@@ -199,8 +201,8 @@ angular.module('libraryOrganizer')
 	$scope.updateStates();
 	$scope.updateCountries = function() {
 		$http({
-			url: '/countries',
-			method: 'POST'
+			url: '/information/countries',
+			method: 'GET'
 		}).then(function(response){
 			$scope.countries = response.data;
 		});
@@ -208,8 +210,8 @@ angular.module('libraryOrganizer')
 	$scope.updateCountries();
 	$scope.updateSeries = function() {
 		$http({
-			url: '/series',
-			method: 'POST'
+			url: '/information/series',
+			method: 'GET'
 		}).then(function(response){
 			$scope.series = response.data;
 		});
@@ -217,8 +219,8 @@ angular.module('libraryOrganizer')
 	$scope.updateSeries();
 	$scope.updateFormats = function() {
 		$http({
-			url: '/formats',
-			method: 'POST'
+			url: '/information/formats',
+			method: 'GET'
 		}).then(function(response){
 			$scope.formats = response.data;
 		});
@@ -226,8 +228,8 @@ angular.module('libraryOrganizer')
 	$scope.updateFormats();
 	$scope.updateLanguages = function() {
 		$http({
-			url: '/languages',
-			method: 'POST'
+			url: '/information/languages',
+			method: 'GET'
 		}).then(function(response){
 			$scope.languages = response.data;
 		});
@@ -235,8 +237,8 @@ angular.module('libraryOrganizer')
 	$scope.updateLanguages();
 	$scope.updateRoles = function() {
 		$http({
-			url: '/roles',
-			method: 'POST'
+			url: '/information/roles',
+			method: 'GET'
 		}).then(function(response){
 			$scope.roles = response.data;
 		});
@@ -244,8 +246,8 @@ angular.module('libraryOrganizer')
 	$scope.updateRoles();
 	$scope.updateDeweys = function() {
 		$http({
-			url: '/deweys',
-			method: 'POST'
+			url: '/information/deweys',
+			method: 'GET'
 		}).then(function(response){
 			for (i in response.data) {
 				$scope.deweys.push(response.data[i].dewey);
@@ -284,9 +286,10 @@ angular.module('libraryOrganizer')
 		book.primarylanguage = book.primarylanguage?book.primarylanguage:$scope.primaryLanguageSearchText;
 		book.secondarylanguage = book.secondarylanguage?book.secondarylanguage:$scope.secondaryLanguageSearchText;
 		book.originallanguage = book.originallanguage?book.originallanguage:$scope.originalLanguageSearchText;
+		var method = book.id ? 'PUT':'POST';
 		$http({
-			url: '/savebook',
-			method: 'POST',
+			url: '/books',
+			method: method,
 			data: JSON.stringify(book)
 		}).then(function(response){
 			if (viewType=='gridadd') {
@@ -310,19 +313,19 @@ angular.module('libraryOrganizer')
 			.cancel('Cancel');
 		$mdDialog.show(confirm).then(function() {
 			$http({
-			url: '/deletebook',
-			method: 'POST',
-			data: book.bookid
-		}).then(function(response) {
-			if (viewType=='gridadd') {
-				$vm.updateRecieved();
-			} else if (viewType=='shelves') {
-				$vm.updateCases();
-			} else if (viewType=='grid') {
-				$vm.$parent.$parent.updateRecieved();
-			}
-			$mdDialog.cancel();
-		})
+				url: '/books',
+				method: 'DELETE',
+				data: book.bookid
+			}).then(function(response) {
+				if (viewType=='gridadd') {
+					$vm.updateRecieved();
+				} else if (viewType=='shelves') {
+					$vm.updateCases();
+				} else if (viewType=='grid') {
+					$vm.$parent.$parent.updateRecieved();
+				}
+				$mdDialog.cancel();
+			})
 		}, function() {});
 	}
 	$scope.cancel = function() {
