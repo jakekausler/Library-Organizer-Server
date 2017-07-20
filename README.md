@@ -28,10 +28,10 @@ Note that this is not accurate until gorilla is set up
   * Save Owned Libraries `PUT /libraries/owned`
   * Get Cases `GET /libraries/:libraryid/cases`
   * Save Cases `PUT /libraries/:libraryid/cases`
-  * Get Breaks `GET /libraries/breaks`
-  * Add Break `POST /libraries/breaks`
-  * Save Break `PUT /libraries/breaks`
-  * Delete Break `DELETE /libraries/breaks`
+  * Get Breaks `GET /libraries/:libraryid/breaks`
+  * Add Break `POST /libraries/:libraryid/breaks`
+  * Save Break `PUT /libraries/:libraryid/breaks`
+  * Delete Break `DELETE /libraries/:libraryid/breaks`
 * Settings `/settings`
   * Get Settings `GET /settings`
   * Save Settings `PUT /settings`
@@ -613,10 +613,10 @@ Note that this is not accurate until gorilla is set up
 * Save Owned Libraries `PUT /libraries/owned`
 * Get Cases `GET /libraries/:libraryid/cases`
 * Save Cases `PUT /libraries/:libraryid/cases`
-* Get Breaks `GET /libraries/breaks`
-* Add Break `POST /libraries/breaks`
-* Save Break `PUT /libraries/breaks`
-* Delete Break `DELETE /libraries/breaks`
+* Get Breaks `GET /libraries/:libraryid/breaks`
+* Add Break `POST /libraries/:libraryid/breaks`
+* Save Break `PUT /libraries/:libraryid/breaks`
+* Delete Break `DELETE /libraries/:libraryid/breaks`
 
 ## Get Libraries
 
@@ -777,7 +777,7 @@ Note that this is not accurate until gorilla is set up
 `GET`
 
 * **URL**
-`/libraries/breaks`
+`/libraries/:libraryid/breaks`
 
 * **URL Params**
 ``
@@ -807,7 +807,7 @@ Note that this is not accurate until gorilla is set up
 `POST`
 
 * **URL**
-`/libraries/breaks`
+`/libraries/:libraryid/breaks`
 ``
 
 * **URL Params**
@@ -838,7 +838,7 @@ Note that this is not accurate until gorilla is set up
 `PUT`
 
 * **URL**
-`/libraries/breaks`
+`/libraries/:libraryid/breaks`
 
 * **URL Params**
 ``
@@ -868,7 +868,7 @@ Note that this is not accurate until gorilla is set up
 `DELETE`
 
 * **URL**
-`/libraries/breaks`
+`/libraries/:libraryid/breaks`
 
 * **URL Params**
 ``
