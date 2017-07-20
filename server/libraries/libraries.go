@@ -9,6 +9,7 @@ import (
 
 	"./../books"
 	"./../information"
+	"./../users"
 )
 
 const (
@@ -65,6 +66,20 @@ type Bookshelf struct {
 	ID     int64        `json:"id"`
 	Height int64        `json:"height"`
 	Books  []books.Book `json:"books"`
+}
+
+//OwnedLibrary is a library owned by the user and the users that have permission to view them
+type OwnedLibrary struct {
+	ID int64 `json:"id"`
+	Name string `json:"name"`
+	Users []UserWithPermission `json:"user"`
+}
+
+//UserWithPermission is a user and permission
+type UserWithPermission struct {
+	ID int64 `json:"id"`
+	Username string `json:"username"`
+	Permission int64 `json:"permission"`
 }
 
 //GetCases gets cases
@@ -269,4 +284,91 @@ func GetBreaks(db *sql.DB, libraryid, valuetype string) ([]map[string]string, er
 		}
 	}
 	return []map[string]string{idBreaks, customBreaks}, nil
+}
+
+//GetOwnedLibraries gets owned libraries and the people who have permission to do things with them
+func GetOwnedLibraries(db *sql.DB, session string) ([]OwnedLibrary, error) {
+	userid, err := users.GetUserID(db, session)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return nil, err
+	}
+	var libraries []OwnedLibrary
+	query := "SELECT libraries.id, libraries.name FROM libraries WHERE libraries.ownerid=?"
+	rows, err := db.Query(query, userid)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return nil, err
+	}
+	for rows.Next() {
+		var library OwnedLibrary
+		err = rows.Scan(&library.ID, &library.Name)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return nil, err
+		}
+		query = "SELECT library_members.id, library_members.usr, permissions.permission FROM libraries JOIN permissions ON libraries.id=permissions.libraryid JOIN library_members ON permissions.userid=library_members.id WHERE libraries.id=? AND permissions.userid != ?"
+		innerRows, err := db.Query(query, library.ID, userid)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return nil, err
+		}
+		for innerRows.Next() {
+			var user UserWithPermission
+			err := innerRows.Scan(&user.ID, &user.Username, &user.Permission)
+			if err != nil {
+				logger.Printf("Error: %+v", err)
+				return nil, err
+			}
+			library.Users = append(library.Users, user)
+		}
+		libraries = append(libraries, library)
+	}
+	logger.Printf("%+v", libraries)
+	return libraries, nil
+}
+
+//SaveOwnedLibraries saves owned libraries and the people who have permission to do things with them
+func SaveOwnedLibraries(db *sql.DB, ownedLibraries []OwnedLibrary, session string) error {
+	userid, err := users.GetUserID(db, session)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return err
+	}
+	query := "DELETE FROM libraries WHERE ownerid=?"
+	_, err = db.Exec(query, userid)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return err
+	}
+	for _, ownedLibrary := range ownedLibraries {
+		query = "INSERT INTO libraries (name, ownerid) VALUES (?,?)"
+		res, err := db.Exec(query, ownedLibrary.Name, userid)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return err
+		}
+		ownedLibrary.ID, err = res.LastInsertId()
+		query = "DELETE FROM permissions WHERE libraryid=?"
+		_, err = db.Exec(query, ownedLibrary.ID)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return err
+		}
+		query = "INSERT INTO permissions (userid, libraryid, permission) VALUES (?,?,7)"
+		_, err = db.Exec(query, userid, ownedLibrary.ID)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return err
+		}
+		for _, user := range ownedLibrary.Users {
+			query = "INSERT INTO permissions (userid, libraryid, permission) VALUES (?,?,?)"
+			_, err = db.Exec(query, user.ID, ownedLibrary.ID, user.Permission)
+			if err != nil {
+				logger.Printf("Error: %+v", err)
+				return err
+			}
+		}
+	}
+	return nil
 }

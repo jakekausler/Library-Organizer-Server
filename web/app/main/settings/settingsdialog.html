@@ -1,7 +1,51 @@
 <md-dialog aria-label="Settings" label="Settings"  flex>
 	<div flex style="position: relative; height: 60vh">
-		<md-tabs style="position: absolute;top: 0;bottom: 0;left: 0;right: 0" md-stretch-tabs="always">
+		<md-tabs md-selected="selectedTab" style="position: absolute;top: 0;bottom: 0;left: 0;right: 0" md-stretch-tabs="always">
+			<md-tab label="Libraries">
+				<md-content>
+				<p layout-padding="5">
+					You can change the names of your libraries, and give users permission to edit, checkout, or view the libraries. If a user can edit or checkout from a library, they can automatically view it.
+				</p>
+				</md-content>
+				<div flex style="position: relative; height: 55vh">
+					<form name="librariesform">
+					<md-tabs md-selected="selectedLibrary" style="position: absolute;top: 0;bottom: 0;left: 0;right: 0" flex>
+						<md-tab ng-repeat="library in ownedLibraries" label="{{library.name}}">
+						<md-content layout-padding="5">
+							<md-input-container>
+								<label>Name</label>
+								<input type="text" ng-model="library.name" required />
+							</md-input-container>
+							<md-button ng-disabled="ownedLibraries.length==1" class="icon remove-icon" ng-click="removeLibrary(library.id)"><md-tooltip md-delay="500">Remove Library</md-tooltip></md-button>
+							<h1 class="md-title">Users who can edit</h1>
+							<md-select ng-model="library.toAddEdit" ng-change="addToEdit(library)">
+								<md-option ng-repeat="user in $parent.users" ng-value="user">{{user.username}}</md-option>
+							</md-select>
+							<md-card ng-hide="library.editusers.length==0" style="display: inline-block">
+								<div style="display: inline-block" ng-repeat="user in library.editusers">{{user.username}}<md-button class="icon remove-icon" ng-click="removeUserFromEdit(user.id, library)"><md-tooltip md-delay="500">Remove</md-tooltip></md-button></div>
+							</md-card>
+							<h1 class="md-title">Users who can checkout</h1>
+							<md-select ng-model="library.toAddCheckout" ng-change="addToCheckout(library)">
+								<md-option ng-repeat="user in $parent.users" ng-value="user">{{user.username}}</md-option>
+							</md-select>
+							<md-card ng-hide="library.checkoutusers.length==0" style="display: inline-block">
+								<div style="display: inline-block" ng-repeat="user in library.checkoutusers">{{user.username}}<md-button class="icon remove-icon" ng-click="removeUserFromCheckout(user.id, library)"><md-tooltip md-delay="500">Remove</md-tooltip></md-button></div>
+							</md-card>
+							<h1 class="md-title">Users who can view</h1>
+							<md-select ng-model="library.toAddView" ng-change="addToView(library)">
+								<md-option ng-repeat="user in $parent.users" ng-value="user">{{user.username}}</md-option>
+							</md-select>
+							<md-card ng-hide="library.viewusers.length==0" style="display: inline-block">
+								<div style="display: inline-block" ng-repeat="user in library.viewusers">{{user.username}}<md-button class="icon remove-icon" ng-click="removeUserFromView(user.id, library)"><md-tooltip md-delay="500">Remove</md-tooltip></md-button></div>
+							</md-card>
+						</md-content>
+						</md-tab>
+					</md-tabs>
+					</form>
+				</div>
+			</md-tab>
 			<md-tab ng-repeat="group in settings" label="{{group.group}}">
+				<md-content>
 				<div flex style="height: 100%">
 					<md-list>
 						<md-list-item style="float:left" ng-repeat="setting in group.settings">
@@ -44,10 +88,13 @@
 						</md-list-item>
 					</md-list>
 				</div>
+				</md-content>
 			</md-tab>
 		</md-tabs>
 	</div>
 	<div layout="row">
-		<md-button aria-label="Close" ng-click="cancel()" flex class="icon cancel-icon"></md-button>
+		<md-button aria-label="Add" ng-click="addLibrary()" flex class="icon add-icon"><md-tooltip md-delay="500">Add Library</md-tooltip></md-button>
+		<md-button ng-hide="selectedTab!=0" ng-disabled="librariesform.$invalid" aria-label="Save" ng-click="saveLibraries()" flex class="icon save-icon"><md-tooltip md-delay="500">Save Libraries</md-tooltip></md-button>
+		<md-button aria-label="Close" ng-click="cancel()" flex class="icon cancel-icon"><md-tooltip md-delay="500">Close</md-tooltip></md-button>
 	</div>
 </md-dialog>

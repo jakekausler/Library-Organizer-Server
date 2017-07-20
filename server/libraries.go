@@ -116,3 +116,61 @@ func AddBreakHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	return
 }
+
+//GetOwnedLibrariesHandler adds a break
+func GetOwnedLibrariesHandler(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("libraryorganizersession")
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Redirect(w, r, "/", 301)
+		return
+	}
+	if cookie.Value == "" {
+		http.Redirect(w, r, "/", 301)
+		return
+	}
+	d, err := libraries.GetOwnedLibraries(db, cookie.Value)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	data, err := json.Marshal(d)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+}
+
+//SaveOwnedLibrariesHandler saves owned libraries
+func SaveOwnedLibrariesHandler(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("libraryorganizersession")
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Redirect(w, r, "/", 301)
+		return
+	}
+	if cookie.Value == "" {
+		http.Redirect(w, r, "/", 301)
+		return
+	}
+	var ownedLibraries []libraries.OwnedLibrary
+	decoder := json.NewDecoder(r.Body)
+	err = decoder.Decode(&ownedLibraries)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
+	err = libraries.SaveOwnedLibraries(db, ownedLibraries, cookie.Value)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	return
+}

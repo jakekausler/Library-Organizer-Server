@@ -22,6 +22,12 @@ const (
 
 var logger = log.New(os.Stderr, "log: ", log.LstdFlags|log.Lshortfile)
 
+//User is a library member
+type User struct {
+	ID int64 `json:"id"`
+	Username string `json:"username"`
+}
+
 //ResetPassword sends a link to reset a password
 //Todo
 func ResetPassword(db *sql.DB, email string) error {
@@ -159,4 +165,30 @@ func GetUserID(db *sql.DB, session string) (string, error) {
 	query := "SELECT id FROM library_members JOIN usersession ON UserID=ID WHERE sessionkey=?"
 	err := db.QueryRow(query, session).Scan(&name)
 	return name, err
+}
+
+//GetUsers gets users
+func GetUsers(db *sql.DB, session string) ([]User, error) {
+	userid, err := GetUserID(db, session)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return nil, err
+	}
+	var users []User
+	query := "SELECT id, usr FROM library_members WHERE id != ?"
+	rows, err := db.Query(query, userid)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return nil, err
+	}
+	for rows.Next() {
+		var user User
+		err = rows.Scan(&user.ID, &user.Username)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return nil, err
+		}
+		users = append(users, user)
+	}
+	return users, nil
 }
