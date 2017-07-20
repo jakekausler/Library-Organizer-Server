@@ -12,7 +12,7 @@ import (
 
 const (
 	getValidUserSession = "SELECT sessionkey from usersession WHERE sessionkey=? AND EXISTS (SELECT id FROM library_members where id=userid)"
-	addUser             = "INSERT INTO library_members (usr,pass,email) values (?,?,?)"
+	addUser             = "INSERT INTO library_members (usr,pass,email,firstname,lastname) values (?,?,?,?,?)"
 	addSession          = "INSERT INTO usersession (sessionkey,userid,LastSeenTime) values (?,?,NOW())"
 	updateSessionTime   = "UPDATE usersession SET LastSeenTime=NOW()"
 	isSessionNameTaken  = "SELECT sessionkey from usersession where sessionkey=?"
@@ -26,6 +26,9 @@ var logger = log.New(os.Stderr, "log: ", log.LstdFlags|log.Lshortfile)
 type User struct {
 	ID int64 `json:"id"`
 	Username string `json:"username"`
+	FirstName string `json:"first"`
+	LastName string `json:"last"`
+	Email string `json:"email"`
 }
 
 //ResetPassword sends a link to reset a password
@@ -103,13 +106,13 @@ func LoginUser(db *sql.DB, username, password string) (string, error) {
 }
 
 //RegisterUser registers a user and creates a default library for him
-func RegisterUser(db *sql.DB, username, password, email string) (string, error) {
+func RegisterUser(db *sql.DB, username, password, email, first, last string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return "", err
 	}
-	result, err := db.Exec(addUser, username, hash, email)
+	result, err := db.Exec(addUser, username, hash, email, first, last)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return "", err

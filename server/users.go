@@ -32,7 +32,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	r.ParseForm()
-	key, err := users.RegisterUser(db, r.Form["username"][0], r.Form["password"][0], r.Form["email"][0])
+	key, err := users.RegisterUser(db, r.Form["username"][0], r.Form["password"][0], r.Form["email"][0], r.Form["first"][0], r.Form["last"][0])
 	if err != nil {
 		logger.Printf("%+v", err)
 	}

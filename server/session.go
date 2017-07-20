@@ -8,6 +8,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
+	"github.com/gorilla/handlers"
 )
 
 var (
@@ -31,6 +32,11 @@ func RunServer(username, password, database string) {
 	err = db.Ping()
 	if err != nil {
 		panic(err.Error())
+	}
+	logger.Printf("Opening the log")
+	logFile, err := os.OpenFile("../logs/server.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		panic(err)
 	}
 	r := mux.NewRouter()
 	r.HandleFunc("/", GetHomePageHandler)
@@ -73,7 +79,8 @@ func RunServer(username, password, database string) {
 	r.HandleFunc("/users/username", GetUsernameHandler).Methods("GET")
 	r.PathPrefix("/web/").Handler(http.StripPrefix("/web/", http.FileServer(http.Dir("./../web/"))))
 	logger.Printf("Listening on port 8181")
-	http.ListenAndServe(":8181", r)
+	loggedRouter := handlers.CombinedLoggingHandler(logFile, r)
+	http.ListenAndServe(":8181", loggedRouter)
 	// http.ListenAndServe(":8181", nil)
 	logger.Printf("Closing")
 }

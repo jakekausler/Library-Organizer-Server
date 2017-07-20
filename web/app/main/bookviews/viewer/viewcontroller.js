@@ -7,19 +7,18 @@ angular.module('libraryOrganizer')
 	$scope.canEdit = (book.library.permissions&4)==4;
 	$scope.canCheckout = (book.library.permissions&2)==2;
 	$scope.checkout = function(ev) {
-	    $mdDialog.show({
-	        controller: 'checkoutController',
-	        templateUrl: 'web/app/main/bookviews/checkout/checkoutdialog.html',
-	        parent: angular.element(document.body),
-	        targetEvt: ev,
-	        clickOutsideToClose: true,
-	        fullscreen: false,
-	        locals: {
-	            book: $scope.book,
-	            $vm: $scope.vm,
-	            viewType: $scope.viewType
-	        }
-	    })
+	    var d = $mdDialog.confirm()
+	    	.title("Are you sure you would like to checkout this book?")
+	    	.textContent("If you checkout this book, it will become unavailable for other users to checkout and will show as checked out to you.")
+	    	.ariaLabel("Checkout")
+	    	.targetEvent(ev)
+	    	.ok("Yes")
+	    	.cancel("Cancel");
+	    $mdDialog.show(d).then(function() {
+	    	
+	    }, function() {
+	    	$scope.cancel()
+	    });
 	}
 	$scope.edit = function(ev) {
 		$scope.vm.showEditDialog(ev, $scope.book, $scope.vm, $scope.viewType);

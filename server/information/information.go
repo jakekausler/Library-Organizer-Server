@@ -104,7 +104,7 @@ func GetStats(db *sql.DB, t, libraryids string) (StatChart, error) {
 				(SELECT count(*) as reading from books WHERE isreading=1 and isowned=1 ` + inlibrary + `) AS rng,
 				(SELECT count(*) as toread from books WHERE isread=0 and isreference=0 and isreading=0 and isowned=1 ` + inlibrary + `) AS trd,
 				(SELECT count(*) as reference from books WHERE isreference=1 and isowned=1 ` + inlibrary + `) AS ref,
-				(SELECT count(*) as loaned from books WHERE loaneelast is not null and loaneelast !='' and isowned=1 ` + inlibrary + `) AS loa,
+				(SELECT count(*) as loaned from books WHERE loaneeid!=-1 and isowned=1 ` + inlibrary + `) AS loa,
 				(SELECT count(*) as shipping from books WHERE isshipping=1 and isowned=1 ` + inlibrary + `) AS shi)`
 		err := db.QueryRow(query).Scan(&total, &read, &reading, &toread, &reference, &loaned, &shipping)
 		if err != nil {
@@ -158,7 +158,7 @@ func GetStats(db *sql.DB, t, libraryids string) (StatChart, error) {
 				(SELECT SUM(width*height*depth) as reading from books WHERE isreading=1 and isowned=1 ` + inlibrary + `) AS rng,
 				(SELECT SUM(width*height*depth) as toread from books WHERE isread=0 and isreference=0 and isreading=0 and isowned=1 ` + inlibrary + `) AS trd,
 				(SELECT SUM(width*height*depth) as reference from books WHERE isreference=1 and isowned=1 ` + inlibrary + `) AS ref,
-				(SELECT SUM(width*height*depth) as loaned from books WHERE loaneelast is not null and isowned=1 ` + inlibrary + `) AS loa,
+				(SELECT SUM(width*height*depth) as loaned from books WHERE loaneeid!=-1 and isowned=1 ` + inlibrary + `) AS loa,
 				(SELECT SUM(width*height*depth) as shipping from books WHERE isshipping=1 and isowned=1 ` + inlibrary + `) AS shi)`
 		err := db.QueryRow(query).Scan(&total, &read, &reading, &toread, &reference, &loaned, &shipping)
 		if err != nil {
@@ -212,7 +212,7 @@ func GetStats(db *sql.DB, t, libraryids string) (StatChart, error) {
 				(SELECT SUM(pages) as reading from books WHERE isreading=1 and isowned=1 ` + inlibrary + `) AS rng,
 				(SELECT SUM(pages) as toread from books WHERE isread=0 and isreference=0 and isreading=0 and isowned=1 ` + inlibrary + `) AS trd,
 				(SELECT SUM(pages) as reference from books WHERE isreference=1 and isowned=1 ` + inlibrary + `) AS ref,
-				(SELECT SUM(pages) as loaned from books WHERE loaneelast is not null and isowned=1 ` + inlibrary + `) AS loa,
+				(SELECT SUM(pages) as loaned from books WHERE loaneeid!=-1 and isowned=1 ` + inlibrary + `) AS loa,
 				(SELECT SUM(pages) as shipping from books WHERE isshipping=1 and isowned=1 ` + inlibrary + `) AS shi)`
 		err := db.QueryRow(query).Scan(&total, &read, &reading, &toread, &reference, &loaned, &shipping)
 		if err != nil {

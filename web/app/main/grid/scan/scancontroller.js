@@ -46,11 +46,6 @@ angular.module('libraryOrganizer')
             "isreference": false,
             "isowned": true,
             "isbn": $scope.isbn,
-            "loanee": {
-                "first": "",
-                "middles": "",
-                "last": ""
-            },
             "dewey": "0",
             "pages": result.volumeInfo.pageCount ? result.volumeInfo.pageCount : 0,
             "width": result.volumeInfo.dimensions&&result.volumeInfo.dimensions.width ? result.volumeInfo.dimensions.width : 0,

@@ -113,11 +113,6 @@ angular.module('libraryOrganizer')
                 "isreference": false,
                 "isowned": false,
                 "isbn": "",
-                "loanee": {
-                    "first": "",
-                    "middles": "",
-                    "last": ""
-                },
                 "dewey": "0",
                 "pages": 0,
                 "width": 0,
