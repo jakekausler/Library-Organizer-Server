@@ -8,7 +8,7 @@ Note that this is not accurate until gorilla is set up
   * Add Book `POST /books`
   * Delete Book `DELETE /books`
   * Export Books `GET /books/books`
-  * Export Authors `GET /books/authors`
+  * Export contributors `GET /books/contributors`
   * Import Books `POST /books/books`
 * Information `/information`
   * Get Statistics `GET /information/statistics`
@@ -51,19 +51,19 @@ Note that this is not accurate until gorilla is set up
 * Add Book `POST /books`
 * Delete Book `DELETE /books`
 * Export Books `GET /books/books`
-* Export Authors `GET /books/authors`
+* Export Contributors `GET /books/contributors`
 * Import Books `POST /books/books`
 
 ## Get Books
 
 * **Action**
-``
+`Returns an array of books.`
 
 * **Method**
-``
+`GET`
 
 * **URL**
-``
+`/books`
 
 * **URL Params**
 ``
@@ -87,13 +87,13 @@ Note that this is not accurate until gorilla is set up
 ## Save Book
 
 * **Action**
-``
+`Saves a book.`
 
 * **Method**
-``
+`PUT`
 
 * **URL**
-``
+`/books`
 
 * **URL Params**
 ``
@@ -117,13 +117,13 @@ Note that this is not accurate until gorilla is set up
 ## Add Book
 
 * **Action**
-``
+`Adds a book.`
 
 * **Method**
-``
+`POST`
 
 * **URL**
-``
+`/books`
 
 * **URL Params**
 ``
@@ -147,13 +147,13 @@ Note that this is not accurate until gorilla is set up
 ## Delete Book
 
 * **Action**
-``
+`Deletes a book.`
 
 * **Method**
-``
+`DELETE`
 
 * **URL**
-``
+`/books`
 
 * **URL Params**
 ``
@@ -177,13 +177,13 @@ Note that this is not accurate until gorilla is set up
 ## Export Books
 
 * **Action**
-``
+`Exports a csv of book data.`
 
 * **Method**
-``
+`GET`
 
 * **URL**
-``
+`/books/books`
 
 * **URL Params**
 ``
@@ -204,16 +204,16 @@ Note that this is not accurate until gorilla is set up
 
 ```
 
-## Export Authors
+## Export Contributors
 
 * **Action**
-``
+`Exports a csv of contributors`
 
 * **Method**
-``
+`GET`
 
 * **URL**
-``
+`/books/contributors`
 
 * **URL Params**
 ``
@@ -237,13 +237,13 @@ Note that this is not accurate until gorilla is set up
 ## Import Books
 
 * **Action**
-``
+`Imports books from a csv to a library. The column headers should match the database fields names, with the exception of publisher and contributors. Publisher should be split into four columns: "publisher", "city", "state", "country". Contributors should be in a single column, with the header "contributors". They should be written as follows: "lastName[, firstName middleName1 middleName2... middleNameN]: role", with different contributors separated by a single semicolon and omitting first and middle names as needed.`
 
 * **Method**
-``
+`POST`
 
 * **URL**
-``
+`/books/books`
 
 * **URL Params**
 ``
