@@ -51,7 +51,10 @@
 	content:'\f013';
 }
 .checkout-icon:before{
-	content:'\f07a';
+	content:'\f217';
+}
+.checkin-icon:before{
+	content:'\f218';
 }
 .scan-icon:before{
 	content:'\f02a';

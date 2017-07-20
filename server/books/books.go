@@ -230,6 +230,25 @@ func DeleteBook(db *sql.DB, bookid string) error {
 	return nil
 }
 
+//CheckoutBook checks out a book
+func CheckoutBook(db *sql.DB, session string, bookid int) error {
+	userid, err := users.GetUserID(db, session)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return err
+	}
+	query := "UPDATE books SET loaneeid=? WHERE bookid=?"
+	_, err = db.Exec(query, userid, bookid)
+	return err
+}
+
+//CheckinBook checks in a book
+func CheckinBook(db *sql.DB, bookid int) error {
+	query := "UPDATE books SET loaneeid=-1 WHERE bookid=?"
+	_, err := db.Exec(query, bookid)
+	return err
+}
+
 func addContributor(db *sql.DB, bookid string, contributor information.Contributor) error {
 	personID, err := addOrGetPerson(db, contributor.Name.First, contributor.Name.Middles, contributor.Name.Last)
 	if err != nil {
@@ -403,9 +422,9 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 	}
 	loaned := ""
 	if isloaned == "yes" {
-		loaned = "LoaneeId != -1"
+		loaned = "LoaneeId!=-1"
 	} else if isloaned == "no" {
-		loaned = "LoaneeId == -1"
+		loaned = "LoaneeId=-1"
 	}
 	reading := ""
 	if isreading == "yes" {
@@ -559,7 +578,7 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 		}
 		if b.Loanee.ID != -1 {
 			query = "SELECT firstname, lastname, usr, email from library_members WHERE id=?"
-			err = db.QueryRow(query, b.Loanee.ID).Scan(&b.Loanee.FirstName, &b.Loanee.LastName, &b.Loanee.Email, &b.Loanee.Username)
+			err = db.QueryRow(query, b.Loanee.ID).Scan(&b.Loanee.FirstName, &b.Loanee.LastName, &b.Loanee.Username, &b.Loanee.Email)
 			if err != nil {
 				logger.Printf("Error getting contributors: %v", err)
 				return nil, 0, err

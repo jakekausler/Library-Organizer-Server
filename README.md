@@ -7,6 +7,8 @@ Note that this is not accurate until gorilla is set up
   * Save Book `PUT /books`
   * Add Book `POST /books`
   * Delete Book `DELETE /books`
+  * Checkout Book `PUT /books/checkout`
+  * Checkin Book `PUT /books/checkin`
   * Export Books `GET /books/books`
   * Export contributors `GET /books/contributors`
   * Import Books `POST /books/books`
@@ -50,6 +52,8 @@ Note that this is not accurate until gorilla is set up
 * Save Book `PUT /books`
 * Add Book `POST /books`
 * Delete Book `DELETE /books`
+* Checkout Book `PUT /books/checkout`
+* Checkin Book `PUT /books/checkin`
 * Export Books `GET /books/books`
 * Export Contributors `GET /books/contributors`
 * Import Books `POST /books/books`
@@ -154,6 +158,66 @@ Note that this is not accurate until gorilla is set up
 
 * **URL**
 `/books`
+
+* **URL Params**
+``
+
+* **URL Arguments (?)**
+``
+
+* **Data Params**
+``
+
+* **Success Response**
+```json
+
+```
+
+* **Error Response**
+```json
+
+```
+
+## Checkout Book
+
+* **Action**
+`Checks out a book.`
+
+* **Method**
+`PUT`
+
+* **URL**
+`/books/checkout`
+
+* **URL Params**
+``
+
+* **URL Arguments (?)**
+``
+
+* **Data Params**
+``
+
+* **Success Response**
+```json
+
+```
+
+* **Error Response**
+```json
+
+```
+
+## Checkin Book
+
+* **Action**
+`Checks in a book.`
+
+* **Method**
+`PUT`
+
+* **URL**
+`/books/checkin`
 
 * **URL Params**
 ``

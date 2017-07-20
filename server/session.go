@@ -44,6 +44,8 @@ func RunServer(username, password, database string) {
 	r.HandleFunc("/books", AddBookHandler).Methods("POST")
 	r.HandleFunc("/books", SaveBookHandler).Methods("PUT")
 	r.HandleFunc("/books", DeleteBookHandler).Methods("DELETE")
+	r.HandleFunc("/books/checkout", CheckoutBookHandler).Methods("PUT")
+	r.HandleFunc("/books/checkin", CheckinBookHandler).Methods("PUT")
 	r.HandleFunc("/books/books", ExportBooksHandler).Methods("GET")
 	r.HandleFunc("/books/contributors", ExportAuthorsHandler).Methods("GET")
 	r.HandleFunc("/books/books", ImportBooksHandler).Methods("POST")

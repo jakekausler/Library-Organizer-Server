@@ -135,6 +135,61 @@ func DeleteBookHandler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+//CheckoutBookHandler checks out a book
+func CheckoutBookHandler(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("libraryorganizersession")
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Redirect(w, r, "/", 301)
+		return
+	}
+	if cookie.Value == "" {
+		http.Redirect(w, r, "/", 301)
+		return
+	}
+	var i int
+	decoder := json.NewDecoder(r.Body)
+	err = decoder.Decode(&i)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
+	err = books.CheckoutBook(db, cookie.Value, i)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	return
+}
+
+//CheckinBookHandler checks out a book
+func CheckinBookHandler(w http.ResponseWriter, r *http.Request) {
+	if !Registered(r) {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
+		return
+	}
+	var i int
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&i)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
+	err = books.CheckinBook(db, i)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	return
+}
+
 //ImportBooksHandler imports books
 func ImportBooksHandler(w http.ResponseWriter, r *http.Request) {
 	if !Registered(r) {

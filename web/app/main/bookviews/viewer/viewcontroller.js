@@ -1,11 +1,14 @@
 angular.module('libraryOrganizer')
-.controller('viewController', function($scope, $mdDialog, book, $vm, viewType, username) {
+.controller('viewController', function($scope, $mdDialog, $http, book, $vm, viewType, username) {
 	$scope.book = book;
 	$scope.vm = $vm;
 	$scope.viewType = viewType;
 	$scope.username = username;
 	$scope.canEdit = (book.library.permissions&4)==4;
 	$scope.canCheckout = (book.library.permissions&2)==2 && book.loanee.id == -1;
+	console.log($scope.username);
+	console.log(book.loanee.username)
+	$scope.canCheckin = (book.library.permissions&4)==4 || book.loanee.username == $scope.username;
 	$scope.checkout = function(ev) {
 	    var d = $mdDialog.confirm()
 	    	.title("Are you sure you would like to checkout this book?")
@@ -15,7 +18,51 @@ angular.module('libraryOrganizer')
 	    	.ok("Yes")
 	    	.cancel("Cancel");
 	    $mdDialog.show(d).then(function() {
-	    	
+	    	$http({
+	    		url: 'books/checkout',
+	    		method: 'PUT',
+	    		data: $scope.book.bookid
+	    	}).then(function(response) {
+				if ($scope.viewType=='gridadd') {
+					$scope.vm.updateRecieved();
+				} else if ($scope.viewType=='shelves') {
+					$scope.vm.updateCases();
+				} else if ($scope.viewType=='grid') {
+					$scope.vm.$parent.$parent.updateRecieved();
+				} else if ($scope.viewType=='scanadd') {
+					$scope.vm.$parent.$parent.updateRecieved();
+				}
+	    		$scope.cancel()
+	    	})
+	    }, function() {
+	    	$scope.cancel()
+	    });
+	}
+	$scope.checkin = function(ev) {
+	    var d = $mdDialog.confirm()
+	    	.title("Are you sure you would like to return this book?")
+	    	.textContent("If you return this book, it will become available for other users to checkout and no longer show as checked out to you.")
+	    	.ariaLabel("Checkin")
+	    	.targetEvent(ev)
+	    	.ok("Yes")
+	    	.cancel("Cancel");
+	    $mdDialog.show(d).then(function() {
+	    	$http({
+	    		url: 'books/checkin',
+	    		method: 'PUT',
+	    		data: $scope.book.bookid
+	    	}).then(function(response) {
+				if ($scope.viewType=='gridadd') {
+					$scope.vm.updateRecieved();
+				} else if ($scope.viewType=='shelves') {
+					$scope.vm.updateCases();
+				} else if ($scope.viewType=='grid') {
+					$scope.vm.$parent.$parent.updateRecieved();
+				} else if ($scope.viewType=='scanadd') {
+					$scope.vm.$parent.$parent.updateRecieved();
+				}
+	    		$scope.cancel()
+	    	})
 	    }, function() {
 	    	$scope.cancel()
 	    });

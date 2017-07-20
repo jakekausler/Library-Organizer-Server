@@ -19,7 +19,8 @@
 		</div>
 		<div layout="row">
 			<md-button aria-label="Open Editor" ng-disabled="!canEdit" ng-click="edit()" flex class="icon edit-icon"></md-button>
-			<md-button aria-label="Open Checkout Menu" ng-disabled="!canCheckout" ng-click="checkout()" flex class="icon checkout-icon"></md-button>
+			<md-button aria-label="Open Checkout Menu" ng-hide="!canCheckout" ng-click="checkout()" flex class="icon checkout-icon"></md-button>
+			<md-button aria-label="Open Checkin Menu" ng-hide="!canCheckin" ng-click="checkin()" flex class="icon checkin-icon"></md-button>
 			<md-button aria-label="Close" ng-click="cancel()" flex class="icon cancel-icon"></md-button>
 		</div>
 	</div>
