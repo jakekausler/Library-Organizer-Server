@@ -324,7 +324,6 @@ func GetOwnedLibraries(db *sql.DB, session string) ([]OwnedLibrary, error) {
 		}
 		libraries = append(libraries, library)
 	}
-	logger.Printf("%+v", libraries)
 	return libraries, nil
 }
 
@@ -342,6 +341,7 @@ func SaveOwnedLibraries(db *sql.DB, ownedLibraries []OwnedLibrary, session strin
 		return err
 	}
 	for _, ownedLibrary := range ownedLibraries {
+		oldID := ownedLibrary.ID
 		query = "INSERT INTO libraries (name, ownerid) VALUES (?,?)"
 		res, err := db.Exec(query, ownedLibrary.Name, userid)
 		if err != nil {
@@ -354,6 +354,26 @@ func SaveOwnedLibraries(db *sql.DB, ownedLibraries []OwnedLibrary, session strin
 		if err != nil {
 			logger.Printf("Error: %+v", err)
 			return err
+		}
+		if oldID != -1 {
+			query = "UPDATE books SET libraryid=? WHERE libraryid=?"
+			_, err = db.Exec(query, ownedLibrary.ID, oldID)
+			if err != nil {
+				logger.Printf("Error: %+v", err)
+				return err
+			}
+			query = "UPDATE bookcases SET libraryid=? WHERE libraryid=?"
+			_, err = db.Exec(query, ownedLibrary.ID, oldID)
+			if err != nil {
+				logger.Printf("Error: %+v", err)
+				return err
+			}
+			query = "UPDATE breaks SET libraryid=? WHERE libraryid=?"
+			_, err = db.Exec(query, ownedLibrary.ID, oldID)
+			if err != nil {
+				logger.Printf("Error: %+v", err)
+				return err
+			}
 		}
 		query = "INSERT INTO permissions (userid, libraryid, permission) VALUES (?,?,7)"
 		_, err = db.Exec(query, userid, ownedLibrary.ID)

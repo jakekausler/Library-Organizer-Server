@@ -49,7 +49,6 @@ angular.module('libraryOrganizer')
                     loaned: $scope.loaned,
                     shipping: $scope.shipping,
                     reading: $scope.reading,
-                    gridselectedlibraries: $scope.stringLibraryIds()
                 })
             $http.get('/books', {
                 params: {

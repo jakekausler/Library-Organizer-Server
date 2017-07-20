@@ -23,7 +23,6 @@ angular.module('libraryOrganizer')
         }
         $scope.dimensions = {};
         $scope.updateDimensions = function() {
-            $scope.setParameters({statsselectedlibraries: $scope.stringLibraryIds()})
             $http({
                 url: '/dimensions',
                 method: 'GET',
