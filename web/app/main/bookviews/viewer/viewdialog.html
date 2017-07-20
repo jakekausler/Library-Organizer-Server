@@ -10,6 +10,8 @@
 				<div ng-hide="!book.primarylanguage && !book.secondarylanguage && !book.originallanguage"><span ng-hide="book.primarylanguage || book.secondarylanguage">Originally </span><span ng-hide="!book.originallanguage && !book.primarylanguage && !book.secondarylanguage">Written in </span><span>{{book.primarylanguage}}</span><span ng-hide="!book.secondarylanguage"> and </span><span ng-hide="!book.secondarylanguage">{{book.secondarylanguage}}</span><span ng-hide="!book.originallanguage">, Orginally in </span><span ng-hide="!book.originallanguage">{{book.originallanguage}}</span></div>
 				<div ng-hide="!book.pages && !book.width && !book.height && !book.depth && !book.weight"><span ng-hide="!book.pages">{{book.pages}} pages</span><span ng-hide="!book.pages || (!book.width && !book.height && !book.depth && !book.weight)">, </span><span ng-hide="!book.width">{{book.width}}mm</span><span ng-hide="!book.width || (!book.height && !book.depth)"> x </span><span ng-hide="!book.height">{{book.height}}mm</span><span ng-hide="(!book.width && !book.height) ||!book.depth"> x </span><span ng-hide="!book.depth">{{book.depth}}mm</span><span ng-hide="!book.weight">, </span><span ng-hide="!book.weight">{{book.weight}}oz</span></div>
 				<div ng-hide="!book.isbn">ISBN: {{book.isbn}}</div>
+				<div>Dewey: {{book.dewey}}</div>
+				<div ng-hide="book.loanee.id==-1">On Loan to {{book.loanee.first}} {{book.loanee.last}}</div>
 			</div>
 			<div flex>
 				<img width="100%" ng-src="web/{{book.imageurl}}{{'?'+getCurrentDateString()}}" alt="Image not found" onerror="this.onerror=null;this.src='web/res/book.jpg';">

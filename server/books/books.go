@@ -403,9 +403,9 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 	}
 	loaned := ""
 	if isloaned == "yes" {
-		isloaned = "LoaneeId != -1"
-	} else if isread == "no" {
-		isloaned = "LoaneeId == -1"
+		loaned = "LoaneeId != -1"
+	} else if isloaned == "no" {
+		loaned = "LoaneeId == -1"
 	}
 	reading := ""
 	if isreading == "yes" {
@@ -664,7 +664,7 @@ func formFilterText(text string) string {
 	filters := strings.Split(text, " ")
 	for _, filter := range filters {
 		if filter != "" {
-			s = s + "(Title LIKE '%" + filter + "%' OR Subtitle LIKE '%" + filter + "%' OR Series LIKE '%" + filter + "%') AND "
+			s = s + "(Title LIKE '%%" + filter + "%%' OR Subtitle LIKE '%%" + filter + "%%' OR Series LIKE '%%" + filter + "%%') AND "
 		}
 	}
 	if strings.HasSuffix(s, " AND ") {

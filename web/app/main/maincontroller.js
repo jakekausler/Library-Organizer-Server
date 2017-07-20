@@ -59,7 +59,7 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
         }
         $scope.getParameterByName = function(name, def) {
             if ($scope.parameters[name]) {
-                return $scope.parameters[name];
+                return decodeURIComponent($scope.parameters[name]);
             }
             return def;
         }
