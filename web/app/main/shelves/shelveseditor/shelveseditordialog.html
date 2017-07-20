@@ -2,9 +2,8 @@
 	<form name="shelfEditorForm">
 		<h1 class="md-title">Edit Shelves</h1>
 		<table fixed-header style="width: 100%;height: 60vh;">
-			<thead><tr><th></th><th></th><th></th><th></th><th>Number of Shelves</th><th>Width</th><th>Shelf Height</th><th>Left Margin</th><th>Right Margin</th><th>Spacer Size</th></tr></thead>
+			<thead></th><th></th><th></th><th></th><th>Number of Shelves</th><th>Width</th><th>Shelf Height</th><th>Left Margin</th><th>Right Margin</th><th>Spacer Size</th></tr></thead>
 			<tbody><tr ng-repeat="case in shelves">
-				<td><md-button aria-label="Add Shelf" class="icon add-icon" ng-click="addShelf(case)"><md-tooltip md-delay="500">Add Shelf</md-tooltip></md-button></td>
 				<td><md-button aria-label="Move Shelf Up" class="icon up-icon" ng-disabled="case.casenumber == 1" ng-click="moveShelfUp(case)"><md-tooltip md-delay="500">Move Shelf Up</md-tooltip></md-button></td>
 				<td><md-button aria-label="Move Shelf Down" class="icon down-icon" ng-disabled="case.casenumber == $parent.numberOfCases" ng-click="moveShelfDown(case)"><md-tooltip md-delay="500">Move Shelf Down</md-tooltip></md-button></td>
 				<td><md-button aria-label="Remove Shelf" class="icon remove-icon" ng-click="removeShelf(case)"><md-tooltip md-delay="500">Remove Shelf</md-tooltip></md-button></td>
@@ -30,6 +29,7 @@
 		</table>
 	</form>
 	<div layout="row">
+		<md-button aria-label="Add Shelf" class="icon add-icon" ng-click="addShelf()"><md-tooltip md-delay="500">Add Shelf</md-tooltip></md-button>
 		<md-button aria-label="Save" ng-disabled="shelfEditorForm.$invalid" ng-click="save()" flex class="icon save-icon"></md-button>
 		<md-button aria-label="Close" ng-click="cancel()" flex class="icon cancel-icon"></md-button>
 	</div>

@@ -82,12 +82,8 @@ angular.module('libraryOrganizer')
 		});
 	};
 	$scope.addShelf = function(cas) {
-		var c = cas.casenumber;
-		for (i=c; i<$scope.shelves.length; i++) {
-			$scope.shelves[i].casenumber = i+2;
-		}
 		$scope.shelves.push({
-			casenumber: c+1,
+			casenumber: $scope.shelves[$scope.shelves.length-1].casenumber+1,
 			numberofshelves: $scope.defaultNumberOfShelves,
 			width: $scope.defaultWidth,
 			shelfheight: $scope.defaultShelfHeight,
@@ -95,9 +91,6 @@ angular.module('libraryOrganizer')
 			paddingright: $scope.defaultPaddingRight,
 			spacerheight: $scope.defaultSpacerSize,
 			libraryid: $scope.libraryid
-		});
-		$scope.shelves.sort(function(a, b) {
-			return (a.casenumber > b.casenumber) ? 1 : ((a.casenumber < b.casenumber) ? -1 : 0);
 		});
 		$scope.numberOfCases++;
 	};
