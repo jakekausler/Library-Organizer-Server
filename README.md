@@ -280,13 +280,13 @@ Note that this is not accurate until gorilla is set up
 ## Get Statistics
 
 * **Action**
-``
+`Get a set of statistics.`
 
 * **Method**
-``
+`GET`
 
 * **URL**
-``
+`/information/statistics`
 
 * **URL Params**
 ``
@@ -310,13 +310,13 @@ Note that this is not accurate until gorilla is set up
 ## Get Dimensions
 
 * **Action**
-``
+`Get a set of dimensions.`
 
 * **Method**
-``
+`GET`
 
 * **URL**
-``
+`/information/dimensions`
 
 * **URL Params**
 ``
@@ -340,13 +340,13 @@ Note that this is not accurate until gorilla is set up
 ## Get Publishers
 
 * **Action**
-``
+`Get a the set of publishers.`
 
 * **Method**
-``
+`GET`
 
 * **URL**
-``
+`/information/publishers`
 
 * **URL Params**
 ``
@@ -370,13 +370,13 @@ Note that this is not accurate until gorilla is set up
 ## Get Cities
 
 * **Action**
-``
+`Get the set of cities.`
 
 * **Method**
-``
+`GET`
 
 * **URL**
-``
+`/information/cities`
 
 * **URL Params**
 ``
@@ -400,13 +400,13 @@ Note that this is not accurate until gorilla is set up
 ## Get States
 
 * **Action**
-``
+`Get the set of states.`
 
 * **Method**
-``
+`GET`
 
 * **URL**
-``
+`/information/states`
 
 * **URL Params**
 ``
@@ -430,13 +430,13 @@ Note that this is not accurate until gorilla is set up
 ## Get Countries
 
 * **Action**
-``
+`Get the set of countries. `
 
 * **Method**
-``
+`GET`
 
 * **URL**
-``
+`/information/countries`
 
 * **URL Params**
 ``
@@ -460,13 +460,13 @@ Note that this is not accurate until gorilla is set up
 ## Get Formats
 
 * **Action**
-``
+`Get the set of formats.`
 
 * **Method**
-``
+`GET`
 
 * **URL**
-``
+`/information/formats`
 
 * **URL Params**
 ``
@@ -490,13 +490,13 @@ Note that this is not accurate until gorilla is set up
 ## Get Roles
 
 * **Action**
-``
+`Get the set of contributor roles.`
 
 * **Method**
-``
+`GET`
 
 * **URL**
-``
+`/information/roles`
 
 * **URL Params**
 ``
@@ -520,13 +520,13 @@ Note that this is not accurate until gorilla is set up
 ## Get Series
 
 * **Action**
-``
+`Get the set of series.`
 
 * **Method**
-``
+`GET`
 
 * **URL**
-``
+`/information/series`
 
 * **URL Params**
 ``
@@ -550,13 +550,13 @@ Note that this is not accurate until gorilla is set up
 ## Get Languages
 
 * **Action**
-``
+`Get the set of languages`
 
 * **Method**
-``
+`GET`
 
 * **URL**
-``
+`/information/languages`
 
 * **URL Params**
 ``
@@ -577,16 +577,16 @@ Note that this is not accurate until gorilla is set up
 
 ```
 
-## Get Dewys
+## Get Deweys
 
 * **Action**
-``
+`Get the set of deweys`
 
 * **Method**
-``
+`GET`
 
 * **URL**
-``
+`/information/deweys`
 
 * **URL Params**
 ``
@@ -621,13 +621,13 @@ Note that this is not accurate until gorilla is set up
 ## Get Libraries
 
 * **Action**
-``
+`Get a list of libraries with which the user has permission to do something.`
 
 * **Method**
-``
+`GET`
 
 * **URL**
-``
+`/libraries`
 
 * **URL Params**
 ``
@@ -651,13 +651,13 @@ Note that this is not accurate until gorilla is set up
 ## Get Owned Libraries
 
 * **Action**
-``
+`Get the libraries which the user owns and the user who can do something with them.`
 
 * **Method**
-``
+`GET`
 
 * **URL**
-``
+`/libraries/owned`
 
 * **URL Params**
 ``
@@ -681,13 +681,13 @@ Note that this is not accurate until gorilla is set up
 ## Save Owned Libraries
 
 * **Action**
-``
+`Saves the libraries the user owns and the users who can do something with them.`
 
 * **Method**
-``
+`PUT`
 
 * **URL**
-``
+`/libraries/owned`
 
 * **URL Params**
 ``
@@ -711,13 +711,13 @@ Note that this is not accurate until gorilla is set up
 ## Get Cases
 
 * **Action**
-``
+`Get the cases in a library.`
 
 * **Method**
-``
+`GET`
 
 * **URL**
-``
+`/libraries/cases`
 
 * **URL Params**
 ``
@@ -741,13 +741,13 @@ Note that this is not accurate until gorilla is set up
 ## Save Cases
 
 * **Action**
-``
+`Save the cases in a library.`
 
 * **Method**
-``
+`PUT`
 
 * **URL**
-``
+`/libraries/cases`
 
 * **URL Params**
 ``
@@ -771,13 +771,13 @@ Note that this is not accurate until gorilla is set up
 ## Get Breaks
 
 * **Action**
-``
+`Get the breaks for a library.`
 
 * **Method**
-``
+`GET`
 
 * **URL**
-``
+`/libraries/breaks`
 
 * **URL Params**
 ``
@@ -801,12 +801,13 @@ Note that this is not accurate until gorilla is set up
 ## Add Break
 
 * **Action**
-``
+`Add a break to a library.`
 
 * **Method**
-``
+`POST`
 
 * **URL**
+`/libraries/breaks`
 ``
 
 * **URL Params**
@@ -831,13 +832,13 @@ Note that this is not accurate until gorilla is set up
 ## Save Break
 
 * **Action**
-``
+`Save a break in a library.`
 
 * **Method**
-``
+`PUT`
 
 * **URL**
-``
+`/libraries/breaks`
 
 * **URL Params**
 ``
@@ -861,13 +862,13 @@ Note that this is not accurate until gorilla is set up
 ## Delete Break
 
 * **Action**
-``
+`Delete a book from a library.`
 
 * **Method**
-``
+`DELETE`
 
 * **URL**
-``
+`/libraries/breaks`
 
 * **URL Params**
 ``
@@ -896,13 +897,13 @@ Note that this is not accurate until gorilla is set up
 ## Get Settings
 
 * **Action**
-``
+`Get the user's settings. If nothing is set for a setting, return the default.`
 
 * **Method**
-``
+`GET`
 
 * **URL**
-``
+`/settings`
 
 * **URL Params**
 ``
@@ -926,13 +927,13 @@ Note that this is not accurate until gorilla is set up
 ## Save Settings
 
 * **Action**
-``
+`Save the user's settings.`
 
 * **Method**
-``
+`PUT`
 
 * **URL**
-``
+`/settings`
 
 * **URL Params**
 ``
@@ -953,16 +954,16 @@ Note that this is not accurate until gorilla is set up
 
 ```
 
-## Get Settings
+## Get Setting
 
 * **Action**
-``
+`Get a single user setting.`
 
 * **Method**
-``
+`GET`
 
 * **URL**
-``
+`/settings/:setting`
 
 * **URL Params**
 ``
@@ -995,13 +996,13 @@ Note that this is not accurate until gorilla is set up
 ## Get Users
 
 * **Action**
-``
+`Get the users in a library.`
 
 * **Method**
-``
+`GET`
 
 * **URL**
-``
+`/users`
 
 * **URL Params**
 ``
@@ -1025,13 +1026,13 @@ Note that this is not accurate until gorilla is set up
 ## Login
 
 * **Action**
-``
+`Log a user in to the system.`
 
 * **Method**
-``
+`PUT`
 
 * **URL**
-``
+`/users`
 
 * **URL Params**
 ``
@@ -1055,13 +1056,13 @@ Note that this is not accurate until gorilla is set up
 ## Register
 
 * **Action**
-``
+`Register a user in to the system.`
 
 * **Method**
-``
+`POST`
 
 * **URL**
-``
+`/users`
 
 * **URL Params**
 ``
@@ -1085,13 +1086,13 @@ Note that this is not accurate until gorilla is set up
 ## Logout
 
 * **Action**
-``
+`Log a user out of the system.`
 
 * **Method**
-``
+`DELETE`
 
 * **URL**
-``
+`/users`
 
 * **URL Params**
 ``
@@ -1115,13 +1116,13 @@ Note that this is not accurate until gorilla is set up
 ## Send Password Reset
 
 * **Action**
-``
+`Send a password reset request to the user's email.`
 
 * **Method**
-``
+`PUT`
 
 * **URL**
-``
+`/users/reset`
 
 * **URL Params**
 ``
@@ -1145,13 +1146,13 @@ Note that this is not accurate until gorilla is set up
 ## Finish Password Reset
 
 * **Action**
-``
+`Complete a password reset request.`
 
 * **Method**
-``
+`GET`
 
 * **URL**
-``
+`/users/reset/:token`
 
 * **URL Params**
 ``
@@ -1175,13 +1176,13 @@ Note that this is not accurate until gorilla is set up
 ## Get Username
 
 * **Action**
-``
+`Get the user's username.`
 
 * **Method**
-``
+`GET`
 
 * **URL**
-``
+`/users/username`
 
 * **URL Params**
 ``
