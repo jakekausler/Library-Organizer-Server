@@ -117,56 +117,58 @@ angular.module('libraryOrganizer')
         $scope.selectedLibrary = $scope.ownedLibraries.length-1;
     }
     $scope.saveLibraries = function() {
-        console.log($scope.ownedLibraries)
-        // for (i in $scope.ownedLibraries) {
-        //     $scope.ownedLibraries[i].user = [];
-        //     for (j in $scope.ownedLibraries[i].editusers) {
-        //         $scope.ownedLibraries[i].user.push({
-        //             id: $scope.ownedLibraries[i].editusers[j].id,
-        //             username: $scope.ownedLibraries[i].editusers[j].username,
-        //             permission: 4
-        //         })
-        //     }
-        //     for (j in $scope.ownedLibraries[i].checkoutusers) {
-        //         added = false;
-        //         for (k in $scope.ownedLibraries[i].user) {
-        //             if ($scope.ownedLibraries[i].user[k].id==$scope.ownedLibraries[i].checkoutusers[j].id) {
-        //                 $scope.ownedLibraries[i].user[k].permission += 2;
-        //                 added = true;
-        //             }
-        //         }
-        //         if (!added) {
-        //             $scope.ownedLibraries[i].user.push({
-        //                 id: $scope.ownedLibraries[i].checkoutusers[j].id,
-        //                 username: $scope.ownedLibraries[i].checkoutusers[j].username,
-        //                 permission: 2
-        //             })
-        //         }
-        //     }
-        //     for (j in $scope.ownedLibraries[i].viewusers) {
-        //         added = false;
-        //         for (k in $scope.ownedLibraries[i].user) {
-        //             if ($scope.ownedLibraries[i].user[k].id==$scope.ownedLibraries[i].viewusers[j].id) {
-        //                 $scope.ownedLibraries[i].user[k].permission += 1;
-        //                 added = true;
-        //             }
-        //         }
-        //         if (!added) {
-        //             $scope.ownedLibraries[i].user.push({
-        //                 id: $scope.ownedLibraries[i].viewusers[j].id,
-        //                 username: $scope.ownedLibraries[i].viewusers[j].username,
-        //                 permission: 1
-        //             })
-        //         }
-        //     }
-        // }
-        // $http({
-        //     url: '/libraries/owned',
-        //     method: 'PUT',
-        //     data: $scope.ownedLibraries
-        // }).then(function(response){
-        //     $mdToast.showSimple("Successfully saved setting")
-        // });
+        for (i in $scope.ownedLibraries) {
+            $scope.ownedLibraries[i].user = [];
+            for (j in $scope.ownedLibraries[i].editusers) {
+                $scope.ownedLibraries[i].user.push({
+                    id: $scope.ownedLibraries[i].editusers[j].id,
+                    username: $scope.ownedLibraries[i].editusers[j].username,
+                    permission: 4
+                })
+            }
+            for (j in $scope.ownedLibraries[i].checkoutusers) {
+                added = false;
+                for (k in $scope.ownedLibraries[i].user) {
+                    if ($scope.ownedLibraries[i].user[k].id==$scope.ownedLibraries[i].checkoutusers[j].id) {
+                        $scope.ownedLibraries[i].user[k].permission += 2;
+                        added = true;
+                    }
+                }
+                if (!added) {
+                    $scope.ownedLibraries[i].user.push({
+                        id: $scope.ownedLibraries[i].checkoutusers[j].id,
+                        username: $scope.ownedLibraries[i].checkoutusers[j].username,
+                        permission: 2
+                    })
+                }
+            }
+            for (j in $scope.ownedLibraries[i].viewusers) {
+                added = false;
+                for (k in $scope.ownedLibraries[i].user) {
+                    if ($scope.ownedLibraries[i].user[k].id==$scope.ownedLibraries[i].viewusers[j].id) {
+                        $scope.ownedLibraries[i].user[k].permission += 1;
+                        added = true;
+                    }
+                }
+                if (!added) {
+                    $scope.ownedLibraries[i].user.push({
+                        id: $scope.ownedLibraries[i].viewusers[j].id,
+                        username: $scope.ownedLibraries[i].viewusers[j].username,
+                        permission: 1
+                    })
+                }
+            }
+        }
+        $http({
+            url: '/libraries/owned',
+            method: 'PUT',
+            data: $scope.ownedLibraries
+        }).then(function(response){
+            $mdToast.showSimple("Successfully saved library")
+            $mdDialog.cancel()
+        }, function(response) {
+            $mdToast.showSimple("Failed to save library")
+        });
     }
     $scope.containsUser = function(arr, user) {
         for (i in arr) {

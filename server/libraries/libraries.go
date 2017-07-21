@@ -79,6 +79,11 @@ type OwnedLibrary struct {
 type UserWithPermission struct {
 	ID int64 `json:"id"`
 	Username string `json:"username"`
+	FirstName string `json:"firstname"`
+	LastName string `json:"lastname"`
+	FullName string `json:"fullname"`
+	Email string `json:"email"`
+	IconURL string `json:"iconurl"`
 	Permission int64 `json:"permission"`
 }
 
@@ -306,7 +311,7 @@ func GetOwnedLibraries(db *sql.DB, session string) ([]OwnedLibrary, error) {
 			logger.Printf("Error: %+v", err)
 			return nil, err
 		}
-		query = "SELECT library_members.id, library_members.usr, permissions.permission FROM libraries JOIN permissions ON libraries.id=permissions.libraryid JOIN library_members ON permissions.userid=library_members.id WHERE libraries.id=? AND permissions.userid != ?"
+		query = "SELECT library_members.id, library_members.usr, library_members.firstname, library_members.lastname, library_members.email, library_members.iconurl, permissions.permission FROM libraries JOIN permissions ON libraries.id=permissions.libraryid JOIN library_members ON permissions.userid=library_members.id WHERE libraries.id=? AND permissions.userid != ?"
 		innerRows, err := db.Query(query, library.ID, userid)
 		if err != nil {
 			logger.Printf("Error: %+v", err)
@@ -314,11 +319,12 @@ func GetOwnedLibraries(db *sql.DB, session string) ([]OwnedLibrary, error) {
 		}
 		for innerRows.Next() {
 			var user UserWithPermission
-			err := innerRows.Scan(&user.ID, &user.Username, &user.Permission)
+			err := innerRows.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Email, &user.IconURL, &user.Permission)
 			if err != nil {
 				logger.Printf("Error: %+v", err)
 				return nil, err
 			}
+			user.FullName = user.FirstName + " " + user.LastName
 			library.Users = append(library.Users, user)
 		}
 		libraries = append(libraries, library)
@@ -350,6 +356,12 @@ func SaveOwnedLibraries(db *sql.DB, ownedLibraries []OwnedLibrary, session strin
 		ownedLibrary.ID, err = res.LastInsertId()
 		query = "DELETE FROM permissions WHERE libraryid=?"
 		_, err = db.Exec(query, ownedLibrary.ID)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return err
+		}
+		query = "DELETE FROM permissions WHERE libraryid=?"
+		_, err = db.Exec(query, oldID)
 		if err != nil {
 			logger.Printf("Error: %+v", err)
 			return err
