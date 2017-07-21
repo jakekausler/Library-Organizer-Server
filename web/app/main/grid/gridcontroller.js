@@ -171,16 +171,15 @@ angular.module('libraryOrganizer')
                 }
                 $scope.libraries = angular.copy(data);
                 $scope.output = angular.copy($scope.libraries);
-                $scope.updateRecieved();
             });
         };
-        $scope.updateLibraries();
         $scope.chooseLibrary = function($ev) {
             $scope.showLibraryChooserDialog($ev, $scope, true)
         }
         $scope.$watch('output', function() {
             $scope.updateRecieved();
         })
+        $scope.updateLibraries();
         $scope.getBookIcon = function(book) {
             if (book.library.owner==$scope.username) {
                 return "web/res/edit.svg";
