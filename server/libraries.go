@@ -11,17 +11,13 @@ import (
 
 //GetLibrariesHandler gets libraries
 func GetLibrariesHandler(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("libraryorganizersession")
-	if err != nil {
-		logger.Printf("%+v", err)
-		http.Redirect(w, r, "/", 301)
+	registered, session := Registered(r)
+	if !registered {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
 		return
 	}
-	if cookie.Value == "" {
-		http.Redirect(w, r, "/", 301)
-		return
-	}
-	d, err := libraries.GetLibraries(db, cookie.Value)
+	d, err := libraries.GetLibraries(db, session)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -39,20 +35,16 @@ func GetLibrariesHandler(w http.ResponseWriter, r *http.Request) {
 
 //GetCasesHandler gets cases
 func GetCasesHandler(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("libraryorganizersession")
-	if err != nil {
-		logger.Printf("%+v", err)
-		http.Redirect(w, r, "/", 301)
-		return
-	}
-	if cookie == nil || cookie.Value == "" {
-		http.Redirect(w, r, "/", 301)
+	registered, session := Registered(r)
+	if !registered {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
 		return
 	}
 	libraryid := mux.Vars(r)["libraryid"]
 	params := r.URL.Query()
 	sortmethod := params.Get("sortmethod")
-	d, err := libraries.GetCases(db, libraryid, sortmethod, cookie.Value)
+	d, err := libraries.GetCases(db, libraryid, sortmethod, session)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -70,7 +62,7 @@ func GetCasesHandler(w http.ResponseWriter, r *http.Request) {
 
 //SaveCasesHandler saves cases
 func SaveCasesHandler(w http.ResponseWriter, r *http.Request) {
-	if !Registered(r) {
+	if ok, _ := Registered(r); !ok {
 		logger.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
@@ -101,7 +93,7 @@ func GetBreaksHandler(w http.ResponseWriter, r *http.Request) {
 
 //AddBreakHandler adds a break
 func AddBreakHandler(w http.ResponseWriter, r *http.Request) {
-	if !Registered(r) {
+	if ok, _ := Registered(r); !ok {
 		logger.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
@@ -137,17 +129,13 @@ func DeleteBreakHandler(w http.ResponseWriter, r *http.Request) {
 
 //GetOwnedLibrariesHandler adds a break
 func GetOwnedLibrariesHandler(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("libraryorganizersession")
-	if err != nil {
-		logger.Printf("%+v", err)
-		http.Redirect(w, r, "/", 301)
+	registered, session := Registered(r)
+	if !registered {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
 		return
 	}
-	if cookie.Value == "" {
-		http.Redirect(w, r, "/", 301)
-		return
-	}
-	d, err := libraries.GetOwnedLibraries(db, cookie.Value)
+	d, err := libraries.GetOwnedLibraries(db, session)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -165,26 +153,22 @@ func GetOwnedLibrariesHandler(w http.ResponseWriter, r *http.Request) {
 
 //SaveOwnedLibrariesHandler saves owned libraries
 func SaveOwnedLibrariesHandler(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("libraryorganizersession")
-	if err != nil {
-		logger.Printf("%+v", err)
-		http.Redirect(w, r, "/", 301)
-		return
-	}
-	if cookie.Value == "" {
-		http.Redirect(w, r, "/", 301)
+	registered, session := Registered(r)
+	if !registered {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
 		return
 	}
 	var ownedLibraries []libraries.OwnedLibrary
 	decoder := json.NewDecoder(r.Body)
-	err = decoder.Decode(&ownedLibraries)
+	err := decoder.Decode(&ownedLibraries)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
 	defer r.Body.Close()
-	err = libraries.SaveOwnedLibraries(db, ownedLibraries, cookie.Value)
+	err = libraries.SaveOwnedLibraries(db, ownedLibraries, session)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)

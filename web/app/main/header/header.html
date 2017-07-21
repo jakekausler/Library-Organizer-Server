@@ -9,7 +9,7 @@
 			<md-button aria-label="Open Settings" ng-click="openSettings()" class="icon settings-icon"><md-tooltip md-delay="500">Open Settings</md-tooltip></md-button>
 			<span class="md-body-1">You are logged in as {{username}}</span>
 			<div id="authentification" style="display: inline-block;">
-				<form action="/logout" method="post">
+				<form action="/users/logout" method="post">
 					<input type="submit" class="md-button" value="Log Out">
 				</form>
 			</div>

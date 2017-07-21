@@ -11,15 +11,13 @@ import (
 
 //GetSettingsHandler gets settings
 func GetSettingsHandler(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("libraryorganizersession")
-	if err != nil {
-		logger.Printf("%+v", err)
-		http.Redirect(w, r, "/", 301)
+	registered, session := Registered(r)
+	if !registered {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
+		return
 	}
-	if cookie.Value == "" {
-		http.Redirect(w, r, "/", 301)
-	}
-	d, err := settings.GetSettings(db, cookie.Value)
+	d, err := settings.GetSettings(db, session)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -37,18 +35,14 @@ func GetSettingsHandler(w http.ResponseWriter, r *http.Request) {
 
 //GetSettingHandler gets a setting
 func GetSettingHandler(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("libraryorganizersession")
-	if err != nil {
-		logger.Printf("%+v", err)
-		http.Redirect(w, r, "/", 301)
-		return
-	}
-	if cookie.Value == "" {
-		http.Redirect(w, r, "/", 301)
+	registered, session := Registered(r)
+	if !registered {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
 		return
 	}
 	name := mux.Vars(r)["setting"]
-	d, err := settings.GetSetting(db, name, cookie.Value)
+	d, err := settings.GetSetting(db, name, session)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -66,24 +60,22 @@ func GetSettingHandler(w http.ResponseWriter, r *http.Request) {
 
 //SaveSettingsHandler updates settings
 func SaveSettingsHandler(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("libraryorganizersession")
-	if err != nil {
-		logger.Printf("%+v", err)
-		http.Redirect(w, r, "/", 301)
-	}
-	if cookie.Value == "" {
-		http.Redirect(w, r, "/", 301)
+	registered, session := Registered(r)
+	if !registered {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
+		return
 	}
 	var s []settings.Setting
 	decoder := json.NewDecoder(r.Body)
-	err = decoder.Decode(&s)
+	err := decoder.Decode(&s)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
 	defer r.Body.Close()
-	err = settings.UpdateSettings(db, s, cookie.Value)
+	err = settings.UpdateSettings(db, s, session)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)

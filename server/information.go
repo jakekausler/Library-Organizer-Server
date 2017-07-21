@@ -10,7 +10,7 @@ import (
 
 //GetStatsHandler gets statistics
 func GetStatsHandler(w http.ResponseWriter, r *http.Request) {
-	if !Registered(r) {
+	if ok, _ := Registered(r); !ok {
 		logger.Printf("Unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
@@ -34,7 +34,7 @@ func GetStatsHandler(w http.ResponseWriter, r *http.Request) {
 
 //GetDimensionsHandler gets dimensions
 func GetDimensionsHandler(w http.ResponseWriter, r *http.Request) {
-	if !Registered(r) {
+	if ok, _ := Registered(r); !ok {
 		logger.Printf("Unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
@@ -59,7 +59,7 @@ func GetDimensionsHandler(w http.ResponseWriter, r *http.Request) {
 
 //GetPublishersHandler gets publishers
 func GetPublishersHandler(w http.ResponseWriter, r *http.Request) {
-	if !Registered(r) {
+	if ok, _ := Registered(r); !ok {
 		logger.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
@@ -82,7 +82,7 @@ func GetPublishersHandler(w http.ResponseWriter, r *http.Request) {
 
 //GetCitiesHandler gets cities
 func GetCitiesHandler(w http.ResponseWriter, r *http.Request) {
-	if !Registered(r) {
+	if ok, _ := Registered(r); !ok {
 		logger.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
@@ -105,7 +105,7 @@ func GetCitiesHandler(w http.ResponseWriter, r *http.Request) {
 
 //GetStatesHandler gets states
 func GetStatesHandler(w http.ResponseWriter, r *http.Request) {
-	if !Registered(r) {
+	if ok, _ := Registered(r); !ok {
 		logger.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
@@ -128,7 +128,7 @@ func GetStatesHandler(w http.ResponseWriter, r *http.Request) {
 
 //GetCountriesHandler gets countries
 func GetCountriesHandler(w http.ResponseWriter, r *http.Request) {
-	if !Registered(r) {
+	if ok, _ := Registered(r); !ok {
 		logger.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
@@ -151,7 +151,7 @@ func GetCountriesHandler(w http.ResponseWriter, r *http.Request) {
 
 //GetSeriesHandler gets series
 func GetSeriesHandler(w http.ResponseWriter, r *http.Request) {
-	if !Registered(r) {
+	if ok, _ := Registered(r); !ok {
 		logger.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
@@ -174,7 +174,7 @@ func GetSeriesHandler(w http.ResponseWriter, r *http.Request) {
 
 //GetFormatsHandler gets formats
 func GetFormatsHandler(w http.ResponseWriter, r *http.Request) {
-	if !Registered(r) {
+	if ok, _ := Registered(r); !ok {
 		logger.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
@@ -197,7 +197,7 @@ func GetFormatsHandler(w http.ResponseWriter, r *http.Request) {
 
 //GetLanguagesHandler gets languages
 func GetLanguagesHandler(w http.ResponseWriter, r *http.Request) {
-	if !Registered(r) {
+	if ok, _ := Registered(r); !ok {
 		logger.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
@@ -220,7 +220,7 @@ func GetLanguagesHandler(w http.ResponseWriter, r *http.Request) {
 
 //GetRolesHandler gets roles
 func GetRolesHandler(w http.ResponseWriter, r *http.Request) {
-	if !Registered(r) {
+	if ok, _ := Registered(r); !ok {
 		logger.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
@@ -243,7 +243,7 @@ func GetRolesHandler(w http.ResponseWriter, r *http.Request) {
 
 //GetDeweysHandler gets deweys
 func GetDeweysHandler(w http.ResponseWriter, r *http.Request) {
-	if !Registered(r) {
+	if ok, _ := Registered(r); !ok {
 		logger.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return

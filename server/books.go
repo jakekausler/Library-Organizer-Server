@@ -16,14 +16,10 @@ import (
 
 //GetBooksHandler gets books from a filter query
 func GetBooksHandler(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("libraryorganizersession")
-	if err != nil {
-		logger.Printf("%+v", err)
-		http.Redirect(w, r, "/", 301)
-		return
-	}
-	if cookie.Value == "" {
-		http.Redirect(w, r, "/", 301)
+	registered, session := Registered(r)
+	if !registered {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
 		return
 	}
 	params := r.URL.Query()
@@ -40,7 +36,7 @@ func GetBooksHandler(w http.ResponseWriter, r *http.Request) {
 	fromDewey := params.Get("fromdewey")
 	toDewey := params.Get("todewey")
 	libraryids := params.Get("libraryids")
-	bs, numberOfBooks, err := books.GetBooks(db, sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, libraryids, cookie.Value)
+	bs, numberOfBooks, err := books.GetBooks(db, sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, libraryids, session)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -61,9 +57,9 @@ func GetBooksHandler(w http.ResponseWriter, r *http.Request) {
 
 //AddBookHandler saves a book
 func AddBookHandler(w http.ResponseWriter, r *http.Request) {
-	if !Registered(r) {
+	if ok, _ := Registered(r); !ok {
 		logger.Printf("unauthorized")
-		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
 		return
 	}
 	var b books.Book
@@ -86,9 +82,9 @@ func AddBookHandler(w http.ResponseWriter, r *http.Request) {
 
 //SaveBookHandler saves a book
 func SaveBookHandler(w http.ResponseWriter, r *http.Request) {
-	if !Registered(r) {
+	if ok, _ := Registered(r); !ok {
 		logger.Printf("unauthorized")
-		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
 		return
 	}
 	var b books.Book
@@ -111,7 +107,7 @@ func SaveBookHandler(w http.ResponseWriter, r *http.Request) {
 
 //DeleteBookHandler deletes a book
 func DeleteBookHandler(w http.ResponseWriter, r *http.Request) {
-	if !Registered(r) {
+	if ok, _ := Registered(r); !ok {
 		logger.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
@@ -137,26 +133,22 @@ func DeleteBookHandler(w http.ResponseWriter, r *http.Request) {
 
 //CheckoutBookHandler checks out a book
 func CheckoutBookHandler(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("libraryorganizersession")
-	if err != nil {
-		logger.Printf("%+v", err)
-		http.Redirect(w, r, "/", 301)
-		return
-	}
-	if cookie.Value == "" {
-		http.Redirect(w, r, "/", 301)
+	registered, session := Registered(r)
+	if !registered {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
 		return
 	}
 	var i int
 	decoder := json.NewDecoder(r.Body)
-	err = decoder.Decode(&i)
+	err := decoder.Decode(&i)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
 	defer r.Body.Close()
-	err = books.CheckoutBook(db, cookie.Value, i)
+	err = books.CheckoutBook(db, session, i)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -167,7 +159,7 @@ func CheckoutBookHandler(w http.ResponseWriter, r *http.Request) {
 
 //CheckinBookHandler checks out a book
 func CheckinBookHandler(w http.ResponseWriter, r *http.Request) {
-	if !Registered(r) {
+	if ok, _ := Registered(r); !ok {
 		logger.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
@@ -192,7 +184,7 @@ func CheckinBookHandler(w http.ResponseWriter, r *http.Request) {
 
 //ImportBooksHandler imports books
 func ImportBooksHandler(w http.ResponseWriter, r *http.Request) {
-	if !Registered(r) {
+	if ok, _ := Registered(r); !ok {
 		logger.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
@@ -265,7 +257,7 @@ func ImportBooksHandler(w http.ResponseWriter, r *http.Request) {
 
 //ExportBooksHandler exports books
 func ExportBooksHandler(w http.ResponseWriter, r *http.Request) {
-	if !Registered(r) {
+	if ok, _ := Registered(r); !ok {
 		logger.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
@@ -292,7 +284,7 @@ func ExportBooksHandler(w http.ResponseWriter, r *http.Request) {
 
 //ExportAuthorsHandler exports contributors
 func ExportAuthorsHandler(w http.ResponseWriter, r *http.Request) {
-	if !Registered(r) {
+	if ok, _ := Registered(r); !ok {
 		logger.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return

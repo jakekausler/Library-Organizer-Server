@@ -9,11 +9,14 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/handlers"
+	"github.com/gorilla/sessions"
+	"github.com/gorilla/securecookie"
 )
 
 var (
 	db     *sql.DB
 	logger = log.New(os.Stderr, "log: ", log.LstdFlags|log.Lshortfile)
+	store = sessions.NewCookieStore(securecookie.GenerateRandomKey(50))
 )
 
 //RunServer runs the library server
@@ -39,7 +42,9 @@ func RunServer(username, password, database string) {
 		panic(err)
 	}
 	r := mux.NewRouter()
-	r.HandleFunc("/", GetHomePageHandler)
+	r.HandleFunc("/", RouteByAuthenticate)
+	r.HandleFunc("/home", GetHomePageHandler)
+	r.HandleFunc("/unregistered", GetUnregisteredPageHandler)
 	r.HandleFunc("/books", GetBooksHandler).Methods("GET")
 	r.HandleFunc("/books", AddBookHandler).Methods("POST")
 	r.HandleFunc("/books", SaveBookHandler).Methods("PUT")
@@ -73,9 +78,9 @@ func RunServer(username, password, database string) {
 	r.HandleFunc("/settings", SaveSettingsHandler).Methods("PUT")
 	r.HandleFunc("/settings/{setting}", GetSettingHandler).Methods("GET")
 	r.HandleFunc("/users", GetUsersHandler).Methods("GET")
-	r.HandleFunc("/users", LoginHandler).Methods("PUT")
+	r.HandleFunc("/users/login", LoginHandler).Methods("POST")
 	r.HandleFunc("/users", RegisterHandler).Methods("POST")
-	r.HandleFunc("/users", LogoutHandler).Methods("DELETE")
+	r.HandleFunc("/users/logout", LogoutHandler).Methods("POST")
 	r.HandleFunc("/users/reset", ResetPasswordHandler).Methods("PUT")
 	r.HandleFunc("/users/reset/{token}", FinishResetPasswordHandler).Methods("GET")
 	r.HandleFunc("/users/username", GetUsernameHandler).Methods("GET")
@@ -87,11 +92,21 @@ func RunServer(username, password, database string) {
 	logger.Printf("Closing")
 }
 
+//RouteByAuthenticate determines which page to load
+func RouteByAuthenticate(w http.ResponseWriter, r *http.Request) {
+	if ok, _ := Registered(r); !ok {
+		http.Redirect(w, r, "/unregistered", 301)
+	} else {
+		http.Redirect(w, r, "/home", 301)
+	}
+}
+
 //GetHomePageHandler gets the home page
 func GetHomePageHandler(w http.ResponseWriter, r *http.Request) {
-	if Registered(r) {
-		http.ServeFile(w, r, "../web/app/main/index.html")
-	} else {
-		http.ServeFile(w, r, "../web/app/unregistered/index.html")
-	}
+	http.ServeFile(w, r, "../web/app/main/index.html")
+}
+
+//GetUnregisteredPageHandler gets the home page
+func GetUnregisteredPageHandler(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "../web/app/unregistered/unregistered.html")
 }

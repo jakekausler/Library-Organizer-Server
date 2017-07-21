@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
 
 	"./users"
+	"github.com/gorilla/sessions"
 )
 
 //LoginHandler logs in a user
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "session")
 	if r.Method == "GET" {
 		http.Redirect(w, r, "/", 301)
 		return
@@ -19,14 +20,18 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	key, err := users.LoginUser(db, r.Form["username"][0], r.Form["password"][0])
 	if err != nil {
 		logger.Printf("%+v", err)
+		http.Redirect(w, r, "/", 301)
+		return
 	}
-	http.SetCookie(w, &http.Cookie{Name: "libraryorganizersession", Value: key, Expires: time.Now().Add(14*24*time.Hour)})
+	session.Values["libraryorganizersession"] = key
+	sessions.Save(r, w)
 	http.Redirect(w, r, "/", 301)
 	return
 }
 
 //RegisterHandler registers a user
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "session")
 	if r.Method == "GET" {
 		http.Redirect(w, r, "/", 301)
 		return
@@ -36,34 +41,29 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logger.Printf("%+v", err)
 	}
-	http.SetCookie(w, &http.Cookie{Name: "libraryorganizersession", Value: key})
+	session.Values["libraryorganizersession"] = key
+	sessions.Save(r, w)
 	http.Redirect(w, r, "/", 301)
 	return
 }
 
 //LogoutHandler logs out a user
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "session")
 	if r.Method == "GET" {
 		http.Redirect(w, r, "/", 301)
 		return
 	}
-	cookie, err := r.Cookie("libraryorganizersession")
-	if err == http.ErrNoCookie {
-		http.Redirect(w, r, "/", 301)
-		return
-	} else if err != nil {
-		logger.Printf("%+v", err)
+	registered, key := Registered(r)
+	if !registered {
 		http.Redirect(w, r, "/", 301)
 		return
 	}
-	if cookie.Value == "" {
-		http.Redirect(w, r, "/", 301)
-		return
-	}
-	err = users.LogoutSession(db, cookie.Value)
+	err := users.LogoutSession(db, key)
 	if err != nil {
 		logger.Printf("%+v", err)
 	}
+	session.Values["libraryorganizersession"] = ""
 	http.Redirect(w, r, "/", 301)
 	return
 }
@@ -89,41 +89,33 @@ func FinishResetPasswordHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 //Registered determines whether a user is registered
-func Registered(r *http.Request) bool {
-	cookie, err := r.Cookie("libraryorganizersession")
-	if err == http.ErrNoCookie {
-		return false
-	} else if err != nil {
-		logger.Printf("%+v", err)
-		return false
+func Registered(r *http.Request) (bool, string) {
+	session, _ := store.Get(r, "session")
+	sessionkey := session.Values["libraryorganizersession"]
+	if sessionkey == nil {
+		return false, ""
 	}
-	if cookie.Value == "" {
-		return false
+	key := sessionkey.(string)
+	if key == "" {
+		return false, ""
 	}
-	registered, err := users.IsRegistered(db, cookie.Value)
+	registered, err := users.IsRegistered(db, key)
 	if err != nil {
 		logger.Printf("%+v", err)
-		return false
+		return false, ""
 	}
-	return registered
+	return registered, key
 }
 
 //GetUsernameHandler gets a username
 func GetUsernameHandler(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("libraryorganizersession")
-	if err == http.ErrNoCookie {
-		http.Redirect(w, r, "/", 301)
-		return
-	} else if err != nil {
-		logger.Printf("%+v", err)
-		http.Redirect(w, r, "/", 301)
+	registered, session := Registered(r)
+	if !registered {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
 		return
 	}
-	if cookie.Value == "" {
-		http.Redirect(w, r, "/", 301)
-		return
-	}
-	d, err := users.GetUsername(db, cookie.Value)
+	d, err := users.GetUsername(db, session)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -141,17 +133,13 @@ func GetUsernameHandler(w http.ResponseWriter, r *http.Request) {
 
 //GetUsersHandler gets users
 func GetUsersHandler(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("libraryorganizersession")
-	if err != nil {
-		logger.Printf("%+v", err)
-		http.Redirect(w, r, "/", 301)
+	registered, session := Registered(r)
+	if !registered {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
 		return
 	}
-	if cookie.Value == "" {
-		http.Redirect(w, r, "/", 301)
-		return
-	}
-	d, err := users.GetUsers(db, cookie.Value)
+	d, err := users.GetUsers(db, session)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
