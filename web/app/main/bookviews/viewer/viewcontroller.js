@@ -6,9 +6,7 @@ angular.module('libraryOrganizer')
 	$scope.username = username;
 	$scope.canEdit = (book.library.permissions&4)==4;
 	$scope.canCheckout = (book.library.permissions&2)==2 && book.loanee.id == -1;
-	console.log($scope.username);
-	console.log(book.loanee.username)
-	$scope.canCheckin = (book.library.permissions&4)==4 || book.loanee.username == $scope.username;
+	$scope.canCheckin = book.loanee.id != -1 && ((book.library.permissions&4)==4 || book.loanee.username == $scope.username);
 	$scope.checkout = function(ev) {
 	    var d = $mdDialog.confirm()
 	    	.title("Are you sure you would like to checkout this book?")
@@ -94,4 +92,10 @@ angular.module('libraryOrganizer')
 		$scope.editionpublished = '';
 	}
 	$scope.getContributors();
+	$scope.copy = function(ev) {
+		var book = angular.copy($scope.book);
+		book.loanee.id = -1;
+		book.library.id = null;
+		$scope.vm.showEditDialog(ev, book, $scope.vm, $scope.viewType);
+	}
 })

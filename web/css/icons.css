@@ -68,6 +68,9 @@
 .search-icon:before{
 	content:'\f002';
 }
+.copy-icon:before{
+	content:'\f0c5';
+}
 
 figcaption {
 	margin: auto;
