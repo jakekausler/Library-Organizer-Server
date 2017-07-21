@@ -388,6 +388,7 @@ func downloadImage(url, fileLocation string) error {
 //GetBooks gets all books
 //todo include authors in filter
 func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, libraryids, session string) ([]Book, int64, error) {
+	text = strings.Replace(text, "'", "\\'", -1)
 	if libraryids == "" {
 		return nil, 0, nil
 	}
