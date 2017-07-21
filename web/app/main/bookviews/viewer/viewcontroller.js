@@ -95,7 +95,8 @@ angular.module('libraryOrganizer')
 	$scope.copy = function(ev) {
 		var book = angular.copy($scope.book);
 		book.loanee.id = -1;
-		book.library.id = null;
+		book.library.id = '';
+		book.bookid = '';
 		$scope.vm.showEditDialog(ev, book, $scope.vm, $scope.viewType);
 	}
 })

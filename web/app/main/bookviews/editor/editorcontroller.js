@@ -1,7 +1,7 @@
 angular.module('libraryOrganizer')
 .controller('editorController', function($scope, $http, $mdDialog, book, $vm, viewType, username) {
 	$scope.book = angular.copy(book);
-	if (!$scope.book.bookid) {
+	if (!$scope.book.bookid && !$scope.book.title) {
 		$vm.getSettingByName('Title', function(value) {
 			$scope.book.title = value;
 		});
