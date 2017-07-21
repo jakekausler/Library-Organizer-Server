@@ -1,4 +1,7 @@
 <md-dialog>
 	<md-toolbar class="md-heading-1" layout-padding="5">Select Library</md-toolbar>
-	<multiselect-searchtree data-input-model="vm.libraries" data-output-model="vm.output" multi-select="multiselect" use-callback="true" data-callback="true" data-select-only-leafs="true" filter-type="hidden"></multiselect-searchtree>
+	<md-content layout-padding="5">
+		<span class="md-body-1">These are the libraries that you can view, checkout from, or edit, sorted by their owner.</span>
+		<multiselect-searchtree data-input-model="vm.libraries" data-output-model="vm.output" multi-select="multiselect" use-callback="true" data-callback="true" data-select-only-leafs="true" filter-type="hidden"></multiselect-searchtree>
+	</md-content>
 </md-dialog>
