@@ -186,8 +186,7 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
                     $vm: vm,
                     viewType: viewType,
                     username: $scope.username
-                },
-                multiple: true
+                }
             })
         }
 })

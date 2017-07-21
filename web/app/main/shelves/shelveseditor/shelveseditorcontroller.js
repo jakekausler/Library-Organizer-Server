@@ -1,5 +1,5 @@
 angular.module('libraryOrganizer')
-.controller('shelveseditorController', function ($scope, $mdDialog, $http, shelves, vm, libraryid) {
+.controller('shelveseditorController', function ($scope, $mdDialog, $mdToast, $http, shelves, vm, libraryid) {
 	$scope.vm = vm;
 	$scope.libraryid = libraryid;
 	$scope.shelves = angular.copy(shelves);
@@ -63,6 +63,7 @@ angular.module('libraryOrganizer')
 		}).then(function(response) {
 			$scope.vm.updateCases();
 			$mdDialog.cancel();
+            $mdToast.showSimple("Successfully saved shelves")
 		});
 	};
 	$scope.moveShelfUp = function(cas) {

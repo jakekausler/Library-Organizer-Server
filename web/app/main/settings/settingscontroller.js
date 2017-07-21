@@ -1,5 +1,5 @@
 angular.module('libraryOrganizer')
-.controller('settingsController', function($scope, $mdDialog, $http, vm) {
+.controller('settingsController', function($scope, $mdDialog, $mdToast, $http, vm) {
     $scope.settings = [];
 	$scope.pushSettings = function () {
 		var settings = [];
@@ -19,7 +19,7 @@ angular.module('libraryOrganizer')
 			url: '/settings',
 			method: 'PUT',
 			data: JSON.stringify(settings)
-		});
+		})
 	}
     $scope.updateSettings = function() {
         $scope.settings = [];
@@ -217,7 +217,9 @@ angular.module('libraryOrganizer')
             url: '/libraries/owned',
             method: 'PUT',
             data: $scope.ownedLibraries
-        }).then(function(response){});
+        }).then(function(response){
+            $mdToast.showSimple("Successfully saved setting")
+        });
     }
     $scope.containsUser = function(arr, user) {
         for (i in arr) {

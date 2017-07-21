@@ -1,5 +1,5 @@
 angular.module('libraryOrganizer')
-.controller('editorController', function($scope, $http, $mdDialog, book, $vm, viewType, username) {
+.controller('editorController', function($scope, $http, $mdDialog, $mdToast, book, $vm, viewType, username) {
 	$scope.book = angular.copy(book);
 	if (!$scope.book.bookid && !$scope.book.title) {
 		$vm.getSettingByName('Title', function(value) {
@@ -249,7 +249,18 @@ angular.module('libraryOrganizer')
 			} else if (viewType=='scanadd') {
 				$vm.$parent.$parent.updateRecieved();
 			}
+			if (method == "PUT") {
+				$mdToast.showSimple("Successfully added book")
+			} else {
+				$mdToast.showSimple("Successfully saved book")
+			}
 			$mdDialog.cancel();
+		}, function(response) {
+			if (method == "PUT") {
+				$mdToast.showSimple("Failed to add book")
+			} else {
+				$mdToast.showSimple("Failed to save book")
+			}
 		});
 	}
 	$scope.remove = function(book) {
@@ -272,9 +283,12 @@ angular.module('libraryOrganizer')
 				} else if (viewType=='grid') {
 					$vm.$parent.$parent.updateRecieved();
 				}
+				$mdToast.showSimple("Successfully removed book")
 				$mdDialog.cancel();
+			}, function(response) {
+				$mdToast.showSimple("Failed to remove book")
 			})
-		}, function() {});
+		});
 	}
 	$scope.cancel = function() {
 		$mdDialog.cancel();

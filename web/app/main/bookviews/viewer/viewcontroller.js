@@ -1,5 +1,5 @@
 angular.module('libraryOrganizer')
-.controller('viewController', function($scope, $mdDialog, $http, book, $vm, viewType, username) {
+.controller('viewController', function($scope, $mdDialog, $mdToast, $http, book, $vm, viewType, username) {
 	$scope.book = book;
 	$scope.vm = $vm;
 	$scope.viewType = viewType;
@@ -30,9 +30,11 @@ angular.module('libraryOrganizer')
 				} else if ($scope.viewType=='scanadd') {
 					$scope.vm.$parent.$parent.updateRecieved();
 				}
+				$mdToast.showSimple("Successfully checked out book")
 	    		$scope.cancel()
 	    	})
 	    }, function() {
+			$mdToast.showSimple("Failed to check out book")
 	    	$scope.cancel()
 	    });
 	}
@@ -59,9 +61,11 @@ angular.module('libraryOrganizer')
 				} else if ($scope.viewType=='scanadd') {
 					$scope.vm.$parent.$parent.updateRecieved();
 				}
+				$mdToast.showSimple("Returned book")
 	    		$scope.cancel()
 	    	})
 	    }, function() {
+			$mdToast.showSimple("Failed to return book")
 	    	$scope.cancel()
 	    });
 	}

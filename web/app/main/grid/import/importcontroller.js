@@ -11,7 +11,13 @@ angular.module('libraryOrganizer')
 			method: 'POST',
 			data: formData,
 			contentType: false,
-			processData: false
+			processData: false,
+			success: function(response) {
+				$mdToast.showSimple("Successfully imported books")
+			},
+			error: function(xhr, status, error) {
+				$mdToast.showSimple("Failed to import books")
+			}
 		});
 	};
 });
