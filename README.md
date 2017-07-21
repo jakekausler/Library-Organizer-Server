@@ -1,7 +1,7 @@
 # Library-Organizer-2.0
 
 # REST API
-Note that this is not accurate until gorilla is set up
+
 * Books `/books`
   * Get Books `GET /books`
   * Save Book `PUT /books`
@@ -12,6 +12,7 @@ Note that this is not accurate until gorilla is set up
   * Export Books `GET /books/books`
   * Export contributors `GET /books/contributors`
   * Import Books `POST /books/books`
+
 * Information `/information`
   * Get Statistics `GET /information/statistics`
   * Get Dimensions `GET /information/dimensions`
@@ -24,6 +25,7 @@ Note that this is not accurate until gorilla is set up
   * Get Series `GET /information/series`
   * Get Languages `GET /information/languages`
   * Get Deweys `GET /information/deweys`
+
 * Libraries `/libraries`
   * Get Libraries `GET /libaries`
   * Get Owned Libraries `GET /libraries/owned`
@@ -34,10 +36,12 @@ Note that this is not accurate until gorilla is set up
   * Add Break `POST /libraries/:libraryid/breaks`
   * Save Break `PUT /libraries/:libraryid/breaks`
   * Delete Break `DELETE /libraries/:libraryid/breaks`
+
 * Settings `/settings`
   * Get Settings `GET /settings`
   * Save Settings `PUT /settings`
   * Get Setting `GET /settings/:setting`
+
 * Users `/users`
   * Get Users `GET /users`
   * Login `PUT /users`
