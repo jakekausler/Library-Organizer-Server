@@ -39,6 +39,7 @@
 			</div>
 		</md-toolbar>
 	</div>
+	<md-content layout-padding="5">These statistics represent the owned books in the selected libraries.</md-content>
 	<div>
 		<div id="Read-Reference-Reading-ToRead-Shipping-OnLoan" ng-hide="statView!='general'" flex>
 			<fusioncharts ng-hide="statSubView!='bycounts'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='information/statistics?type=generalbycounts&libraryids={{stringLibraryIds()}}' ></fusioncharts>
@@ -174,7 +175,7 @@
 			<div ng-hide="statSubView!='bypages'" id="dimensionspages">
 				<md-list>
 					<md-list-item class="md-list-item-text" >
-						Total: {{(parseFloat(dimensions.totalpages)/1000).toFixed(2)}} pages
+						Total: {{(parseFloat(dimensions.totalpages)/1000).toFixed(1)+"K"}} pages
 					</md-list-item>
 				</md-list>
 				<md-list>

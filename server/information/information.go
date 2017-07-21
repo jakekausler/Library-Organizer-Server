@@ -40,6 +40,7 @@ type StatChartInfo struct {
 	FormatNumberScale string `json:"formatNumberScale"`
 	NumberSuffix      string `json:"numberSuffix"`
 	Decimals          string `json:"decimals"`
+	LabelDisplay          string `json:"labelDisplay"`
 }
 
 //StatData is chart data
@@ -82,6 +83,7 @@ type Dewey struct {
 //GetStats gets statistics by type
 func GetStats(db *sql.DB, t, libraryids string) (StatChart, error) {
 	var chart StatChart
+	chart.Chart.LabelDisplay = "rotate"
 	var data []StatData
 	if libraryids == "" {
 		return chart, nil
