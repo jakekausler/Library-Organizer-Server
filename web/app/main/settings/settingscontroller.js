@@ -97,7 +97,7 @@ angular.module('libraryOrganizer')
     $scope.users = [];
     $scope.updateUsers = function() {
         $http({
-            url: '/getusers',
+            url: '/users',
             method: 'GET'
         }).then(function(response) {
             $scope.users = response.data;

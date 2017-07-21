@@ -1,17 +1,15 @@
 <md-dialog aria-label="Settings" label="Settings"  flex>
 	<div flex style="position: relative; height: 60vh">
 		<md-tabs md-selected="selectedTab" style="position: absolute;top: 0;bottom: 0;left: 0;right: 0" md-stretch-tabs="always">
-			<md-tab label="Libraries">
-				<md-content>
-				<p layout-padding="5">
+			<md-tab label="Libraries" flex>
+				<p layout-padding="5" style="position: relative;height:10%">
 					You can change the names of your libraries, and give users permission to edit, checkout, or view the libraries. If a user can edit or checkout from a library, they can automatically view it.
 				</p>
-				</md-content>
-				<div flex style="position: relative; height: 55vh">
+				<div flex style="position: relative;height:85%">
 					<form name="librariesform">
-					<md-tabs md-selected="selectedLibrary" style="position: absolute;top: 0;bottom: 0;left: 0;right: 0" flex>
+					<md-tabs md-selected="selectedLibrary" flex style="position: absolute;top: 0;bottom: 0;left: 0;right: 0">
 						<md-tab ng-repeat="library in ownedLibraries" label="{{library.name}}">
-						<md-content layout-padding="5">
+						<md-content layout-padding="5" flex style="height: 100%">
 							<md-input-container>
 								<label>Name</label>
 								<input type="text" ng-model="library.name" required />
@@ -45,8 +43,7 @@
 				</div>
 			</md-tab>
 			<md-tab ng-repeat="group in settings" label="{{group.group}}">
-				<md-content>
-				<div flex style="height: 100%">
+				<md-content flex style="height: 100%">
 					<md-list>
 						<md-list-item style="float:left" ng-repeat="setting in group.settings">
 							<md-input-container style="min-width: 200px" ng-hide="setting.valuetype != 'string'">
@@ -87,7 +84,6 @@
 							</md-input-container>
 						</md-list-item>
 					</md-list>
-				</div>
 				</md-content>
 			</md-tab>
 		</md-tabs>
