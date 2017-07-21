@@ -16,26 +16,11 @@
 							</md-input-container>
 							<md-button ng-disabled="ownedLibraries.length==1" class="icon remove-icon" ng-click="removeLibrary(library.id)"><md-tooltip md-delay="500">Remove Library</md-tooltip></md-button>
 							<h1 class="md-title">Users who can edit</h1>
-							<md-select ng-model="library.toAddEdit" ng-change="addToEdit(library)">
-								<md-option ng-repeat="user in $parent.users" ng-value="user">{{user.username}}</md-option>
-							</md-select>
-							<md-card ng-hide="library.editusers.length==0" style="display: inline-block">
-								<div style="display: inline-block" ng-repeat="user in library.editusers">{{user.username}}<md-button class="icon remove-icon" ng-click="removeUserFromEdit(user.id, library)"><md-tooltip md-delay="500">Remove</md-tooltip></md-button></div>
-							</md-card>
+							<md-contact-chips md-on-add="addToEdit()" style="min-width: 400px" ng-model="library.editusers" md-contacts="$parent.queryUsers($query)" md-contact-name="fullname" md-contact-image="iconurl" md-contact-email="email" md-require-match="true" md-highlight-flags="i" filter-selected="true" placeholder="Add User"></md-contact-chips>
 							<h1 class="md-title">Users who can checkout</h1>
-							<md-select ng-model="library.toAddCheckout" ng-change="addToCheckout(library)">
-								<md-option ng-repeat="user in $parent.users" ng-value="user">{{user.username}}</md-option>
-							</md-select>
-							<md-card ng-hide="library.checkoutusers.length==0" style="display: inline-block">
-								<div style="display: inline-block" ng-repeat="user in library.checkoutusers">{{user.username}}<md-button class="icon remove-icon" ng-click="removeUserFromCheckout(user.id, library)"><md-tooltip md-delay="500">Remove</md-tooltip></md-button></div>
-							</md-card>
+							<md-contact-chips style="min-width: 400px" ng-model="library.checkoutusers" md-contacts="$parent.queryUsers($query)" md-contact-name="fullname" md-contact-image="iconurl" md-contact-email="email" md-require-match="true" md-highlight-flags="i" filter-selected="true" placeholder="Add User"></md-contact-chips>
 							<h1 class="md-title">Users who can view</h1>
-							<md-select ng-model="library.toAddView" ng-change="addToView(library)">
-								<md-option ng-repeat="user in $parent.users" ng-value="user">{{user.username}}</md-option>
-							</md-select>
-							<md-card ng-hide="library.viewusers.length==0" style="display: inline-block">
-								<div style="display: inline-block" ng-repeat="user in library.viewusers">{{user.username}}<md-button class="icon remove-icon" ng-click="removeUserFromView(user.id, library)"><md-tooltip md-delay="500">Remove</md-tooltip></md-button></div>
-							</md-card>
+							<md-contact-chips style="min-width: 400px" ng-model="library.viewusers" md-contacts="$parent.queryUsers($query)" md-contact-name="fullname" md-contact-image="iconurl" md-contact-email="email" md-require-match="true" md-highlight-flags="i" filter-selected="true" placeholder="Add User"></md-contact-chips>
 						</md-content>
 						</md-tab>
 					</md-tabs>

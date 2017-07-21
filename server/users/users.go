@@ -28,7 +28,9 @@ type User struct {
 	Username string `json:"username"`
 	FirstName string `json:"first"`
 	LastName string `json:"last"`
+	FullName string `json:"fullname"`
 	Email string `json:"email"`
+	IconURL string `json:"iconurl"`
 }
 
 //ResetPassword sends a link to reset a password
@@ -178,7 +180,7 @@ func GetUsers(db *sql.DB, session string) ([]User, error) {
 		return nil, err
 	}
 	var users []User
-	query := "SELECT id, usr FROM library_members WHERE id != ?"
+	query := "SELECT id, usr, firstname, lastname, email, iconurl FROM library_members WHERE id != ?"
 	rows, err := db.Query(query, userid)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
@@ -186,11 +188,12 @@ func GetUsers(db *sql.DB, session string) ([]User, error) {
 	}
 	for rows.Next() {
 		var user User
-		err = rows.Scan(&user.ID, &user.Username)
+		err = rows.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Email, &user.IconURL)
 		if err != nil {
 			logger.Printf("Error: %+v", err)
 			return nil, err
 		}
+		user.FullName = user.FirstName + " " + user.LastName
 		users = append(users, user)
 	}
 	return users, nil
