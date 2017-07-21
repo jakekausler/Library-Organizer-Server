@@ -33,7 +33,7 @@ angular.module('libraryOrganizer')
             "bookid": "",
             "title": result.volumeInfo.title ? result.volumeInfo.title : '',
             "subtitle": result.volumeInfo.subtitle ? result.volumeInfo.subtitle : '',
-            "originallypublished": result.volumeInfo.publishedDate ? result.volumeInfo.publishedDate : '',
+            "originallypublished": result.volumeInfo.publishedDate ? result.volumeInfo.publishedDate.substring(0,4) : '',
             "publisher": {
                 "id": "",
                 "publisher": result.volumeInfo.publisher ? result.volumeInfo.publisher : '',
@@ -65,7 +65,7 @@ angular.module('libraryOrganizer')
             "spinecolor": "",
             "cheapestnew": 0,
             "cheapestused": 0,
-            "editionpublished": result.volumeInfo.publishedDate ? result.volumeInfo.publishedDate : '',
+            "editionpublished": result.volumeInfo.publishedDate ? result.volumeInfo.publishedDate.substring(0,4) : '',
             "contributors": $scope.getAuthors(result.volumeInfo.authors),
             "library": {}
         }

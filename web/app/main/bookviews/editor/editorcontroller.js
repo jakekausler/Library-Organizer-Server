@@ -128,7 +128,7 @@ angular.module('libraryOrganizer')
 			$scope.publishers = response.data;
 		});
 	}
-	$scope.updatePublishers();
+    $scope.updatePublishers();
 	$scope.updateCities = function() {
 		$http({
 			url: '/information/cities',
@@ -137,7 +137,7 @@ angular.module('libraryOrganizer')
 			$scope.cities = response.data;
 		});
 	}
-	$scope.updateCities();
+    $scope.updateCities();
 	$scope.updateStates = function() {
 		$http({
 			url: '/information/states',
@@ -146,7 +146,7 @@ angular.module('libraryOrganizer')
 			$scope.states = response.data;
 		});
 	}
-	$scope.updateStates();
+    $scope.updateStates();
 	$scope.updateCountries = function() {
 		$http({
 			url: '/information/countries',
@@ -155,7 +155,7 @@ angular.module('libraryOrganizer')
 			$scope.countries = response.data;
 		});
 	}
-	$scope.updateCountries();
+    $scope.updateCountries();
 	$scope.updateSeries = function() {
 		$http({
 			url: '/information/series',
@@ -164,7 +164,7 @@ angular.module('libraryOrganizer')
 			$scope.series = response.data;
 		});
 	}
-	$scope.updateSeries();
+    $scope.updateSeries();
 	$scope.updateFormats = function() {
 		$http({
 			url: '/information/formats',
@@ -173,7 +173,7 @@ angular.module('libraryOrganizer')
 			$scope.formats = response.data;
 		});
 	}
-	$scope.updateFormats();
+    $scope.updateFormats();
 	$scope.updateLanguages = function() {
 		$http({
 			url: '/information/languages',
@@ -182,7 +182,7 @@ angular.module('libraryOrganizer')
 			$scope.languages = response.data;
 		});
 	}
-	$scope.updateLanguages();
+    $scope.updateLanguages();
 	$scope.updateRoles = function() {
 		$http({
 			url: '/information/roles',
@@ -191,7 +191,7 @@ angular.module('libraryOrganizer')
 			$scope.roles = response.data;
 		});
 	}
-	$scope.updateRoles();
+    $scope.updateRoles();
 	$scope.updateDeweys = function() {
 		$http({
 			url: '/information/deweys',
@@ -203,7 +203,7 @@ angular.module('libraryOrganizer')
 			}
 		});
 	}
-	$scope.updateDeweys();
+    $scope.updateDeweys();
 	$scope.newContributor = {
 		role: 'Role',
 		name: {
@@ -321,11 +321,11 @@ angular.module('libraryOrganizer')
 	$scope.log = function(item) {
 		console.log(item)
 	}
-	$scope.updateLibraries();
 	$scope.getGenre = function() {
 		if ($scope.deweySearchText == "FIC") {
 			return 'Fiction';
 		}
 		return $scope.genres[$scope.deweySearchText]?$scope.genres[$scope.deweySearchText].replace(">", "\u003e"):'';
 	}
+    $scope.updateLibraries();
 });
