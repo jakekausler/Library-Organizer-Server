@@ -194,10 +194,11 @@
 `/books/checkout`
 
 * **URL Params**
-``
+`none`
 
 * **URL Arguments (?)**
-``
+`sortmethod`: Primary method of sorting. One of `dewey`, `series`, or `title`
+`numbertoget`: Number of books for pagination purposes.
 
 * **Data Params**
 ``
