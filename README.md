@@ -74,13 +74,25 @@
 `/books`
 
 * **URL Params**
-``
+`none`
 
 * **URL Arguments (?)**
-``
+  * `sortmethod`: Primary method of sorting. One of `dewey`, `series`, or `title`.
+  * `numbertoget`: Number of books for pagination purposes.
+  * `page`: Page of books to get.
+  * `fromdewey`: Starting dewey of the results, inclusive.
+  * `todewey`: Ending dewey of the results, inclusive
+  * `text`: Filter text, used for searching titles, subtitles, and series
+  * `isread`: Whether or not the book is read by the library owner. One of `yes`, `no`, or `both`.
+  * `isreference`: Whether or not the book is considered reference by the library owner. One of `yes`, `no`, or `both`.
+  * `isowned`: Whether or not the book is owned by the library owner. One of `yes`, `no`, or `both`.
+  * `isreading`: Whether or not the book is being read by the library owner. One of `yes`, `no`, or `both`.
+  * `isshipping`: Whether or not the book is shipping to the library owner. One of `yes`, `no`, or `both`.
+  * `isloaned`: Whether or not the book is checked out. One of `yes`, `no`, or `both`.
+  * `libraryids`: A comma separated list of library ids from which to include books.
 
 * **Data Params**
-``
+`none`
 
 * **Success Response**
 ```json
@@ -197,8 +209,7 @@
 `none`
 
 * **URL Arguments (?)**
-`sortmethod`: Primary method of sorting. One of `dewey`, `series`, or `title`
-`numbertoget`: Number of books for pagination purposes.
+``
 
 * **Data Params**
 ``
