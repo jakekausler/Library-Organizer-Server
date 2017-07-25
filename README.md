@@ -1,5 +1,17 @@
 # Library-Organizer-2.0
 
+Library Organizer is a complete suite of tools designed to help users manage their personal or professional libraries. It hosts a variety of features:
+* Create and assign books to one or more libraries
+* Grant other users permission to edit, check out from, or view your libraries
+* View a filtered list of books from viewable libraries
+* Add or edit books from scratch, from existing books, or from isbn
+* View a physical model of each library based on bookcase and book dimensions
+* Organize books based on title, series, or dewey number
+* View various statistics that describe one or more libraries
+* Keep track of non-owned books as a wishlist
+
+In this document, you will find both a user guide, for normal users to learn the software, and a REST API, for developers to utilize.
+
 * User Guide
 * REST API
 
