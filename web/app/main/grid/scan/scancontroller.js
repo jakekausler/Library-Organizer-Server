@@ -69,6 +69,7 @@ angular.module('libraryOrganizer')
                 "contributors": $scope.getAuthors(result.volumeInfo.authors),
                 "library": {}
             }
+            console.log($scope.vm)
             $scope.vm.showEditDialog(ev, book, $scope.vm, 'scanadd');
         };
         $scope.getAuthors = function(authors) {
@@ -86,7 +87,7 @@ angular.module('libraryOrganizer')
                     } else if (v.length > 2) {
                         first = v[0];
                         last = v[v.length - 1];
-                        middles = v.slice(1, -1)
+                        middles = v.slice(1, -1).join(';');
                     }
                     contributors.push({
                         role: 'Author',

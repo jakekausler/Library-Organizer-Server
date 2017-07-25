@@ -1,32 +1,45 @@
 <md-dialog layout-padding="5" style="text-align: center" flex>
 	<form name="shelfEditorForm">
-		<h1 class="md-title">Edit Shelves</h1>
-		<table fixed-header style="width: 100%;height: 60vh;">
-			<thead></th><th></th><th></th><th></th><th>Number of Shelves</th><th>Width</th><th>Shelf Height</th><th>Left Margin</th><th>Right Margin</th><th>Spacer Size</th></tr></thead>
-			<tbody><tr ng-repeat="case in shelves">
-				<td><md-button aria-label="Move Shelf Up" class="icon up-icon" ng-disabled="case.casenumber == 1" ng-click="moveShelfUp(case)"><md-tooltip md-delay="500">Move Shelf Up</md-tooltip></md-button></td>
-				<td><md-button aria-label="Move Shelf Down" class="icon down-icon" ng-disabled="case.casenumber == $parent.numberOfCases" ng-click="moveShelfDown(case)"><md-tooltip md-delay="500">Move Shelf Down</md-tooltip></md-button></td>
-				<td><md-button aria-label="Remove Shelf" class="icon remove-icon" ng-click="removeShelf(case)"><md-tooltip md-delay="500">Remove Shelf</md-tooltip></md-button></td>
-				<td><md-input-container>
-					<input aria-label="Number of Shelves" type="text" ng-model="case.numberofshelves" positive-integer-input required />
-				</md-input-container></td>
-				<td><md-input-container>
-					<input aria-label="Width" type="text" ng-model="case.width" positive-integer-input required />
-				</md-input-container></td>
-				<td><md-input-container>
-					<input aria-label="Shelf Height" type="text" ng-model="case.shelfheight" positive-integer-input required />
-				</md-input-container></td>
-				<td><md-input-container>
-					<input aria-label="Left Margin" type="text" ng-model="case.paddingleft" positive-integer-input required />
-				</md-input-container></td>
-				<td><md-input-container>
-					<input aria-label="Right Margin" type="text" ng-model="case.paddingright" positive-integer-input required />
-				</md-input-container></td>
-				<td><md-input-container>
-					<input aria-label="Spacer Size" type="text" ng-model="case.spacerheight" positive-integer-input required />
-				</md-input-container></td>
-			</tr></tbody>
-		</table>
+		<md-tabs md-dynamic-height>
+			<md-tab label="Edit Shelves">
+				<table fixed-header style="width: 100%;height: 60vh;">
+					<thead></th><th></th><th></th><th></th><th>Number of Shelves</th><th>Width</th><th>Shelf Height</th><th>Left Margin</th><th>Right Margin</th><th>Spacer Size</th></tr></thead>
+					<tbody><tr ng-repeat="case in shelves">
+						<td><md-button aria-label="Move Shelf Up" class="icon up-icon" ng-disabled="case.casenumber == 1" ng-click="moveShelfUp(case)"><md-tooltip md-delay="500">Move Shelf Up</md-tooltip></md-button></td>
+						<td><md-button aria-label="Move Shelf Down" class="icon down-icon" ng-disabled="case.casenumber == $parent.numberOfCases" ng-click="moveShelfDown(case)"><md-tooltip md-delay="500">Move Shelf Down</md-tooltip></md-button></td>
+						<td><md-button aria-label="Remove Shelf" class="icon remove-icon" ng-click="removeShelf(case)"><md-tooltip md-delay="500">Remove Shelf</md-tooltip></md-button></td>
+						<td><md-input-container>
+							<input aria-label="Number of Shelves" type="text" ng-model="case.numberofshelves" positive-integer-input required />
+						</md-input-container></td>
+						<td><md-input-container>
+							<input aria-label="Width" type="text" ng-model="case.width" positive-integer-input required />
+						</md-input-container></td>
+						<td><md-input-container>
+							<input aria-label="Shelf Height" type="text" ng-model="case.shelfheight" positive-integer-input required />
+						</md-input-container></td>
+						<td><md-input-container>
+							<input aria-label="Left Margin" type="text" ng-model="case.paddingleft" positive-integer-input required />
+						</md-input-container></td>
+						<td><md-input-container>
+							<input aria-label="Right Margin" type="text" ng-model="case.paddingright" positive-integer-input required />
+						</md-input-container></td>
+						<td><md-input-container>
+							<input aria-label="Spacer Size" type="text" ng-model="case.spacerheight" positive-integer-input required />
+						</md-input-container></td>
+					</tr></tbody>
+				</table>
+			</md-tab>
+			<md-tab label="Edit Breaks">
+
+			</md-tab>
+			<md-tab label="Misc">
+				<span class="md-body-1">Choose series that should be sorted on their authors then titles, instead of their volumes.</span>
+				<md-select ng-model="toAddSeries" ng-change="addToSeries()">
+					<md-option ng-repeat="s in series" ng-value="s">{{s}}</md-option>
+				</md-select>
+				<div style="display: inline-block" ng-repeat="s in authorBasedSeries">{{s}}<md-button class="icon remove-icon" ng-click="removeFromSeries(s)"><md-tooltip md-delay="500">Remove</md-tooltip></md-button></div>
+			</md-tab>
+		</md-tabs>
 	</form>
 	<div layout="row">
 		<md-button aria-label="Add Shelf" class="icon add-icon" ng-click="addShelf()" flex><md-tooltip md-delay="500">Add Shelf</md-tooltip></md-button>

@@ -176,3 +176,55 @@ func SaveOwnedLibrariesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	return
 }
+
+//GetAuthorBasedSeriesHandler gets series that are sorted by author then title, instead of volume
+func GetAuthorBasedSeriesHandler(w http.ResponseWriter, r *http.Request) {
+	registered, _ := Registered(r)
+	if !registered {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
+		return
+	}
+	libraryid := mux.Vars(r)["libraryid"]
+	d, err := libraries.GetAuthorBasedSeries(db, libraryid)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	data, err := json.Marshal(d)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+}
+
+//UpdateAuthorBasedSeriesHandler updates series that are sorted by author then title, instead of volume
+func UpdateAuthorBasedSeriesHandler(w http.ResponseWriter, r *http.Request) {
+	registered, _ := Registered(r)
+	if !registered {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
+		return
+	}
+	libraryid := mux.Vars(r)["libraryid"]
+	var series []string
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&series)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
+	err = libraries.UpdateAuthorBasedSeries(db, libraryid, series)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	return
+}

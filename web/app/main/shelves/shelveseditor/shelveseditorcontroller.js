@@ -65,6 +65,15 @@ angular.module('libraryOrganizer')
 			$mdDialog.cancel();
             $mdToast.showSimple("Successfully saved shelves")
 		});
+		$http({
+			url: '/libraries/'+$scope.libraryid+'/series',
+			method: 'PUT',
+			data: JSON.stringify($scope.authorBasedSeries)
+		}).then(function(response) {
+			$scope.vm.updateCases();
+			$mdDialog.cancel();
+            $mdToast.showSimple("Successfully saved misc")
+		});
 	};
 	$scope.moveShelfUp = function(cas) {
 		var c = cas.casenumber;
@@ -109,4 +118,39 @@ angular.module('libraryOrganizer')
 		});
 		$scope.numberOfCases--;
 	};
+	$scope.series = [];
+	$scope.authorBasedSeries = [];
+	$scope.toAddSeries = "";
+	$scope.updateSeries = function() {
+		$http({
+			url: '/information/series',
+			method: 'GET'
+		}).then(function(response){
+			$scope.series = response.data;
+		});
+	}
+    $scope.updateSeries();
+	$scope.updateAuthorBasedSeries = function() {
+		$http({
+			url: '/libraries/'+$scope.libraryid+'/series',
+			method: 'GET'
+		}).then(function(response){
+			if (response.data == null) {
+				response.data = [];
+			}
+			$scope.authorBasedSeries = response.data;
+		});
+	}
+    $scope.updateAuthorBasedSeries();
+    $scope.addToSeries = function() {
+    	if ($scope.toAddSeries != "" && !$scope.authorBasedSeries.includes($scope.toAddSeries)) {
+    		$scope.authorBasedSeries.push($scope.toAddSeries)
+    	}
+    	$scope.toAddSeries = "";
+    }
+    $scope.removeFromSeries = function(series) {
+    	if ($scope.authorBasedSeries.includes(series)) {
+    		$scope.authorBasedSeries.splice($scope.authorBasedSeries.indexOf(series), 1);
+    	}
+    }
 })

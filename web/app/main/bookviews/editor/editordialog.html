@@ -198,7 +198,7 @@
                             <!-- todo add hyphens on blur -->
                             <md-input-container flex="20">
                                 <label>ISBN</label>
-                                <input type="text" ng-model="book.isbn" name="isbn" value="{{book.isbn}}" isbn-input/>
+                                <input type="text" ng-blur="convertIsbn()" ng-model="book.isbn" name="isbn" value="{{book.isbn}}" isbn-input/>
                             </md-input-container>
                             <md-input-container flex="10">
                                 <label>Edition</label>

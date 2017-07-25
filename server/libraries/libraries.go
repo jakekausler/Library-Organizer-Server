@@ -89,7 +89,12 @@ type UserWithPermission struct {
 
 //GetCases gets cases
 func GetCases(db *sql.DB, libraryid, sortMethod, session string) ([]Bookcase, error) {
-	books, _, err := books.GetBooks(db, "dewey", "both", "both", "yes", "both", "both", "both", "", "1", "-1", "0", "FIC", libraryid, session)
+	authorseries, err := GetAuthorBasedSeries(db, libraryid)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return nil, err
+	}
+	books, _, err := books.GetBooks(db, "dewey", "both", "both", "yes", "both", "both", "both", "", "1", "-1", "0", "FIC", libraryid, session, authorseries)
 	breaks, err := GetBreaks(db, libraryid, sortMethod)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
@@ -399,6 +404,48 @@ func SaveOwnedLibraries(db *sql.DB, ownedLibraries []OwnedLibrary, session strin
 				logger.Printf("Error: %+v", err)
 				return err
 			}
+		}
+	}
+	return nil
+}
+
+//GetAuthorBasedSeries gets series that are sorted by author then title, instead of volume
+func GetAuthorBasedSeries(db *sql.DB, libraryid string) ([]string, error) {
+	var series []string
+	query := "SELECT series FROM series_author_sorts WHERE libraryid=?"
+	rows, err := db.Query(query, libraryid)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return nil, err
+	}
+	for rows.Next() {
+		var s string
+		err = rows.Scan(&s)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return nil, err
+		}
+		series = append(series, s)
+	}
+	return series, nil
+}
+
+
+
+//UpdateAuthorBasedSeries updates series that are sorted by author then title, instead of volume
+func UpdateAuthorBasedSeries(db *sql.DB, libraryid string, series []string) error {
+	query := "DELETE FROM series_author_sorts WHERE libraryid=?"
+	_, err := db.Exec(query, libraryid)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return err
+	}
+	for _, s := range series {
+		query = "INSERT INTO series_author_sorts (libraryid, series) VALUES (?,?)"
+		_, err = db.Exec(query, libraryid, s)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return err
 		}
 	}
 	return nil

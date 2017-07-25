@@ -215,6 +215,7 @@ angular.module('libraryOrganizer')
 	$scope.oldUrl = $scope.book.imageurl;
 	$scope.pastingurl = false;
 	$scope.save = function(book) {
+		$scope.convertIsbn();
 		book.volume = parseFloat(book.volume);
 		book.edition = parseInt(book.edition);
 		book.pages = parseInt(book.pages);
@@ -247,7 +248,7 @@ angular.module('libraryOrganizer')
 			} else if (viewType=='grid') {
 				$vm.$parent.$parent.updateRecieved();
 			} else if (viewType=='scanadd') {
-				$vm.$parent.$parent.updateRecieved();
+				$vm.updateRecieved();
 			}
 			if (method == "PUT") {
 				$mdToast.showSimple("Successfully added book")
@@ -328,4 +329,53 @@ angular.module('libraryOrganizer')
 		return $scope.genres[$scope.deweySearchText]?$scope.genres[$scope.deweySearchText].replace(">", "\u003e"):'';
 	}
     $scope.updateLibraries();
+    $scope.convertIsbn = function() {
+    	if ($scope.book.isbn.length == 10 && $scope.isValidIsbn($scope.book.isbn)) {
+    		$scope.book.isbn = $scope.isbn10to13($scope.book.isbn);
+    	}
+    }
+    $scope.isbn10to13 = function(isbn10) {
+    	var chars = isbn10.split("");
+	    chars.unshift("9", "7", "8");
+	    chars.pop();
+	    var i = 0;
+	    var sum = 0;
+	    for (i = 0; i < 12; i += 1) {
+	        sum += chars[i] * ((i % 2) ? 3 : 1);
+	    }
+	    var check_digit = (10 - (sum % 10)) % 10;
+	    chars.push(check_digit);
+	    var isbn13 = chars.join("");
+	    return isbn13;
+    }
+    $scope.isValidIsbn = function(isbn) {
+    	if (isbn.length == 0) {
+			return true;
+		}
+		valid = false;
+		isbn = isbn.replace(/[^\dX]/gi, '');
+		if(isbn.length == 10) {
+			var chars = isbn.split('');
+			if(chars[9].toUpperCase() == 'X') {
+				chars[9] = 10;
+			}
+			var sum = 0;
+			for(var i = 0; i < chars.length; i++) {
+				sum += ((10-i) * parseInt(chars[i]));
+			}
+			valid = (sum % 11 == 0);
+		} else if(isbn.length == 13) {
+			var chars = isbn.split('');
+			var sum = 0;
+			for (var i = 0; i < chars.length; i++) {
+				if(i % 2 == 0) {
+					sum += parseInt(chars[i]);
+				} else {
+					sum += parseInt(chars[i]) * 3;
+				}
+			}
+			valid = (sum % 10 == 0);
+		}
+		return valid;
+    }
 });

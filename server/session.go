@@ -74,6 +74,8 @@ func RunServer(username, password, database string) {
 	r.HandleFunc("/libraries/{libraryid}/breaks", DeleteBreakHandler).Methods("DELETE")
 	r.HandleFunc("/libraries/{libraryid}/cases", GetCasesHandler).Methods("GET")
 	r.HandleFunc("/libraries/{libraryid}/cases", SaveCasesHandler).Methods("PUT")
+	r.HandleFunc("/libraries/{libraryid}/series", GetAuthorBasedSeriesHandler).Methods("GET")
+	r.HandleFunc("/libraries/{libraryid}/series", UpdateAuthorBasedSeriesHandler).Methods("PUT")
 	r.HandleFunc("/settings", GetSettingsHandler).Methods("GET")
 	r.HandleFunc("/settings", SaveSettingsHandler).Methods("PUT")
 	r.HandleFunc("/settings/{setting}", GetSettingHandler).Methods("GET")
