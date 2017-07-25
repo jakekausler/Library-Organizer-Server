@@ -20,7 +20,6 @@ angular.module('libraryOrganizer')
             url: '/libraries/'+$scope.currentLibraryId+'/cases',
             method: 'GET',
 			params: {
-				libraryid: $scope.currentLibraryId,
 				sortmethod: 'DEWEY'
 			}
 		}).then(function(response){

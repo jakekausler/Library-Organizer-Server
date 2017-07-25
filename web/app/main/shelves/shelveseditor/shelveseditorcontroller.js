@@ -59,7 +59,7 @@ angular.module('libraryOrganizer')
 		$http({
 			url: '/libraries/'+$scope.libraryid+'/cases',
 			method: 'PUT',
-			data: JSON.stringify({editedcases: cases, toremoveids: $scope.toRemoveIds, libraryid: $scope.libraryid})
+			data: JSON.stringify({editedcases: cases, toremoveids: $scope.toRemoveIds})
 		}).then(function(response) {
 			$scope.vm.updateCases();
 			$mdDialog.cancel();

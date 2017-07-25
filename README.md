@@ -1,5 +1,133 @@
 # Library-Organizer-2.0
 
+* User Guide
+* REST API
+
+# User Guide
+
+* Registering and Logging In
+  * Registering an Account
+  * Logging In to an Account
+  * Forgotten Password
+* Managing Libraries and Permissions
+  * Managing Libraries
+  * Granting Permissions
+* Managing User Settings
+  * Shelf Settings
+  * Book Settings
+* Searching for Books
+* Adding and Editing Books
+  * Add from Scratch
+  * Add from ISBN
+  * Add from Existing Book
+  * Edit an Existing Book
+  * Bulk Editing
+* Checking Out and Returning Books
+  * Checking out a Book
+  * Returning a Book
+* Exporting and Importing CSV Files
+  * The CSV Format
+  * Exporting
+  * Importing
+* Viewing a Library
+  * Navigating the Library
+  * Searching for Books
+* Editing a Library
+  * Managing Cases
+  * Managing Breaks
+* Viewing Statistics
+
+## Registering and Logging In
+
+* Registering an Account
+* Logging In to an Account
+* Forgotten Password
+
+### Registering an Account
+
+### Logging In to an Account
+
+### Forgotten Password
+
+## Managing Libraries and Permissions
+
+* Managing Libraries
+* Granting Permissions
+
+### Managing Libraries
+
+### Granting Permissions
+
+## Managing User Settings
+
+* Shelf Settings
+* Book Settings
+
+### Shelf Settings
+
+### Book Settings
+
+## Searching for Books
+
+## Adding and Editing Books
+
+* Add from Scratch
+* Add from ISBN
+* Add from Existing Book
+* Edit an Existing Book
+* Bulk Editing
+
+### Add from Scratch
+
+### Add from ISBN
+
+### Add from Existing Book
+
+### Edit an Existing Book
+
+### Bulk Editing
+
+## Checking Out and Returning Books
+
+* Checking out a Book
+* Returning a Book
+
+### Checking Out a Book
+
+### Returing a Book
+
+## Exporting and Importing CSV Files
+
+* The CSV Format
+* Exporting
+* Importing
+
+### The CSV Format
+
+### Exporting
+
+### Importing
+
+## Viewing a Library
+
+* Navigating the Library
+* Searching for Books
+
+### Navigating the Library
+
+### Searching for Books
+
+## Editing a Library
+
+* Managing Cases
+* Managing Breaks
+
+### Managing Cases
+
+### Managing Breaks
+
+## Viewing Statistics
+
 # REST API
 
 * Books `/books`
@@ -44,14 +172,14 @@
 
 * Users `/users`
   * Get Users `GET /users`
-  * Login `PUT /users`
+  * Login `POST /users/login`
   * Register `POST /users`
-  * Logout `DELETE /users`
+  * Logout `POST /users/logout`
   * Send Password Reset `PUT /users/password`
   * Finish Password Reset `GET /users/password/:token`
   * Get Username `GET /users/username`
 
-# Books
+## Books
 * Get Books `GET /books`
 * Save Book `PUT /books`
 * Add Book `POST /books`
@@ -62,7 +190,7 @@
 * Export Contributors `GET /books/contributors`
 * Import Books `POST /books/books`
 
-## Get Books
+### Get Books
 
 * **Action**
 `Returns an array of books.`
@@ -104,7 +232,7 @@
 
 ```
 
-## Save Book
+### Save Book
 
 * **Action**
 `Saves a book.`
@@ -165,7 +293,7 @@
     "isreading": true,
     "isshipping": true,
     "imageurl": "/res/bookimages/12345.jpg",
-    "spinecolor": "#123456",
+    "spinecolor": "##123456",
     "cheapestnew": 0.01,
     "cheapestused": 0.01,
     "editionpublished": "2006-01-02T15:04:05Z07:00",
@@ -197,7 +325,7 @@
 
 ```
 
-## Add Book
+### Add Book
 
 * **Action**
 `Adds a book.`
@@ -258,7 +386,7 @@
     "isreading": true,
     "isshipping": true,
     "imageurl": "/res/bookimages/12345.jpg",
-    "spinecolor": "#123456",
+    "spinecolor": "##123456",
     "cheapestnew": 0.01,
     "cheapestused": 0.01,
     "editionpublished": "2006-01-02T15:04:05Z07:00",
@@ -290,7 +418,7 @@
 
 ```
 
-## Delete Book
+### Delete Book
 
 * **Action**
 `Deletes a book.`
@@ -302,13 +430,14 @@
 `/books`
 
 * **URL Params**
-``
+`none`
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+Book Id:
+`12345`
 
 * **Success Response**
 ```json
@@ -320,7 +449,7 @@
 
 ```
 
-## Checkout Book
+### Checkout Book
 
 * **Action**
 `Checks out a book.`
@@ -335,10 +464,11 @@
 `none`
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+Book Id:
+`12345`
 
 * **Success Response**
 ```json
@@ -350,7 +480,7 @@
 
 ```
 
-## Checkin Book
+### Checkin Book
 
 * **Action**
 `Checks in a book.`
@@ -362,13 +492,14 @@
 `/books/checkin`
 
 * **URL Params**
-``
+`none`
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+Book Id:
+`12345`
 
 * **Success Response**
 ```json
@@ -380,7 +511,7 @@
 
 ```
 
-## Export Books
+### Export Books
 
 * **Action**
 `Exports a csv of book data.`
@@ -392,13 +523,13 @@
 `/books/books`
 
 * **URL Params**
-``
+`none`
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+`none`
 
 * **Success Response**
 ```json
@@ -410,7 +541,7 @@
 
 ```
 
-## Export Contributors
+### Export Contributors
 
 * **Action**
 `Exports a csv of contributors`
@@ -422,13 +553,13 @@
 `/books/contributors`
 
 * **URL Params**
-``
+`none`
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+`none`
 
 * **Success Response**
 ```json
@@ -440,7 +571,7 @@
 
 ```
 
-## Import Books
+### Import Books
 
 * **Action**
 `Imports books from a csv to a library. The column headers should match the database fields names, with the exception of publisher and contributors. Publisher should be split into four columns: "publisher", "city", "state", "country". Contributors should be in a single column, with the header "contributors". They should be written as follows: "lastName[, firstName middleName1 middleName2... middleNameN]: role", with different contributors separated by a single semicolon and omitting first and middle names as needed.`
@@ -452,13 +583,14 @@
 `/books/books`
 
 * **URL Params**
-``
+`none`
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+Form Data:
+`csv file`
 
 * **Success Response**
 ```json
@@ -470,7 +602,7 @@
 
 ```
 
-# Information
+## Information
 * Get Statistics `GET /information/statistics`
 * Get Dimensions `GET /information/dimensions`
 * Get Publishers `GET /information/publishers`
@@ -483,7 +615,7 @@
 * Get Languages `GET /information/languages`
 * Get Deweys `GET /information/deweys`
 
-## Get Statistics
+### Get Statistics
 
 * **Action**
 `Get a set of statistics.`
@@ -495,13 +627,14 @@
 `/information/statistics`
 
 * **URL Params**
-``
+`none`
 
 * **URL Arguments (?)**
-``
+  * `type`: One of `generalbycounts`, `generalbypages`, `generalbysize`, `publishersbooksperparent`, `publisherstopchildren`, `publisherstoplocations`, `series`, `languagesprimary`, `languagessecondary`, `languagesoriginal`, `deweys`, `formats`, `contributorstop`, `contributorsperrole`, `datesoriginal`, `datespublication`
+  * `libraryids`: A comma separated list of library ids from which the statistics are calculated
 
 * **Data Params**
-``
+`none`
 
 * **Success Response**
 ```json
@@ -513,7 +646,7 @@
 
 ```
 
-## Get Dimensions
+### Get Dimensions
 
 * **Action**
 `Get a set of dimensions.`
@@ -525,13 +658,14 @@
 `/information/dimensions`
 
 * **URL Params**
-``
+`none`
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+Library Ids:
+`123,124,125`
 
 * **Success Response**
 ```json
@@ -543,7 +677,7 @@
 
 ```
 
-## Get Publishers
+### Get Publishers
 
 * **Action**
 `Get a the set of publishers.`
@@ -555,13 +689,13 @@
 `/information/publishers`
 
 * **URL Params**
-``
+`none`
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+`none`
 
 * **Success Response**
 ```json
@@ -573,7 +707,7 @@
 
 ```
 
-## Get Cities
+### Get Cities
 
 * **Action**
 `Get the set of cities.`
@@ -585,13 +719,13 @@
 `/information/cities`
 
 * **URL Params**
-``
+`none`
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+`none`
 
 * **Success Response**
 ```json
@@ -603,7 +737,7 @@
 
 ```
 
-## Get States
+### Get States
 
 * **Action**
 `Get the set of states.`
@@ -615,13 +749,13 @@
 `/information/states`
 
 * **URL Params**
-``
+`none`
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+`none`
 
 * **Success Response**
 ```json
@@ -633,7 +767,7 @@
 
 ```
 
-## Get Countries
+### Get Countries
 
 * **Action**
 `Get the set of countries. `
@@ -645,13 +779,13 @@
 `/information/countries`
 
 * **URL Params**
-``
+`none`
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+`none`
 
 * **Success Response**
 ```json
@@ -663,7 +797,7 @@
 
 ```
 
-## Get Formats
+### Get Formats
 
 * **Action**
 `Get the set of formats.`
@@ -675,13 +809,13 @@
 `/information/formats`
 
 * **URL Params**
-``
+`none`
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+`none`
 
 * **Success Response**
 ```json
@@ -693,7 +827,7 @@
 
 ```
 
-## Get Roles
+### Get Roles
 
 * **Action**
 `Get the set of contributor roles.`
@@ -705,13 +839,13 @@
 `/information/roles`
 
 * **URL Params**
-``
+`none`
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+`none`
 
 * **Success Response**
 ```json
@@ -723,7 +857,7 @@
 
 ```
 
-## Get Series
+### Get Series
 
 * **Action**
 `Get the set of series.`
@@ -735,13 +869,13 @@
 `/information/series`
 
 * **URL Params**
-``
+`none`
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+`none`
 
 * **Success Response**
 ```json
@@ -753,7 +887,7 @@
 
 ```
 
-## Get Languages
+### Get Languages
 
 * **Action**
 `Get the set of languages`
@@ -765,13 +899,13 @@
 `/information/languages`
 
 * **URL Params**
-``
+`none`
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+`none`
 
 * **Success Response**
 ```json
@@ -783,7 +917,7 @@
 
 ```
 
-## Get Deweys
+### Get Deweys
 
 * **Action**
 `Get the set of deweys`
@@ -795,13 +929,13 @@
 `/information/deweys`
 
 * **URL Params**
-``
+`none`
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+`none`
 
 * **Success Response**
 ```json
@@ -813,7 +947,7 @@
 
 ```
 
-# Libraries
+## Libraries
 * Get Libraries `GET /libaries`
 * Get Owned Libraries `GET /libraries/owned`
 * Save Owned Libraries `PUT /libraries/owned`
@@ -824,7 +958,7 @@
 * Save Break `PUT /libraries/:libraryid/breaks`
 * Delete Break `DELETE /libraries/:libraryid/breaks`
 
-## Get Libraries
+### Get Libraries
 
 * **Action**
 `Get a list of libraries with which the user has permission to do something.`
@@ -836,13 +970,13 @@
 `/libraries`
 
 * **URL Params**
-``
+`none`
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+`none`
 
 * **Success Response**
 ```json
@@ -854,7 +988,7 @@
 
 ```
 
-## Get Owned Libraries
+### Get Owned Libraries
 
 * **Action**
 `Get the libraries which the user owns and the user who can do something with them.`
@@ -866,13 +1000,13 @@
 `/libraries/owned`
 
 * **URL Params**
-``
+`none`
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+`none`
 
 * **Success Response**
 ```json
@@ -884,7 +1018,7 @@
 
 ```
 
-## Save Owned Libraries
+### Save Owned Libraries
 
 * **Action**
 `Saves the libraries the user owns and the users who can do something with them.`
@@ -896,13 +1030,28 @@
 `/libraries/owned`
 
 * **URL Params**
-``
+`none`
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+```json
+[{
+    "id": 123,
+    "name": "default",
+    "user": [{
+        "id": 1234,
+        "username": "janedoe",
+        "firstname": "Jane",
+        "lastname": "Doe",
+        "fullname": "Jane Doe",
+        "email": "jdoe@test.com",
+        "iconurl": "/res/usericons/1234.jpg",
+        "permission": "7"
+    }]
+}]
+```
 
 * **Success Response**
 ```json
@@ -914,7 +1063,7 @@
 
 ```
 
-## Get Cases
+### Get Cases
 
 * **Action**
 `Get the cases in a library.`
@@ -923,16 +1072,16 @@
 `GET`
 
 * **URL**
-`/libraries/cases`
+`/libraries/:libraryid/cases`
 
 * **URL Params**
-``
+`:libraryid` The id of the selected library
 
 * **URL Arguments (?)**
-``
+  * `sortmethod` One of `DEWEY`, `SERIES`, or `TITLE`
 
 * **Data Params**
-``
+`none`
 
 * **Success Response**
 ```json
@@ -944,7 +1093,7 @@
 
 ```
 
-## Save Cases
+### Save Cases
 
 * **Action**
 `Save the cases in a library.`
@@ -953,16 +1102,33 @@
 `PUT`
 
 * **URL**
-`/libraries/cases`
+`/libraries/:libraryid/cases`
 
 * **URL Params**
-``
+`none`
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+```json
+{
+    "editedcases": [{
+        "id": 1233,
+        "casenumber": 1,
+        "numberofshelves": 5,
+        "shelfheight": 300,
+        "width": 500,
+        "paddingright": 10,
+        "paddingleft": 10,
+        "spacerheight": 12
+    }],
+    "toremoveids": [
+        1234,
+        1235
+    ]
+}
+```
 
 * **Success Response**
 ```json
@@ -974,7 +1140,7 @@
 
 ```
 
-## Get Breaks
+### Get Breaks
 
 * **Action**
 `Get the breaks for a library.`
@@ -986,13 +1152,13 @@
 `/libraries/:libraryid/breaks`
 
 * **URL Params**
-``
+`:libraryid` The id of the selected library
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+`none`
 
 * **Success Response**
 ```json
@@ -1004,7 +1170,7 @@
 
 ```
 
-## Add Break
+### Add Break
 
 * **Action**
 `Add a break to a library.`
@@ -1014,16 +1180,22 @@
 
 * **URL**
 `/libraries/:libraryid/breaks`
-``
 
 * **URL Params**
-``
+`:libraryid` The id of the selected library
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+```json
+{
+    "libraryid": 1234,
+    "valuetype": "ID",
+    "value": "12345",
+    "breaktype": "SHELF"
+}
+```
 
 * **Success Response**
 ```json
@@ -1035,7 +1207,7 @@
 
 ```
 
-## Save Break
+### Save Break
 
 * **Action**
 `Save a break in a library.`
@@ -1047,13 +1219,20 @@
 `/libraries/:libraryid/breaks`
 
 * **URL Params**
-``
+`:libraryid` The id of the selected library
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+```json
+{
+    "libraryid": 1234,
+    "valuetype": "ID",
+    "value": "12345",
+    "breaktype": "SHELF"
+}
+```
 
 * **Success Response**
 ```json
@@ -1065,7 +1244,7 @@
 
 ```
 
-## Delete Break
+### Delete Break
 
 * **Action**
 `Delete a book from a library.`
@@ -1077,13 +1256,20 @@
 `/libraries/:libraryid/breaks`
 
 * **URL Params**
-``
+`:libraryid` The id of the selected library
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+```json
+{
+    "libraryid": 1234,
+    "valuetype": "ID",
+    "value": "12345",
+    "breaktype": "SHELF"
+}
+```
 
 * **Success Response**
 ```json
@@ -1095,12 +1281,12 @@
 
 ```
 
-# Settings
+## Settings
 * Get Settings `GET /settings`
 * Save Settings `PUT /settings`
 * Get Setting `GET /settings/:setting`
 
-## Get Settings
+### Get Settings
 
 * **Action**
 `Get the user's settings. If nothing is set for a setting, return the default.`
@@ -1112,17 +1298,23 @@
 `/settings`
 
 * **URL Params**
-``
+`none`
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+`none`
 
 * **Success Response**
 ```json
-
+[{
+    "name": "width",
+    "value": "500",
+    "valuetype": "nonnegativeinteger",
+    "group": "BOOK",
+    "possiblevalues": []
+}]
 ```
 
 * **Error Response**
@@ -1130,7 +1322,7 @@
 
 ```
 
-## Save Settings
+### Save Settings
 
 * **Action**
 `Save the user's settings.`
@@ -1142,13 +1334,22 @@
 `/settings`
 
 * **URL Params**
-``
+`none`
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+```json
+    "group": "Book",
+    "name": "IsOwned",
+    "value": "true",
+    "valuetype": "select",
+    "possiblevalues": [
+        "true",
+        "false"
+    ]
+```
 
 * **Success Response**
 ```json
@@ -1160,7 +1361,7 @@
 
 ```
 
-## Get Setting
+### Get Setting
 
 * **Action**
 `Get a single user setting.`
@@ -1172,34 +1373,33 @@
 `/settings/:setting`
 
 * **URL Params**
-``
+`none`
 
 * **URL Arguments (?)**
 ``
 
 * **Data Params**
-``
+Setting Name
+`Width`
 
 * **Success Response**
-```json
-
-```
+`settingvalue`
 
 * **Error Response**
 ```json
 
 ```
 
-# Users
+## Users
 * Get Users `GET /users`
-* Login `PUT /users`
+* Login `POST /users/login`
 * Register `POST /users`
-* Logout `DELETE /users`
+* Logout `POST /users/logout`
 * Send Password Reset `PUT /users/password`
 * Finish Password Reset `GET /users/password/:token`
 * Get Username `GET /users/username`
 
-## Get Users
+### Get Users
 
 * **Action**
 `Get the users in a library.`
@@ -1211,17 +1411,25 @@
 `/users`
 
 * **URL Params**
-``
+`none`
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+`none`
 
 * **Success Response**
 ```json
-
+    [{
+        "id": 1234,
+        "username": "janedoe",
+        "first": "Jane",
+        "last": "Doe",
+        "fullname": "Jane Doe",
+        "email": "jdoe@test.com",
+        "iconurl": "/res/usericons/1234.jpg"
+    }]
 ```
 
 * **Error Response**
@@ -1229,37 +1437,37 @@
 
 ```
 
-## Login
+### Login
 
 * **Action**
 `Log a user in to the system.`
 
 * **Method**
-`PUT`
+`POST`
 
 * **URL**
-`/users`
+`/users/login`
 
 * **URL Params**
-``
+`none`
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+Form Data
+  * `username`
+  * `password`
 
 * **Success Response**
-```json
-
-```
+Redirect to main page
 
 * **Error Response**
 ```json
 
 ```
 
-## Register
+### Register
 
 * **Action**
 `Register a user in to the system.`
@@ -1271,55 +1479,56 @@
 `/users`
 
 * **URL Params**
-``
+`none`
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+  * `username`
+  * `email`
+  * `firstname`
+  * `lastname`
+  * `password`
+
 
 * **Success Response**
-```json
-
-```
+Redirect to main page
 
 * **Error Response**
 ```json
 
 ```
 
-## Logout
+### Logout
 
 * **Action**
 `Log a user out of the system.`
 
 * **Method**
-`DELETE`
+`POST`
 
 * **URL**
-`/users`
+`/users/logout`
 
 * **URL Params**
-``
+`none`
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+`none`
 
 * **Success Response**
-```json
-
-```
+Redirect to unregistered page
 
 * **Error Response**
 ```json
 
 ```
 
-## Send Password Reset
+### Send Password Reset
 
 * **Action**
 `Send a password reset request to the user's email.`
@@ -1331,13 +1540,13 @@
 `/users/reset`
 
 * **URL Params**
-``
+`none`
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+`email`
 
 * **Success Response**
 ```json
@@ -1349,7 +1558,7 @@
 
 ```
 
-## Finish Password Reset
+### Finish Password Reset
 
 * **Action**
 `Complete a password reset request.`
@@ -1361,13 +1570,13 @@
 `/users/reset/:token`
 
 * **URL Params**
-``
+`:token` The token to lookup for the reset
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+`none`
 
 * **Success Response**
 ```json
@@ -1379,7 +1588,7 @@
 
 ```
 
-## Get Username
+### Get Username
 
 * **Action**
 `Get the user's username.`
@@ -1391,18 +1600,16 @@
 `/users/username`
 
 * **URL Params**
-``
+`none`
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+`none`
 
 * **Success Response**
-```json
-
-```
+`username`
 
 * **Error Response**
 ```json
