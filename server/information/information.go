@@ -13,16 +13,16 @@ import (
 )
 
 const (
-	getPublisherQuery  = "SELECT * from publishers WHERE PublisherID=?"
-	getPublishersQuery = "SELECT DISTINCT(Publisher) from publishers"
-	getCitiesQuery     = "SELECT DISTINCT(City) from publishers"
-	getStatesQuery     = "SELECT DISTINCT(State) from publishers"
-	getCountriesQuery  = "SELECT DISTINCT(Country) from publishers"
-	getSeriesQuery     = "SELECT DISTINCT(Series) from series"
-	getFormatsQuery    = "SELECT DISTINCT(Format) from formats"
-	getDeweysQuery     = "SELECT Number, Genre from dewey_numbers"
-	getLanguagesQuery  = "SELECT DISTINCT(Langauge) from languages"
-	getRolesQuery      = "SELECT DISTINCT(Role) from written_by"
+	getPublisherQuery    = "SELECT * from publishers WHERE PublisherID=?"
+	getPublishersQuery   = "SELECT DISTINCT(Publisher) from publishers"
+	getCitiesQuery       = "SELECT DISTINCT(City) from publishers"
+	getStatesQuery       = "SELECT DISTINCT(State) from publishers"
+	getCountriesQuery    = "SELECT DISTINCT(Country) from publishers"
+	getSeriesQuery       = "SELECT DISTINCT(Series) from series"
+	getFormatsQuery      = "SELECT DISTINCT(Format) from formats"
+	getDeweysQuery       = "SELECT Number, Genre from dewey_numbers"
+	getLanguagesQuery    = "SELECT DISTINCT(Langauge) from languages"
+	getRolesQuery        = "SELECT DISTINCT(Role) from written_by"
 	getContributorsQuery = "SELECT PersonID, Role, FirstName, MiddleNames, LastName from written_by join persons on written_by.AuthorID = persons.PersonID WHERE BookID=?"
 )
 
@@ -40,7 +40,7 @@ type StatChartInfo struct {
 	FormatNumberScale string `json:"formatNumberScale"`
 	NumberSuffix      string `json:"numberSuffix"`
 	Decimals          string `json:"decimals"`
-	LabelDisplay          string `json:"labelDisplay"`
+	LabelDisplay      string `json:"labelDisplay"`
 }
 
 //StatData is chart data

@@ -116,13 +116,76 @@
 `/books`
 
 * **URL Params**
-``
+`none`
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+```json
+{
+    "bookid": "12345",
+    "title": "Sample Title",
+    "subtitle": "Sample Subtitle",
+    "originallypublished": "2006-01-02T15:04:05Z07:00",
+    "publisher": {
+       "id": "12345",
+       "publisher": "Sample Publishing House",
+       "city": "New York",
+       "state": "New York",
+       "country": "USA",
+       "parentcompany": "Sample Parent Publishing House"
+    },
+    "isread": true,
+    "isreference": true,
+    "isowned": true,
+    "isbn": "123456789012X",
+    "loanee": {
+        "id": 123,
+        "username": "testuser",
+        "first": "Jane",
+        "last": "Smith",
+        "fullname": "Jane Smith",
+        "email": "jsmith@test.com",
+        "iconurl": "/res/userimages/123.jpg"
+    },
+    "dewey": "FIC",
+    "pages": 0,
+    "width": 0,
+    "height": 0,
+    "depth": 0,
+    "weight": 0.0,
+    "primarylanguage": "English",
+    "secondarylanguage": "Klingon",
+    "originallanguage": "English",
+    "series": "Sample Series",
+    "volume": 0.0,
+    "format": "Paperback",
+    "edition": 1,
+    "isreading": true,
+    "isshipping": true,
+    "imageurl": "/res/bookimages/12345.jpg",
+    "spinecolor": "#123456",
+    "cheapestnew": 0.01,
+    "cheapestused": 0.01,
+    "editionpublished": "2006-01-02T15:04:05Z07:00",
+    "contributors": [{
+        "id": "1234",
+        "name": {
+            "first": "John",
+            "middles": "J;Kimily",
+            "last": "Smith"
+        },
+        "role": "Author"
+    }],
+    "library": {
+        "id": 12345,
+        "name": "default",
+        "permissions": 7,
+        "owner": "123"
+    }
+}
+```
 
 * **Success Response**
 ```json
@@ -146,13 +209,76 @@
 `/books`
 
 * **URL Params**
-``
+`none`
 
 * **URL Arguments (?)**
-``
+`none`
 
 * **Data Params**
-``
+```json
+{
+    "bookid": "12345",
+    "title": "Sample Title",
+    "subtitle": "Sample Subtitle",
+    "originallypublished": "2006-01-02T15:04:05Z07:00",
+    "publisher": {
+       "id": "12345",
+       "publisher": "Sample Publishing House",
+       "city": "New York",
+       "state": "New York",
+       "country": "USA",
+       "parentcompany": "Sample Parent Publishing House"
+    },
+    "isread": true,
+    "isreference": true,
+    "isowned": true,
+    "isbn": "123456789012X",
+    "loanee": {
+        "id": 123,
+        "username": "testuser",
+        "first": "Jane",
+        "last": "Smith",
+        "fullname": "Jane Smith",
+        "email": "jsmith@test.com",
+        "iconurl": "/res/userimages/123.jpg"
+    },
+    "dewey": "FIC",
+    "pages": 0,
+    "width": 0,
+    "height": 0,
+    "depth": 0,
+    "weight": 0.0,
+    "primarylanguage": "English",
+    "secondarylanguage": "Klingon",
+    "originallanguage": "English",
+    "series": "Sample Series",
+    "volume": 0.0,
+    "format": "Paperback",
+    "edition": 1,
+    "isreading": true,
+    "isshipping": true,
+    "imageurl": "/res/bookimages/12345.jpg",
+    "spinecolor": "#123456",
+    "cheapestnew": 0.01,
+    "cheapestused": 0.01,
+    "editionpublished": "2006-01-02T15:04:05Z07:00",
+    "contributors": [{
+        "id": "1234",
+        "name": {
+            "first": "John",
+            "middles": "J;Kimily",
+            "last": "Smith"
+        },
+        "role": "Author"
+    }],
+    "library": {
+        "id": 12345,
+        "name": "default",
+        "permissions": 7,
+        "owner": "123"
+    }
+}
+```
 
 * **Success Response**
 ```json
