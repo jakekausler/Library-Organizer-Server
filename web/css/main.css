@@ -1,0 +1,37 @@
+.bookshelf-image {
+    display: none;
+}
+
+#main-content {
+    overflow-y: hidden;
+}
+
+#editor-view img {
+    display: block;
+    margin: auto;
+    width: 80%;
+}
+
+#editor-view.image-buttons {
+    margin: auto;
+    display: block;
+}
+
+#editor-view.image-button {
+    margin: auto;
+    display: inline-block;
+}
+
+#editor-view.contributor-list {
+    max-height: 20vh;
+}
+
+#editor-view.contributor-button {
+    margin: auto;
+}
+
+#editor-view md-checkbox {
+    margin-bottom: 0;
+}
+
+#grid-view 

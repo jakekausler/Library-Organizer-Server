@@ -1,51 +1,60 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="UTF-8">
-		<title>Library Organizer</title>
-		<link rel="stylesheet" type="text/css" href="web/css/icons.css">
-		<link rel="stylesheet" type="text/css" href="web/css/misc.css">
-		<link rel="stylesheet" type="text/css" href="web/lib/fontawesome/css/font-awesome.min.css">
-		<script src="web/lib/bower_components/angular/angular.min.js"></script>
-		<script src="web/lib/bower_components/angular-material/angular-material.min.js"></script>
-		<link rel="stylesheet" type="text/css" href="web/lib/bower_components/angular-material/angular-material.min.css"></script>
-		<script src="web/lib/bower_components/angular-animate/angular-animate.min.js"></script>
-		<script src="web/lib/bower_components/angular-aria/angular-aria.min.js"></script>
-		<script src="web/lib/bower_components/fusioncharts/angular-fusioncharts.min.js"></script>
-		<script src="web/lib/bower_components/fusioncharts/fusioncharts.js"></script>
-		<script src="web/lib/bower_components/angu-fixed-header-table/angu-fixed-header-table.js"></script>
-		<script src="web/lib/jquery/jquery-3.2.1.min.js"></script>
-		<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-		<link rel="stylesheet" href="web/lib/multiselectsearchtree/kjvelarde-multiselect-searchtree.css">
-		<script type="text/javascript" src="web/lib/multiselectsearchtree/kjvelarde-multiselect-searchtree.js"></script>
-		<script type="text/javascript" src="web/lib/multiselectsearchtree/kjvelarde-multiselect-searchtree.tpl.js"></script>
-		<script src="web/app/main/maincontroller.js"></script>
-		<script src="web/app/main/grid/gridcontroller.js"></script>
-		<script src="web/app/main/grid/export/exportcontroller.js"></script>
-		<script src="web/app/main/grid/import/importcontroller.js"></script>
-		<script src="web/app/main/grid/scan/scancontroller.js"></script>
-		<script src="web/app/main/bookviews/editor/editorcontroller.js"></script>
-		<script src="web/app/main/bookviews/viewer/viewcontroller.js"></script>
-		<script src="web/app/main/shelves/shelvescontroller.js"></script>
-		<script src="web/app/main/shelves/shelveseditor/shelveseditorcontroller.js"></script>
-		<script src="web/app/main/settings/settingscontroller.js"></script>
-		<script src="web/app/main/statistics/statisticscontroller.js"></script>
-		<script src="web/app/main/directives/inputs.js"></script>
-		<script src="web/app/main/directives/bookcases.js"></script>
-		<script src="web/app/main/librarychooser/librarychoosercontroller.js"></script>
-		<script src="web/app/main/directives/focuson.js"></script>
-		<script src="web/app/main/directives/scan.js"></script>
-		<img style="display: none" id="wood" src='web/res/wood.png' />
-		<img style="display: none" id="woodborder" src='web/res/wood-border.png'>
-	</head>
 
-	<body style="overflow-y: hidden">
-		<div ng-app="libraryOrganizer" ng-controller="libraryOrganizerController as $ctrl">
-			<div id="header" layout="row" ng-include="'web/app/main/header/header.html'"></div>
-			<div ng-controller="gridController" id="grid-view" ng-hide="display!='grid'" flex ng-include="'web/app/main/grid/grid.html'"></div>
-			<div ng-controller="shelvesController" id="shelves-view" ng-hide="display!='shelves'" layout="row" flex ng-include="'web/app/main/shelves/shelves.html'"></div>
-			<div ng-controller="statisticsController" id="statistics-view" ng-hide="display!='stats'" layout="row" flex ng-include="'web/app/main/statistics/statistics.html'"></div>
-		</div>
-	</body>
+<head>
+    <meta charset="UTF-8">
+    <title>Library Organizer</title>
+    <link rel="stylesheet" type="text/css" href="web/css/icons.css">
+    <link rel="stylesheet" type="text/css" href="web/css/misc.css">
+    <link rel="stylesheet" type="text/css" href="web/css/main.css">
+    <link rel="stylesheet" type="text/css" href="web/lib/fontawesome/css/font-awesome.min.css">
+    <script src="web/lib/bower_components/angular/angular.min.js"></script>
+    <script src="web/lib/bower_components/angular-material/angular-material.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="web/lib/bower_components/angular-material/angular-material.min.css">
+    </script>
+    <script src="web/lib/bower_components/angular-animate/angular-animate.min.js"></script>
+    <script src="web/lib/bower_components/angular-aria/angular-aria.min.js"></script>
+    <script src="web/lib/bower_components/fusioncharts/angular-fusioncharts.min.js"></script>
+    <script src="web/lib/bower_components/fusioncharts/fusioncharts.js"></script>
+    <script src="web/lib/bower_components/angu-fixed-header-table/angu-fixed-header-table.js"></script>
+    <script src="web/lib/jquery/jquery-3.2.1.min.js"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+        rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+        crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="web/lib/multiselectsearchtree/kjvelarde-multiselect-searchtree.css">
+    <script type="text/javascript" src="web/lib/multiselectsearchtree/kjvelarde-multiselect-searchtree.js"></script>
+    <script type="text/javascript" src="web/lib/multiselectsearchtree/kjvelarde-multiselect-searchtree.tpl.js"></script>
+    <script src="web/app/main/maincontroller.js"></script>
+    <script src="web/app/main/grid/gridcontroller.js"></script>
+    <script src="web/app/main/grid/export/exportcontroller.js"></script>
+    <script src="web/app/main/grid/import/importcontroller.js"></script>
+    <script src="web/app/main/grid/scan/scancontroller.js"></script>
+    <script src="web/app/main/bookviews/editor/editorcontroller.js"></script>
+    <script src="web/app/main/bookviews/viewer/viewcontroller.js"></script>
+    <script src="web/app/main/shelves/shelvescontroller.js"></script>
+    <script src="web/app/main/shelves/shelveseditor/shelveseditorcontroller.js"></script>
+    <script src="web/app/main/settings/settingscontroller.js"></script>
+    <script src="web/app/main/statistics/statisticscontroller.js"></script>
+    <script src="web/app/main/directives/inputs.js"></script>
+    <script src="web/app/main/directives/bookcases.js"></script>
+    <script src="web/app/main/librarychooser/librarychoosercontroller.js"></script>
+    <script src="web/app/main/directives/focuson.js"></script>
+    <script src="web/app/main/directives/scan.js"></script>
+    <img class="bookshelf-image" id="wood" src='web/res/wood.png' />
+    <img class="bookshelf-image" id="woodborder" src='web/res/wood-border.png'>
+</head>
+
+<body >
+    <div ng-app="libraryOrganizer" ng-controller="libraryOrganizerController as $ctrl">
+        <div id="header" layout="row" ng-include="'web/app/main/header/header.html'"></div>
+        <div ng-controller="gridController" id="grid-view" ng-hide="display!='grid'" flex
+            ng-include="'web/app/main/grid/grid.html'"></div>
+        <div ng-controller="shelvesController" id="shelves-view" ng-hide="display!='shelves'"
+            layout="row" flex ng-include="'web/app/main/shelves/shelves.html'"></div>
+        <div ng-controller="statisticsController" id="statistics-view" ng-hide="display!='stats'"
+            layout="row" flex ng-include="'web/app/main/statistics/statistics.html'"></div>
+    </div>
+</body>
+
 </html>

@@ -1,239 +1,312 @@
 <md-dialog aria-label="Editor" id="editor-view" flex>
-	<form id="editor-form" name="editorForm" layout-padding="5" layout="column">
-		<md-content>
-			<md-tabs md-dynamic-height>
-				<md-tab label="Main">
-					<div layout="column" flex>
-						<div layout="row" flex>
-							<div layout="column" flex="80">
-								<div layout="column" flex>
-									<md-input-container>
-										<label>Library</label>
-										<md-select ng-model="book.library.id" required>
-											<md-option ng-repeat="library in libraries" ng-value="library.id">
-												{{library.display}}
-											</md-option>
-										</md-select>
-									</md-input-container>
-									<md-input-container>
-										<label>Title</label>
-										<input type="text" ng-model="book.title" name="title" value="{{book.title}}" required/>
-									</md-input-container>
-									<md-input-container>
-										<label>Subtitle</label>
-										<input type="text" ng-model="book.subtitle" name="subtitle" value="{{book.subtitle}}"/>
-									</md-input-container>
-								</div>
-								
-							</div>
-							<div layout="column" flex>
-								<div>
-									<img src="{{book.imageurl.startsWith('res/')?'web/':''}}{{book.imageurl}}{{'?'+getCurrentDateString()}}" alt="Image not found" onerror="this.onerror=null;this.src='web/res/book.jpg';" style="display: block; margin: auto; width: 80%"/>
-								</div>
-								<div layout-gt-md="row" layout="column">
-									<div style="display: block; margin: auto">
-										<div style="display: inline-block; margin: auto"><md-button aria-label="Paste URL" ng-hide="pastingurl" class="icon url-icon" ng-click="pastingurl=true"></md-button></div>
-										<div style="display: inline-block; margin: auto"><md-button aria-label="Cancel Pasting URL" ng-show="pastingurl" class="icon cancel-icon" ng-click="cancelPastingURL()"></md-button></div>
-										<!-- <div style="display: inline-block; margin: auto"><md-button aria-label="Import Image" class="icon import-icon"></md-button></div> -->
-									</div>
-								</div>
-								<md-input-container ng-show="pastingurl">
-									<label>Image URL</label>
-									<input focus-on="pastingurl" id="editorImageUrl" type="text" ng-model="book.imageurl" name="newUrl" value="{{book.imageurl}}"/>
-								</md-input-container>
-							</div>
-						</div>
-						<div layout="column">
-							<div layout="row">
-								<md-autocomplete flex="80" md-input-name="series" md-search-text="seriesSearchText" md-selected-item="book.series" md-items="s in query(series, seriesSearchText)" md-item-text="s" md-floating-label="Series">
-									<md-item-template>
-							          <span md-highlight-text="seriesSearchText" md-highlight-flags="^i">{{s}}</span>
-							        </md-item-template>
-								</md-autocomplete>
-								<md-input-container flex>
-									<label>Volume</label>
-									<input type="text" ng-model="book.volume" name="volume" value="{{book.volume}}" required non-negative-number-input/>
-								</md-input-container>
-							</div>
-							<md-toolbar class="md-toolbar-tools">
-								<span>Contributors</span>
-							</md-toolbar>
-							<md-content>
-								<md-list style="max-height: 20vh">
-									<md-list-item ng-repeat="contributor in book.contributors">
-										<ng-form name="editAuthorForm" layout="row" data-isolate-form>
-											<md-button ng-click="contributor.editing=true" aria-label="Edit Contributor" ng-hide="contributor.editing" class="icon edit-icon"></md-button>
-											<md-button ng-disabled="editAuthorForm.$invalid" aria-label="Save Contributor" ng-click="contributor.editing=false" ng-show="contributor.editing" class="icon save-icon"></md-button>
-											<md-button ng-click="removeContributor($index)" aria-label="Remove Contributor" ng-hide="contributor.editing" class="icon remove-icon"></md-button>
-											<!-- <span ng-hide="contributor.editing">{{contributor.name.first}} {{contributor.name.middles.replace(';',' ')}} {{contributor.name.last}}: {{contributor.role}}</span> -->
-											<div layout="row">
-												<md-input-container flex>
-													<label>First</label>
-													<input type="text" ng-disabled="!contributor.editing" ng-model="contributor.name.first" name="first" value="{{contributor.name.first}}"/>
-												</md-input-container>
-												<md-input-container flex>
-													<label>Middles</label>
-													<input type="text" ng-disabled="!contributor.editing" ng-model="contributor.name.middles" name="middles" value="{{contributor.name.middles}}"/>
-												</md-input-container>
-												<md-input-container flex>
-													<label>Last</label>
-													<input type="text" ng-disabled="!contributor.editing" ng-model="contributor.name.last" name="last" value="{{contributor.name.last}}" required/>
-												</md-input-container>
-												<md-autocomplete flex ng-disabled="!contributor.editing" md-input-name="role" md-search-text="roleSearchText" md-selected-item="contributor.role" md-items="s in query(roles, roleSearchText)" md-item-text="s" md-floating-label="Role" required>
-													<md-item-template>
-											          <span md-highlight-text="roleSearchText" md-highlight-flags="^i">{{s}}</span>
-											        </md-item-template>
-												</md-autocomplete>
-											</div>
-										</ng-form>
-									</md-list-item>
-									<md-list-item>
-										<ng-form name="addAuthorForm" data=isolate-form>
-											<div layout="row">
-												<md-input-container flex>
-													<label>First</label>
-													<input type="text" ng-model="newContributor.name.first" name="newFirst" value="{{newContributor.name.first}}"/>
-												</md-input-container>
-												<md-input-container flex>
-													<label>Middles</label>
-													<input type="text" ng-model="newContributor.name.middles" name="newMiddles" value="{{newContributor.name.middles}}"/>
-												</md-input-container>
-												<md-input-container flex>
-													<label>Last</label>
-													<input type="text" ng-model="newContributor.name.last" name="newLast" value="{{newContributor.name.last}}" required/>
-												</md-input-container>
-												<md-autocomplete flex md-input-name="role" md-select-on-match="true" md-autoselect="true" md-search-text="newRoleSearchText" md-selected-item="newContributor.role" md-items="s in query(roles, newRoleSearchText)" md-item-text="s" md-floating-label="Role" required>
-													<md-item-template>
-											          <span md-highlight-text="newRoleSearchText" md-highlight-flags="^i">{{s}}</span>
-											        </md-item-template>
-												</md-autocomplete>
-												<md-button aria-label="Add Contributor" ng-disabled="addAuthorForm.$invalid" style="margin:auto" class="icon add-icon" ng-click="addContributor()"></md-button>
-											</div>
-										</ng-form>
-									</md-list-item>
-								</md-list>
-							</md-content>
-						</div>
-					</div>
-				</md-tab>
-				<md-tab label="Misc">
-					<md-divider></md-divider>
-					<div layout="column" flex>
-						<div layout="row" flex>
-							<md-autocomplete flex="40" md-input-name="publisher" md-search-text="PublisherSearchText" md-selected-item="book.publisher.publisher" md-items="s in query(publishers, PublisherSearchText)" md-item-text="s" md-floating-label="Publisher">
-								<md-item-template>
-						          <span md-highlight-text="PublisherSearchText" md-highlight-flags="^i">{{s}}</span>
-						        </md-item-template>
-							</md-autocomplete>
-							<md-autocomplete flex="20" md-input-name="city" md-search-text="CitySearchText" md-selected-item="book.publisher.city" md-items="s in query(cities, CitySearchText)" md-item-text="s" md-floating-label="City">
-								<md-item-template>
-						          <span md-highlight-text="CitySearchText" md-highlight-flags="^i">{{s}}</span>
-						        </md-item-template>
-							</md-autocomplete>
-							<md-autocomplete flex="20" md-input-name="state" md-search-text="stateSearchText" md-selected-item="book.publisher.state" md-items="s in query(states, stateSearchText)" md-item-text="s" md-floating-label="State">
-								<md-item-template>
-						          <span md-highlight-text="stateSearchText" md-highlight-flags="^i">{{s}}</span>
-						        </md-item-template>
-							</md-autocomplete>
-							<md-autocomplete flex="20" md-input-name="country" md-search-text="countrySearchText" md-selected-item="book.publisher.country" md-items="s in query(countries, countrySearchText)" md-item-text="s" md-floating-label="Country">
-								<md-item-template>
-						          <span md-highlight-text="countrySearchText" md-highlight-flags="^i">{{s}}</span>
-						        </md-item-template>
-							</md-autocomplete>
-						</div>
-						<div flex layout="row" flex>
-							<md-input-container flex="15">
-								<label>Originally Published</label>
-								<input type="text" ng-model="book.originallypublished" name="originallypublished" value="{{book.originallypublished}}" year-input/>
-							</md-input-container>
-							<md-input-container flex="15">
-								<label>Edition Published</label>
-								<input type="text" ng-model="book.editionpublished" name="editionpublished" value="{{book.editionpublished}}" year-input/>
-							</md-input-container>
-							<!-- todo add hyphens on blur -->
-							<md-input-container flex="20">
-								<label>ISBN</label>
-								<input type="text" ng-model="book.isbn" name="isbn" value="{{book.isbn}}" isbn-input/>
-							</md-input-container>
-							<md-input-container flex="10">
-								<label>Edition</label>
-								<input type="text" ng-model="book.edition" name="edition" value="{{book.edition}}" required non-negative-integer-input/>
-							</md-input-container>
-							<md-autocomplete flex md-input-name="dewey" md-search-text="deweySearchText" md-selected-item="book.dewey" md-items="s in query(deweys, deweySearchText)" md-item-text="s" md-floating-label="Dewey">
-								<md-item-template>
-						          <span md-highlight-text="deweySearchText" md-highlight-flags="^i">{{s}}</span>
-						        </md-item-template>
-							</md-autocomplete>
-							<p flex="30">
-								{{getGenre()}}
-							</p>
-							<!-- <md-input-container flex="30">
+    <form id="editor-form" name="editorForm" layout-padding="5" layout="column">
+        <md-content>
+            <md-tabs md-dynamic-height>
+                <md-tab label="Main">
+                    <div layout="column" flex>
+                        <div layout="row" flex>
+                            <div layout="column" flex="80">
+                                <div layout="column" flex>
+                                    <md-input-container>
+                                        <label>Library</label>
+                                        <md-select ng-model="book.library.id" required>
+                                            <md-option ng-repeat="library in libraries" ng-value="library.id">
+                                                {{library.display}}
+                                            </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                    <md-input-container>
+                                        <label>Title</label>
+                                        <input type="text" ng-model="book.title" name="title" value="{{book.title}}" required/>
+                                    </md-input-container>
+                                    <md-input-container>
+                                        <label>Subtitle</label>
+                                        <input type="text" ng-model="book.subtitle" name="subtitle" value="{{book.subtitle}}"
+                                        />
+                                    </md-input-container>
+                                </div>
+
+                            </div>
+                            <div layout="column" flex>
+                                <div>
+                                    <img src="{{book.imageurl.startsWith('res/')?'web/':''}}{{book.imageurl}}{{'?'+getCurrentDateString()}}"
+                                        alt="Image not found" onerror="this.onerror=null;this.src='web/res/book.jpg';"
+                                    />
+                                </div>
+                                <div class="    margin: auto;image-buttons" layout-gt-md="row" layout="column">
+                                    <div class="image-buttons">
+                                        <div class="image-button">
+                                            <md-button aria-label="Paste URL" ng-hide="pastingurl" class="icon url-icon" ng-click="pastingurl=true"></md-button>
+                                        </div>
+                                        <div class="image-button">
+                                            <md-button aria-label="Cancel Pasting URL" ng-show="pastingurl" class="icon cancel-icon"
+                                                ng-click="cancelPastingURL()"></md-button>
+                                        </div>
+                                        <!-- <div class="image-button"><md-button aria-label="Import Image" class="icon import-icon"></md-button></div> -->
+                                    </div>
+                                </div>
+                                <md-input-container ng-show="pastingurl">
+                                    <label>Image URL</label>
+                                    <input focus-on="pastingurl" id="editorImageUrl" type="text" ng-model="book.imageurl"
+                                        name="newUrl" value="{{book.imageurl}}" />
+                                </md-input-container>
+                            </div>
+                        </div>
+                        <div layout="column">
+                            <div layout="row">
+                                <md-autocomplete flex="80" md-input-name="series" md-search-text="seriesSearchText"
+                                    md-selected-item="book.series" md-items="s in query(series, seriesSearchText)"
+                                    md-item-text="s" md-floating-label="Series">
+                                    <md-item-template>
+                                        <span md-highlight-text="seriesSearchText" md-highlight-flags="^i">{{s}}</span>
+                                    </md-item-template>
+                                </md-autocomplete>
+                                <md-input-container flex>
+                                    <label>Volume</label>
+                                    <input type="text" ng-model="book.volume" name="volume" value="{{book.volume}}"
+                                        required non-negative-number-input/>
+                                </md-input-container>
+                            </div>
+                            <md-toolbar class="md-toolbar-tools">
+                                <span>Contributors</span>
+                            </md-toolbar>
+                            <md-content>
+                                <md-list class="contributor-list">
+                                    <md-list-item ng-repeat="contributor in book.contributors">
+                                        <ng-form name="editAuthorForm" layout="row" data-isolate-form>
+                                            <md-button ng-click="contributor.editing=true" aria-label="Edit Contributor" ng-hide="contributor.editing"
+                                                class="icon edit-icon"></md-button>
+                                            <md-button ng-disabled="editAuthorForm.$invalid" aria-label="Save Contributor"
+                                                ng-click="contributor.editing=false"
+                                                ng-show="contributor.editing" class="icon save-icon"></md-button>
+                                            <md-button ng-click="removeContributor($index)" aria-label="Remove Contributor"
+                                                ng-hide="contributor.editing" class="icon remove-icon"></md-button>
+                                            <!-- <span ng-hide="contributor.editing">{{contributor.name.first}} {{contributor.name.middles.replace(';',' ')}} {{contributor.name.last}}: {{contributor.role}}</span> -->
+                                            <div layout="row">
+                                                <md-input-container flex>
+                                                    <label>First</label>
+                                                    <input type="text" ng-disabled="!contributor.editing" ng-model="contributor.name.first"
+                                                        name="first" value="{{contributor.name.first}}"
+                                                    />
+                                                </md-input-container>
+                                                <md-input-container flex>
+                                                    <label>Middles</label>
+                                                    <input type="text" ng-disabled="!contributor.editing" ng-model="contributor.name.middles"
+                                                        name="middles" value="{{contributor.name.middles}}"
+                                                    />
+                                                </md-input-container>
+                                                <md-input-container flex>
+                                                    <label>Last</label>
+                                                    <input type="text" ng-disabled="!contributor.editing" ng-model="contributor.name.last"
+                                                        name="last" value="{{contributor.name.last}}"
+                                                        required/>
+                                                </md-input-container>
+                                                <md-autocomplete flex ng-disabled="!contributor.editing" md-input-name="role" md-search-text="roleSearchText"
+                                                    md-selected-item="contributor.role"
+                                                    md-items="s in query(roles, roleSearchText)"
+                                                    md-item-text="s" md-floating-label="Role"
+                                                    required>
+                                                    <md-item-template>
+                                                        <span md-highlight-text="roleSearchText" md-highlight-flags="^i">{{s}}</span>
+                                                    </md-item-template>
+                                                </md-autocomplete>
+                                            </div>
+                                        </ng-form>
+                                    </md-list-item>
+                                    <md-list-item>
+                                        <ng-form name="addAuthorForm" data=isolate-form>
+                                            <div layout="row">
+                                                <md-input-container flex>
+                                                    <label>First</label>
+                                                    <input type="text" ng-model="newContributor.name.first" name="newFirst" value="{{newContributor.name.first}}"
+                                                    />
+                                                </md-input-container>
+                                                <md-input-container flex>
+                                                    <label>Middles</label>
+                                                    <input type="text" ng-model="newContributor.name.middles" name="newMiddles" value="{{newContributor.name.middles}}"
+                                                    />
+                                                </md-input-container>
+                                                <md-input-container flex>
+                                                    <label>Last</label>
+                                                    <input type="text" ng-model="newContributor.name.last" name="newLast" value="{{newContributor.name.last}}"
+                                                        required/>
+                                                </md-input-container>
+                                                <md-autocomplete flex md-input-name="role" md-select-on-match="true" md-autoselect="true"
+                                                    md-search-text="newRoleSearchText"
+                                                    md-selected-item="newContributor.role"
+                                                    md-items="s in query(roles, newRoleSearchText)"
+                                                    md-item-text="s" md-floating-label="Role"
+                                                    required>
+                                                    <md-item-template>
+                                                        <span md-highlight-text="newRoleSearchText" md-highlight-flags="^i">{{s}}</span>
+                                                    </md-item-template>
+                                                </md-autocomplete>
+                                                <md-button aria-label="Add Contributor" ng-disabled="addAuthorForm.$invalid" class="icon add-icon contributor-button"
+                                                    ng-click="addContributor()"></md-button>
+                                            </div>
+                                        </ng-form>
+                                    </md-list-item>
+                                </md-list>
+                            </md-content>
+                        </div>
+                    </div>
+                </md-tab>
+                <md-tab label="Misc">
+                    <md-divider></md-divider>
+                    <div layout="column" flex>
+                        <div layout="row" flex>
+                            <md-autocomplete flex="40" md-input-name="publisher" md-search-text="PublisherSearchText"
+                                md-selected-item="book.publisher.publisher" md-items="s in query(publishers, PublisherSearchText)"
+                                md-item-text="s" md-floating-label="Publisher">
+                                <md-item-template>
+                                    <span md-highlight-text="PublisherSearchText" md-highlight-flags="^i">{{s}}</span>
+                                </md-item-template>
+                            </md-autocomplete>
+                            <md-autocomplete flex="20" md-input-name="city" md-search-text="CitySearchText"
+                                md-selected-item="book.publisher.city" md-items="s in query(cities, CitySearchText)"
+                                md-item-text="s" md-floating-label="City">
+                                <md-item-template>
+                                    <span md-highlight-text="CitySearchText" md-highlight-flags="^i">{{s}}</span>
+                                </md-item-template>
+                            </md-autocomplete>
+                            <md-autocomplete flex="20" md-input-name="state" md-search-text="stateSearchText"
+                                md-selected-item="book.publisher.state" md-items="s in query(states, stateSearchText)"
+                                md-item-text="s" md-floating-label="State">
+                                <md-item-template>
+                                    <span md-highlight-text="stateSearchText" md-highlight-flags="^i">{{s}}</span>
+                                </md-item-template>
+                            </md-autocomplete>
+                            <md-autocomplete flex="20" md-input-name="country" md-search-text="countrySearchText"
+                                md-selected-item="book.publisher.country" md-items="s in query(countries, countrySearchText)"
+                                md-item-text="s" md-floating-label="Country">
+                                <md-item-template>
+                                    <span md-highlight-text="countrySearchText" md-highlight-flags="^i">{{s}}</span>
+                                </md-item-template>
+                            </md-autocomplete>
+                        </div>
+                        <div flex layout="row" flex>
+                            <md-input-container flex="15">
+                                <label>Originally Published</label>
+                                <input type="text" ng-model="book.originallypublished" name="originallypublished"
+                                    value="{{book.originallypublished}}" year-input/>
+                            </md-input-container>
+                            <md-input-container flex="15">
+                                <label>Edition Published</label>
+                                <input type="text" ng-model="book.editionpublished" name="editionpublished" value="{{book.editionpublished}}"
+                                    year-input/>
+                            </md-input-container>
+                            <!-- todo add hyphens on blur -->
+                            <md-input-container flex="20">
+                                <label>ISBN</label>
+                                <input type="text" ng-model="book.isbn" name="isbn" value="{{book.isbn}}" isbn-input/>
+                            </md-input-container>
+                            <md-input-container flex="10">
+                                <label>Edition</label>
+                                <input type="text" ng-model="book.edition" name="edition" value="{{book.edition}}"
+                                    required non-negative-integer-input/>
+                            </md-input-container>
+                            <md-autocomplete flex md-input-name="dewey" md-search-text="deweySearchText" md-selected-item="book.dewey"
+                                md-items="s in query(deweys, deweySearchText)" md-item-text="s"
+                                md-floating-label="Dewey">
+                                <md-item-template>
+                                    <span md-highlight-text="deweySearchText" md-highlight-flags="^i">{{s}}</span>
+                                </md-item-template>
+                            </md-autocomplete>
+                            <p flex="30">
+                                {{getGenre()}}
+                            </p>
+                            <!-- <md-input-container flex="30">
 								<label>Genre</label>
 								<textarea name="Genre" value="{{getGenre()}}" ng-disabled="true">
 								</textarea>
 							</md-input-container> -->
-						</div>
-						<div flex layout="row" flex>
-							<md-autocomplete flex="25" md-input-name="format" md-search-text="formatSearchText" md-selected-item="book.format" md-items="s in query(formats, formatSearchText)" md-item-text="s" md-floating-label="Format">
-								<md-item-template>
-						          <span md-highlight-text="formatSearchText" md-highlight-flags="^i">{{s}}</span>
-						        </md-item-template>
-							</md-autocomplete>
-							<md-input-container flex>
-								<label>Pages</label>
-								<input type="text" ng-model="book.pages" name="pages" value="{{book.pages}}" required non-negative-integer-input/>
-							</md-input-container>
-							<md-input-container flex>
-								<label>Width</label>
-								<input type="text" ng-model="book.width" name="width" value="{{book.width}}" required non-negative-integer-input/>
-							</md-input-container>
-							<md-input-container flex>
-								<label>Height</label>
-								<input type="text" ng-model="book.height" name="height" value="{{book.height}}" required non-negative-integer-input/>
-							</md-input-container>
-							<md-input-container fle>
-								<label>Depth</label>
-								<input type="text" ng-model="book.depth" name="depth" value="{{book.depth}}" required non-negative-integer-input/>
-							</md-input-container>
-							<md-input-container flex>
-								<label>Weight</label>
-								<input type="text" ng-model="book.weight" name="weight" value="{{book.weight}}" required non-negative-number-input/>
-							</md-input-container>
-						</div>
-						<div flex layout="row" flex>
-							<md-autocomplete flex md-input-name="primarylanguage" md-search-text="primaryLanguageSearchText" md-selected-item="book.primarylanguage" md-items="s in query(languages, primaryLanguageSearchText)" md-item-text="s" md-floating-label="Primary Language">
-								<md-item-template>
-						          <span md-highlight-text="primaryLanguageSearchText" md-highlight-flags="^i">{{s}}</span>
-						        </md-item-template>
-							</md-autocomplete>
-							<md-autocomplete flex md-input-name="secondarylanguage" md-search-text="secondaryLanguageSearchText" md-selected-item="book.secondarylanguage" md-items="s in query(languages, secondaryLanguageSearchText)" md-item-text="s" md-floating-label="Secondary Language">
-								<md-item-template>
-						          <span md-highlight-text="secondaryLanguageSearchText" md-highlight-flags="^i">{{s}}</span>
-						        </md-item-template>
-							</md-autocomplete>
-							<md-autocomplete flex md-input-name="originallanguage" md-search-text="originalLanguageSearchText" md-selected-item="book.originallanguage" md-items="s in query(languages, originalLanguageSearchText)" md-item-text="s" md-floating-label="Original Language">
-								<md-item-template>
-						          <span md-highlight-text="originalLanguageSearchText" md-highlight-flags="^i">{{s}}</span>
-						        </md-item-template>
-							</md-autocomplete>
-						</div>
-						<div flex layout="row">
-							<div flex layout="row" layout-align="left center">
-								<div flex><md-checkbox ng-model="book.isowned" aria-label="Owned" style="margin-bottom: 0">Owned</md-checkbox></div>
-								<div flex><md-checkbox ng-model="book.isread" aria-label="Read" style="margin-bottom: 0">Read</md-checkbox></div>
-								<div flex><md-checkbox ng-model="book.isreference" aria-label="Reference" style="margin-bottom: 0">Reference</md-checkbox></div>
-								<div flex><md-checkbox ng-model="book.isreading" aria-label="Reading" style="margin-bottom: 0">Reading</md-checkbox></div>
-								<div flex><md-checkbox ng-model="book.isshipping" aria-label="Shipping" style="margin-bottom: 0">Shipping</md-checkbox></div>
-							</div>
-						</div>
-					</div>
-				</md-tab>
-			</md-tabs>
-			<div flex layout="row" flex>
-				<md-button aria-label="Save Book" ng-disabled="editorForm.$invalid" ng-click="save(book)" flex class="icon save-icon"></md-button>
-				<md-button aria-label="Remove Book" ng-disabled="book.bookid==''" ng-click="remove(book)" flex class="icon remove-icon"></md-button>
-				<md-button aria-label="Cancel Editing" ng-click="cancel()" flex class="icon cancel-icon"></md-button>
-			</div>
-		</md-content>
-	</form>
+                        </div>
+                        <div flex layout="row" flex>
+                            <md-autocomplete flex="25" md-input-name="format" md-search-text="formatSearchText"
+                                md-selected-item="book.format" md-items="s in query(formats, formatSearchText)"
+                                md-item-text="s" md-floating-label="Format">
+                                <md-item-template>
+                                    <span md-highlight-text="formatSearchText" md-highlight-flags="^i">{{s}}</span>
+                                </md-item-template>
+                            </md-autocomplete>
+                            <md-input-container flex>
+                                <label>Pages</label>
+                                <input type="text" ng-model="book.pages" name="pages" value="{{book.pages}}" required
+                                    non-negative-integer-input/>
+                            </md-input-container>
+                            <md-input-container flex>
+                                <label>Width</label>
+                                <input type="text" ng-model="book.width" name="width" value="{{book.width}}" required
+                                    non-negative-integer-input/>
+                            </md-input-container>
+                            <md-input-container flex>
+                                <label>Height</label>
+                                <input type="text" ng-model="book.height" name="height" value="{{book.height}}"
+                                    required non-negative-integer-input/>
+                            </md-input-container>
+                            <md-input-container fle>
+                                <label>Depth</label>
+                                <input type="text" ng-model="book.depth" name="depth" value="{{book.depth}}" required
+                                    non-negative-integer-input/>
+                            </md-input-container>
+                            <md-input-container flex>
+                                <label>Weight</label>
+                                <input type="text" ng-model="book.weight" name="weight" value="{{book.weight}}"
+                                    required non-negative-number-input/>
+                            </md-input-container>
+                        </div>
+                        <div flex layout="row" flex>
+                            <md-autocomplete flex md-input-name="primarylanguage" md-search-text="primaryLanguageSearchText"
+                                md-selected-item="book.primarylanguage" md-items="s in query(languages, primaryLanguageSearchText)"
+                                md-item-text="s" md-floating-label="Primary Language">
+                                <md-item-template>
+                                    <span md-highlight-text="primaryLanguageSearchText" md-highlight-flags="^i">{{s}}</span>
+                                </md-item-template>
+                            </md-autocomplete>
+                            <md-autocomplete flex md-input-name="secondarylanguage" md-search-text="secondaryLanguageSearchText"
+                                md-selected-item="book.secondarylanguage" md-items="s in query(languages, secondaryLanguageSearchText)"
+                                md-item-text="s" md-floating-label="Secondary Language">
+                                <md-item-template>
+                                    <span md-highlight-text="secondaryLanguageSearchText" md-highlight-flags="^i">{{s}}</span>
+                                </md-item-template>
+                            </md-autocomplete>
+                            <md-autocomplete flex md-input-name="originallanguage" md-search-text="originalLanguageSearchText"
+                                md-selected-item="book.originallanguage" md-items="s in query(languages, originalLanguageSearchText)"
+                                md-item-text="s" md-floating-label="Original Language">
+                                <md-item-template>
+                                    <span md-highlight-text="originalLanguageSearchText" md-highlight-flags="^i">{{s}}</span>
+                                </md-item-template>
+                            </md-autocomplete>
+                        </div>
+                        <div flex layout="row">
+                            <div flex layout="row" layout-align="left center">
+                                <div flex>
+                                    <md-checkbox ng-model="book.isowned" aria-label="Owned">Owned</md-checkbox>
+                                </div>
+                                <div flex>
+                                    <md-checkbox ng-model="book.isread" aria-label="Read">Read</md-checkbox>
+                                </div>
+                                <div flex>
+                                    <md-checkbox ng-model="book.isreference" aria-label="Reference">Reference</md-checkbox>
+                                </div>
+                                <div flex>
+                                    <md-checkbox ng-model="book.isreading" aria-label="Reading">Reading</md-checkbox>
+                                </div>
+                                <div flex>
+                                    <md-checkbox ng-model="book.isshipping" aria-label="Shipping">Shipping</md-checkbox>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </md-tab>
+            </md-tabs>
+            <div flex layout="row" flex>
+                <md-button aria-label="Save Book" ng-disabled="editorForm.$invalid" ng-click="save(book)"
+                    flex class="icon save-icon"></md-button>
+                <md-button aria-label="Remove Book" ng-disabled="book.bookid==''" ng-click="remove(book)"
+                    flex class="icon remove-icon"></md-button>
+                <md-button aria-label="Cancel Editing" ng-click="cancel()" flex class="icon cancel-icon"></md-button>
+            </div>
+        </md-content>
+    </form>
 </md-dialog>

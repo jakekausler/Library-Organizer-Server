@@ -1,29 +1,34 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="UTF-8">
-		<title>Library Organizer</title>
-		<link rel="stylesheet" type="text/css" href="web/css/icons.css">
-		<link rel="stylesheet" type="text/css" href="web/lib/fontawesome/css/font-awesome.min.css">
-		<script src="web/lib/bower_components/angular/angular.min.js"></script>
-		<script src="web/lib/bower_components/angular-material/angular-material.min.js"></script>
-		<link rel="stylesheet" type="text/css" href="web/lib/bower_components/angular-material/angular-material.min.css"></script>
-		<script src="web/lib/bower_components/angular-animate/angular-animate.min.js"></script>
-		<script src="web/lib/bower_components/angular-aria/angular-aria.min.js"></script>
-		<script src="web/app/unregistered/unregisteredcontroller.js"></script>
-		<script src="web/app/unregistered/login/logincontroller.js"></script>
-	</head>
 
-	<body style="overflow-y: hidden">
-		<div ng-app="unregistered" ng-controller="unregisteredController" style="margin: auto; max-width: 480px; max-height: 400px; text-align: center; position: absolute;top: 0;bottom: 0;left: 0;right: 0;">
-			<div class="md-body-1">
-				<p>Welcome to Library Organizer! This is a tool to help organize a library. Please login or register to get started.</p>
-			</div>
-			<div layout="column">
-				<md-button class="md-raised md-primary" ng-click="login($event)">Login</md-button>
-				<!--todo - Allow registering after set up for multiple members -->
-				<md-button class="md-raised md-primary" ng-click="register($event)">Register</md-button>
-			</div>
-		</div>
-	</body>
+<head>
+    <meta charset="UTF-8">
+    <title>Library Organizer</title>
+    <link rel="stylesheet" type="text/css" href="web/css/icons.css">
+    <link rel="stylesheet" type="text/css" href="web/css/unregistered.css">
+    <link rel="stylesheet" type="text/css" href="web/lib/fontawesome/css/font-awesome.min.css">
+    <script src="web/lib/bower_components/angular/angular.min.js"></script>
+    <script src="web/lib/bower_components/angular-material/angular-material.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="web/lib/bower_components/angular-material/angular-material.min.css">
+    </script>
+    <script src="web/lib/bower_components/angular-animate/angular-animate.min.js"></script>
+    <script src="web/lib/bower_components/angular-aria/angular-aria.min.js"></script>
+    <script src="web/app/unregistered/unregisteredcontroller.js"></script>
+    <script src="web/app/unregistered/login/logincontroller.js"></script>
+</head>
+
+<body style="overflow-y: hidden">
+    <div id="unregistered-main-content" ng-app="unregistered" ng-controller="unregisteredController">
+        <div class="md-body-1">
+            <p>Welcome to Library Organizer! This is a tool to help organize a library.
+                Please login or register to get started.</p>
+        </div>
+        <div layout="column">
+            <md-button class="md-raised md-primary" ng-click="login($event)">Login</md-button>
+            <!--todo - Allow registering after set up for multiple members -->
+            <md-button class="md-raised md-primary" ng-click="register($event)">Register</md-button>
+        </div>
+    </div>
+</body>
+
 </html>
