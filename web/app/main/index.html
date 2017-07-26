@@ -54,6 +54,9 @@
             layout="row" flex ng-include="'web/app/main/shelves/shelves.html'"></div>
         <div ng-controller="statisticsController" id="statistics-view" ng-hide="display!='stats'"
             layout="row" flex ng-include="'web/app/main/statistics/statistics.html'"></div>
+        <div ng-hide="loading.length==0" id="loading-mask">
+            <md-progress-circular id="loading-circle" md-mode="indeterminate" md-diameter=96></md-progress-circular>
+        </div>
     </div>
 </body>
 

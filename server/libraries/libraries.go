@@ -21,7 +21,7 @@ var logger = log.New(os.Stderr, "log: ", log.LstdFlags|log.Lshortfile)
 
 //Break is a case break
 type Break struct {
-	LibraryID int    `json:"libaryid"`
+	LibraryID string    `json:"libaryid"`
 	ValueType string `json:"valuetype"`
 	Value     string `json:"value"`
 	BreakType string `json:"breaktype"`
@@ -88,14 +88,19 @@ type UserWithPermission struct {
 }
 
 //GetCases gets cases
-func GetCases(db *sql.DB, libraryid, sortMethod, session string) ([]Bookcase, error) {
+func GetCases(db *sql.DB, libraryid, session string) ([]Bookcase, error) {
 	authorseries, err := GetAuthorBasedSeries(db, libraryid)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return nil, err
 	}
-	books, _, err := books.GetBooks(db, "dewey", "both", "both", "yes", "both", "both", "both", "", "1", "-1", "0", "FIC", libraryid, session, authorseries)
-	breaks, err := GetBreaks(db, libraryid, sortMethod)
+	sortMethod, err := GetLibrarySort(db, libraryid)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return nil, err
+	}
+	books, _, err := books.GetBooks(db, strings.ToLower(sortMethod), "both", "both", "yes", "both", "both", "both", "", "1", "-1", "0", "FIC", libraryid, session, authorseries)
+	breaks, err := GetBreaks(db, libraryid, strings.ToUpper(sortMethod))
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return nil, err
@@ -119,6 +124,15 @@ func GetCases(db *sql.DB, libraryid, sortMethod, session string) ([]Bookcase, er
 			logger.Printf("Error: %+v", err)
 			return nil, err
 		}
+		avgWidth := 1;
+		avgHeight := 26;
+		if (dim["averagewidth"] > 0) {
+			avgWidth = int(dim["averagewidth"]);
+		}
+		//Leave room for text
+		if dim["averageheight"] > 25 {
+			avgHeight = int(dim["averageheight"]);
+		}
 		bookcase := Bookcase{
 			ID:                id,
 			Width:             width,
@@ -126,8 +140,8 @@ func GetCases(db *sql.DB, libraryid, sortMethod, session string) ([]Bookcase, er
 			PaddingLeft:       paddingLeft,
 			PaddingRight:      paddingRight,
 			BookMargin:        bookMargin,
-			AverageBookWidth:  dim["averagewidth"],
-			AverageBookHeight: dim["averageheight"],
+			AverageBookWidth:  float64(avgWidth),
+			AverageBookHeight: float64(avgHeight),
 			CaseNumber:        caseNumber,
 		}
 		// 		shelfquery := "SELECT id, Height FROM shelves WHERE CaseId=? ORDER BY ShelfNumber"
@@ -161,15 +175,15 @@ func GetCases(db *sql.DB, libraryid, sortMethod, session string) ([]Bookcase, er
 				break
 			}
 			x = int(bookcase.PaddingLeft)
-			useWidth := int(dim["averagewidth"])
-			if index < len(books) && books[index].Width != 0 {
+			useWidth := int(bookcase.AverageBookWidth)
+			if index < len(books) && books[index].Width > 0 {
 				useWidth = int(books[index].Width)
 			}
 			for index < len(books) && useWidth+x <= int(bookcase.Width)-int(bookcase.PaddingRight) {
 				cases[c].Shelves[s].Books = append(cases[c].Shelves[s].Books, books[index])
 				x += useWidth
 				index++
-				useWidth = int(dim["averagewidth"])
+				useWidth = int(bookcase.AverageBookWidth)
 				if index < len(books) && books[index].Width != 0 {
 					useWidth = int(books[index].Width)
 				}
@@ -266,10 +280,22 @@ func SaveCases(db *sql.DB, libraryid string, cases EditedCases) error {
 }
 
 //AddBreak adds a shelf break
-func AddBreak(db *sql.DB, libraryid string, valuetype, value, breaktype string) error {
-	query := "REPLACE INTO breaks (libaryid, valuetype, value, breaktype) VALUES (?,?,?,?)"
-	_, err := db.Exec(query, libraryid, valuetype, value, breaktype)
-	return err
+func UpdateBreaks(db *sql.DB, libraryid string, breaks []Break) error {
+	query := "DELETE FROM breaks WHERE libraryid=?"
+	_, err := db.Exec(query, libraryid)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return err
+	}
+	for _, b := range breaks {
+		query = "INSERT INTO breaks (libraryid, breaktype, valuetype, value) VALUES (?,?,?,?)"
+		_, err = db.Exec(query, libraryid, b.BreakType, b.ValueType, b.Value)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return err
+		}
+	}
+	return nil
 }
 
 //GetBreaks gets shelf breaks
@@ -285,7 +311,11 @@ func GetBreaks(db *sql.DB, libraryid, valuetype string) ([]map[string]string, er
 		var breaktype string
 		var valuetype string
 		var value string
-		rows.Scan(&breaktype, &valuetype, &value)
+		err = rows.Scan(&breaktype, &valuetype, &value)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return nil, err
+		}
 		if valuetype == "ID" {
 			idBreaks[value] = breaktype
 		} else {
@@ -293,6 +323,28 @@ func GetBreaks(db *sql.DB, libraryid, valuetype string) ([]map[string]string, er
 		}
 	}
 	return []map[string]string{idBreaks, customBreaks}, nil
+}
+
+//GetLibraryBreaks gets shelf breaks
+func GetLibraryBreaks(db *sql.DB, libraryid string) ([]Break, error) {
+	var breaks []Break
+	query := "SELECT breaktype, valuetype, value FROM breaks WHERE libraryid=?"
+	rows, err := db.Query(query, libraryid)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return nil, err
+	}
+	for rows.Next() {
+		var b Break
+		b.LibraryID = libraryid
+		err = rows.Scan(&b.BreakType, &b.ValueType, &b.Value)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return nil, err
+		}
+		breaks = append(breaks, b)
+	}
+	return breaks, nil
 }
 
 //GetOwnedLibraries gets owned libraries and the people who have permission to do things with them
@@ -390,6 +442,12 @@ func SaveOwnedLibraries(db *sql.DB, ownedLibraries []OwnedLibrary, session strin
 				logger.Printf("Error: %+v", err)
 				return err
 			}
+			query = "UPDATE series_author_sorts SET libraryid=? WHERE libraryid=?"
+			_, err = db.Exec(query, ownedLibrary.ID, oldID)
+			if err != nil {
+				logger.Printf("Error: %+v", err)
+				return err
+			}
 		}
 		query = "INSERT INTO permissions (userid, libraryid, permission) VALUES (?,?,7)"
 		_, err = db.Exec(query, userid, ownedLibrary.ID)
@@ -449,4 +507,21 @@ func UpdateAuthorBasedSeries(db *sql.DB, libraryid string, series []string) erro
 		}
 	}
 	return nil
+}
+
+//GetLibrarySort gets the sort method of a library
+func GetLibrarySort(db *sql.DB, libraryid string) (string, error) {
+	var method string
+	query := "SELECT sortmethod FROM libraries WHERE id=?"
+	err := db.QueryRow(query, libraryid).Scan(&method)
+	return method, err
+}
+
+
+
+//UpdateLibrarySort updates the sort method of a library
+func UpdateLibrarySort(db *sql.DB, libraryid string, method string) error {
+	query := "UPDATE libraries SET sortmethod=? WHERE id=?"
+	_, err := db.Exec(query, method, libraryid)
+	return err
 }

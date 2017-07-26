@@ -23,6 +23,8 @@ angular.module('libraryOrganizer')
         }
         $scope.dimensions = {};
         $scope.updateDimensions = function() {
+            var loadingName = $scope.guid();
+            $scope.addToLoading(loadingName)
             $http({
                 url: '/information/dimensions',
                 method: 'GET',
@@ -31,6 +33,7 @@ angular.module('libraryOrganizer')
                 }
             }).then(function(response) {
                 $scope.dimensions = response.data;
+                $scope.removeFromLoading(loadingName)
             });
         }
         $scope.setStatView = function(view) {
@@ -90,6 +93,8 @@ angular.module('libraryOrganizer')
             }
         }
         $scope.updateLibraries = function() {
+            var loadingName = $scope.guid();
+            $scope.addToLoading(loadingName)
             $http({
                 url: '/libraries',
                 method: 'GET'
@@ -123,6 +128,7 @@ angular.module('libraryOrganizer')
                 $scope.libraries = angular.copy(data);
                 $scope.output = angular.copy($scope.libraries);
                 $scope.updateDimensions();
+                $scope.removeFromLoading(loadingName)
             });
         };
         $scope.updateLibraries();

@@ -8,6 +8,8 @@ angular.module('libraryOrganizer')
 	$scope.currentLibraryId = $scope.getParameterByName("shelfselectedlibrary", "");
 	$scope.canEditCurrentShelf = false;
 	$scope.updateCases = function() {
+        var loadingName = $scope.guid();
+        $scope.addToLoading(loadingName)
 		for (o in $scope.libraries) {
 			for (l in $scope.libraries[o].children) {
 				if ($scope.libraries[o].children[l].selected) {
@@ -18,12 +20,13 @@ angular.module('libraryOrganizer')
 		}
 		$http({
             url: '/libraries/'+$scope.currentLibraryId+'/cases',
-            method: 'GET',
-			params: {
-				sortmethod: 'DEWEY'
-			}
+            method: 'GET'
 		}).then(function(response){
 			$scope.bookcases = response.data;
+            if (!$scope.bookcases) {
+                $scope.bookcases = [];
+            }
+            $scope.removeFromLoading(loadingName);
 		});
 	}
 	$scope.editShelves = function(ev) {
@@ -46,6 +49,8 @@ angular.module('libraryOrganizer')
 
     }
     $scope.updateLibraries = function() {
+        var loadingName = $scope.guid();
+        $scope.addToLoading(loadingName)
         $http({
             url: '/libraries',
             method: 'GET'
@@ -80,6 +85,7 @@ angular.module('libraryOrganizer')
             }
             $scope.libraries = angular.copy(data);
             $scope.updateCases();
+            $scope.removeFromLoading(loadingName);
         });
     };
     $scope.updateLibraries();

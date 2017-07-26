@@ -1,7 +1,10 @@
 angular.module('libraryOrganizer')
 .controller('settingsController', function($scope, $mdDialog, $mdToast, $http, vm) {
+    $scope.vm = vm;
     $scope.settings = [];
 	$scope.pushSettings = function () {
+        var loadingName = $scope.vm.guid();
+        $scope.vm.addToLoading(loadingName)
 		var settings = [];
 		for (group in $scope.settings) {
 			for (s in $scope.settings[group].settings) {
@@ -19,9 +22,13 @@ angular.module('libraryOrganizer')
 			url: '/settings',
 			method: 'PUT',
 			data: JSON.stringify(settings)
-		})
+		}).then(function(response) {
+            $scope.vm.removeFromLoading(loadingName);
+        })
 	}
     $scope.updateSettings = function() {
+        var loadingName = $scope.vm.guid();
+        $scope.vm.addToLoading(loadingName)
         $scope.settings = [];
         $http({
             url: '/settings',
@@ -54,6 +61,7 @@ angular.module('libraryOrganizer')
                     settings: settings
                 })
             }
+            $scope.vm.removeFromLoading(loadingName);
         })
     }
     $scope.updateSettings();
@@ -63,6 +71,8 @@ angular.module('libraryOrganizer')
     $scope.ownedLibraries = [];
     $scope.selectedLibrary = 0;
     $scope.updateOwnedLibraries = function() {
+        var loadingName = $scope.vm.guid();
+        $scope.vm.addToLoading(loadingName)
         $http({
             url: '/libraries/owned',
             method: 'GET'
@@ -85,16 +95,20 @@ angular.module('libraryOrganizer')
                     }
                 }
             }
+            $scope.vm.removeFromLoading(loadingName);
         });
     };
     $scope.updateOwnedLibraries();
     $scope.users = [];
     $scope.updateUsers = function() {
+        var loadingName = $scope.vm.guid();
+        $scope.vm.addToLoading(loadingName)
         $http({
             url: '/users',
             method: 'GET'
         }).then(function(response) {
             $scope.users = response.data;
+            $scope.vm.removeFromLoading(loadingName);
         })
     }
     $scope.updateUsers();
@@ -117,6 +131,8 @@ angular.module('libraryOrganizer')
         $scope.selectedLibrary = $scope.ownedLibraries.length-1;
     }
     $scope.saveLibraries = function() {
+        var loadingName = $scope.vm.guid();
+        $scope.vm.addToLoading(loadingName)
         for (i in $scope.ownedLibraries) {
             $scope.ownedLibraries[i].user = [];
             for (j in $scope.ownedLibraries[i].editusers) {
@@ -165,9 +181,11 @@ angular.module('libraryOrganizer')
             data: $scope.ownedLibraries
         }).then(function(response){
             $mdToast.showSimple("Successfully saved library")
+            $scope.vm.removeFromLoading(loadingName);
             $mdDialog.cancel()
         }, function(response) {
             $mdToast.showSimple("Failed to save library")
+            $scope.vm.removeFromLoading(loadingName);
         });
     }
     $scope.containsUser = function(arr, user) {

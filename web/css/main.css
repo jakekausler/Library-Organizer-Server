@@ -34,4 +34,18 @@
     margin-bottom: 0;
 }
 
-#grid-view 
+#loading-circle {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+}
+
+#loading-mask {
+    z-index: 99999;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255,255,255,0.5);
+}

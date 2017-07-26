@@ -11,6 +11,8 @@ angular.module('libraryOrganizer')
             $mdDialog.cancel()
         };
         $scope.scan = function() {
+            var loadingName = $scope.vm.guid();
+            $scope.vm.addToLoading(loadingName)
             var parts = $scope.isbn.split(' ');
             if (parts.length == 1) {
                 $scope.isbn = parts[0];
@@ -26,6 +28,7 @@ angular.module('libraryOrganizer')
                 response.data.items.forEach(function(v, i) {
                     $scope.results.push(v)
                 })
+                $scope.vm.removeFromLoading(loadingName);
             })
         };
         $scope.select = function(ev, result) {
@@ -69,7 +72,6 @@ angular.module('libraryOrganizer')
                 "contributors": $scope.getAuthors(result.volumeInfo.authors),
                 "library": {}
             }
-            console.log($scope.vm)
             $scope.vm.showEditDialog(ev, book, $scope.vm, 'scanadd');
         };
         $scope.getAuthors = function(authors) {

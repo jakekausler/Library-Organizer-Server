@@ -1,9 +1,12 @@
 angular.module('libraryOrganizer')
-.controller('exportController', function ($scope, $mdDialog, $http) {
+.controller('exportController', function ($scope, $mdDialog, $http, vm) {
+	$scope.vm = vm;
 	$scope.cancel = function() {
 		$mdDialog.cancel()
 	};
 	$scope.export = function() {
+        var booksloadingname = $scope.vm.guid();
+        $scope.vm.addToLoading(booksloadingname)
 		$http({
 			url: '/books/books',
 			method: 'GET'
@@ -14,7 +17,10 @@ angular.module('libraryOrganizer')
 				target: '_blank',
 				download: 'books.csv'
 			})[0].click();
+            $scope.removeFromLoading(booksloadingname);
 		});
+        var authorsloadingname = $scope.vm.guid();
+        $scope.vm.addToLoading(authorsloadingname)
 		$http({
 			url: '/books/contributors',
 			method: 'GET'
@@ -25,6 +31,7 @@ angular.module('libraryOrganizer')
 				target: '_blank',
 				download: 'authors.csv'
 			})[0].click();
+            $scope.removeFromLoading(authorsloadingname);
 		});
 		$mdDialog.cancel()
 	};

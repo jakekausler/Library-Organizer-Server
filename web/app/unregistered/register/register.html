@@ -9,19 +9,21 @@
             <label>Email</label>
             <input type="email" name="email" required/>
         </md-input-container>
-        <label>First Name</label>
-        <input type="text" name="first" required/>
+        <md-input-container class="md-block" >
+            <label>First Name</label>
+            <input type="text" name="first" required/>
         </md-input-container>
-        <label>Last Name</label>
-        <input type="text" name="last" required/>
+        <md-input-container class="md-block" >
+            <label>Last Name</label>
+            <input type="text" name="last" required/>
         </md-input-container>
         <md-input-container class="md-block" >
             <label>Password</label>
-            <input type="password" name="password" required/>
+            <input ng-model="password" type="password" name="password" required/>
         </md-input-container>
         <md-input-container class="md-block" >
             <label>Confirm Password</label>
-            <input type="password" name="confirm" required/>
+            <input ng-model="confirm" type="password" name="confirm" compare-to="password" required/>
         </md-input-container>
         <input type="submit" class="md-button md-raised md-primary">
     </div>

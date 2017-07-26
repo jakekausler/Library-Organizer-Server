@@ -399,9 +399,9 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 		order = "if(Series2='' or Series2 is null,1,0), Series2, Volume, minname, Title2"
 	} else {
 		if authorseries != nil {
-			order = "Dewey, CASE WHEN Series IN ('"+strings.Join(authorseries, "','")+"') THEN Series2 ELSE Series2 END, CASE WHEN Series IN ('"+strings.Join(authorseries, "','")+"') THEN minname ELSE Volume END, CASE WHEN Series IN ('"+strings.Join(authorseries, "','")+"') THEN Title2 ELSE minname END, CASE WHEN Series IN ('"+strings.Join(authorseries, "','")+"') THEN Subtitle2 ELSE Title2 END, CASE WHEN Series IN ('"+strings.Join(authorseries, "','")+"') THEN Edition ELSE Subtitle2 END, CASE WHEN Series IN ('"+strings.Join(authorseries, "','")+"') THEN Volume ELSE Edition END"
+			order = "Dewey, CASE WHEN Series IN('"+strings.Join(authorseries, "','")+"') THEN Series2 ELSE minname END, CASE WHEN Series IN('"+strings.Join(authorseries, "','")+"') THEN LPAD(Volume, 8, '0') ELSE series2 END, CASE WHEN Series IN('"+strings.Join(authorseries, "','")+"') THEN minname ELSE LPAD(Volume, 8, '0') END, Title2, Subtitle2, Edition"
 		} else {
-			order = "Dewey, Series2, Volume, minname, title2, Subtitle2, edition"
+			order = "Dewey, minname, Series2, Volume, title2, Subtitle2, edition"
 		}
 	}
 	titlechange := "CASE WHEN Title LIKE 'The %%' THEN TRIM(SUBSTR(Title from 4)) ELSE CASE WHEN Title LIKE 'An %%' THEN TRIM(SUBSTR(Title from 3)) ELSE CASE WHEN Title LIKE 'A %%' THEN TRIM(SUBSTR(Title from 2)) ELSE Title END END END AS Title2"
@@ -556,7 +556,6 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 		return nil, 0, err
 	}
 	rows, err := db.Query(query, userid)
-	logger.Printf(query)
 	if err != nil {
 		logger.Printf("Error querying books: %v", err)
 		return nil, 0, err

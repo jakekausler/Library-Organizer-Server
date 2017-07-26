@@ -36,6 +36,8 @@ angular.module('libraryOrganizer')
             return retval;
         }
         $scope.updateRecieved = function() {
+            var loadingName = $scope.guid();
+            $scope.addToLoading(loadingName)
             $scope.setParameters({
                     sort: $scope.sort,
                     numbertoget: $scope.numberToGet,
@@ -76,6 +78,7 @@ angular.module('libraryOrganizer')
                     }
                 }
                 $scope.numberOfBooks = response.data.numbooks;
+                $scope.removeFromLoading(loadingName);
             });
         };
         $scope.previousPage = function() {
@@ -139,6 +142,8 @@ angular.module('libraryOrganizer')
             $scope.showEditDialog(ev, book, $scope, 'gridadd');
         }
         $scope.updateLibraries = function() {
+            var loadingName = $scope.guid();
+            $scope.addToLoading(loadingName)
             $http({
                 url: '/libraries',
                 method: 'GET'
@@ -171,6 +176,7 @@ angular.module('libraryOrganizer')
                 }
                 $scope.libraries = angular.copy(data);
                 $scope.output = angular.copy($scope.libraries);
+                $scope.removeFromLoading(loadingName);
             });
         };
         $scope.chooseLibrary = function($ev) {

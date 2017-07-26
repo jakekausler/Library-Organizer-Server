@@ -7,6 +7,25 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
             .backgroundPalette('indigo');
     })
     .controller('libraryOrganizerController', function($scope, $http, $timeout, $mdSidenav, $mdDialog) {
+        $scope.guid = function() {
+            function s4() {
+                return Math.floor((1 + Math.random()) * 0x10000)
+                    .toString(16)
+                    .substring(1);
+          }
+          return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+        }
+        $scope.loading = [];
+        $scope.addToLoading = function(name) {
+            $scope.loading.push(name);
+        }
+        $scope.removeFromLoading = function(name) {
+            for (l in $scope.loading) {
+                if ($scope.loading[l] == name) {
+                    $scope.loading.splice(l, 1)
+                }
+            }
+        }
         $scope.getParameters = function() {
             var h = window.location.hash.slice(1);
             if (!h) {
@@ -64,12 +83,15 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
             return def;
         }
         $scope.getSettingByName = function(name, callback) {
+            var loadingName = $scope.guid();
+            $scope.addToLoading(loadingName)
             $http({
                 url: '/settings/'+name,
                 method: 'GET',
                 data: name
             }).then(function(response) {
                 callback(response.data);
+                $scope.removeFromLoading(loadingName);
             });
         }
         $scope.display = $scope.getParameterByName("display", "grid");
@@ -130,7 +152,10 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
                 parent: angular.element(document.body),
                 targetEvt: ev,
                 clickOutsideToClose: true,
-                fullscreen: false
+                fullscreen: false,
+                locals: {
+                    vm: $scope
+                }
             });
         }
         $scope.export = function(ev) {
@@ -140,7 +165,10 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
                 parent: angular.element(document.body),
                 targetEvt: ev,
                 clickOutsideToClose: true,
-                fullscreen: false
+                fullscreen: false,
+                locals: {
+                    vm: $scope
+                }
             });
         };
         $scope.getCurrentDateString = function() {
@@ -151,11 +179,14 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
             return $scope.lastRecievedTime;
         }
         $scope.updateUsername = function() {
+            var loadingName = $scope.guid();
+            $scope.addToLoading(loadingName)
             $http({
                 url: '/users/username',
                 method: 'GET'
             }).then(function(response) {
                 $scope.username = response.data;
+                $scope.removeFromLoading(loadingName);
             })
         }
         $scope.updateUsername()

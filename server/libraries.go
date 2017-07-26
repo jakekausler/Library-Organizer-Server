@@ -42,9 +42,7 @@ func GetCasesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	libraryid := mux.Vars(r)["libraryid"]
-	params := r.URL.Query()
-	sortmethod := params.Get("sortmethod")
-	d, err := libraries.GetCases(db, libraryid, sortmethod, session)
+	d, err := libraries.GetCases(db, libraryid, session)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -88,18 +86,38 @@ func SaveCasesHandler(w http.ResponseWriter, r *http.Request) {
 
 //GetBreaksHandler gets the breaks for a library
 func GetBreaksHandler(w http.ResponseWriter, r *http.Request) {
-	return
+	registered, _ := Registered(r)
+	if !registered {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
+		return
+	}
+	libraryid := mux.Vars(r)["libraryid"]
+	d, err := libraries.GetLibraryBreaks(db, libraryid)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	data, err := json.Marshal(d)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
 }
 
-//AddBreakHandler adds a break
-func AddBreakHandler(w http.ResponseWriter, r *http.Request) {
+//UpdateBreaksHandler adds a break
+func UpdateBreaksHandler(w http.ResponseWriter, r *http.Request) {
 	if ok, _ := Registered(r); !ok {
 		logger.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
 	libraryid := mux.Vars(r)["libraryid"]
-	var b libraries.Break
+	var b []libraries.Break
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&b)
 	if err != nil {
@@ -108,22 +126,12 @@ func AddBreakHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
-	err = libraries.AddBreak(db, libraryid, b.ValueType, b.Value, b.BreakType)
+	err = libraries.UpdateBreaks(db, libraryid, b)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
-	return
-}
-
-//SaveBreakHandler saves a break
-func SaveBreakHandler(w http.ResponseWriter, r *http.Request) {
-	return
-}
-
-//DeleteBreakHandler deletes a break
-func DeleteBreakHandler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
@@ -221,6 +229,58 @@ func UpdateAuthorBasedSeriesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 	err = libraries.UpdateAuthorBasedSeries(db, libraryid, series)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	return
+}
+
+//GetLibrarySortHandler gets series that are sorted by author then title, instead of volume
+func GetLibrarySortHandler(w http.ResponseWriter, r *http.Request) {
+	registered, _ := Registered(r)
+	if !registered {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
+		return
+	}
+	libraryid := mux.Vars(r)["libraryid"]
+	d, err := libraries.GetLibrarySort(db, libraryid)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	data, err := json.Marshal(d)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+}
+
+//UpdateLibrarySortHandler updates series that are sorted by author then title, instead of volume
+func UpdateLibrarySortHandler(w http.ResponseWriter, r *http.Request) {
+	registered, _ := Registered(r)
+	if !registered {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
+		return
+	}
+	libraryid := mux.Vars(r)["libraryid"]
+	var method string
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&method)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
+	err = libraries.UpdateLibrarySort(db, libraryid, method)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)

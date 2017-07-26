@@ -115,8 +115,8 @@ angular.module('libraryOrganizer')
 							newWidth = vm.cases[c].shelves[s].books[b].width*vm.zoom;
 							newHeight = vm.cases[c].shelves[s].books[b].height*vm.zoom;
 							ctx.fillStyle = 'black'
-							var bookwidth = newWidth==0?vm.cases[c].averagebookwidth*vm.zoom:newWidth;
-							var bookheight = newHeight==0?vm.cases[c].averagebookheight*vm.zoom:newHeight;
+							var bookwidth = newWidth<=0?vm.cases[c].averagebookwidth*vm.zoom:newWidth;
+							var bookheight = newHeight<=25?vm.cases[c].averagebookheight*vm.zoom:newHeight;
 							ctx.fillRect(ix, y-bookheight+vm.cases[c].shelves[s].height+vm.cases[c].spacerheight, bookwidth, bookheight)
 							ctx.fillStyle = vm.cases[c].shelves[s].books[b].spinecolor;
 							ctx.fillRect(ix+1*vm.zoom, y-bookheight+vm.cases[c].shelves[s].height+vm.cases[c].spacerheight+1*vm.zoom, bookwidth-2*vm.zoom, bookheight-2*vm.zoom)

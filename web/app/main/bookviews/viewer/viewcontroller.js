@@ -16,6 +16,8 @@ angular.module('libraryOrganizer')
 	    	.ok("Yes")
 	    	.cancel("Cancel");
 	    $mdDialog.show(d).then(function() {
+            var loadingName = $scope.vm.guid();
+            $scope.vm.addToLoading(loadingName)
 	    	$http({
 	    		url: 'books/checkout',
 	    		method: 'PUT',
@@ -31,10 +33,10 @@ angular.module('libraryOrganizer')
 					$scope.vm.$parent.$parent.updateRecieved();
 				}
 				$mdToast.showSimple("Successfully checked out book")
+            	$scope.vm.removeFromLoading(loadingName);
 	    		$scope.cancel()
 	    	})
 	    }, function() {
-			$mdToast.showSimple("Failed to check out book")
 	    	$scope.cancel()
 	    });
 	}
@@ -47,6 +49,8 @@ angular.module('libraryOrganizer')
 	    	.ok("Yes")
 	    	.cancel("Cancel");
 	    $mdDialog.show(d).then(function() {
+            var loadingName = $scope.vm.guid();
+            $scope.vm.addToLoading(loadingName)
 	    	$http({
 	    		url: 'books/checkin',
 	    		method: 'PUT',
@@ -62,6 +66,7 @@ angular.module('libraryOrganizer')
 					$scope.vm.$parent.$parent.updateRecieved();
 				}
 				$mdToast.showSimple("Returned book")
+            	$scope.vm.removeFromLoading(loadingName);
 	    		$scope.cancel()
 	    	})
 	    }, function() {

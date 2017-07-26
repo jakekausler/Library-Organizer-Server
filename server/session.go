@@ -10,13 +10,13 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/sessions"
-	"github.com/gorilla/securecookie"
+	// "github.com/gorilla/securecookie"
 )
 
 var (
 	db     *sql.DB
 	logger = log.New(os.Stderr, "log: ", log.LstdFlags|log.Lshortfile)
-	store = sessions.NewCookieStore(securecookie.GenerateRandomKey(50))
+	store = sessions.NewCookieStore([]byte("Session"))
 )
 
 //RunServer runs the library server
@@ -69,13 +69,13 @@ func RunServer(username, password, database string) {
 	r.HandleFunc("/libraries/owned", GetOwnedLibrariesHandler).Methods("GET")
 	r.HandleFunc("/libraries/owned", SaveOwnedLibrariesHandler).Methods("PUT")
 	r.HandleFunc("/libraries/{libraryid}/breaks", GetBreaksHandler).Methods("GET")
-	r.HandleFunc("/libraries/{libraryid}/breaks", AddBreakHandler).Methods("POST")
-	r.HandleFunc("/libraries/{libraryid}/breaks", SaveBreakHandler).Methods("PUT")
-	r.HandleFunc("/libraries/{libraryid}/breaks", DeleteBreakHandler).Methods("DELETE")
+	r.HandleFunc("/libraries/{libraryid}/breaks", UpdateBreaksHandler).Methods("PUT")
 	r.HandleFunc("/libraries/{libraryid}/cases", GetCasesHandler).Methods("GET")
 	r.HandleFunc("/libraries/{libraryid}/cases", SaveCasesHandler).Methods("PUT")
 	r.HandleFunc("/libraries/{libraryid}/series", GetAuthorBasedSeriesHandler).Methods("GET")
 	r.HandleFunc("/libraries/{libraryid}/series", UpdateAuthorBasedSeriesHandler).Methods("PUT")
+	r.HandleFunc("/libraries/{libraryid}/sort", GetLibrarySortHandler).Methods("GET")
+	r.HandleFunc("/libraries/{libraryid}/sort", UpdateLibrarySortHandler).Methods("PUT")
 	r.HandleFunc("/settings", GetSettingsHandler).Methods("GET")
 	r.HandleFunc("/settings", SaveSettingsHandler).Methods("PUT")
 	r.HandleFunc("/settings/{setting}", GetSettingHandler).Methods("GET")
@@ -89,7 +89,7 @@ func RunServer(username, password, database string) {
 	r.PathPrefix("/web/").Handler(http.StripPrefix("/web/", http.FileServer(http.Dir("./../web/"))))
 	logger.Printf("Listening on port 8181")
 	loggedRouter := handlers.CombinedLoggingHandler(logFile, r)
-	http.ListenAndServe(":8181", loggedRouter)
+	http.ListenAndServe(":8181", handlers.CompressHandler(loggedRouter))
 	// http.ListenAndServe(":8181", nil)
 	logger.Printf("Closing")
 }

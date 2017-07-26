@@ -97,6 +97,8 @@ angular.module('libraryOrganizer')
 	$scope.libraries = [];
 	$scope.deweySearchText = $scope.book.dewey;
 	$scope.updateLibraries = function() {
+        var loadingName = $vm.guid();
+        $vm.addToLoading(loadingName)
         $http({
         	url: '/libraries'
         }).then(function(response) {
@@ -118,81 +120,108 @@ angular.module('libraryOrganizer')
 	            	$scope.libraries[l].display = $scope.libraries[l].name
             	}
             }
+            $vm.removeFromLoading(loadingName);
         });
     };
 	$scope.updatePublishers = function() {
+        var loadingName = $vm.guid();
+        $vm.addToLoading(loadingName)
 		$http({
 			url: '/information/publishers',
 			method: 'GET',
 		}).then(function(response){
 			$scope.publishers = response.data;
+            $vm.removeFromLoading(loadingName);
 		});
 	}
     $scope.updatePublishers();
 	$scope.updateCities = function() {
+        var loadingName = $vm.guid();
+        $vm.addToLoading(loadingName)
 		$http({
 			url: '/information/cities',
 			method: 'GET'
 		}).then(function(response){
 			$scope.cities = response.data;
+            $vm.removeFromLoading(loadingName);
 		});
 	}
     $scope.updateCities();
 	$scope.updateStates = function() {
+        var loadingName = $vm.guid();
+        $vm.addToLoading(loadingName)
 		$http({
 			url: '/information/states',
 			method: 'GET'
 		}).then(function(response){
 			$scope.states = response.data;
+            $vm.removeFromLoading(loadingName);
 		});
 	}
     $scope.updateStates();
 	$scope.updateCountries = function() {
+        var loadingName = $vm.guid();
+        $vm.addToLoading(loadingName)
 		$http({
 			url: '/information/countries',
 			method: 'GET'
 		}).then(function(response){
 			$scope.countries = response.data;
+            $vm.removeFromLoading(loadingName);
 		});
 	}
     $scope.updateCountries();
 	$scope.updateSeries = function() {
+        var loadingName = $vm.guid();
+        $vm.addToLoading(loadingName)
 		$http({
 			url: '/information/series',
 			method: 'GET'
 		}).then(function(response){
 			$scope.series = response.data;
+            $vm.removeFromLoading(loadingName);
 		});
 	}
     $scope.updateSeries();
 	$scope.updateFormats = function() {
+        var loadingName = $vm.guid();
+        $vm.addToLoading(loadingName)
 		$http({
 			url: '/information/formats',
 			method: 'GET'
 		}).then(function(response){
 			$scope.formats = response.data;
+            $vm.removeFromLoading(loadingName);
 		});
 	}
     $scope.updateFormats();
 	$scope.updateLanguages = function() {
+        var loadingName = $vm.guid();
+        $vm.addToLoading(loadingName)
 		$http({
 			url: '/information/languages',
 			method: 'GET'
 		}).then(function(response){
 			$scope.languages = response.data;
+            $vm.removeFromLoading(loadingName);
 		});
 	}
     $scope.updateLanguages();
 	$scope.updateRoles = function() {
+        var loadingName = $vm.guid();
+        $vm.addToLoading(loadingName)
 		$http({
 			url: '/information/roles',
 			method: 'GET'
 		}).then(function(response){
 			$scope.roles = response.data;
+            $vm.removeFromLoading(loadingName);
 		});
 	}
     $scope.updateRoles();
 	$scope.updateDeweys = function() {
+        var loadingName = $vm.guid();
+        $vm.addToLoading(loadingName)
 		$http({
 			url: '/information/deweys',
 			method: 'GET'
@@ -201,6 +230,7 @@ angular.module('libraryOrganizer')
 				$scope.deweys.push(response.data[i].dewey);
 				$scope.genres[response.data[i].dewey] = response.data[i].genre;
 			}
+            $vm.removeFromLoading(loadingName);
 		});
 	}
     $scope.updateDeweys();
@@ -215,6 +245,8 @@ angular.module('libraryOrganizer')
 	$scope.oldUrl = $scope.book.imageurl;
 	$scope.pastingurl = false;
 	$scope.save = function(book) {
+        var loadingName = $vm.guid();
+        $vm.addToLoading(loadingName)
 		$scope.convertIsbn();
 		book.volume = parseFloat(book.volume);
 		book.edition = parseInt(book.edition);
@@ -255,6 +287,7 @@ angular.module('libraryOrganizer')
 			} else {
 				$mdToast.showSimple("Successfully saved book")
 			}
+            $vm.removeFromLoading(loadingName);
 			$mdDialog.cancel();
 		}, function(response) {
 			if (method == "PUT") {
@@ -262,9 +295,12 @@ angular.module('libraryOrganizer')
 			} else {
 				$mdToast.showSimple("Failed to save book")
 			}
+            $vm.removeFromLoading(loadingName);
 		});
 	}
 	$scope.remove = function(book) {
+        var loadingName = $vm.guid();
+        $vm.addToLoading(loadingName)
 		var confirm = $mdDialog.confirm()
 			.title('Really Remove Book?')
 			.textContent('Are you sure you want to remove this book? This cannot be undone.')
@@ -285,9 +321,11 @@ angular.module('libraryOrganizer')
 					$vm.$parent.$parent.updateRecieved();
 				}
 				$mdToast.showSimple("Successfully removed book")
+            	$vm.removeFromLoading(loadingName);
 				$mdDialog.cancel();
 			}, function(response) {
 				$mdToast.showSimple("Failed to remove book")
+            	$vm.removeFromLoading(loadingName);
 			})
 		});
 	}

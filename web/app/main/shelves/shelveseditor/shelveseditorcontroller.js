@@ -56,6 +56,20 @@ angular.module('libraryOrganizer')
 				spacerheight: $scope.shelves[i].spacerheight
 			})
 		}
+        var sortLoadingName = $scope.vm.guid();
+        $scope.vm.addToLoading(sortLoadingName)
+		$http({
+			url: '/libraries/'+$scope.libraryid+'/sort',
+			method: 'PUT',
+			data: JSON.stringify($scope.sortMethod)
+		}).then(function(response) {
+			$scope.vm.updateCases();
+			$mdDialog.cancel();
+            $mdToast.showSimple("Successfully saved sort method")
+        	$scope.vm.removeFromLoading(sortLoadingName)
+		});
+        var casesLoadingName = $scope.vm.guid();
+        $scope.vm.addToLoading(casesLoadingName)
 		$http({
 			url: '/libraries/'+$scope.libraryid+'/cases',
 			method: 'PUT',
@@ -64,7 +78,10 @@ angular.module('libraryOrganizer')
 			$scope.vm.updateCases();
 			$mdDialog.cancel();
             $mdToast.showSimple("Successfully saved shelves")
+        	$scope.vm.removeFromLoading(casesLoadingName)
 		});
+        var seriesLoadingName = $scope.vm.guid();
+        $scope.vm.addToLoading(seriesLoadingName)
 		$http({
 			url: '/libraries/'+$scope.libraryid+'/series',
 			method: 'PUT',
@@ -72,7 +89,20 @@ angular.module('libraryOrganizer')
 		}).then(function(response) {
 			$scope.vm.updateCases();
 			$mdDialog.cancel();
-            $mdToast.showSimple("Successfully saved misc")
+            $mdToast.showSimple("Successfully saved series types")
+        	$scope.vm.removeFromLoading(seriesLoadingName)
+		});
+        var breaksLoadingName = $scope.vm.guid();
+        $scope.vm.addToLoading(breaksLoadingName)
+		$http({
+			url: '/libraries/'+$scope.libraryid+'/breaks',
+			method: 'PUT',
+			data: JSON.stringify($scope.breaks)
+		}).then(function(response) {
+			$scope.vm.updateCases();
+			$mdDialog.cancel();
+            $mdToast.showSimple("Successfully saved breaks")
+        	$scope.vm.removeFromLoading(breaksLoadingName)
 		});
 	};
 	$scope.moveShelfUp = function(cas) {
@@ -91,9 +121,10 @@ angular.module('libraryOrganizer')
 			return (a.casenumber > b.casenumber) ? 1 : ((a.casenumber < b.casenumber) ? -1 : 0);
 		});
 	};
-	$scope.addShelf = function(cas) {
+	$scope.addShelf = function() {
+		var casenumber = $scope.shelves[$scope.shelves.length-1]?$scope.shelves[$scope.shelves.length-1].casenumber+1:1;
 		$scope.shelves.push({
-			casenumber: $scope.shelves[$scope.shelves.length-1].casenumber+1,
+			casenumber: casenumber,
 			numberofshelves: $scope.defaultNumberOfShelves,
 			width: $scope.defaultWidth,
 			shelfheight: $scope.defaultShelfHeight,
@@ -122,15 +153,20 @@ angular.module('libraryOrganizer')
 	$scope.authorBasedSeries = [];
 	$scope.toAddSeries = "";
 	$scope.updateSeries = function() {
+        var loadingName = $scope.vm.guid();
+        $scope.vm.addToLoading(loadingName)
 		$http({
 			url: '/information/series',
 			method: 'GET'
 		}).then(function(response){
 			$scope.series = response.data;
+        	$scope.vm.removeFromLoading(loadingName)
 		});
 	}
     $scope.updateSeries();
 	$scope.updateAuthorBasedSeries = function() {
+        var loadingName = $scope.vm.guid();
+        $scope.vm.addToLoading(loadingName)
 		$http({
 			url: '/libraries/'+$scope.libraryid+'/series',
 			method: 'GET'
@@ -139,6 +175,7 @@ angular.module('libraryOrganizer')
 				response.data = [];
 			}
 			$scope.authorBasedSeries = response.data;
+        	$scope.vm.removeFromLoading(loadingName)
 		});
 	}
     $scope.updateAuthorBasedSeries();
@@ -153,4 +190,59 @@ angular.module('libraryOrganizer')
     		$scope.authorBasedSeries.splice($scope.authorBasedSeries.indexOf(series), 1);
     	}
     }
+    $scope.add = function() {
+    	if ($scope.selectedTab == 0) {
+    		$scope.addShelf();
+    	} else if ($scope.selectedTab == 1) {
+    		$scope.addBreak();
+    	}
+    }
+    $scope.breaks = [];
+	$scope.updateBreaks = function() {
+        var loadingName = $scope.vm.guid();
+        $scope.vm.addToLoading(loadingName)
+		$http({
+			url: '/libraries/'+$scope.libraryid+'/breaks',
+			method: 'GET'
+		}).then(function(response){
+			if (response.data == null) {
+				response.data = [];
+			}
+			$scope.breaks = response.data;
+        	$scope.vm.removeFromLoading(loadingName)
+		});
+	}
+    $scope.updateBreaks();
+    $scope.breaktypes = ["SHELF", "CASE"];
+    $scope.valuetypes = ["DEWEY"];
+	$scope.updateValueType =function(b) {
+		if (b.valuetype == "DEWEY") {
+			b.possiblevalues = $scope.deweys;
+		}
+	}
+	$scope.addBreak = function() {
+		$scope.breaks.push({
+			valuetype: 'DEWEY',
+			value: '',
+			breaktype: 'SHELF',
+			libraryid: $scope.libraryid
+		});
+		$scope.numberOfCases++;
+	};
+	$scope.removeBreak = function(i) {
+		$scope.breaks.splice(i, 1)
+	}
+	$scope.sortMethod = "Dewey";
+	$scope.updateSortMethod = function() {
+        var loadingName = $scope.vm.guid();
+        $scope.vm.addToLoading(loadingName)
+		$http({
+			url: '/libraries/'+$scope.libraryid+'/sort',
+			method: 'GET'
+		}).then(function(response){
+			$scope.sortMethod = response.data;
+        	$scope.vm.removeFromLoading(loadingName)
+		});
+	}
+	$scope.updateSortMethod();
 })
