@@ -128,6 +128,8 @@ You can open the filters menu by clicking the filter button located in the top l
 * Reading - Whether or not the book is being read by the library owner. A book being read cannot be checked out.
 * Libraries - Which libraries from which to return results.
 
+To quickly navigate pages, you can press the left and right buttons at the top of the screen.
+
 ## Adding and Editing Books
 
 You may add books to or edit books in any library you own or have permission to edit. There are various ways to add or edit books.
