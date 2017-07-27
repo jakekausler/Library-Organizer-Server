@@ -58,7 +58,7 @@ func RunServer(username, password, database string) {
 	r.HandleFunc("/books/{bookid}/ratings", AddRatingHandler).Methods("PUT")
 	r.HandleFunc("/books/{bookid}/reviews", GetReviewsHandler).Methods("GET")
 	r.HandleFunc("/books/{bookid}/reviews", AddReviewHandler).Methods("GET")
-	r.HandleFunc("/information/statistics", GetStatsHandler).Methods("PUT")
+	r.HandleFunc("/information/statistics", GetStatsHandler).Methods("GET")
 	r.HandleFunc("/information/dimensions", GetDimensionsHandler).Methods("GET")
 	r.HandleFunc("/information/publishers", GetPublishersHandler).Methods("GET")
 	r.HandleFunc("/information/cities", GetCitiesHandler).Methods("GET")

@@ -355,7 +355,7 @@ func AddRatingHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
-	err := books.AddBookRating(db, bookid, session, rating)
+	err = books.AddBookRating(db, bookid, session, rating)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -406,7 +406,7 @@ func AddReviewHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
-	err := books.AddBookReview(db, bookid, session, review)
+	err = books.AddBookReview(db, bookid, session, review)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)

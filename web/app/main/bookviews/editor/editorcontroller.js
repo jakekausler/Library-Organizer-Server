@@ -270,6 +270,9 @@ angular.module('libraryOrganizer')
 		book.publisher.state = book.publisher.state?book.publisher.state:$scope.stateSearchText;
 		book.publisher.country = book.publisher.country?book.publisher.country:$scope.countrySearchText;
 		book.dewey = book.dewey?book.dewey:$scope.deweySearchText;
+		if (book.dewey == "0") {
+			book.dewey = "000";
+		}
 		book.format = book.format?book.format:$scope.formatSearchText;
 		book.primarylanguage = book.primarylanguage?book.primarylanguage:$scope.primaryLanguageSearchText;
 		book.secondarylanguage = book.secondarylanguage?book.secondarylanguage:$scope.secondaryLanguageSearchText;

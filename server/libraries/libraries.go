@@ -464,7 +464,162 @@ func SaveOwnedLibraries(db *sql.DB, ownedLibraries []OwnedLibrary, session strin
 			}
 		}
 	}
+	query = "SELECT DISTINCT(libraryid) FROM books";
+	rows, err := db.Query(query)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return err
+	}
+	var booklibraryids []int64
+	for rows.Next() {
+		var lid int64
+		err := rows.Scan(&lid)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return err
+		}
+		booklibraryids = append(booklibraryids, lid)
+	}
+	query = "SELECT DISTINCT(libraryid) FROM permissions";
+	rows, err = db.Query(query)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return err
+	}
+	var permissionslibraryids []int64
+	for rows.Next() {
+		var lid int64
+		err := rows.Scan(&lid)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return err
+		}
+		permissionslibraryids = append(permissionslibraryids, lid)
+	}
+	query = "SELECT DISTINCT(libraryid) FROM bookcases";
+	rows, err = db.Query(query)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return err
+	}
+	var bookcaseslibraryids []int64
+	for rows.Next() {
+		var lid int64
+		err := rows.Scan(&lid)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return err
+		}
+		bookcaseslibraryids = append(bookcaseslibraryids, lid)
+	}
+	query = "SELECT DISTINCT(libraryid) FROM breaks";
+	rows, err = db.Query(query)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return err
+	}
+	var breakslibraryids []int64
+	for rows.Next() {
+		var lid int64
+		err := rows.Scan(&lid)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return err
+		}
+		breakslibraryids = append(breakslibraryids, lid)
+	}
+	query = "SELECT DISTINCT(libraryid) FROM series_author_sorts";
+	rows, err = db.Query(query)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return err
+	}
+	var serieslibraryids []int64
+	for rows.Next() {
+		var lid int64
+		err := rows.Scan(&lid)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return err
+		}
+		serieslibraryids = append(serieslibraryids, lid)
+	}
+	query = "SELECT id FROM libraries"
+	rows, err = db.Query(query)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return err
+	}
+	var actuallibraryids []int64
+	for rows.Next() {
+		var lid int64
+		err := rows.Scan(&lid)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return err
+		}
+		actuallibraryids = append(actuallibraryids, lid)
+	}
+	for _, id := range booklibraryids {
+		if !contains(actuallibraryids, id) {
+			query = "DELETE FROM books WHERE libraryid=?"
+			_, err := db.Exec(query, id)
+			if err != nil {
+				logger.Printf("Error: %+v", err)
+				return err
+			}
+		}
+	}
+	for _, id := range permissionslibraryids {
+		if !contains(actuallibraryids, id) {
+			query = "DELETE FROM books WHERE libraryid=?"
+			_, err := db.Exec(query, id)
+			if err != nil {
+				logger.Printf("Error: %+v", err)
+				return err
+			}
+		}
+	}
+	for _, id := range breakslibraryids {
+		if !contains(actuallibraryids, id) {
+			query = "DELETE FROM books WHERE libraryid=?"
+			_, err := db.Exec(query, id)
+			if err != nil {
+				logger.Printf("Error: %+v", err)
+				return err
+			}
+		}
+	}
+	for _, id := range bookcaseslibraryids {
+		if !contains(actuallibraryids, id) {
+			query = "DELETE FROM books WHERE libraryid=?"
+			_, err := db.Exec(query, id)
+			if err != nil {
+				logger.Printf("Error: %+v", err)
+				return err
+			}
+		}
+	}
+	for _, id := range serieslibraryids {
+		if !contains(actuallibraryids, id) {
+			query = "DELETE FROM books WHERE libraryid=?"
+			_, err := db.Exec(query, id)
+			if err != nil {
+				logger.Printf("Error: %+v", err)
+				return err
+			}
+		}
+	}
 	return nil
+}
+
+func contains(s []int64, e int64) bool {
+    for _, a := range s {
+        if a == e {
+            return true
+        }
+    }
+    return false
 }
 
 //GetAuthorBasedSeries gets series that are sorted by author then title, instead of volume
