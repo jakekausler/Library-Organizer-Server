@@ -1,8 +1,8 @@
-<md-dialog layout-padding="5" style="text-align: center" flex>
+<md-dialog id="shelves-editor-dialog" layout-padding="5"flex>
 	<form name="shelfEditorForm">
 		<md-tabs md-dynamic-height md-selected="selectedTab" >
 			<md-tab label="Edit Shelves">
-				<table fixed-header style="width: 100%;height: 60vh;">
+				<table fixed-header>
 					<thead><tr></th><th></th><th></th><th></th><th>Number of Shelves</th><th>Width</th><th>Shelf Height</th><th>Left Margin</th><th>Right Margin</th><th>Spacer Size</th></tr></thead>
 					<tbody><tr ng-repeat="case in shelves">
 						<td><md-button aria-label="Move Shelf Up" class="icon up-icon" ng-disabled="case.casenumber == 1" ng-click="moveShelfUp(case)"><md-tooltip md-delay="500">Move Shelf Up</md-tooltip></md-button></td>
@@ -30,7 +30,7 @@
 				</table>
 			</md-tab>
 			<md-tab label="Edit Breaks">
-				<table fixed-header style="width: 100%;height: 60vh;">
+				<table fixed-header>
 					<thead><tr><th></th><th>Value Type</th><th>Value</th><th>Break Type</th></tr></thead>
 					<tbody><tr ng-repeat="break in breaks">
 						<td><md-button aria-label="Remove Break" class="icon remove-icon" ng-click="removeBreak($index)"><md-tooltip md-delay="500">Remove Break</md-tooltip></md-button></td>
@@ -51,7 +51,7 @@
 				<md-select ng-model="toAddSeries" ng-change="addToSeries()">
 					<md-option ng-repeat="s in series" ng-value="s">{{s}}</md-option>
 				</md-select>
-				<div style="display: inline-block" ng-repeat="s in authorBasedSeries">{{s}}<md-button class="icon remove-icon" ng-click="removeFromSeries(s)"><md-tooltip md-delay="500">Remove</md-tooltip></md-button></div>
+				<div class="remove-from-series-button" ng-repeat="s in authorBasedSeries">{{s}}<md-button class="icon remove-icon" ng-click="removeFromSeries(s)"><md-tooltip md-delay="500">Remove</md-tooltip></md-button></div>
 				<div layout-padding="20" class="md-body-1">How should this library be sorted?</div>
 				<md-select ng-model="sortMethod">
 					<md-option value="Dewey">Dewey</md-option>

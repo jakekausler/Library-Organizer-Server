@@ -1,4 +1,4 @@
-<md-dialog layout-padding="5" style="text-align: center" flex>
+<md-dialog id="scan-dialog" layout-padding="5" flex>
 	<h1 class="md-title">Insert by ISBN</h1>
 	<p>Insert a book by ISBN. Either type in the ISBN below and press enter, or use a barcode scanner. If using a barcode scanner, the input will be split on spaces the second part (or first if only one part) will be interpreted as the isbn.</p>
 	<md-input-container>
@@ -8,8 +8,8 @@
 	<div flex layout="column" id="grid">
 		<md-grid-list md-cols-xs="1" md-cols-sm="2" md-cols-md="3" md-cols-gt-md="4" md-row-height-gt-md="1:1" md-row-height="2:2" md-gutter="12px" md-gutter-gt-sm="8px">
 			<md-grid-tile ng-repeat="result in results" ng-click="select($event, result)">
-				<md-grid-tile-header class="md-accent" style="background: rgba(48, 63, 159, .75)">
-					<span style="text-align: center;margin: auto;display:inline-block;">{{result.volumeInfo.title}}</span>
+				<md-grid-tile-header class="md-accent">
+					<span>{{result.volumeInfo.title}}</span>
 				</md-grid-tile-header>
 				<img ng-src="{{result.volumeInfo.imageLinks.thumbnail}}" alt="Image not found" onerror="this.onerror=null;this.src='web/res/book.jpg';" height="100%">
 			</md-grid-tile>

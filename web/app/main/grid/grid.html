@@ -142,16 +142,16 @@
 		</form>
 	</md-sidenav>
 	<md-content flex>
-		<md-content class="grid-content" flex style="padding: 10px; height: calc(100vh - 100px);">
+		<md-content class="grid-content" flex>
 			<div flex layout="column" class="grid-container">
 				<md-grid-list md-cols-xs="1" md-cols-sm="2" md-cols-md="4" md-cols-gt-md="6" md-row-height-gt-md="1:1" md-row-height="2:2" md-gutter="12px" md-gutter-gt-sm="8px">
 						<md-grid-tile ng-repeat="book in books" ng-click="showBookDialog($event, book, this, 'grid')">
-							<md-grid-tile-header class="md-accent" style="background: rgba(48, 63, 159, .75)">
-								<span style="text-align: center;margin: auto;display:inline-block;">{{book.title}}</span>
+							<md-grid-tile-header class="md-accent">
+								<span>{{book.title}}</span>
 							</md-grid-tile-header>
 							<img ng-src="web/{{book.imageurl}}{{'?'+getCurrentDateString()}}" alt="Image not found" onerror="this.onerror=null;this.src='web/res/book.jpg';" height="100%">
-							<md-grid-tile-footer ng-hide="book.subtitle==''" style="background: rgba(48, 63, 159, .75)">
-								<span style="text-align: center;margin: auto;display:inline-block;">{{book.subtitle}}</span>
+							<md-grid-tile-footer ng-hide="book.subtitle==''">
+								<span>{{book.subtitle}}</span>
 							</md-grid-tile-footer>
 						</md-grid-tile>
 				</md-grid-list>

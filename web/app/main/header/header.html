@@ -1,14 +1,14 @@
-<md-toolbar class="md-toolbar md-primary" flex>
+<md-toolbar id="app-header" class="md-toolbar md-primary" flex>
 	<div>
-		<div id="grid-control-buttons" style="display: inline-block; float:left">
+		<div class="left" id="grid-control-buttons">
 			<md-button aria-label="Open Grid View" ng-disabled="display=='grid'" class="icon grid-icon" ng-click="displayGrid()"><md-tooltip md-delay="500">Open Grid View</md-tooltip></md-button>
 			<md-button aria-label="Open Library View" class="icon shelves-icon" ng-disabled="display=='shelves'" ng-click="displayShelves()"><md-tooltip md-delay="500">Open Library View</md-tooltip></md-button>
 			<md-button aria-label="Open Statistics View" class="icon statistics-icon" ng-disabled="display=='stats'" ng-click="displayStats()"><md-tooltip md-delay="500">View Statistics</md-tooltip></md-button>
 		</div>
-		<div style="display: inline-block; float: right;">
+		<div class="right">
 			<md-button aria-label="Open Settings" ng-click="openSettings()" class="icon settings-icon"><md-tooltip md-delay="500">Open Settings</md-tooltip></md-button>
 			<span class="md-body-1">You are logged in as {{username}}</span>
-			<div id="authentification" style="display: inline-block;">
+			<div class="authentification">
 				<form action="/users/logout" method="post">
 					<input type="submit" class="md-button" value="Log Out">
 				</form>
