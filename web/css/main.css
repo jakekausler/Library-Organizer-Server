@@ -12,21 +12,21 @@
     width: 80%;
 }
 
-#editor-view.image-buttons {
+#editor-view .image-buttons {
     margin: auto;
     display: block;
 }
 
-#editor-view.image-button {
+#editor-view .image-button {
     margin: auto;
     display: inline-block;
 }
 
-#editor-view.contributor-list {
+#editor-view .contributor-list {
     max-height: 20vh;
 }
 
-#editor-view.contributor-button {
+#editor-view .contributor-button {
     margin: auto;
 }
 
@@ -48,4 +48,40 @@
     left: 0;
     right: 0;
     background: rgba(255,255,255,0.5);
+}
+
+#settings-view .settings-content {
+    position: relative; height: 60vh;
+}
+
+#settings-view .settings-tabs {
+    position: absolute;top: 0;bottom: 0;left: 0;right: 0;
+}
+
+#settings-view .settings-description {
+    position: relative;height:10%;
+}
+
+#settings-view .settings-inner-content {
+    position: relative;height:85%;
+}
+
+#settings-view .settings-inner-tabs {
+    position: absolute;top: 0;bottom: 0;left: 0;right: 0;
+}
+
+#settings-view .settings-inner-tab-content {
+    height: 100%;
+}
+
+#settings-view .settings-inner-tab-content  md-list-item {
+    float: left;
+}
+
+#settings-view .settings-inner-tab-content  md-input-container {
+    min-width: 200px;
+}
+
+.md-chips .md-chip-input-container md-autocomplete input {
+    width: 400px;
 }

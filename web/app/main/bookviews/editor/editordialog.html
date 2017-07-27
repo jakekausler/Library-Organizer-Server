@@ -33,7 +33,7 @@
                                         alt="Image not found" onerror="this.onerror=null;this.src='web/res/book.jpg';"
                                     />
                                 </div>
-                                <div class="    margin: auto;image-buttons" layout-gt-md="row" layout="column">
+                                <div layout-gt-md="row" layout="column">
                                     <div class="image-buttons">
                                         <div class="image-button">
                                             <md-button aria-label="Paste URL" ng-hide="pastingurl" class="icon url-icon" ng-click="pastingurl=true"></md-button>
@@ -184,7 +184,7 @@
                                 </md-item-template>
                             </md-autocomplete>
                         </div>
-                        <div flex layout="row" flex>
+                        <div flex layout="row">
                             <md-input-container flex="15">
                                 <label>Originally Published</label>
                                 <input type="text" ng-model="book.originallypublished" name="originallypublished"
@@ -205,23 +205,21 @@
                                 <input type="text" ng-model="book.edition" name="edition" value="{{book.edition}}"
                                     required non-negative-integer-input/>
                             </md-input-container>
-                            <md-autocomplete flex md-input-name="dewey" md-search-text="deweySearchText" md-selected-item="book.dewey"
-                                md-items="s in query(deweys, deweySearchText)" md-item-text="s"
-                                md-floating-label="Dewey">
-                                <md-item-template>
-                                    <span md-highlight-text="deweySearchText" md-highlight-flags="^i">{{s}}</span>
-                                </md-item-template>
-                            </md-autocomplete>
-                            <p flex="30">
+                            <md-input-container flex="10">
+                                <label>Lexile</label>
+                                <input type="text" ng-model="book.lexile" name="lexile" value="{{book.lexile}}"
+                                    required lexile-input/>
+                            </md-input-container>
+                            <md-input-container flex="10">
+                                <label>Dewey</label>
+                                <input type="text" ng-model="book.dewey" name="dewey" value="{{book.dewey}}"
+                                    required dewey-input/>
+                            </md-input-container>
+                            <p flex="25">
                                 {{getGenre()}}
                             </p>
-                            <!-- <md-input-container flex="30">
-								<label>Genre</label>
-								<textarea name="Genre" value="{{getGenre()}}" ng-disabled="true">
-								</textarea>
-							</md-input-container> -->
                         </div>
-                        <div flex layout="row" flex>
+                        <div flex layout="row">
                             <md-autocomplete flex="25" md-input-name="format" md-search-text="formatSearchText"
                                 md-selected-item="book.format" md-items="s in query(formats, formatSearchText)"
                                 md-item-text="s" md-floating-label="Format">
@@ -255,7 +253,7 @@
                                     required non-negative-number-input/>
                             </md-input-container>
                         </div>
-                        <div flex layout="row" flex>
+                        <div flex layout="row">
                             <md-autocomplete flex md-input-name="primarylanguage" md-search-text="primaryLanguageSearchText"
                                 md-selected-item="book.primarylanguage" md-items="s in query(languages, primaryLanguageSearchText)"
                                 md-item-text="s" md-floating-label="Primary Language">
@@ -300,7 +298,7 @@
                     </div>
                 </md-tab>
             </md-tabs>
-            <div flex layout="row" flex>
+            <div flex layout="row">
                 <md-button aria-label="Save Book" ng-disabled="editorForm.$invalid" ng-click="save(book)"
                     flex class="icon save-icon"></md-button>
                 <md-button aria-label="Remove Book" ng-disabled="book.bookid==''" ng-click="remove(book)"

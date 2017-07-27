@@ -108,4 +108,5 @@ angular.module('libraryOrganizer')
 		book.bookid = '';
 		$scope.vm.showEditDialog(ev, book, $scope.vm, $scope.viewType);
 	}
+	$scope.averageRating = -1;
 })

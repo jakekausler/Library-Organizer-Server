@@ -2,7 +2,12 @@ package books
 
 import (
 	"database/sql"
-	"io"
+	"fmt"
+	"image"
+	"image/jpeg"
+	"image/gif"
+	"image/png"
+	// "io"
 	"log"
 	"net/http"
 	"os"
@@ -12,12 +17,14 @@ import (
 
 	"../users"
 	"../information"
+	"github.com/EdlinOrg/prominentcolor"
+	// "github.com/nfnt/resize"
 	"github.com/go-sql-driver/mysql"
 )
 
 const (
-	saveBookQuery = "UPDATE books SET Title=?, Subtitle=?, OriginallyPublished=?, EditionPublished=?, PublisherID=?, IsRead=?, IsReference=?, IsOwned=?, IsShipping=?, IsReading=?, isbn=?, Dewey=?, Pages=?, Width=?, Height=?, Depth=?, Weight=?, PrimaryLanguage=?, SecondaryLanguage=?, OriginalLanguage=?, Series=?, Volume=?, Format=?, Edition=?, ImageURL=?, LibraryId=? WHERE BookId=?"
-	addBookQuery  = "INSERT INTO books (Title, Subtitle, OriginallyPublished, PublisherID, IsRead, IsReference, IsOwned, IsShipping, IsReading, isbn, Dewey, Pages, Width, Height, Depth, Weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, Series, Volume, Format, Edition, EditionPublished, LibraryId) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+	saveBookQuery = "UPDATE books SET Title=?, Subtitle=?, OriginallyPublished=?, EditionPublished=?, PublisherID=?, IsRead=?, IsReference=?, IsOwned=?, IsShipping=?, IsReading=?, isbn=?, Dewey=?, Pages=?, Width=?, Height=?, Depth=?, Weight=?, PrimaryLanguage=?, SecondaryLanguage=?, OriginalLanguage=?, Series=?, Volume=?, Format=?, Edition=?, ImageURL=?, LibraryId=?, Lexile=?, SpineColor=? WHERE BookId=?"
+	addBookQuery  = "INSERT INTO books (Title, Subtitle, OriginallyPublished, PublisherID, IsRead, IsReference, IsOwned, IsShipping, IsReading, isbn, Dewey, Pages, Width, Height, Depth, Weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, Series, Volume, Format, Edition, EditionPublished, LibraryId, Lexile) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 )
 
 var logger = log.New(os.Stderr, "log: ", log.LstdFlags|log.Lshortfile)
@@ -62,11 +69,13 @@ type Book struct {
 	IsShipping          bool          `json:"isshipping"`
 	ImageURL            string        `json:"imageurl"`
 	SpineColor          string        `json:"spinecolor"`
+	SpineColorOverridden bool 		  `json:"spinecoloroverridden"`
 	CheapestNew         float64       `json:"cheapestnew"`
 	CheapestUsed        float64       `json:"cheapestused"`
 	EditionPublished    string        `json:"editionpublished"`
 	Contributors        []information.Contributor `json:"contributors"`
 	Library             Library       `json:"library"`
+	Lexile				int64		  `json:"lexile"`
 }
 
 //Library is a library
@@ -75,6 +84,20 @@ type Library struct {
 	Name        string `json:"name"`
 	Permissions int64  `json:"permissions"`
 	Owner       string `json:"owner"`
+}
+
+//Rating is a book rating
+type Rating struct {
+	BookID int64 `json:"bookid"`
+	UserID int64 `json:"userid"`
+	Rating int64 `json:"rating"`
+}
+
+//Review is a book rating
+type Review struct {
+	BookID int64 `json:"bookid"`
+	UserID int64 `json:"userid"`
+	Review int64 `json:"review"`
 }
 
 //SaveBook saves a book
@@ -88,6 +111,16 @@ func SaveBook(db *sql.DB, book Book) error {
 				return err
 			}
 		}
+
+		spinecolor := book.SpineColor
+		if !book.SpineColorOverridden {
+			var err error
+			spinecolor, err = getSpineColor("../web/res/bookimages/"+book.ID+imageType)
+			if err != nil {
+				spinecolor = "#000000"
+			}
+		}
+
 		publisherID, err := addOrGetPublisher(db, book.Publisher.Publisher, book.Publisher.City, book.Publisher.State, book.Publisher.Country)
 		if err != nil {
 			logger.Printf("Error when saving publisher: %v", err)
@@ -123,7 +156,7 @@ func SaveBook(db *sql.DB, book Book) error {
 			logger.Printf("Error when saving OriginalLanguage: %v", err)
 			return err
 		}
-		_, err = db.Exec(saveBookQuery, book.Title, book.Subtitle, book.OriginallyPublished, book.EditionPublished, publisherID, book.IsRead, book.IsReference, book.IsOwned, book.IsShipping, book.IsReading, book.ISBN, book.Dewey, book.Pages, book.Width, book.Height, book.Depth, book.Weight, book.PrimaryLanguage, book.SecondaryLanguage, book.OriginalLanguage, book.Series, book.Volume, book.Format, book.Edition, "res/bookimages/"+book.ID+imageType, book.Library.ID, book.ID)
+		_, err = db.Exec(saveBookQuery, book.Title, book.Subtitle, book.OriginallyPublished, book.EditionPublished, publisherID, book.IsRead, book.IsReference, book.IsOwned, book.IsShipping, book.IsReading, book.ISBN, book.Dewey, book.Pages, book.Width, book.Height, book.Depth, book.Weight, book.PrimaryLanguage, book.SecondaryLanguage, book.OriginalLanguage, book.Series, book.Volume, book.Format, book.Edition, "res/bookimages/"+book.ID+imageType, book.Library.ID, book.Lexile, spinecolor, book.ID)
 		if err != nil {
 			logger.Printf("Error when saving book: %v", err)
 			return err
@@ -176,7 +209,7 @@ func SaveBook(db *sql.DB, book Book) error {
 			logger.Printf("Error when saving OriginalLanguage: %v", err)
 			return err
 		}
-		res, err := db.Exec(addBookQuery, book.Title, book.Subtitle, book.OriginallyPublished, publisherID, book.IsRead, book.IsReference, book.IsOwned, book.IsShipping, book.IsReading, book.ISBN, book.Dewey, book.Pages, book.Width, book.Height, book.Depth, book.Weight, book.PrimaryLanguage, book.SecondaryLanguage, book.OriginalLanguage, book.Series, book.Volume, book.Format, book.Edition, book.EditionPublished, book.Library.ID)
+		res, err := db.Exec(addBookQuery, book.Title, book.Subtitle, book.OriginallyPublished, publisherID, book.IsRead, book.IsReference, book.IsOwned, book.IsShipping, book.IsReading, book.ISBN, book.Dewey, book.Pages, book.Width, book.Height, book.Depth, book.Weight, book.PrimaryLanguage, book.SecondaryLanguage, book.OriginalLanguage, book.Series, book.Volume, book.Format, book.Edition, book.EditionPublished, book.Library.ID, book.Lexile)
 		if err != nil {
 			logger.Printf("Error when saving book: %v", err)
 			return err
@@ -191,8 +224,16 @@ func SaveBook(db *sql.DB, book Book) error {
 			logger.Printf("Error while saving image: %v", err)
 			return err
 		}
-		imageQuery := "UPDATE books SET ImageURL='res/bookimages/" + bookid + imageType + "' WHERE bookid=?"
-		_, err = db.Exec(imageQuery, bookid)
+		spinecolor := book.SpineColor
+		if !book.SpineColorOverridden {
+			var err error
+			spinecolor, err = getSpineColor("../web/res/bookimages/"+bookid+imageType)
+			if err != nil {
+				spinecolor = "#000000"
+			}
+		}
+		imageQuery := "UPDATE books SET ImageURL='res/bookimages/" + bookid + imageType + "', SpineColor=? WHERE bookid=?"
+		_, err = db.Exec(imageQuery, spinecolor, bookid)
 		if err != nil {
 			logger.Printf("Error when saving image: %v", err)
 			return err
@@ -371,23 +412,76 @@ func downloadImage(url, fileLocation string) error {
 		return err
 	}
 	defer response.Body.Close()
+	img, extension, err := image.Decode(response.Body)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return err
+	}
+	// img = resize.Thumbnail(400, 400, img, resize.Lanczos3)
 	file, err := os.Create(fileLocation)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return err
 	}
-	_, err = io.Copy(file, response.Body)
+	defer file.Close()
+	switch extension {
+	case "jpg", "jpeg":
+		err = jpeg.Encode(file, img, &jpeg.Options{})
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return err
+		}
+	case "gif":
+		err = gif.Encode(file, img, &gif.Options{})
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return err
+		}
+	case "png":
+		err = png.Encode(file, img)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return err
+		}
+	}
+	return nil
+}
+
+func getSpineColor(imageLocation string) (string, error) {
+	img, err := loadImage(imageLocation)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
-		return err
+		return "", err
 	}
-	file.Close()
-	return nil
+	var spinecolor string
+	cols, err := prominentcolor.Kmeans(img)
+	col := cols[0].Color
+	if err != nil {
+		spinecolor = "#000000"
+	} else {
+		spinecolor = fmt.Sprintf("#%X%X%X", col.R, col.G, col.B)
+	}
+	return spinecolor, nil
+}
+
+func loadImage(fileInput string) (image.Image, error) {
+	f, err := os.Open(fileInput)
+	defer f.Close()
+	if err != nil {
+		log.Println("File not found:", fileInput)
+		return nil, err
+	}
+	img, _, err := image.Decode(f)
+	if err != nil {
+		return nil, err
+	}
+
+	return img, nil
 }
 
 //GetBooks gets all books
 //todo include authors in filter
-func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, libraryids, session string, authorseries []string) ([]Book, int64, error) {
+func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, fromLexile, toLexile, libraryids, session string, authorseries []string) ([]Book, int64, error) {
 	text = strings.Replace(text, "'", "\\'", -1)
 	if libraryids == "" {
 		return nil, 0, nil
@@ -446,6 +540,8 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 	}
 	startDewey := "Dewey >= '" + formatDewey(fromDewey) + "'"
 	endDewey := "Dewey <= '" + formatDewey(toDewey) + "'"
+	startLexile := "Lexile >= '" + fromLexile + "'"
+	endLexile := "Lexile <= '" + toLexile + "'"
 	filter := "WHERE "
 	if read != "" {
 		filter = filter + read
@@ -493,6 +589,19 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 		}
 		filter = filter + endDewey
 	}
+
+	if startLexile != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + startLexile
+	}
+	if endLexile != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + endLexile
+	}
 	filterText := formFilterText(text)
 	if filterText != "" {
 		if filter != "WHERE " {
@@ -517,7 +626,7 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 		logger.Printf("Error: %+v", err)
 		return nil, 0, err
 	}
-	query := "SELECT bookid, title, subtitle, OriginallyPublished, PublisherID, isread, isreference, IsOwned, ISBN, LoaneeId, dewey, pages, width, height, depth, weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, series, volume, format, Edition, ImageURL, IsReading, isshipping, SpineColor, CheapestNew, CheapestUsed, EditionPublished, blid, libraries.Name, library_members.usr, permissions.Permission from (select books.*, books.libraryid as blid, " + titlechange + ", " + subtitlechange + ", " + serieschange + ", min(name) as minname FROM books LEFT JOIN " + authors + " ON books.BookID = Authors.BookID " + filter + " GROUP BY books.BookID) i LEFT JOIN libraries ON blid=libraries.id JOIN library_members on libraries.ownerid=library_members.id JOIN permissions on permissions.userid=? and libraries.id=permissions.libraryid ORDER BY " + order
+	query := "SELECT bookid, title, subtitle, OriginallyPublished, PublisherID, isread, isreference, IsOwned, ISBN, LoaneeId, dewey, pages, width, height, depth, weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, series, volume, format, Edition, ImageURL, IsReading, isshipping, SpineColor, CheapestNew, CheapestUsed, EditionPublished, SpineColorOverridden, Lexile, blid, libraries.Name, library_members.usr, permissions.Permission from (select books.*, books.libraryid as blid, " + titlechange + ", " + subtitlechange + ", " + serieschange + ", min(name) as minname FROM books LEFT JOIN " + authors + " ON books.BookID = Authors.BookID " + filter + " GROUP BY books.BookID) i LEFT JOIN libraries ON blid=libraries.id JOIN library_members on libraries.ownerid=library_members.id JOIN permissions on permissions.userid=? and libraries.id=permissions.libraryid ORDER BY " + order
 	if numberToGet != "-1" {
 		query += " LIMIT " + numberToGet + " OFFSET " + strconv.FormatInt(((pag-1)*ntg), 10)
 	}
@@ -546,6 +655,8 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 	var ImageURL sql.NullString
 	var SpineColor sql.NullString
 	var EditionPublished mysql.NullTime
+	var spinecoloroverridden int64
+	var lexile int64
 
 	var p information.Publisher
 	var c []information.Contributor
@@ -561,7 +672,7 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 		return nil, 0, err
 	}
 	for rows.Next() {
-		if err := rows.Scan(&b.ID, &Title, &Subtitle, &OriginallyPublished, &PublisherID, &IsRead, &IsReference, &IsOwned, &ISBN, &LoaneeId, &Dewey, &b.Pages, &b.Width, &b.Height, &b.Depth, &b.Weight, &PrimaryLanguage, &SecondaryLanguage, &OriginalLanguage, &Series, &b.Volume, &Format, &b.Edition, &ImageURL, &IsReading, &IsShipping, &SpineColor, &b.CheapestNew, &b.CheapestUsed, &EditionPublished, &b.Library.ID, &b.Library.Name, &b.Library.Owner, &b.Library.Permissions); err != nil {
+		if err := rows.Scan(&b.ID, &Title, &Subtitle, &OriginallyPublished, &PublisherID, &IsRead, &IsReference, &IsOwned, &ISBN, &LoaneeId, &Dewey, &b.Pages, &b.Width, &b.Height, &b.Depth, &b.Weight, &PrimaryLanguage, &SecondaryLanguage, &OriginalLanguage, &Series, &b.Volume, &Format, &b.Edition, &ImageURL, &IsReading, &IsShipping, &SpineColor, &b.CheapestNew, &b.CheapestUsed, &EditionPublished, &spinecoloroverridden, &lexile, &b.Library.ID, &b.Library.Name, &b.Library.Owner, &b.Library.Permissions); err != nil {
 			logger.Printf("Error scanning books: %v", err)
 			return nil, 0, err
 		}
@@ -595,6 +706,8 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 		b.IsReading = IsReading == 1
 		b.IsRead = IsRead == 1
 		b.IsShipping = IsShipping == 1
+		b.SpineColorOverridden = spinecoloroverridden == 1
+		b.Lexile = lexile
 		b.Title = ""
 		if Title.Valid {
 			b.Title = Title.String
@@ -785,4 +898,98 @@ func GetAuthorsForExport(db *sql.DB) ([][]string, error) {
 func ImportBooks(db *sql.DB, records [][]string) error {
 	logger.Printf("Importing...")
 	return nil
+}
+
+//GetBook gets a book by its id
+func GetBook(db *sql.DB, id string) (Book, error) {
+	query := "SELECT ISBN, Title, Subtitle, Series, Volume FROM books WHERE bookid=?"
+	var book Book
+	err := db.QueryRow(query, id).Scan(&book.ISBN, &book.Title, &book.Subtitle, &book.Series, &book.Volume)
+	return book, err
+}
+
+//GetGuessMatchedBooks gets ids of books that are similar enough to a book that they could be the same
+func GetGuessMatchedBooks(db *sql.DB, id string) ([]int64, error) {
+	book, err := GetBook(db, id)
+	if err != nil {
+		logger.Printf("Error: %v", err)
+		return nil, err
+	}
+	query := "SELECT BookId FROM books WHERE isbn=? || (title=? && subtitle=? && series=? && volume=?)"
+	rows, err := db.Query(query, book.ISBN, book.Title, book.Subtitle, book.Series, book.Volume)
+	if err != nil {
+		logger.Printf("Error: %v", err)
+		return nil, err
+	}
+	var ids []int64
+	for rows.Next() {
+		var id int64
+		err = rows.Scan(&id)
+		if err != nil {
+			logger.Printf("Error: %v", err)
+			return nil, err
+		}
+		ids = append(ids, id)
+	}
+	return ids, nil
+}
+
+//GetBookReviews gets book reviews for a book and its guessed matches
+func GetBookReviews(db *sql.DB, id string) ([]Review, error) {
+	matches, err := GetGuessMatchedBooks(db, id)
+	if err != nil {
+		logger.Printf("Error: %v", err)
+		return nil, err
+	}
+	var reviews []Review
+	query := "SELECT bookid, userid, review FROM reviews WHERE bookid IN ('"+intArrToStr(matches, "','")+"')"
+	rows, err := db.Query(query)
+	if err != nil {
+		logger.Printf("Error: %v", err)
+		return nil, err
+	}
+	for rows.Next() {
+		var r Review
+		err = rows.Scan(&r.BookID, &r.UserID, &r.Review)
+		if err != nil {
+			logger.Printf("Error: %v", err)
+			return nil, err
+		}
+		reviews = append(reviews, r)
+	}
+	return reviews, nil
+}
+
+//GetBookRatings gets book ratings for a book and its guessed matches
+func GetBookRatings(db *sql.DB, id string) ([]Review, error) {
+	matches, err := GetGuessMatchedBooks(db, id)
+	if err != nil {
+		logger.Printf("Error: %v", err)
+		return nil, err
+	}
+	var reviews []Review
+	query := "SELECT bookid, userid, review FROM reviews WHERE bookid IN ('"+intArrToStr(matches, "','")+"')"
+	rows, err := db.Query(query)
+	if err != nil {
+		logger.Printf("Error: %v", err)
+		return nil, err
+	}
+	for rows.Next() {
+		var r Review
+		err = rows.Scan(&r.BookID, &r.UserID, &r.Review)
+		if err != nil {
+			logger.Printf("Error: %v", err)
+			return nil, err
+		}
+		reviews = append(reviews, r)
+	}
+	return reviews, nil
+}
+
+func intArrToStr(arr []int64, del string) string {
+	var retval []string
+	for _, i := range arr {
+		retval = append(retval, strconv.Itoa(int(i)))
+	}
+	return strings.Join(retval, del)
 }

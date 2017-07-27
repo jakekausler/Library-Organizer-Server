@@ -54,6 +54,8 @@ func RunServer(username, password, database string) {
 	r.HandleFunc("/books/books", ExportBooksHandler).Methods("GET")
 	r.HandleFunc("/books/contributors", ExportAuthorsHandler).Methods("GET")
 	r.HandleFunc("/books/books", ImportBooksHandler).Methods("POST")
+	r.HandleFunc("/books/{bookid}/ratings", GetRatingsHandler).Methods("GET")
+	r.HandleFunc("/books/{bookid}/reviews", GetReviewsHandler).Methods("GET")
 	r.HandleFunc("/information/statistics", GetStatsHandler).Methods("GET")
 	r.HandleFunc("/information/dimensions", GetDimensionsHandler).Methods("GET")
 	r.HandleFunc("/information/publishers", GetPublishersHandler).Methods("GET")

@@ -1,10 +1,10 @@
-angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselect-searchtree', 'anguFixedHeaderTable'])
+angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselect-searchtree', 'anguFixedHeaderTable', 'ngRateIt'])
     .config(function($mdThemingProvider) {
         $mdThemingProvider.theme('default')
             .primaryPalette('indigo')
             .accentPalette('pink')
             .warnPalette('red')
-            .backgroundPalette('indigo');
+            .backgroundPalette('indigo')
     })
     .controller('libraryOrganizerController', function($scope, $http, $timeout, $mdSidenav, $mdDialog) {
         $scope.guid = function() {
@@ -219,5 +219,19 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
                     username: $scope.username
                 }
             })
+        }
+        $scope.convertFromLexile = function(lexile) {
+            lexile = lexile+"";
+            if (lexile.startsWith("BR")) {
+                lexile = -(parseInt(lexile.substring(2,lexile.length-1)))
+            }
+            return lexile;
+        }
+        $scope.convertToLexile = function(lexile) {
+            if (lexile < 0) {
+                lexile = "BR"+Math.abs(lexile);
+            }
+            lexile += "L";
+            return lexile;
         }
 })

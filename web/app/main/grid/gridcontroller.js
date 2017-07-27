@@ -6,6 +6,8 @@ angular.module('libraryOrganizer')
         $scope.numberOfBooks = 0;
         $scope.fromdewey = $scope.getParameterByName("fromdewey", "0");
         $scope.todewey = $scope.getParameterByName("todewey", "FIC");
+        $scope.fromlexile = $scope.getParameterByName("fromlexile", $scope.convertToLexile("0"));
+        $scope.tolexile = $scope.getParameterByName("tolexile", $scope.convertToLexile("2000"));
         $scope.filter = $scope.getParameterByName("filter", "");
         $scope.read = $scope.getParameterByName("read", "both");
         $scope.reference = $scope.getParameterByName("reference", "both");
@@ -17,6 +19,7 @@ angular.module('libraryOrganizer')
         $scope.libraries = [];
         $scope.output = [];
         $scope.isFiltersOpen = false;
+        $scope.forms = {};
         $scope.stringLibraryIds = function() {
             var retval = "";
             for (o in $scope.output) {
@@ -36,50 +39,56 @@ angular.module('libraryOrganizer')
             return retval;
         }
         $scope.updateRecieved = function() {
-            var loadingName = $scope.guid();
-            $scope.addToLoading(loadingName)
-            $scope.setParameters({
-                    sort: $scope.sort,
-                    numbertoget: $scope.numberToGet,
-                    page: $scope.page,
-                    fromdewey: $scope.fromdewey.toUpperCase(),
-                    todewey: $scope.todewey.toUpperCase(),
-                    filter: $scope.filter,
-                    read: $scope.read,
-                    reference: $scope.reference,
-                    owned: $scope.owned,
-                    loaned: $scope.loaned,
-                    shipping: $scope.shipping,
-                    reading: $scope.reading,
-                })
-            $http({
-                url: '/books',
-                method: 'GET',
-                params: {
-                    sortmethod: $scope.sort,
-                    numbertoget: $scope.numberToGet,
-                    page: $scope.page,
-                    fromdewey: $scope.fromdewey.toUpperCase(),
-                    todewey: $scope.todewey.toUpperCase(),
-                    text: $scope.filter,
-                    isread: $scope.read,
-                    isreference: $scope.reference,
-                    isowned: $scope.owned,
-                    isloaned: $scope.loaned,
-                    isshipping: $scope.shipping,
-                    isreading: $scope.reading,
-                    libraryids: $scope.stringLibraryIds()
-                }
-            }).then(function(response) {
-                $scope.books = response.data.books;
-                for (b in $scope.books) {
-                    for (c in $scope.books[b].contributors) {
-                        $scope.books[b].contributors[c].editing = false;
+            if (!$scope.forms.sortAndFilter || $scope.forms.sortAndFilter.$valid) {
+                var loadingName = $scope.guid();
+                $scope.addToLoading(loadingName)
+                $scope.setParameters({
+                        sort: $scope.sort,
+                        numbertoget: $scope.numberToGet,
+                        page: $scope.page,
+                        fromdewey: $scope.fromdewey.toUpperCase(),
+                        todewey: $scope.todewey.toUpperCase(),
+                        fromlexile: $scope.fromlexile,
+                        tolexile: $scope.tolexile,
+                        filter: $scope.filter,
+                        read: $scope.read,
+                        reference: $scope.reference,
+                        owned: $scope.owned,
+                        loaned: $scope.loaned,
+                        shipping: $scope.shipping,
+                        reading: $scope.reading,
+                    })
+                $http({
+                    url: '/books',
+                    method: 'GET',
+                    params: {
+                        sortmethod: $scope.sort,
+                        numbertoget: $scope.numberToGet,
+                        page: $scope.page,
+                        fromdewey: $scope.fromdewey.toUpperCase(),
+                        todewey: $scope.todewey.toUpperCase(),
+                        fromlexile: $scope.convertFromLexile($scope.fromlexile),
+                        tolexile: $scope.convertFromLexile($scope.tolexile),
+                        text: $scope.filter,
+                        isread: $scope.read,
+                        isreference: $scope.reference,
+                        isowned: $scope.owned,
+                        isloaned: $scope.loaned,
+                        isshipping: $scope.shipping,
+                        isreading: $scope.reading,
+                        libraryids: $scope.stringLibraryIds()
                     }
-                }
-                $scope.numberOfBooks = response.data.numbooks;
-                $scope.removeFromLoading(loadingName);
-            });
+                }).then(function(response) {
+                    $scope.books = response.data.books;
+                    for (b in $scope.books) {
+                        for (c in $scope.books[b].contributors) {
+                            $scope.books[b].contributors[c].editing = false;
+                        }
+                    }
+                    $scope.numberOfBooks = response.data.numbooks;
+                    $scope.removeFromLoading(loadingName);
+                });
+            }
         };
         $scope.previousPage = function() {
             $scope.page -= 1;
@@ -137,7 +146,8 @@ angular.module('libraryOrganizer')
                 "cheapestused": 0,
                 "editionpublished": "",
                 "contributors": [],
-                "library": {}
+                "library": {},
+                "lexile": 0
             }
             $scope.showEditDialog(ev, book, $scope, 'gridadd');
         }

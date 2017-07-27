@@ -99,7 +99,7 @@ func GetCases(db *sql.DB, libraryid, session string) ([]Bookcase, error) {
 		logger.Printf("Error: %+v", err)
 		return nil, err
 	}
-	books, _, err := books.GetBooks(db, strings.ToLower(sortMethod), "both", "both", "yes", "both", "both", "both", "", "1", "-1", "0", "FIC", libraryid, session, authorseries)
+	books, _, err := books.GetBooks(db, strings.ToLower(sortMethod), "both", "both", "yes", "both", "both", "both", "", "1", "-1", "0", "FIC", "0", "2000", libraryid, session, authorseries)
 	breaks, err := GetBreaks(db, libraryid, strings.ToUpper(sortMethod))
 	if err != nil {
 		logger.Printf("Error: %+v", err)

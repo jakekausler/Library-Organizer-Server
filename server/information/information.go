@@ -37,6 +37,7 @@ type StatChart struct {
 //StatChartInfo is chart metadata
 type StatChartInfo struct {
 	Caption           string `json:"caption"`
+	Subcaption           string `json:"subcaption"`
 	FormatNumberScale string `json:"formatNumberScale"`
 	NumberSuffix      string `json:"numberSuffix"`
 	Decimals          string `json:"decimals"`
@@ -775,7 +776,110 @@ func GetStats(db *sql.DB, t, libraryids string) (StatChart, error) {
 				ToolText: fmt.Sprintf("%.2f%%", float64(decadeCounts[decade])/float64(total)*100),
 			})
 		}
-		chart.Chart.Caption = "Books By Edition Publication Date"
+	case "lexile":
+		chart.Chart.Caption = "Books By Lexile Grade Level"
+		chart.Chart.Subcaption = "Taken from Common Core State Standards for English, Language Arts, Appendix A (Additional Information), NGA and CCSSO, 2012"
+		chart.Chart.FormatNumberScale = "0"
+		var total int64
+		var l0 int64
+		var l1 int64
+		var l2 int64
+		var l3 int64
+		var l4 int64
+		var l5 int64
+		var l6 int64
+		var l7 int64
+		var l8 int64
+		var l9 int64
+		var l10 int64
+		var l11 int64
+		var l12 int64
+		query = `SELECT * FROM (
+				(SELECT count(*) as total from books WHERE isowned=1 ` + inlibrary + `) AS t,
+				(SELECT count(*) as l0 from books where lexile<=189 and IsOwned=1 ` + inlibrary + `) as l0,
+				(SELECT count(*) as l1 from books where lexile<=530 and lexile >= 190 and IsOwned=1 ` + inlibrary + `) as l1,
+				(SELECT count(*) as l2 from books where lexile<=650 and lexile >= 420 and IsOwned=1 ` + inlibrary + `) as l2,
+				(SELECT count(*) as l3 from books where lexile<=820 and lexile >= 520 and IsOwned=1 ` + inlibrary + `) as l3,
+				(SELECT count(*) as l4 from books where lexile<=940 and lexile >= 740 and IsOwned=1 ` + inlibrary + `) as l4,
+				(SELECT count(*) as l5 from books where lexile<=1010 and lexile >= 830 and IsOwned=1 ` + inlibrary + `) as l5,
+				(SELECT count(*) as l6 from books where lexile<=1070 and lexile >= 925 and IsOwned=1 ` + inlibrary + `) as l6,
+				(SELECT count(*) as l7 from books where lexile<=1120 and lexile >= 970 and IsOwned=1 ` + inlibrary + `) as l7,
+				(SELECT count(*) as l8 from books where lexile<=1185 and lexile >= 800 and IsOwned=1 ` + inlibrary + `) as l8,
+				(SELECT count(*) as l9 from books where lexile<=1260 and lexile >= 1010 and IsOwned=1 ` + inlibrary + `) as l9,
+				(SELECT count(*) as l10 from books where lexile<=1335 and lexile >= 1050 and IsOwned=1 ` + inlibrary + `) as l10,
+				(SELECT count(*) as l11 from books where lexile<=1385 and lexile >= 1080 and IsOwned=1 ` + inlibrary + `) as l11,
+				(SELECT count(*) as l12 from books where lexile >= 1386 and IsOwned=1 ` + inlibrary + `) as l12)`
+		err := db.QueryRow(query).Scan(&total, &l0, &l1, &l2, &l3, &l4, &l5, &l6, &l7, &l8, &l9, &l10, &l11, &l12)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return chart, err
+		}
+		chart.Chart.Caption = "Books By Grade Level"
+		data = append(data, StatData{
+			Label:    "Pre Grade 1\n(Less than L190)",
+			Value:    fmt.Sprintf("%d", l0),
+			ToolText: fmt.Sprintf("%.2f%%", float64(l0)/float64(total)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Grade 1\n(L190-L530)",
+			Value:    fmt.Sprintf("%d", l1),
+			ToolText: fmt.Sprintf("%.2f%%", float64(l1)/float64(total)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Grade 2\n(L420-L650)",
+			Value:    fmt.Sprintf("%d", l2),
+			ToolText: fmt.Sprintf("%.2f%%", float64(l2)/float64(total)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Grade 3\n(L520-L820)",
+			Value:    fmt.Sprintf("%d", l3),
+			ToolText: fmt.Sprintf("%.2f%%", float64(l3)/float64(total)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Grade 4\n(L740-L940)",
+			Value:    fmt.Sprintf("%d", l4),
+			ToolText: fmt.Sprintf("%.2f%%", float64(l4)/float64(total)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Grade 5\n(L830-L1010)",
+			Value:    fmt.Sprintf("%d", l5),
+			ToolText: fmt.Sprintf("%.2f%%", float64(l5)/float64(total)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Grade 6\n(L925-L1070)",
+			Value:    fmt.Sprintf("%d", l6),
+			ToolText: fmt.Sprintf("%.2f%%", float64(l6)/float64(total)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Grade 7\n(L970-L1120)",
+			Value:    fmt.Sprintf("%d", l7),
+			ToolText: fmt.Sprintf("%.2f%%", float64(l7)/float64(total)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Grade 8\n(L1010-L1185)",
+			Value:    fmt.Sprintf("%d", l8),
+			ToolText: fmt.Sprintf("%.2f%%", float64(l8)/float64(total)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Grade 9\n(L1050-L1260)",
+			Value:    fmt.Sprintf("%d", l9),
+			ToolText: fmt.Sprintf("%.2f%%", float64(l9)/float64(total)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Grade 10\n(L1080-L1335)",
+			Value:    fmt.Sprintf("%d", l10),
+			ToolText: fmt.Sprintf("%.2f%%", float64(l10)/float64(total)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Grade 11-12\n(L1185-L1385)",
+			Value:    fmt.Sprintf("%d", l11),
+			ToolText: fmt.Sprintf("%.2f%%", float64(l11)/float64(total)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Post Grade 12\n(Greater than L1385)",
+			Value:    fmt.Sprintf("%d", l12),
+			ToolText: fmt.Sprintf("%.2f%%", float64(l12)/float64(total)*100),
+		})
 	}
 	chart.Data = data
 	return chart, nil

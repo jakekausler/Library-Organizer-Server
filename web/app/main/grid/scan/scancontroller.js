@@ -70,7 +70,8 @@ angular.module('libraryOrganizer')
                 "cheapestused": 0,
                 "editionpublished": result.volumeInfo.publishedDate ? result.volumeInfo.publishedDate.substring(0, 4) : '',
                 "contributors": $scope.getAuthors(result.volumeInfo.authors),
-                "library": {}
+                "library": {},
+                "lexile": 0
             }
             $scope.vm.showEditDialog(ev, book, $scope.vm, 'scanadd');
         };

@@ -11,7 +11,7 @@
 </md-toolbar>
 <div layout="row" >
 	<md-sidenav md-is-locked-open="isFiltersOpen" class="md-sidenav-left" md-component-id="filterSideNav" md-whiteframe=4 layout-padding="5">
-		<form name="sort-and-filter"  layout="column">
+		<form name="forms.sortAndFilter"  layout="column">
 			<div id="sort"  layout="column">
 				<md-input-container class="md-input-has-value">
 					<label id="sort-label">Sort By</label>
@@ -45,7 +45,21 @@
 					<div id="to-dewey" class="sort-group">
 						<md-input-container>
 							<label id="to-dewey-label">To Dewey</label>
-							<input id="to-dewey-input" class="dewey-input" type="text" ng-change="updateRecieved()" ng-model="$parent.todewey" name="todewey" value="FIC" dewey-input/>
+							<input id="to-dewey-input" class="dewey-input" type="text" ng-change="updateRecieved()" ng-model="$parent.todewey" name="todewey" value="FIC" required dewey-input/>
+						</md-input-container>
+					</div>
+				</div>
+				<div layout="row">
+					<div id="from-lexile" class="sort-group">
+						<md-input-container>
+							<label id="from-lexile-label">From Lexile</label>
+							<input id="from-lexile-input" class="lexile-input" type="text" ng-change="updateRecieved()" ng-model="$parent.fromlexile" name="fromlexile" value="0" required lexile-input/>
+						</md-input-container>
+					</div>
+					<div id="to-lexile" class="sort-group">
+						<md-input-container>
+							<label id="to-lexile-label">To Lexile</label>
+							<input id="to-lexile-input" class="lexile-input" type="text" ng-change="updateRecieved()" ng-model="$parent.tolexile" name="tolexile" value="2000" required lexile-input/>
 						</md-input-container>
 					</div>
 				</div>

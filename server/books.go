@@ -12,6 +12,7 @@ import (
 	"strconv"
 
 	"./books"
+	"github.com/gorilla/mux"
 )
 
 //GetBooksHandler gets books from a filter query
@@ -35,8 +36,10 @@ func GetBooksHandler(w http.ResponseWriter, r *http.Request) {
 	numberToGet := params.Get("numbertoget")
 	fromDewey := params.Get("fromdewey")
 	toDewey := params.Get("todewey")
+	fromLexile := params.Get("fromlexile")
+	toLexile := params.Get("tolexile")
 	libraryids := params.Get("libraryids")
-	bs, numberOfBooks, err := books.GetBooks(db, sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, libraryids, session, nil)
+	bs, numberOfBooks, err := books.GetBooks(db, sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, fromLexile, toLexile, libraryids, session, nil)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -307,4 +310,54 @@ func ExportAuthorsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/csv")
 	w.Header().Set("Content-Disposition", "attachment;filename=authors.csv")
 	w.Write(b.Bytes())
+}
+
+//GetRatingsHandler gets ratings for a book and its best guessed matches
+func GetRatingsHandler(w http.ResponseWriter, r *http.Request) {
+	registered, _ := Registered(r)
+	if !registered {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
+		return
+	}
+	bookid := mux.Vars(r)["bookid"]
+	d, err := books.GetBookRatings(db, bookid)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	data, err := json.Marshal(d)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+}
+
+//GetReviewsHandler gets ratings for a book and its best guessed matches
+func GetReviewsHandler(w http.ResponseWriter, r *http.Request) {
+	registered, _ := Registered(r)
+	if !registered {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
+		return
+	}
+	bookid := mux.Vars(r)["bookid"]
+	d, err := books.GetBookReviews(db, bookid)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	data, err := json.Marshal(d)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
 }

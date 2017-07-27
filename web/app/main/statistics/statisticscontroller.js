@@ -67,6 +67,9 @@ angular.module('libraryOrganizer')
             case 'dates':
                 $scope.setStatSubView('bydatesoriginal');
                 break;
+            case 'lexile':
+                $scope.setStatSubView('bylexile');
+                break;
             }
         }
         $scope.setStatSubView = function(view) {

@@ -12,6 +12,7 @@
 				<div ng-hide="!book.isbn">ISBN: {{book.isbn}}</div>
 				<div>Dewey: {{book.dewey}}</div>
 				<div ng-hide="book.loanee.id==-1">On Loan to {{book.loanee.first}} {{book.loanee.last}}</div>
+				<div ng-hide="averageRating < 0"><span style="margin-right: 5px">Average Rating</span><ng-rate-it style="display: inline-block;" ng-model="averageRating" step="0.1" read-only="true"></ng-rate-it></div>
 			</div>
 			<div flex>
 				<img width="100%" ng-src="web/{{book.imageurl}}{{'?'+getCurrentDateString()}}" alt="Image not found" onerror="this.onerror=null;this.src='web/res/book.jpg';">

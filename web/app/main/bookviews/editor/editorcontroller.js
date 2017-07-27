@@ -38,6 +38,9 @@ angular.module('libraryOrganizer')
 		$vm.getSettingByName('Dewey', function(value) {
 			$scope.book.dewey = value;
 		});
+		$vm.getSettingByName('Lexile', function(value) {
+			$scope.book.lexile = $vm.convertToLexile(value);
+		});
 		$vm.getSettingByName('Format', function(value) {
 			$scope.book.format = value;
 		});
@@ -83,6 +86,9 @@ angular.module('libraryOrganizer')
 		$vm.getSettingByName('Edition', function(value) {
 			$scope.book.edition = value;
 		});
+	}
+	if (!isNaN($scope.book.lexile)) {
+		$scope.book.lexile = $vm.convertToLexile($scope.book.lexile);
 	}
 	$scope.publishers = [];
 	$scope.cities = [];
@@ -255,6 +261,7 @@ angular.module('libraryOrganizer')
 		book.height = parseInt(book.height);
 		book.depth = parseInt(book.depth);
 		book.weight = parseFloat(book.weight);
+		book.lexile = parseInt($vm.convertFromLexile(book.lexile));
 		book.originallypublished = book.originallypublished+'-01-01';
 		book.editionpublished = book.editionpublished+'-01-01';
 		book.series = book.series?book.series:$scope.seriesSearchText;
@@ -299,8 +306,6 @@ angular.module('libraryOrganizer')
 		});
 	}
 	$scope.remove = function(book) {
-        var loadingName = $vm.guid();
-        $vm.addToLoading(loadingName)
 		var confirm = $mdDialog.confirm()
 			.title('Really Remove Book?')
 			.textContent('Are you sure you want to remove this book? This cannot be undone.')
@@ -308,6 +313,8 @@ angular.module('libraryOrganizer')
 			.ok('Yes')
 			.cancel('Cancel');
 		$mdDialog.show(confirm).then(function() {
+	        var loadingName = $vm.guid();
+	        $vm.addToLoading(loadingName)
 			$http({
 				url: '/books',
 				method: 'DELETE',
@@ -361,10 +368,10 @@ angular.module('libraryOrganizer')
 		console.log(item)
 	}
 	$scope.getGenre = function() {
-		if ($scope.deweySearchText == "FIC") {
+		if ($scope.book.dewey == "FIC") {
 			return 'Fiction';
 		}
-		return $scope.genres[$scope.deweySearchText]?$scope.genres[$scope.deweySearchText].replace(">", "\u003e"):'';
+		return $scope.genres[$scope.book.dewey]?$scope.genres[$scope.book.dewey].replace(">", "\u003e"):'';
 	}
     $scope.updateLibraries();
     $scope.convertIsbn = function() {

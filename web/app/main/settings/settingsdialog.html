@@ -1,26 +1,26 @@
-<md-dialog aria-label="Settings" label="Settings"  flex>
-	<div flex style="position: relative; height: 60vh">
-		<md-tabs md-selected="selectedTab" style="position: absolute;top: 0;bottom: 0;left: 0;right: 0" md-stretch-tabs="always">
+<md-dialog aria-label="Settings" id="settings-view" label="Settings"  flex>
+	<div flex class="settings-content" >
+		<md-tabs class="settings-tabs" md-selected="selectedTab"  md-stretch-tabs="always">
 			<md-tab label="Libraries" flex>
-				<p layout-padding="5" style="position: relative;height:10%">
+				<p layout-padding="5" class="settings-description" >
 					You can change the names of your libraries, and give users permission to edit, checkout, or view the libraries. If a user can edit or checkout from a library, they can automatically view it.
 				</p>
-				<div flex style="position: relative;height:85%">
+				<div class="settings-inner-content" flex >
 					<form name="librariesform">
-					<md-tabs md-selected="selectedLibrary" flex style="position: absolute;top: 0;bottom: 0;left: 0;right: 0">
+					<md-tabs md-selected="selectedLibrary" class="settings-inner-tabs" flex >
 						<md-tab ng-repeat="library in ownedLibraries" label="{{library.name}}">
-						<md-content layout-padding="5" flex style="height: 100%">
+						<md-content layout-padding="5" flex class="settings-inner-tab-content">
 							<md-input-container>
 								<label>Name</label>
 								<input type="text" ng-model="library.name" required />
 							</md-input-container>
 							<md-button ng-disabled="ownedLibraries.length==1" class="icon remove-icon" ng-click="removeLibrary(library.id)"><md-tooltip md-delay="500">Remove Library</md-tooltip></md-button>
 							<h1 class="md-title">Users who can edit</h1>
-							<md-contact-chips md-on-add="addToEdit()" style="min-width: 400px" ng-model="library.editusers" md-contacts="$parent.queryUsers($query)" md-contact-name="fullname" md-contact-image="iconurl" md-contact-email="email" md-require-match="true" md-highlight-flags="i" filter-selected="true" placeholder="Add User"></md-contact-chips>
+							<md-contact-chips md-on-add="addToEdit()" ng-model="library.editusers" md-contacts="$parent.queryUsers($query)" md-contact-name="fullname" md-contact-image="iconurl" md-contact-email="email" md-require-match="true" md-highlight-flags="i" filter-selected="true" placeholder="Add User"></md-contact-chips>
 							<h1 class="md-title">Users who can checkout</h1>
-							<md-contact-chips style="min-width: 400px" ng-model="library.checkoutusers" md-contacts="$parent.queryUsers($query)" md-contact-name="fullname" md-contact-image="iconurl" md-contact-email="email" md-require-match="true" md-highlight-flags="i" filter-selected="true" placeholder="Add User"></md-contact-chips>
+							<md-contact-chips ng-model="library.checkoutusers" md-contacts="$parent.queryUsers($query)" md-contact-name="fullname" md-contact-image="iconurl" md-contact-email="email" md-require-match="true" md-highlight-flags="i" filter-selected="true" placeholder="Add User"></md-contact-chips>
 							<h1 class="md-title">Users who can view</h1>
-							<md-contact-chips style="min-width: 400px" ng-model="library.viewusers" md-contacts="$parent.queryUsers($query)" md-contact-name="fullname" md-contact-image="iconurl" md-contact-email="email" md-require-match="true" md-highlight-flags="i" filter-selected="true" placeholder="Add User"></md-contact-chips>
+							<md-contact-chips ng-model="library.viewusers" md-contacts="$parent.queryUsers($query)" md-contact-name="fullname" md-contact-email="email" md-require-match="true" md-highlight-flags="i" filter-selected="true" placeholder="Add User"></md-contact-chips>
 						</md-content>
 						</md-tab>
 					</md-tabs>
@@ -28,38 +28,42 @@
 				</div>
 			</md-tab>
 			<md-tab ng-repeat="group in settings" label="{{group.group}}">
-				<md-content flex style="height: 100%">
+				<md-content flex class="settings-inner-tab-content" >
 					<md-list>
-						<md-list-item style="float:left" ng-repeat="setting in group.settings">
-							<md-input-container style="min-width: 200px" ng-hide="setting.valuetype != 'string'">
+						<md-list-item  ng-repeat="setting in group.settings">
+							<md-input-container  ng-hide="setting.valuetype != 'string'">
 								<label>{{setting.setting}}</label>
 								<input ng-model="setting.value" ng-change="pushSettings()" />
 							</md-input-container>
-							<md-input-container style="min-width: 200px" ng-hide="setting.valuetype != 'dewey'">
+							<md-input-container  ng-hide="setting.valuetype != 'dewey'">
 								<label>{{setting.setting}}</label>
 								<input ng-model="setting.value" ng-change="pushSettings()" dewey-input required />
 							</md-input-container>
-							<md-input-container style="min-width: 200px" ng-hide="setting.valuetype != 'isbn'">
+							<md-input-container  ng-hide="setting.valuetype != 'lexile'">
+								<label>{{setting.setting}}</label>
+								<input ng-model="setting.value" ng-change="pushSettings()" lexile-input required />
+							</md-input-container>
+							<md-input-container  ng-hide="setting.valuetype != 'isbn'">
 								<label>{{setting.setting}}</label>
 								<input ng-model="setting.value" ng-change="pushSettings()" isbn-input />
 							</md-input-container>
-							<md-input-container style="min-width: 200px" ng-hide="setting.valuetype != 'nonnegativefloat'">
+							<md-input-container  ng-hide="setting.valuetype != 'nonnegativefloat'">
 								<label>{{setting.setting}}</label>
 								<input ng-model="setting.value" ng-change="pushSettings()" required non-negative-number-input />
 							</md-input-container>
-							<md-input-container style="min-width: 200px" ng-hide="setting.valuetype != 'nonnegativeint'">
+							<md-input-container  ng-hide="setting.valuetype != 'nonnegativeint'">
 								<label>{{setting.setting}}</label>
 								<input ng-model="setting.value" ng-change="pushSettings()" required non-negative-integer-input />
 							</md-input-container>
-							<md-input-container style="min-width: 200px" ng-hide="setting.valuetype != 'positiveint'">
+							<md-input-container  ng-hide="setting.valuetype != 'positiveint'">
 								<label>{{setting.setting}}</label>
 								<input ng-model="setting.value" ng-change="pushSettings()" positive-integer-input required />
 							</md-input-container>
-							<md-input-container style="min-width: 200px" ng-hide="setting.valuetype != 'year'">
+							<md-input-container  ng-hide="setting.valuetype != 'year'">
 								<label>{{setting.setting}}</label>
 								<input ng-model="setting.value" ng-change="pushSettings()" year-input />
 							</md-input-container>
-							<md-input-container style="min-width: 200px" ng-hide="setting.valuetype != 'selection'">
+							<md-input-container  ng-hide="setting.valuetype != 'selection'">
 								<label>{{setting.setting}}</label>
 								<md-select ng-model="setting.value" ng-change="pushSettings()" required>
 									<md-option ng-value="value" ng-repeat="value in setting.possiblevalues">
