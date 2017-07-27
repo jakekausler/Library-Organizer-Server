@@ -337,6 +337,32 @@ func GetRatingsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
+//AddRatingHandler gets ratings for a book and its best guessed matches
+func AddRatingHandler(w http.ResponseWriter, r *http.Request) {
+	registered, session := Registered(r)
+	if !registered {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
+		return
+	}
+	bookid := mux.Vars(r)["bookid"]
+	var rating int
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&rating)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
+	err := books.AddBookRating(db, bookid, session, rating)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+}
+
 //GetReviewsHandler gets ratings for a book and its best guessed matches
 func GetReviewsHandler(w http.ResponseWriter, r *http.Request) {
 	registered, _ := Registered(r)
@@ -360,4 +386,30 @@ func GetReviewsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(data)
+}
+
+//AddReviewHandler gets ratings for a book and its best guessed matches
+func AddReviewHandler(w http.ResponseWriter, r *http.Request) {
+	registered, session := Registered(r)
+	if !registered {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
+		return
+	}
+	bookid := mux.Vars(r)["bookid"]
+	var review string
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&review)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
+	err := books.AddBookReview(db, bookid, session, review)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
 }

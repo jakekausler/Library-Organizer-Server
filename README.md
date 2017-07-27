@@ -152,6 +152,10 @@ In this document, you will find both a user guide, for normal users to learn the
   * Export Books `GET /books/books`
   * Export contributors `GET /books/contributors`
   * Import Books `POST /books/books`
+  * Get Ratings `GET /books/:bookid/ratings`
+  * Get Reviews `GET /books/:bookid/reviews`
+  * Add Rating `POST /books/:bookid/ratings`
+  * Add Review `POST /books/:bookid/reviews`
 
 * Information `/information`
   * Get Statistics `GET /information/statistics`
@@ -173,9 +177,11 @@ In this document, you will find both a user guide, for normal users to learn the
   * Get Cases `GET /libraries/:libraryid/cases`
   * Save Cases `PUT /libraries/:libraryid/cases`
   * Get Breaks `GET /libraries/:libraryid/breaks`
-  * Add Break `POST /libraries/:libraryid/breaks`
-  * Save Break `PUT /libraries/:libraryid/breaks`
-  * Delete Break `DELETE /libraries/:libraryid/breaks`
+  * Update Breaks `PUT /libraries/:libraryid/breaks`
+  * Get Author Based Series `GET /libraries/:libraryid/series`
+  * Update Author Based Series `PUT /libraries/:libraryid/series`
+  * Get Sort Method `GET /libraries/:libraryid/sort`
+  * Update Sort Method `PUT /libraries/:libraryid/sort`
 
 * Settings `/settings`
   * Get Settings `GET /settings`
@@ -201,6 +207,10 @@ In this document, you will find both a user guide, for normal users to learn the
 * Export Books `GET /books/books`
 * Export Contributors `GET /books/contributors`
 * Import Books `POST /books/books`
+* Get Ratings `GET /books/:bookid/ratings`
+* Get Reviews `GET /books/:bookid/reviews`
+* Add Rating `POST /books/:bookid/ratings`
+* Add Review `POST /books/:bookid/reviews`
 
 ### Get Books
 
@@ -614,6 +624,126 @@ Form Data:
 
 ```
 
+### Get Ratings
+
+* **Action**
+`Get the ratings for a book and its best guest matches.`
+
+* **Method**
+`GET`
+
+* **URL**
+`/books/:bookid/ratings`
+
+* **URL Params**
+`:bookid` Id of the book to get ratings from
+
+* **URL Arguments (?)**
+`none`
+
+* **Data Params**
+`none`
+
+* **Success Response**
+```json
+
+```
+
+* **Error Response**
+```json
+
+```
+
+### Add Rating
+
+* **Action**
+`Add or replace a rating for a book.`
+
+* **Method**
+`PUT`
+
+* **URL**
+`/books/:bookid/ratings`
+
+* **URL Params**
+`:bookid` Id of the book to get ratings from
+
+* **URL Arguments (?)**
+`none`
+
+* **Data Params**
+`none`
+
+* **Success Response**
+```json
+
+```
+
+* **Error Response**
+```json
+
+```
+
+### Get Reviews
+
+* **Action**
+`Get the reviews for a book and its best guest matches.`
+
+* **Method**
+`GET`
+
+* **URL**
+`/books/:bookid/reviews`
+
+* **URL Params**
+`:bookid` Id of the book to get reviews from
+
+* **URL Arguments (?)**
+`none`
+
+* **Data Params**
+`none`
+
+* **Success Response**
+```json
+
+```
+
+* **Error Response**
+```json
+
+```
+
+### Add Review
+
+* **Action**
+`Add or replace a review for a book.`
+
+* **Method**
+`PUT`
+
+* **URL**
+`/books/:bookid/reviews`
+
+* **URL Params**
+`:bookid` Id of the book to get reviews from
+
+* **URL Arguments (?)**
+`none`
+
+* **Data Params**
+`none`
+
+* **Success Response**
+```json
+
+```
+
+* **Error Response**
+```json
+
+```
+
 ## Information
 * Get Statistics `GET /information/statistics`
 * Get Dimensions `GET /information/dimensions`
@@ -967,8 +1097,12 @@ Library Ids:
 * Save Cases `PUT /libraries/:libraryid/cases`
 * Get Breaks `GET /libraries/:libraryid/breaks`
 * Add Break `POST /libraries/:libraryid/breaks`
-* Save Break `PUT /libraries/:libraryid/breaks`
+* Update Breaks `PUT /libraries/:libraryid/breaks`
 * Delete Break `DELETE /libraries/:libraryid/breaks`
+* Get Author Based Series `GET /libraries/:libraryid/series`
+* Update Author Based Series `PUT /libraries/:libraryid/series`
+* Get Sort Method `GET /libraries/:libraryid/sort`
+* Update Sort Method `PUT /libraries/:libraryid/sort`
 
 ### Get Libraries
 
@@ -1182,47 +1316,10 @@ Library Ids:
 
 ```
 
-### Add Break
+### Update Breaks
 
 * **Action**
-`Add a break to a library.`
-
-* **Method**
-`POST`
-
-* **URL**
-`/libraries/:libraryid/breaks`
-
-* **URL Params**
-`:libraryid` The id of the selected library
-
-* **URL Arguments (?)**
-`none`
-
-* **Data Params**
-```json
-{
-    "libraryid": 1234,
-    "valuetype": "ID",
-    "value": "12345",
-    "breaktype": "SHELF"
-}
-```
-
-* **Success Response**
-```json
-
-```
-
-* **Error Response**
-```json
-
-```
-
-### Save Break
-
-* **Action**
-`Save a break in a library.`
+`Update the breaks in a library.`
 
 * **Method**
 `PUT`
@@ -1238,12 +1335,12 @@ Library Ids:
 
 * **Data Params**
 ```json
-{
+[{
     "libraryid": 1234,
     "valuetype": "ID",
     "value": "12345",
     "breaktype": "SHELF"
-}
+}]
 ```
 
 * **Success Response**
@@ -1256,16 +1353,16 @@ Library Ids:
 
 ```
 
-### Delete Break
+### Get Author Based Series
 
 * **Action**
-`Delete a book from a library.`
+`Get the series that should be sorted primarily on volume, instead of author.`
 
 * **Method**
-`DELETE`
+`GET`
 
 * **URL**
-`/libraries/:libraryid/breaks`
+`/libraries/:libraryid/series`
 
 * **URL Params**
 `:libraryid` The id of the selected library
@@ -1274,14 +1371,97 @@ Library Ids:
 `none`
 
 * **Data Params**
+`none`
+
+* **Success Response**
 ```json
-{
-    "libraryid": 1234,
-    "valuetype": "ID",
-    "value": "12345",
-    "breaktype": "SHELF"
-}
+
 ```
+
+* **Error Response**
+```json
+
+```
+
+### Update Author Based Series
+
+* **Action**
+`Set the series that should be sorted primarily on volume, instead of author.`
+
+* **Method**
+`PUT`
+
+* **URL**
+`/libraries/:libraryid/series`
+
+* **URL Params**
+`:libraryid` The id of the selected library
+
+* **URL Arguments (?)**
+`none`
+
+* **Data Params**
+`none`
+
+* **Success Response**
+```json
+
+```
+
+* **Error Response**
+```json
+
+```
+
+### Get Sort Method
+
+* **Action**
+`Get the sort method of a library.`
+
+* **Method**
+`GET`
+
+* **URL**
+`/libraries/:libraryid/sort`
+
+* **URL Params**
+`:libraryid` The id of the selected library
+
+* **URL Arguments (?)**
+`none`
+
+* **Data Params**
+`none`
+
+* **Success Response**
+```json
+
+```
+
+* **Error Response**
+```json
+
+```
+
+### Update Sort Method
+
+* **Action**
+`Set the sort method of a library. One of "dewey", "title", or "series"`
+
+* **Method**
+`PUT`
+
+* **URL**
+`/libraries/:libraryid/sort`
+
+* **URL Params**
+`:libraryid` The id of the selected library
+
+* **URL Arguments (?)**
+`none`
+
+* **Data Params**
+`none`
 
 * **Success Response**
 ```json

@@ -960,30 +960,54 @@ func GetBookReviews(db *sql.DB, id string) ([]Review, error) {
 	return reviews, nil
 }
 
+//AddBookReview adds or replaces a review for a book
+func AddBookReview(db *sql.DB, id, session string, review string) error {
+	userid, err := users.GetUserID(db, session)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return err
+	}
+	query := "REPLACE INTO reviews (userid, bookid, review) VALUES (?,?,?)"
+	_, err = db.Exec(query, userid, id, review)
+	return err
+}
+
 //GetBookRatings gets book ratings for a book and its guessed matches
-func GetBookRatings(db *sql.DB, id string) ([]Review, error) {
+func GetBookRatings(db *sql.DB, id string) ([]Rating, error) {
 	matches, err := GetGuessMatchedBooks(db, id)
 	if err != nil {
 		logger.Printf("Error: %v", err)
 		return nil, err
 	}
-	var reviews []Review
-	query := "SELECT bookid, userid, review FROM reviews WHERE bookid IN ('"+intArrToStr(matches, "','")+"')"
+	var ratings []Rating
+	query := "SELECT bookid, userid, rating FROM ratings WHERE bookid IN ('"+intArrToStr(matches, "','")+"')"
 	rows, err := db.Query(query)
 	if err != nil {
 		logger.Printf("Error: %v", err)
 		return nil, err
 	}
 	for rows.Next() {
-		var r Review
-		err = rows.Scan(&r.BookID, &r.UserID, &r.Review)
+		var r Rating
+		err = rows.Scan(&r.BookID, &r.UserID, &r.Rating)
 		if err != nil {
 			logger.Printf("Error: %v", err)
 			return nil, err
 		}
-		reviews = append(reviews, r)
+		ratings = append(ratings, r)
 	}
-	return reviews, nil
+	return ratings, nil
+}
+
+//AddBookRating adds or replaces a rating for a book
+func AddBookRating(db *sql.DB, id, session string, rating int) error {
+	userid, err := users.GetUserID(db, session)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return err
+	}
+	query := "REPLACE INTO ratings (userid, bookid, rating) VALUES (?,?,?)"
+	_, err = db.Exec(query, userid, id, rating)
+	return err
 }
 
 func intArrToStr(arr []int64, del string) string {
