@@ -41,9 +41,6 @@ angular.module('libraryOrganizer')
 		$vm.getSettingByName('Dewey', function(value) {
 			$scope.book.dewey = value;
 		});
-		$vm.getSettingByName('Lexile', function(value) {
-			$scope.book.lexile = $vm.convertToLexile(value);
-		});
 		$vm.getSettingByName('Format', function(value) {
 			$scope.book.format = value;
 		});
