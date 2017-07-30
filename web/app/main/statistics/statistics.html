@@ -13,6 +13,7 @@
 				<md-button aria-label="Show Date Statistics" ng-disabled="statView=='dates'" ng-click="setStatView('dates')">Dates</md-button>
 				<md-button aria-label="Show Dimension Statistics" ng-disabled="statView=='dimensions'" ng-click="setStatView('dimensions')">Dimensions</md-button>
 				<md-button aria-label="Show Lexile Statistics" ng-disabled="statView=='lexile'" ng-click="setStatView('lexile')">Lexiles</md-button>
+				<md-button aria-label="Show Tag Statistics" ng-disabled="statView=='tag'" ng-click="setStatView('tag')">Tags</md-button>
 			</div>
 			<div id="stats-navigation-sub" ng-hide="display!='stats'">
 				<md-button aria-label="View By Count" ng-disabled="statSubView=='bycounts'" ng-hide="statView!='general'" ng-click="setStatSubView('bycounts')">By Counts</md-button>
@@ -37,7 +38,8 @@
 				<md-button aria-label="View By Pages" ng-disabled="statSubView=='bypages'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('bypages')">Pages</md-button>
 				<md-button aria-label="View By Original Date" ng-disabled="statSubView=='bydatesoriginal'" ng-hide="statView!='dates'" ng-click="setStatSubView('bydatesoriginal')">By Original Publication Date</md-button>
 				<md-button aria-label="View By Publication Date" ng-disabled="statSubView=='bydatespublication'" ng-hide="statView!='dates'" ng-click="setStatSubView('bydatespublication')">By Edition Publication Date</md-button>
-				<md-button aria-label="View By Lexile" ng-disabled="statSubView=='lexile'" ng-hide="statView!='lexile'" ng-click="setStatSubView('bylexile')">By Lexile</md-button>
+				<md-button aria-label="View By Lexile" ng-disabled="statSubView=='bylexile'" ng-hide="statView!='lexile'" ng-click="setStatSubView('bylexile')">By Lexile</md-button>
+				<md-button aria-label="View By Tag" ng-disabled="statSubView=='bytag'" ng-hide="statView!='tag'" ng-click="setStatSubView('bytag')">By Tag</md-button>
 			</div>
 		</md-toolbar>
 	</div>
@@ -205,6 +207,10 @@
 
 		<div id="Lexile" ng-hide="statView!='lexile'">
 			<fusioncharts ng-hide="statSubView!='bylexile'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='information/statistics?type=lexile&libraryids={{stringLibraryIds()}}'></fusioncharts>
+		</div>
+
+		<div id="Tag" ng-hide="statView!='tag'">
+			<fusioncharts ng-hide="statSubView!='bytag'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='information/statistics?type=tag&libraryids={{stringLibraryIds()}}'></fusioncharts>
 		</div>
 	</div>
 </div>

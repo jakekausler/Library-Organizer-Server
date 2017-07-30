@@ -56,7 +56,7 @@ angular.module('libraryOrganizer')
                         owned: $scope.owned,
                         loaned: $scope.loaned,
                         shipping: $scope.shipping,
-                        reading: $scope.reading,
+                        reading: $scope.reading
                     })
                 $http({
                     url: '/books',
@@ -76,6 +76,7 @@ angular.module('libraryOrganizer')
                         isloaned: $scope.loaned,
                         isshipping: $scope.shipping,
                         isreading: $scope.reading,
+                        isbn: "",
                         libraryids: $scope.stringLibraryIds()
                     }
                 }).then(function(response) {
@@ -147,7 +148,8 @@ angular.module('libraryOrganizer')
                 "editionpublished": "",
                 "contributors": [],
                 "library": {},
-                "lexile": 0
+                "lexile": 0,
+                "notes": ""
             }
             $scope.showEditDialog(ev, book, $scope, 'gridadd');
         }

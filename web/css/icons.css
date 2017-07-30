@@ -71,6 +71,9 @@
 .copy-icon:before{
 	content:'\f0c5';
 }
+.eyedropper-icon:before{
+	content:'\f1fb';
+}
 
 figcaption {
 	margin: auto;

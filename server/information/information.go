@@ -24,6 +24,9 @@ const (
 	getLanguagesQuery    = "SELECT DISTINCT(Langauge) from languages"
 	getRolesQuery        = "SELECT DISTINCT(Role) from written_by"
 	getContributorsQuery = "SELECT PersonID, Role, FirstName, MiddleNames, LastName from written_by join persons on written_by.AuthorID = persons.PersonID WHERE BookID=?"
+	getTagsQuery         = "SELECT DISTINCT(Tag) from tags"
+
+	SORTMETHOD = "Dewey:ASC--Author:ASC--Series:ASC--Volume:ASC--Title:ASC--Subtitle:ASC--Edition:ASC--Lexile:ASC||Dewey:ASC--Series:ASC--Volume:ASC--Author:ASC--Title:ASC--Subtitle:ASC--Edition:ASC--Lexile:ASC"
 )
 
 var logger = log.New(os.Stderr, "log: ", log.LstdFlags|log.Lshortfile)
@@ -816,70 +819,101 @@ func GetStats(db *sql.DB, t, libraryids string) (StatChart, error) {
 		}
 		chart.Chart.Caption = "Books By Grade Level"
 		data = append(data, StatData{
-			Label:    "Pre Grade 1\n(Less than L190)",
+			Label:    "Pre Grade 1\n(Less than 190L)",
 			Value:    fmt.Sprintf("%d", l0),
 			ToolText: fmt.Sprintf("%.2f%%", float64(l0)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label:    "Grade 1\n(L190-L530)",
+			Label:    "Grade 1\n(190L-530L)",
 			Value:    fmt.Sprintf("%d", l1),
 			ToolText: fmt.Sprintf("%.2f%%", float64(l1)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label:    "Grade 2\n(L420-L650)",
+			Label:    "Grade 2\n(420L-650L)",
 			Value:    fmt.Sprintf("%d", l2),
 			ToolText: fmt.Sprintf("%.2f%%", float64(l2)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label:    "Grade 3\n(L520-L820)",
+			Label:    "Grade 3\n(520L-820L)",
 			Value:    fmt.Sprintf("%d", l3),
 			ToolText: fmt.Sprintf("%.2f%%", float64(l3)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label:    "Grade 4\n(L740-L940)",
+			Label:    "Grade 4\n(740L-940L)",
 			Value:    fmt.Sprintf("%d", l4),
 			ToolText: fmt.Sprintf("%.2f%%", float64(l4)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label:    "Grade 5\n(L830-L1010)",
+			Label:    "Grade 5\n(830L-1010L)",
 			Value:    fmt.Sprintf("%d", l5),
 			ToolText: fmt.Sprintf("%.2f%%", float64(l5)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label:    "Grade 6\n(L925-L1070)",
+			Label:    "Grade 6\n(925L-1070L)",
 			Value:    fmt.Sprintf("%d", l6),
 			ToolText: fmt.Sprintf("%.2f%%", float64(l6)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label:    "Grade 7\n(L970-L1120)",
+			Label:    "Grade 7\n(970L-1120L)",
 			Value:    fmt.Sprintf("%d", l7),
 			ToolText: fmt.Sprintf("%.2f%%", float64(l7)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label:    "Grade 8\n(L1010-L1185)",
+			Label:    "Grade 8\n(1010L-1185L)",
 			Value:    fmt.Sprintf("%d", l8),
 			ToolText: fmt.Sprintf("%.2f%%", float64(l8)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label:    "Grade 9\n(L1050-L1260)",
+			Label:    "Grade 9\n(1050L-1260L)",
 			Value:    fmt.Sprintf("%d", l9),
 			ToolText: fmt.Sprintf("%.2f%%", float64(l9)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label:    "Grade 10\n(L1080-L1335)",
+			Label:    "Grade 10\n(1080L-1335L)",
 			Value:    fmt.Sprintf("%d", l10),
 			ToolText: fmt.Sprintf("%.2f%%", float64(l10)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label:    "Grade 11-12\n(L1185-L1385)",
+			Label:    "Grade 11-12\n(1185L-1385L)",
 			Value:    fmt.Sprintf("%d", l11),
 			ToolText: fmt.Sprintf("%.2f%%", float64(l11)/float64(total)*100),
 		})
 		data = append(data, StatData{
-			Label:    "Post Grade 12\n(Greater than L1385)",
+			Label:    "Post Grade 12\n(Greater than 1385L)",
 			Value:    fmt.Sprintf("%d", l12),
 			ToolText: fmt.Sprintf("%.2f%%", float64(l12)/float64(total)*100),
 		})
+	case "tag":
+		chart.Chart.FormatNumberScale = "0"
+		var total int64
+		totalquery := `SELECT count(*) FROM books WHERE isowned=1 ` + inlibrary
+		err := db.QueryRow(totalquery).Scan(&total)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return chart, err
+		}
+		chart.Chart.Caption = "Books By Tag"
+		tags, err := GetTags(db)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return chart, err
+		}
+		for _, tag := range tags {
+			var count int64
+			tagsQuery := `SELECT COUNT(*) FROM tags JOIN books ON tags.BookID=books.BookID WHERE tag=? AND IsOwned=1 ` + inlibrary
+			err := db.QueryRow(tagsQuery, tag).Scan(&count)
+			if err != nil {
+				logger.Printf("Error: %+v", err)
+				return chart, err
+			}
+			if count > 0 && tag != "" {
+				data = append(data, StatData{
+					Label:    tag,
+					Value:    fmt.Sprintf("%d", count),
+					ToolText: fmt.Sprintf("%.2f%%", float64(count)/float64(total)*100),
+				})
+			}
+		}
 	}
 	chart.Data = data
 	return chart, nil
@@ -1198,6 +1232,25 @@ func GetDeweys(db *sql.DB) ([]Dewey, error) {
 		}
 		d.Genre = s.String
 		r = append(r, d)
+	}
+	return r, nil
+}
+
+//GetTags gets all tags
+func GetTags(db *sql.DB) ([]string, error) {
+	var r []string
+	rows, err := db.Query(getTagsQuery)
+	if err != nil {
+		logger.Printf("Error querying tags: %v", err)
+		return nil, err
+	}
+	for rows.Next() {
+		var tag string
+		if err := rows.Scan(&tag); err != nil {
+			logger.Printf("Error scanning tags: %v", err)
+			return nil, err
+		}
+		r = append(r, tag)
 	}
 	return r, nil
 }

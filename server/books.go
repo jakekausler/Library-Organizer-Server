@@ -38,8 +38,9 @@ func GetBooksHandler(w http.ResponseWriter, r *http.Request) {
 	toDewey := params.Get("todewey")
 	fromLexile := params.Get("fromlexile")
 	toLexile := params.Get("tolexile")
+	isbn := params.Get("isbn")
 	libraryids := params.Get("libraryids")
-	bs, numberOfBooks, err := books.GetBooks(db, sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, fromLexile, toLexile, libraryids, session, nil)
+	bs, numberOfBooks, err := books.GetBooks(db, sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, fromLexile, toLexile, libraryids, isbn, session, nil)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)

@@ -116,6 +116,7 @@ angular.module('ngRateIt', [])
 			$scope.beforeRated(tmpValue).then(function () {
 				$scope.ngModel = tmpValue;
 				$timeout(function () {
+					console.log($scope)
 					$scope.rated();
 				});
 			});

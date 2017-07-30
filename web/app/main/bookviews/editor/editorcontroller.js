@@ -1,6 +1,9 @@
 angular.module('libraryOrganizer')
 .controller('editorController', function($scope, $http, $mdDialog, $mdToast, book, $vm, viewType, username) {
 	$scope.book = angular.copy(book);
+	if (!$scope.book.tags) {
+		$scope.book.tags = [];
+	}
 	if (!$scope.book.bookid && !$scope.book.title) {
 		$vm.getSettingByName('Title', function(value) {
 			$scope.book.title = value;
@@ -100,6 +103,7 @@ angular.module('libraryOrganizer')
 	$scope.roles = [];
 	$scope.deweys = [];
 	$scope.genres = {};
+	$scope.tags = [];
 	$scope.libraries = [];
 	$scope.deweySearchText = $scope.book.dewey;
 	$scope.updateLibraries = function() {
@@ -240,6 +244,21 @@ angular.module('libraryOrganizer')
 		});
 	}
     $scope.updateDeweys();
+	$scope.updateTags = function() {
+        var loadingName = $vm.guid();
+        $vm.addToLoading(loadingName)
+		$http({
+			url: '/information/tags',
+			method: 'GET'
+		}).then(function(response){
+			if (!response.data) {
+				response.data = [];
+			}
+			$scope.tags = response.data;
+            $vm.removeFromLoading(loadingName);
+		});
+	}
+    $scope.updateTags();
 	$scope.newContributor = {
 		role: 'Role',
 		name: {

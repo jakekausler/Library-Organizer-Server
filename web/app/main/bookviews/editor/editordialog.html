@@ -25,7 +25,6 @@
                                         />
                                     </md-input-container>
                                 </div>
-
                             </div>
                             <div layout="column" flex>
                                 <div>
@@ -35,14 +34,19 @@
                                 </div>
                                 <div layout-gt-md="row" layout="column">
                                     <div class="image-buttons">
-                                        <div class="image-button">
+                                        <div class="image-button" flex>
                                             <md-button aria-label="Paste URL" ng-hide="pastingurl" class="icon url-icon" ng-click="pastingurl=true"></md-button>
                                         </div>
-                                        <div class="image-button">
+                                        <div class="image-button" flex>
                                             <md-button aria-label="Cancel Pasting URL" ng-show="pastingurl" class="icon cancel-icon"
                                                 ng-click="cancelPastingURL()"></md-button>
                                         </div>
-                                        <!-- <div class="image-button"><md-button aria-label="Import Image" class="icon import-icon"></md-button></div> -->
+                                        <div class="image-button" flex>
+                                            <md-button aria-label="Import Image" class="icon import-icon"></md-button>
+                                        </div>
+                                        <!-- <div class="image-button" flex>
+                                            <md-button aria-label="Choose Spine Color" class="icon eyedropper-icon" ng-click="chooseSpineColor()"></md-button>
+                                        </div> -->
                                     </div>
                                 </div>
                                 <md-input-container ng-show="pastingurl">
@@ -50,6 +54,12 @@
                                     <input focus-on="pastingurl" id="editorImageUrl" type="text" ng-model="book.imageurl"
                                         name="newUrl" value="{{book.imageurl}}" />
                                 </md-input-container>
+                                <div layout="row" class="spine-editor">
+                                    <md-input-container flex>
+                                        <label>Spine Color</label>
+                                        <input color-picker color-picker-model="book.spinecolor" color-picker-position="left" color-picker-output-format="hex" color-picker-show-input-spinner="true" />
+                                    </md-input-container>
+                                </div>
                             </div>
                         </div>
                         <div layout="column">
@@ -81,7 +91,6 @@
                                                 ng-show="contributor.editing" class="icon save-icon"></md-button>
                                             <md-button ng-click="removeContributor($index)" aria-label="Remove Contributor"
                                                 ng-hide="contributor.editing" class="icon remove-icon"></md-button>
-                                            <!-- <span ng-hide="contributor.editing">{{contributor.name.first}} {{contributor.name.middles.replace(';',' ')}} {{contributor.name.last}}: {{contributor.role}}</span> -->
                                             <div layout="row">
                                                 <md-input-container flex>
                                                     <label>First</label>
@@ -195,7 +204,6 @@
                                 <input type="text" ng-model="book.editionpublished" name="editionpublished" value="{{book.editionpublished}}"
                                     year-input/>
                             </md-input-container>
-                            <!-- todo add hyphens on blur -->
                             <md-input-container flex="20">
                                 <label>ISBN</label>
                                 <input type="text" ng-blur="convertIsbn()" ng-model="book.isbn" name="isbn" value="{{book.isbn}}" isbn-input/>
@@ -295,6 +303,24 @@
                                 </div>
                             </div>
                         </div>
+                        <div>
+                            <h1 class="md-subhead">Add tags</h1>
+                            <md-chips ng-model="book.tags" md-autocomplete-snap md-require-match="false">
+                              <md-autocomplete
+                                  md-selected-item="selectedTag"
+                                  md-search-text="tagSearch"
+                                  md-items="item in query(tags, tagSearch)"
+                                  md-item-text="item"
+                                  placeholder="Add Tags...">
+                                <span md-highlight-text="tagSearch">{{item}}</span>
+                              </md-autocomplete>
+                            </md-chips>
+                        </div>
+                    </div>
+                </md-tab>
+                <md-tab label="notes">
+                    <div>
+                        <textarea rows="20" ng-model="book.notes"></textarea>
                     </div>
                 </md-tab>
             </md-tabs>
