@@ -41,8 +41,8 @@ angular.module('libraryOrganizer')
 		$vm.getSettingByName('Lexile', function(value) {
 			$scope.book.lexile = $vm.convertToLexile(value);
 		});
-		$vm.getSettingByName('Format', function(value) {
-			$scope.book.format = value;
+		$vm.getSettingByName('Binding', function(value) {
+			$scope.book.binding = value;
 		});
 		$vm.getSettingByName('Pages', function(value) {
 			$scope.book.pages = value;
@@ -189,7 +189,7 @@ angular.module('libraryOrganizer')
 		});
 	}
     $scope.updateSeries();
-	$scope.updateFormats = function() {
+	$scope.updateBindings = function() {
         var loadingName = $vm.guid();
         $vm.addToLoading(loadingName)
 		$http({
@@ -200,7 +200,7 @@ angular.module('libraryOrganizer')
             $vm.removeFromLoading(loadingName);
 		});
 	}
-    $scope.updateFormats();
+    $scope.updateBindings();
 	$scope.updateLanguages = function() {
         var loadingName = $vm.guid();
         $vm.addToLoading(loadingName)
@@ -270,7 +270,7 @@ angular.module('libraryOrganizer')
 		book.publisher.state = book.publisher.state?book.publisher.state:$scope.stateSearchText;
 		book.publisher.country = book.publisher.country?book.publisher.country:$scope.countrySearchText;
 		book.dewey = book.dewey?book.dewey:$scope.deweySearchText;
-		book.format = book.format?book.format:$scope.formatSearchText;
+		book.binding = book.binding?book.binding:$scope.bindingSearchText;
 		book.primarylanguage = book.primarylanguage?book.primarylanguage:$scope.primaryLanguageSearchText;
 		book.secondarylanguage = book.secondarylanguage?book.secondarylanguage:$scope.secondaryLanguageSearchText;
 		book.originallanguage = book.originallanguage?book.originallanguage:$scope.originalLanguageSearchText;

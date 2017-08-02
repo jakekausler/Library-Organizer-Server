@@ -220,11 +220,11 @@
                             </p>
                         </div>
                         <div flex layout="row">
-                            <md-autocomplete flex="25" md-input-name="format" md-search-text="formatSearchText"
-                                md-selected-item="book.format" md-items="s in query(formats, formatSearchText)"
-                                md-item-text="s" md-floating-label="Format">
+                            <md-autocomplete flex="25" md-input-name="binding" md-search-text="bindingSearchText"
+                                md-selected-item="book.binding" md-items="s in query(bindings, bindingSearchText)"
+                                md-item-text="s" md-floating-label="Binding">
                                 <md-item-template>
-                                    <span md-highlight-text="formatSearchText" md-highlight-flags="^i">{{s}}</span>
+                                    <span md-highlight-text="bindingSearchText" md-highlight-flags="^i">{{s}}</span>
                                 </md-item-template>
                             </md-autocomplete>
                             <md-input-container flex>
