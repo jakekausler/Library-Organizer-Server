@@ -70,6 +70,9 @@ angular.module('libraryOrganizer')
             case 'lexile':
                 $scope.setStatSubView('bylexile');
                 break;
+            case 'tag':
+                $scope.setStatSubView('bytag');
+                break;
             }
         }
         $scope.setStatSubView = function(view) {

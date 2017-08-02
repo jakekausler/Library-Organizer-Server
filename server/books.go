@@ -38,8 +38,9 @@ func GetBooksHandler(w http.ResponseWriter, r *http.Request) {
 	toDewey := params.Get("todewey")
 	fromLexile := params.Get("fromlexile")
 	toLexile := params.Get("tolexile")
+	isbn := params.Get("isbn")
 	libraryids := params.Get("libraryids")
-	bs, numberOfBooks, err := books.GetBooks(db, sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, fromLexile, toLexile, libraryids, session, nil)
+	bs, numberOfBooks, err := books.GetBooks(db, sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, fromLexile, toLexile, libraryids, isbn, session, nil)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -337,6 +338,32 @@ func GetRatingsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
+//AddRatingHandler gets ratings for a book and its best guessed matches
+func AddRatingHandler(w http.ResponseWriter, r *http.Request) {
+	registered, session := Registered(r)
+	if !registered {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
+		return
+	}
+	bookid := mux.Vars(r)["bookid"]
+	var rating int
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&rating)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
+	err = books.AddBookRating(db, bookid, session, rating)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+}
+
 //GetReviewsHandler gets ratings for a book and its best guessed matches
 func GetReviewsHandler(w http.ResponseWriter, r *http.Request) {
 	registered, _ := Registered(r)
@@ -360,4 +387,30 @@ func GetReviewsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(data)
+}
+
+//AddReviewHandler gets ratings for a book and its best guessed matches
+func AddReviewHandler(w http.ResponseWriter, r *http.Request) {
+	registered, session := Registered(r)
+	if !registered {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
+		return
+	}
+	bookid := mux.Vars(r)["bookid"]
+	var review string
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&review)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
+	err = books.AddBookReview(db, bookid, session, review)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
 }

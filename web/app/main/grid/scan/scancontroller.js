@@ -6,32 +6,37 @@ angular.module('libraryOrganizer')
         $scope.WORLDCAT_API_BOOK = '/webservices/xid/isbn';
         $scope.vm = vm;
         $scope.isbn = '';
-        $scope.results = [];
+        $scope.results = {
+            online: [],
+            inlibrary: []
+        };
         $scope.cancel = function() {
             $mdDialog.cancel()
         };
         $scope.scan = function() {
-            var loadingName = $scope.vm.guid();
-            $scope.vm.addToLoading(loadingName)
-            var parts = $scope.isbn.split(' ');
-            if (parts.length == 1) {
-                $scope.isbn = parts[0];
-            } else if (parts.length == 2) {
-                $scope.isbn = parts[1];
-            } else if (parts.length == 3) {
-                $scope.isbn = parts[1];
-            }
-            $scope.vm.searchByISBN($scope.isbn);
-            $http({
-                url: $scope.GOOGLE_BOOKS_API_BASE + $scope.GOOGLE_BOOKS_API_BOOK + '?q=' + $scope.isbn
-            }).then(function(response) {
-                response.data.items.forEach(function(v, i) {
-                    $scope.results.push(v)
+            if ($scope.isbn) {
+                var loadingName = $scope.vm.guid();
+                $scope.vm.addToLoading(loadingName)
+                var parts = $scope.isbn.split(' ');
+                if (parts.length == 1) {
+                    $scope.isbn = parts[0];
+                } else if (parts.length == 2) {
+                    $scope.isbn = parts[1];
+                } else if (parts.length == 3) {
+                    $scope.isbn = parts[1];
+                }
+                $scope.searchByISBN($scope.isbn);
+                $http({
+                    url: $scope.GOOGLE_BOOKS_API_BASE + $scope.GOOGLE_BOOKS_API_BOOK + '?q=' + $scope.isbn
+                }).then(function(response) {
+                    response.data.items.forEach(function(v, i) {
+                        $scope.results.online.push(v)
+                    })
+                    $scope.vm.removeFromLoading(loadingName);
                 })
-                $scope.vm.removeFromLoading(loadingName);
-            })
+            }
         };
-        $scope.select = function(ev, result) {
+        $scope.selectOnline = function(ev, result) {
             var book = {
                 "bookid": "",
                 "title": result.volumeInfo.title ? result.volumeInfo.title : '',
@@ -71,10 +76,14 @@ angular.module('libraryOrganizer')
                 "editionpublished": result.volumeInfo.publishedDate ? result.volumeInfo.publishedDate.substring(0, 4) : '',
                 "contributors": $scope.getAuthors(result.volumeInfo.authors),
                 "library": {},
-                "lexile": 0
+                "lexile": 0,
+                "notes": ""
             }
             $scope.vm.showEditDialog(ev, book, $scope.vm, 'scanadd');
         };
+        $scope.selectInLibrary = function(ev, result) {
+            $scope.vm.showBookDialog(ev, result, $scope.vm, 'grid')
+        }
         $scope.getAuthors = function(authors) {
             var contributors = [];
             if (authors) {
@@ -103,6 +112,35 @@ angular.module('libraryOrganizer')
                 });
             }
             return contributors;
+        };
+        $scope.searchByISBN = function(isbn) {
+            var loadingName = $scope.vm.guid();
+            $scope.vm.addToLoading(loadingName)
+            $http({
+                url: '/books',
+                method: 'GET',
+                params: {
+                    sortmethod: $scope.vm.sort,
+                    numbertoget: -1,
+                    page: 1,
+                    fromdewey: $scope.vm.fromdewey.toUpperCase(),
+                    todewey: $scope.vm.todewey.toUpperCase(),
+                    fromlexile: $scope.vm.convertFromLexile($scope.vm.fromlexile),
+                    tolexile: $scope.vm.convertFromLexile($scope.vm.tolexile),
+                    text: $scope.vm.filter,
+                    isread: $scope.vm.read,
+                    isreference: $scope.vm.reference,
+                    isowned: $scope.vm.owned,
+                    isloaned: $scope.vm.loaned,
+                    isshipping: $scope.vm.shipping,
+                    isreading: $scope.vm.reading,
+                    isbn: isbn,
+                    libraryids: $scope.vm.stringLibraryIds()
+                }
+            }).then(function(response) {
+                $scope.results.inlibrary = response.data.books;
+                $scope.vm.removeFromLoading(loadingName);
+            });
         };
         $scope.languages = {
             'ab': 'Abkhazian',

@@ -109,4 +109,87 @@ angular.module('libraryOrganizer')
 		$scope.vm.showEditDialog(ev, book, $scope.vm, $scope.viewType);
 	}
 	$scope.averageRating = -1;
+	$scope.userRating = 0;
+	$scope.numRatings = 0;
+	$scope.updateRating = function() {
+		var loadingName = $scope.vm.guid();
+        $scope.vm.addToLoading(loadingName)
+    	$http({
+    		url: 'books/'+$scope.book.bookid+"/ratings",
+    		method: 'GET'
+    	}).then(function(response) {
+    		if (response.data) {
+				$scope.numRatings = response.data.length;
+    			$scope.averageRating = 0.0;
+    			for (i in response.data) {
+    				if ($scope.username==response.data[i].username) {
+    					$scope.userRating = response.data[i].rating;
+    				}
+    				$scope.averageRating += response.data[i].rating
+    			}
+    			$scope.averageRating /= response.data.length;
+    		} else {
+    			$scope.averageRating = -1;
+    		}
+        	$scope.vm.removeFromLoading(loadingName);
+    	})
+	}
+	$scope.updateRating()
+	$scope.rate = function() {
+		var loadingName = $scope.vm.guid();
+        $scope.vm.addToLoading(loadingName)
+    	$http({
+    		url: 'books/'+$scope.book.bookid+"/ratings",
+    		method: 'PUT',
+    		data: JSON.stringify($scope.userRating)
+    	}).then(function(response) {
+			$mdToast.showSimple("Successfully rated book")
+			$scope.updateRating();
+        	$scope.vm.removeFromLoading(loadingName);
+    	})
+	}
+	$scope.reviews = [{
+		username: $scope.username,
+		review: '',
+		bookid: $scope.book.bookid
+	}];
+	$scope.updateReviews = function() {
+		var loadingName = $scope.vm.guid();
+        $scope.vm.addToLoading(loadingName)
+    	$http({
+    		url: 'books/'+$scope.book.bookid+"/reviews",
+    		method: 'GET'
+    	}).then(function(response) {
+    		if (response.data) {
+				for (i in response.data) {
+					if (response.data[i].username == $scope.username) {
+						$scope.reviews[0] = response.data[i];
+					} else {
+						$scope.reviews.push(response.data[i])
+					}
+				}
+    		} else {
+    			$scope.reviews = [{
+					username: $scope.username,
+					review: '',
+					bookid: $scope.book.bookid
+				}];
+    		}
+        	$scope.vm.removeFromLoading(loadingName);
+		})
+    }
+	$scope.updateReviews()
+	$scope.saveReview = function() {
+		var loadingName = $scope.vm.guid();
+        $scope.vm.addToLoading(loadingName)
+    	$http({
+    		url: 'books/'+$scope.book.bookid+"/reviews",
+    		method: 'PUT',
+    		data: JSON.stringify($scope.reviews[0].review)
+    	}).then(function(response) {
+			$mdToast.showSimple("Successfully reviewed book")
+			$scope.updateRating();
+        	$scope.vm.removeFromLoading(loadingName);
+    	})
+	}
 })

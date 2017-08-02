@@ -37,6 +37,7 @@ angular.module('libraryOrganizer')
             targetEvt: ev,
             clickOutsideToClose: true,
             fullscreen: false,
+            multiple: true,
             locals: {
                 vm: $scope,
                 shelves: $scope.bookcases,

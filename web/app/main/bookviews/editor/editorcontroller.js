@@ -1,6 +1,9 @@
 angular.module('libraryOrganizer')
 .controller('editorController', function($scope, $http, $mdDialog, $mdToast, book, $vm, viewType, username) {
 	$scope.book = angular.copy(book);
+	if (!$scope.book.tags) {
+		$scope.book.tags = [];
+	}
 	if (!$scope.book.bookid && !$scope.book.title) {
 		$vm.getSettingByName('Title', function(value) {
 			$scope.book.title = value;
@@ -95,11 +98,12 @@ angular.module('libraryOrganizer')
 	$scope.states = [];
 	$scope.countries = [];
 	$scope.series = [];
-	$scope.formats = [];
+	$scope.bindings = [];
 	$scope.languages = [];
 	$scope.roles = [];
 	$scope.deweys = [];
 	$scope.genres = {};
+	$scope.tags = [];
 	$scope.libraries = [];
 	$scope.deweySearchText = $scope.book.dewey;
 	$scope.updateLibraries = function() {
@@ -196,7 +200,7 @@ angular.module('libraryOrganizer')
 			url: '/information/formats',
 			method: 'GET'
 		}).then(function(response){
-			$scope.formats = response.data;
+			$scope.bindings = response.data;
             $vm.removeFromLoading(loadingName);
 		});
 	}
@@ -240,6 +244,21 @@ angular.module('libraryOrganizer')
 		});
 	}
     $scope.updateDeweys();
+	$scope.updateTags = function() {
+        var loadingName = $vm.guid();
+        $vm.addToLoading(loadingName)
+		$http({
+			url: '/information/tags',
+			method: 'GET'
+		}).then(function(response){
+			if (!response.data) {
+				response.data = [];
+			}
+			$scope.tags = response.data;
+            $vm.removeFromLoading(loadingName);
+		});
+	}
+    $scope.updateTags();
 	$scope.newContributor = {
 		role: 'Role',
 		name: {
@@ -271,6 +290,9 @@ angular.module('libraryOrganizer')
 		book.publisher.country = book.publisher.country?book.publisher.country:$scope.countrySearchText;
 		book.dewey = book.dewey?book.dewey:$scope.deweySearchText;
 		book.binding = book.binding?book.binding:$scope.bindingSearchText;
+		if (book.dewey == "0") {
+			book.dewey = "000";
+		}
 		book.primarylanguage = book.primarylanguage?book.primarylanguage:$scope.primaryLanguageSearchText;
 		book.secondarylanguage = book.secondarylanguage?book.secondarylanguage:$scope.secondaryLanguageSearchText;
 		book.originallanguage = book.originallanguage?book.originallanguage:$scope.originalLanguageSearchText;

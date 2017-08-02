@@ -22,6 +22,10 @@
     display: inline-block;
 }
 
+#editor-view .image-button .md-button {
+    min-width: 1%;
+}
+
 #editor-view .contributor-list {
     max-height: 20vh;
 }
@@ -32,6 +36,18 @@
 
 #editor-view md-checkbox {
     margin-bottom: 0;
+}
+
+#editor-view .spine-editor md-checkbox .md-label {
+    position: absolute;
+    bottom: 40%;
+}
+
+#editor-view textarea {
+    width: 100%;
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+    box-sizing: border-box;         /* Opera/IE 8+ */
 }
 
 #loading-circle {
@@ -84,4 +100,96 @@
 
 .md-chips .md-chip-input-container md-autocomplete input {
     width: 400px;
+}
+
+#view-view .rating-holder {
+    margin-right: 5px;
+}
+
+#view-view .review-container {
+    max-height: 55vh;
+    overflow-y: auto;
+}
+
+#view-view .ngrateit {
+    display: inline-block;
+}
+
+#export-dialog {
+    text-align: center;
+}
+
+#grid-view .grid-content {
+    padding: 10px;
+    height: calc(100vh - 100px);
+}
+
+#grid-view md-grid-tile-header {
+    background: rgba(48, 63, 159, .75);
+}
+
+#grid-view md-grid-tile-footer {
+    background: rgba(48, 63, 159, .75);
+}
+
+#grid-view span {
+     text-align: center;
+     margin: auto;
+     display:inline-block;
+}
+
+#import-dialog {
+    text-align: center;
+}
+
+#scan-dialog {
+    text-align: center;
+}
+
+#scan-dialog md-grid-tile-header {
+    background: rgba(48, 63, 159, .75);
+}
+
+#scan-dialog span {
+    text-align: center;
+    margin: auto;
+    display:inline-block;
+}
+
+#app-header .left {
+    display: inline-block;
+    float:left;
+}
+
+#app-header .right {
+    display: inline-block;
+    float: right;
+}
+
+#app-header .authentification {
+    display: inline-block;
+}
+
+#shelves-view .search-container {
+    display: inline-block;
+}
+
+#shelves-view .bookcases {
+    width: 100%;
+    height: 85vh;
+    position: relative;
+    overflow-x: auto;
+}
+
+#shelves-editor-dialog {
+    text-align: center;
+}
+
+#shelves-editor-dialog table {
+    width: 100%;
+    height: 60vh;
+}
+
+#shelves-editor-dialog .remove-from-series-button {
+    display: inline-block;
 }

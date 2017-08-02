@@ -14,7 +14,7 @@ import (
 
 const (
 	getLibrariesQuery = "SELECT libraries.id, name, permission, usr FROM libraries JOIN permissions ON libraries.id=permissions.libraryid join library_members on libraries.ownerid=library_members.id WHERE permissions.permission & 1 and permissions.userid=(SELECT id from library_members join usersession on library_members.id=usersession.userid WHERE sessionkey=?)"
-	getBreaks         = "SELECT BreakType, ValueType, Value FROM breaks WHERE libraryid=? AND (ValueType=? OR ValueType='ID')"
+	getBreaks         = "SELECT BreakType, ValueType, Value FROM breaks WHERE libraryid=?"
 )
 
 var logger = log.New(os.Stderr, "log: ", log.LstdFlags|log.Lshortfile)
@@ -99,8 +99,8 @@ func GetCases(db *sql.DB, libraryid, session string) ([]Bookcase, error) {
 		logger.Printf("Error: %+v", err)
 		return nil, err
 	}
-	books, _, err := books.GetBooks(db, strings.ToLower(sortMethod), "both", "both", "yes", "both", "both", "both", "", "1", "-1", "0", "FIC", "0", "2000", libraryid, session, authorseries)
-	breaks, err := GetBreaks(db, libraryid, strings.ToUpper(sortMethod))
+	books, _, err := books.GetBooks(db, sortMethod, "both", "both", "yes", "both", "both", "both", "", "1", "-1", "0", "FIC", "0", "2000", libraryid, "", session, authorseries)
+	breaks, err := GetLibraryBreaks(db, libraryid)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return nil, err
@@ -179,7 +179,11 @@ func GetCases(db *sql.DB, libraryid, session string) ([]Bookcase, error) {
 			if index < len(books) && books[index].Width > 0 {
 				useWidth = int(books[index].Width)
 			}
+			breakshelf := false
 			for index < len(books) && useWidth+x <= int(bookcase.Width)-int(bookcase.PaddingRight) {
+				if breakshelf || breakcase {
+					break
+				}
 				cases[c].Shelves[s].Books = append(cases[c].Shelves[s].Books, books[index])
 				x += useWidth
 				index++
@@ -187,25 +191,39 @@ func GetCases(db *sql.DB, libraryid, session string) ([]Bookcase, error) {
 				if index < len(books) && books[index].Width != 0 {
 					useWidth = int(books[index].Width)
 				}
-				if breaktype, present := breaks[0][books[index-1].ID]; present {
-					if breaktype == "CASE" {
-						breakcase = true
+				breakInner := false
+				for _, b := range breaks {
+					if breakInner {
+						break
 					}
-					break
-				}
-				if len(books) > index {
-					if sortMethod == "DEWEY" {
-						if breaktype, present := breaks[1][books[index-1].Dewey]; present && books[index-1].Dewey != books[index].Dewey {
-							if breaktype == "CASE" {
+					switch b.ValueType {
+					case "ID":
+						if b.Value == books[index].ID {
+							breakInner = true;
+							if b.BreakType == "CASE" {
 								breakcase = true
+							} else {
+								breakshelf = true
 							}
 							break
 						}
-					}
-					if sortMethod == "SERIES" {
-						if breaktype, present := breaks[1][books[index-1].Series]; present && books[index-1].Series != books[index].Series {
-							if breaktype == "CASE" {
+					case "DEWEY":
+						if index != 0 && books[index-1].Dewey < b.Value && books[index].Dewey >= b.Value {
+							breakInner = true
+							if b.BreakType == "CASE" {
 								breakcase = true
+							} else {
+								breakshelf = true
+							}
+							break
+						}
+					case "SERIES":
+						if index != 0 && books[index-1].Series < b.Value && books[index].Series >= b.Value {
+							breakInner = true
+							if b.BreakType == "CASE" {
+								breakcase = true
+							} else {
+								breakshelf = true
 							}
 							break
 						}
@@ -298,33 +316,6 @@ func UpdateBreaks(db *sql.DB, libraryid string, breaks []Break) error {
 	return nil
 }
 
-//GetBreaks gets shelf breaks
-func GetBreaks(db *sql.DB, libraryid, valuetype string) ([]map[string]string, error) {
-	idBreaks := make(map[string]string)
-	customBreaks := make(map[string]string)
-	rows, err := db.Query(getBreaks, libraryid, valuetype)
-	if err != nil {
-		logger.Printf("Error: %+v", err)
-		return nil, err
-	}
-	for rows.Next() {
-		var breaktype string
-		var valuetype string
-		var value string
-		err = rows.Scan(&breaktype, &valuetype, &value)
-		if err != nil {
-			logger.Printf("Error: %+v", err)
-			return nil, err
-		}
-		if valuetype == "ID" {
-			idBreaks[value] = breaktype
-		} else {
-			customBreaks[value] = breaktype
-		}
-	}
-	return []map[string]string{idBreaks, customBreaks}, nil
-}
-
 //GetLibraryBreaks gets shelf breaks
 func GetLibraryBreaks(db *sql.DB, libraryid string) ([]Break, error) {
 	var breaks []Break
@@ -404,8 +395,8 @@ func SaveOwnedLibraries(db *sql.DB, ownedLibraries []OwnedLibrary, session strin
 	}
 	for _, ownedLibrary := range ownedLibraries {
 		oldID := ownedLibrary.ID
-		query = "INSERT INTO libraries (name, ownerid) VALUES (?,?)"
-		res, err := db.Exec(query, ownedLibrary.Name, userid)
+		query = "INSERT INTO libraries (name, ownerid, sortmethod) VALUES (?,?)"
+		res, err := db.Exec(query, ownedLibrary.Name, userid, information.SORTMETHOD)
 		if err != nil {
 			logger.Printf("Error: %+v", err)
 			return err
@@ -464,7 +455,162 @@ func SaveOwnedLibraries(db *sql.DB, ownedLibraries []OwnedLibrary, session strin
 			}
 		}
 	}
+	query = "SELECT DISTINCT(libraryid) FROM books";
+	rows, err := db.Query(query)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return err
+	}
+	var booklibraryids []int64
+	for rows.Next() {
+		var lid int64
+		err := rows.Scan(&lid)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return err
+		}
+		booklibraryids = append(booklibraryids, lid)
+	}
+	query = "SELECT DISTINCT(libraryid) FROM permissions";
+	rows, err = db.Query(query)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return err
+	}
+	var permissionslibraryids []int64
+	for rows.Next() {
+		var lid int64
+		err := rows.Scan(&lid)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return err
+		}
+		permissionslibraryids = append(permissionslibraryids, lid)
+	}
+	query = "SELECT DISTINCT(libraryid) FROM bookcases";
+	rows, err = db.Query(query)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return err
+	}
+	var bookcaseslibraryids []int64
+	for rows.Next() {
+		var lid int64
+		err := rows.Scan(&lid)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return err
+		}
+		bookcaseslibraryids = append(bookcaseslibraryids, lid)
+	}
+	query = "SELECT DISTINCT(libraryid) FROM breaks";
+	rows, err = db.Query(query)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return err
+	}
+	var breakslibraryids []int64
+	for rows.Next() {
+		var lid int64
+		err := rows.Scan(&lid)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return err
+		}
+		breakslibraryids = append(breakslibraryids, lid)
+	}
+	query = "SELECT DISTINCT(libraryid) FROM series_author_sorts";
+	rows, err = db.Query(query)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return err
+	}
+	var serieslibraryids []int64
+	for rows.Next() {
+		var lid int64
+		err := rows.Scan(&lid)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return err
+		}
+		serieslibraryids = append(serieslibraryids, lid)
+	}
+	query = "SELECT id FROM libraries"
+	rows, err = db.Query(query)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return err
+	}
+	var actuallibraryids []int64
+	for rows.Next() {
+		var lid int64
+		err := rows.Scan(&lid)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return err
+		}
+		actuallibraryids = append(actuallibraryids, lid)
+	}
+	for _, id := range booklibraryids {
+		if !contains(actuallibraryids, id) {
+			query = "DELETE FROM books WHERE libraryid=?"
+			_, err := db.Exec(query, id)
+			if err != nil {
+				logger.Printf("Error: %+v", err)
+				return err
+			}
+		}
+	}
+	for _, id := range permissionslibraryids {
+		if !contains(actuallibraryids, id) {
+			query = "DELETE FROM books WHERE libraryid=?"
+			_, err := db.Exec(query, id)
+			if err != nil {
+				logger.Printf("Error: %+v", err)
+				return err
+			}
+		}
+	}
+	for _, id := range breakslibraryids {
+		if !contains(actuallibraryids, id) {
+			query = "DELETE FROM books WHERE libraryid=?"
+			_, err := db.Exec(query, id)
+			if err != nil {
+				logger.Printf("Error: %+v", err)
+				return err
+			}
+		}
+	}
+	for _, id := range bookcaseslibraryids {
+		if !contains(actuallibraryids, id) {
+			query = "DELETE FROM books WHERE libraryid=?"
+			_, err := db.Exec(query, id)
+			if err != nil {
+				logger.Printf("Error: %+v", err)
+				return err
+			}
+		}
+	}
+	for _, id := range serieslibraryids {
+		if !contains(actuallibraryids, id) {
+			query = "DELETE FROM books WHERE libraryid=?"
+			_, err := db.Exec(query, id)
+			if err != nil {
+				logger.Printf("Error: %+v", err)
+				return err
+			}
+		}
+	}
 	return nil
+}
+
+func contains(s []int64, e int64) bool {
+    for _, a := range s {
+        if a == e {
+            return true
+        }
+    }
+    return false
 }
 
 //GetAuthorBasedSeries gets series that are sorted by author then title, instead of volume

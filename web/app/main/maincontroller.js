@@ -1,4 +1,4 @@
-angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselect-searchtree', 'anguFixedHeaderTable', 'ngRateIt'])
+angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselect-searchtree', 'anguFixedHeaderTable', 'ngRateIt', 'dndLists', 'colorpicker'])
     .config(function($mdThemingProvider) {
         $mdThemingProvider.theme('default')
             .primaryPalette('indigo')

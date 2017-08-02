@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
+	"../information"
 )
 
 const (
@@ -129,8 +130,8 @@ func RegisterUser(db *sql.DB, username, password, email, first, last string) (st
 		logger.Printf("Error: %+v", err)
 		return "", err
 	}
-	query := "INSERT INTO libraries (name, ownerid) VALUES (?,?)"
-	result, err = db.Exec(query, "default", id)
+	query := "INSERT INTO libraries (name, ownerid, sortmethod) VALUES (?,?,?)"
+	result, err = db.Exec(query, "default", id, information.SORTMETHOD)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return "", err

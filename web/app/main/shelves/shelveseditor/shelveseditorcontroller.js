@@ -61,7 +61,7 @@ angular.module('libraryOrganizer')
 		$http({
 			url: '/libraries/'+$scope.libraryid+'/sort',
 			method: 'PUT',
-			data: JSON.stringify($scope.sortMethod)
+			data: JSON.stringify($scope.stringifySortOrders())
 		}).then(function(response) {
 			$scope.vm.updateCases();
 			$mdDialog.cancel();
@@ -232,17 +232,49 @@ angular.module('libraryOrganizer')
 	$scope.removeBreak = function(i) {
 		$scope.breaks.splice(i, 1)
 	}
-	$scope.sortMethod = "Dewey";
-	$scope.updateSortMethod = function() {
+	$scope.sortOrder = [];
+	$scope.specialSortOrder = [];
+	$scope.updateSortOrders = function() {
         var loadingName = $scope.vm.guid();
         $scope.vm.addToLoading(loadingName)
 		$http({
 			url: '/libraries/'+$scope.libraryid+'/sort',
 			method: 'GET'
 		}).then(function(response){
-			$scope.sortMethod = response.data;
+			console.log(response.data)
+			var orders = response.data.split("||");
+			var normalOrders = orders[0].split("--");
+			for (o in normalOrders) {
+				var order = normalOrders[o].split(":")
+				$scope.sortOrder.push({
+					label: order[0],
+					method: order[1]
+				})
+			}
+			var specialOrders = orders[1].split("--");
+			for (o in specialOrders) {
+				var order = specialOrders[o].split(":")
+				$scope.specialSortOrder.push({
+					label: order[0],
+					method: order[1]
+				})
+			}
         	$scope.vm.removeFromLoading(loadingName)
 		});
 	}
-	$scope.updateSortMethod();
+	$scope.updateSortOrders();
+	$scope.changeSortMethod = function(item) {
+		item.method = item.method=="ASC"?"DESC":"ASC"
+	}
+	$scope.stringifySortOrders = function() {
+		var normalOrders = [];
+		var specialOrders = [];
+		for (o in $scope.sortOrder) {
+			normalOrders.push($scope.sortOrder[o].label+":"+$scope.sortOrder[o].method)
+		}
+		for (o in $scope.specialSortOrder) {
+			specialOrders.push($scope.specialSortOrder[o].label+":"+$scope.specialSortOrder[o].method)
+		}
+		return normalOrders.join("--")+"||"+specialOrders.join("--")
+	}
 })

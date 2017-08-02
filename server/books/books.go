@@ -23,8 +23,8 @@ import (
 )
 
 const (
-	saveBookQuery = "UPDATE books SET Title=?, Subtitle=?, OriginallyPublished=?, EditionPublished=?, PublisherID=?, IsRead=?, IsReference=?, IsOwned=?, IsShipping=?, IsReading=?, isbn=?, Dewey=?, Pages=?, Width=?, Height=?, Depth=?, Weight=?, PrimaryLanguage=?, SecondaryLanguage=?, OriginalLanguage=?, Series=?, Volume=?, Format=?, Edition=?, ImageURL=?, LibraryId=?, Lexile=?, SpineColor=? WHERE BookId=?"
-	addBookQuery  = "INSERT INTO books (Title, Subtitle, OriginallyPublished, PublisherID, IsRead, IsReference, IsOwned, IsShipping, IsReading, isbn, Dewey, Pages, Width, Height, Depth, Weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, Series, Volume, Format, Edition, EditionPublished, LibraryId, Lexile) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+	saveBookQuery = "UPDATE books SET Title=?, Subtitle=?, OriginallyPublished=?, EditionPublished=?, PublisherID=?, IsRead=?, IsReference=?, IsOwned=?, IsShipping=?, IsReading=?, isbn=?, Dewey=?, Pages=?, Width=?, Height=?, Depth=?, Weight=?, PrimaryLanguage=?, SecondaryLanguage=?, OriginalLanguage=?, Series=?, Volume=?, Format=?, Edition=?, ImageURL=?, LibraryId=?, Lexile=?, SpineColor=?, Notes=? WHERE BookId=?"
+	addBookQuery  = "INSERT INTO books (Title, Subtitle, OriginallyPublished, PublisherID, IsRead, IsReference, IsOwned, IsShipping, IsReading, isbn, Dewey, Pages, Width, Height, Depth, Weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, Series, Volume, Format, Edition, EditionPublished, LibraryId, Lexile, Notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 )
 
 var logger = log.New(os.Stderr, "log: ", log.LstdFlags|log.Lshortfile)
@@ -76,6 +76,8 @@ type Book struct {
 	Contributors        []information.Contributor `json:"contributors"`
 	Library             Library       `json:"library"`
 	Lexile				int64		  `json:"lexile"`
+	Notes				string		  `json:"notes"`
+	Tags				[]string	  `json:"tags"`
 }
 
 //Library is a library
@@ -91,13 +93,15 @@ type Rating struct {
 	BookID int64 `json:"bookid"`
 	UserID int64 `json:"userid"`
 	Rating int64 `json:"rating"`
+	Username string `json:"username"`
 }
 
 //Review is a book rating
 type Review struct {
 	BookID int64 `json:"bookid"`
 	UserID int64 `json:"userid"`
-	Review int64 `json:"review"`
+	Review string `json:"review"`
+	Username string `json:"username"`
 }
 
 //SaveBook saves a book
@@ -156,7 +160,7 @@ func SaveBook(db *sql.DB, book Book) error {
 			logger.Printf("Error when saving OriginalLanguage: %v", err)
 			return err
 		}
-		_, err = db.Exec(saveBookQuery, book.Title, book.Subtitle, book.OriginallyPublished, book.EditionPublished, publisherID, book.IsRead, book.IsReference, book.IsOwned, book.IsShipping, book.IsReading, book.ISBN, book.Dewey, book.Pages, book.Width, book.Height, book.Depth, book.Weight, book.PrimaryLanguage, book.SecondaryLanguage, book.OriginalLanguage, book.Series, book.Volume, book.Format, book.Edition, "res/bookimages/"+book.ID+imageType, book.Library.ID, book.Lexile, spinecolor, book.ID)
+		_, err = db.Exec(saveBookQuery, book.Title, book.Subtitle, book.OriginallyPublished, book.EditionPublished, publisherID, book.IsRead, book.IsReference, book.IsOwned, book.IsShipping, book.IsReading, book.ISBN, book.Dewey, book.Pages, book.Width, book.Height, book.Depth, book.Weight, book.PrimaryLanguage, book.SecondaryLanguage, book.OriginalLanguage, book.Series, book.Volume, book.Format, book.Edition, "res/bookimages/"+book.ID+imageType, book.Library.ID, book.Lexile, spinecolor, book.Notes, book.ID)
 		if err != nil {
 			logger.Printf("Error when saving book: %v", err)
 			return err
@@ -168,6 +172,20 @@ func SaveBook(db *sql.DB, book Book) error {
 		}
 		for _, contributor := range book.Contributors {
 			err = addContributor(db, book.ID, contributor)
+			if err != nil {
+				logger.Printf("Error when saving authors: %v", err)
+				return err
+			}
+		}
+		query := "DELETE FROM tags WHERE bookid=?"
+		_, err = db.Exec(query, book.ID)
+		if err != nil {
+			logger.Printf("Error when saving authors: %v", err)
+			return err
+		}
+		query = "INSERT INTO tags (bookid, tag) VALUES (?,?)"
+		for _, tag := range book.Tags {
+			_, err = db.Exec(query, book.ID, tag)
 			if err != nil {
 				logger.Printf("Error when saving authors: %v", err)
 				return err
@@ -209,7 +227,7 @@ func SaveBook(db *sql.DB, book Book) error {
 			logger.Printf("Error when saving OriginalLanguage: %v", err)
 			return err
 		}
-		res, err := db.Exec(addBookQuery, book.Title, book.Subtitle, book.OriginallyPublished, publisherID, book.IsRead, book.IsReference, book.IsOwned, book.IsShipping, book.IsReading, book.ISBN, book.Dewey, book.Pages, book.Width, book.Height, book.Depth, book.Weight, book.PrimaryLanguage, book.SecondaryLanguage, book.OriginalLanguage, book.Series, book.Volume, book.Format, book.Edition, book.EditionPublished, book.Library.ID, book.Lexile)
+		res, err := db.Exec(addBookQuery, book.Title, book.Subtitle, book.OriginallyPublished, publisherID, book.IsRead, book.IsReference, book.IsOwned, book.IsShipping, book.IsReading, book.ISBN, book.Dewey, book.Pages, book.Width, book.Height, book.Depth, book.Weight, book.PrimaryLanguage, book.SecondaryLanguage, book.OriginalLanguage, book.Series, book.Volume, book.Format, book.Edition, book.EditionPublished, book.Library.ID, book.Lexile, book.Notes)
 		if err != nil {
 			logger.Printf("Error when saving book: %v", err)
 			return err
@@ -240,6 +258,20 @@ func SaveBook(db *sql.DB, book Book) error {
 		}
 		for _, contributor := range book.Contributors {
 			err = addContributor(db, bookid, contributor)
+			if err != nil {
+				logger.Printf("Error when saving authors: %v", err)
+				return err
+			}
+		}
+		query := "DELETE FROM tags WHERE bookid=?"
+		_, err = db.Exec(query, id)
+		if err != nil {
+			logger.Printf("Error when saving authors: %v", err)
+			return err
+		}
+		query = "INSERT INTO tags (bookid, tag) VALUES (?,?)"
+		for _, tag := range book.Tags {
+			_, err = db.Exec(query, id, tag)
 			if err != nil {
 				logger.Printf("Error when saving authors: %v", err)
 				return err
@@ -481,21 +513,51 @@ func loadImage(fileInput string) (image.Image, error) {
 
 //GetBooks gets all books
 //todo include authors in filter
-func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, fromLexile, toLexile, libraryids, session string, authorseries []string) ([]Book, int64, error) {
+func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, fromLexile, toLexile, libraryids, isbn, session string, authorseries []string) ([]Book, int64, error) {
 	text = strings.Replace(text, "'", "\\'", -1)
 	if libraryids == "" {
 		return nil, 0, nil
 	}
 	var order string
-	if sortMethod == "title" {
-		order = "Title2, minname"
-	} else if sortMethod == "series" {
-		order = "if(Series2='' or Series2 is null,1,0), Series2, Volume, minname, Title2"
-	} else {
+	if strings.Contains(sortMethod, "||") {
+		order = ""
+		sortMethod = strings.ToLower(sortMethod)
+		sortMethod = strings.Replace(sortMethod, "author", "minname", -1)
+		sortMethod = strings.Replace(sortMethod, "title", "title2", -1)
+		sortMethod = strings.Replace(sortMethod, "series", "series2", -1)
+		sortMethod = strings.Replace(sortMethod, "volume", "LPAD(Volume, 8, '0')", -1)
+		orders := strings.Split(sortMethod, "||")
+		normalOrders := strings.Split(orders[0], "--")
+		specialOrders := strings.Split(orders[1], "--")
 		if authorseries != nil {
-			order = "Dewey, CASE WHEN Series IN('"+strings.Join(authorseries, "','")+"') THEN Series2 ELSE minname END, CASE WHEN Series IN('"+strings.Join(authorseries, "','")+"') THEN LPAD(Volume, 8, '0') ELSE series2 END, CASE WHEN Series IN('"+strings.Join(authorseries, "','")+"') THEN minname ELSE LPAD(Volume, 8, '0') END, Title2, Subtitle2, Edition"
+			var normal [][]string
+			var special [][]string
+			for _, o := range normalOrders {
+				normal = append(normal, strings.Split(o, ":"))
+			}
+			for _, o := range specialOrders {
+				special = append(special, strings.Split(o, ":"))
+			}
+			caseWhenThen := "(CASE WHEN Series IN('"+strings.Join(authorseries, "','")+"') THEN "
+			var splitOrders []string
+			for i := range normalOrders {
+				splitOrders = append(splitOrders, caseWhenThen + special[i][0] + " ELSE " + normal[i][0] + " END) ")
+			}
+			order = strings.Join(splitOrders, ",")
 		} else {
-			order = "Dewey, minname, Series2, Volume, title2, Subtitle2, edition"
+			order = strings.Replace(strings.Join(normalOrders, ","), ";", " ", -1)
+		}
+	} else {
+		if sortMethod == "title" {
+			order = "Title2, minname"
+		} else if sortMethod == "series" {
+			order = "if(Series2='' or Series2 is null,1,0), Series2, Volume, minname, Title2"
+		} else {
+			if authorseries != nil {
+				order = "Dewey, CASE WHEN Series IN('"+strings.Join(authorseries, "','")+"') THEN Series2 ELSE minname END, CASE WHEN Series IN('"+strings.Join(authorseries, "','")+"') THEN LPAD(Volume, 8, '0') ELSE series2 END, CASE WHEN Series IN('"+strings.Join(authorseries, "','")+"') THEN minname ELSE LPAD(Volume, 8, '0') END, Title2, Subtitle2, Edition"
+			} else {
+				order = "Dewey, minname, Series2, Volume, title2, Subtitle2, edition"
+			}
 		}
 	}
 	titlechange := "CASE WHEN Title LIKE 'The %%' THEN TRIM(SUBSTR(Title from 4)) ELSE CASE WHEN Title LIKE 'An %%' THEN TRIM(SUBSTR(Title from 3)) ELSE CASE WHEN Title LIKE 'A %%' THEN TRIM(SUBSTR(Title from 2)) ELSE Title END END END AS Title2"
@@ -602,6 +664,12 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 		}
 		filter = filter + endLexile
 	}
+	if isbn != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + "ISBN=" + isbn
+	}
 	filterText := formFilterText(text)
 	if filterText != "" {
 		if filter != "WHERE " {
@@ -626,7 +694,7 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 		logger.Printf("Error: %+v", err)
 		return nil, 0, err
 	}
-	query := "SELECT bookid, title, subtitle, OriginallyPublished, PublisherID, isread, isreference, IsOwned, ISBN, LoaneeId, dewey, pages, width, height, depth, weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, series, volume, format, Edition, ImageURL, IsReading, isshipping, SpineColor, CheapestNew, CheapestUsed, EditionPublished, SpineColorOverridden, Lexile, blid, libraries.Name, library_members.usr, permissions.Permission from (select books.*, books.libraryid as blid, " + titlechange + ", " + subtitlechange + ", " + serieschange + ", min(name) as minname FROM books LEFT JOIN " + authors + " ON books.BookID = Authors.BookID " + filter + " GROUP BY books.BookID) i LEFT JOIN libraries ON blid=libraries.id JOIN library_members on libraries.ownerid=library_members.id JOIN permissions on permissions.userid=? and libraries.id=permissions.libraryid ORDER BY " + order
+	query := "SELECT bookid, title, subtitle, OriginallyPublished, PublisherID, isread, isreference, IsOwned, ISBN, LoaneeId, dewey, pages, width, height, depth, weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, series, volume, format, Edition, ImageURL, IsReading, isshipping, SpineColor, CheapestNew, CheapestUsed, EditionPublished, SpineColorOverridden, Lexile, Notes, blid, libraries.Name, library_members.usr, permissions.Permission from (select books.*, books.libraryid as blid, " + titlechange + ", " + subtitlechange + ", " + serieschange + ", min(name) as minname FROM books LEFT JOIN " + authors + " ON books.BookID = Authors.BookID " + filter + " GROUP BY books.BookID) i LEFT JOIN libraries ON blid=libraries.id JOIN library_members on libraries.ownerid=library_members.id JOIN permissions on permissions.userid=? and libraries.id=permissions.libraryid ORDER BY " + order
 	if numberToGet != "-1" {
 		query += " LIMIT " + numberToGet + " OFFSET " + strconv.FormatInt(((pag-1)*ntg), 10)
 	}
@@ -672,7 +740,7 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 		return nil, 0, err
 	}
 	for rows.Next() {
-		if err := rows.Scan(&b.ID, &Title, &Subtitle, &OriginallyPublished, &PublisherID, &IsRead, &IsReference, &IsOwned, &ISBN, &LoaneeId, &Dewey, &b.Pages, &b.Width, &b.Height, &b.Depth, &b.Weight, &PrimaryLanguage, &SecondaryLanguage, &OriginalLanguage, &Series, &b.Volume, &Format, &b.Edition, &ImageURL, &IsReading, &IsShipping, &SpineColor, &b.CheapestNew, &b.CheapestUsed, &EditionPublished, &spinecoloroverridden, &lexile, &b.Library.ID, &b.Library.Name, &b.Library.Owner, &b.Library.Permissions); err != nil {
+		if err := rows.Scan(&b.ID, &Title, &Subtitle, &OriginallyPublished, &PublisherID, &IsRead, &IsReference, &IsOwned, &ISBN, &LoaneeId, &Dewey, &b.Pages, &b.Width, &b.Height, &b.Depth, &b.Weight, &PrimaryLanguage, &SecondaryLanguage, &OriginalLanguage, &Series, &b.Volume, &Format, &b.Edition, &ImageURL, &IsReading, &IsShipping, &SpineColor, &b.CheapestNew, &b.CheapestUsed, &EditionPublished, &spinecoloroverridden, &lexile, &b.Notes, &b.Library.ID, &b.Library.Name, &b.Library.Owner, &b.Library.Permissions); err != nil {
 			logger.Printf("Error scanning books: %v", err)
 			return nil, 0, err
 		}
@@ -760,7 +828,21 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 		if EditionPublished.Valid {
 			b.EditionPublished = strconv.Itoa(EditionPublished.Time.Year())
 		}
-
+		query = "SELECT tag FROM tags WHERE bookid=?"
+		innerRows, err := db.Query(query, b.ID)
+		if err != nil {
+			logger.Printf("Error: %v", err)
+			return nil, 0, err
+		}
+		for innerRows.Next() {
+			var tag string
+			err := innerRows.Scan(&tag)
+			if err != nil {
+				logger.Printf("Error: %v", err)
+				return nil, 0, err
+			}
+			b.Tags = append(b.Tags, tag)
+		}
 		books = append(books, b)
 	}
 	err = rows.Err()
@@ -942,7 +1024,7 @@ func GetBookReviews(db *sql.DB, id string) ([]Review, error) {
 		return nil, err
 	}
 	var reviews []Review
-	query := "SELECT bookid, userid, review FROM reviews WHERE bookid IN ('"+intArrToStr(matches, "','")+"')"
+	query := "SELECT bookid, userid, review, usr FROM reviews JOIN library_members ON userid=id WHERE bookid IN ('"+intArrToStr(matches, "','")+"')"
 	rows, err := db.Query(query)
 	if err != nil {
 		logger.Printf("Error: %v", err)
@@ -950,40 +1032,74 @@ func GetBookReviews(db *sql.DB, id string) ([]Review, error) {
 	}
 	for rows.Next() {
 		var r Review
-		err = rows.Scan(&r.BookID, &r.UserID, &r.Review)
+		// var rawReview []uint8
+		err = rows.Scan(&r.BookID, &r.UserID, &r.Review, &r.Username)
 		if err != nil {
 			logger.Printf("Error: %v", err)
 			return nil, err
 		}
+		// r.Review = uint8ToString(rawReview)
 		reviews = append(reviews, r)
 	}
 	return reviews, nil
 }
 
+func uint8ToString(t []uint8) string {
+	b := make([]byte, len(t))
+	for i, v := range t {
+		b[i] = byte(v)
+	}
+	return string(b)
+}
+
+//AddBookReview adds or replaces a review for a book
+func AddBookReview(db *sql.DB, id, session string, review string) error {
+	userid, err := users.GetUserID(db, session)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return err
+	}
+	query := "REPLACE INTO reviews (userid, bookid, review) VALUES (?,?,?)"
+	_, err = db.Exec(query, userid, id, review)
+	return err
+}
+
 //GetBookRatings gets book ratings for a book and its guessed matches
-func GetBookRatings(db *sql.DB, id string) ([]Review, error) {
+func GetBookRatings(db *sql.DB, id string) ([]Rating, error) {
 	matches, err := GetGuessMatchedBooks(db, id)
 	if err != nil {
 		logger.Printf("Error: %v", err)
 		return nil, err
 	}
-	var reviews []Review
-	query := "SELECT bookid, userid, review FROM reviews WHERE bookid IN ('"+intArrToStr(matches, "','")+"')"
+	var ratings []Rating
+	query := "SELECT bookid, userid, rating, usr FROM ratings JOIN library_members ON userid=id WHERE bookid IN ('"+intArrToStr(matches, "','")+"')"
 	rows, err := db.Query(query)
 	if err != nil {
 		logger.Printf("Error: %v", err)
 		return nil, err
 	}
 	for rows.Next() {
-		var r Review
-		err = rows.Scan(&r.BookID, &r.UserID, &r.Review)
+		var r Rating
+		err = rows.Scan(&r.BookID, &r.UserID, &r.Rating, &r.Username)
 		if err != nil {
 			logger.Printf("Error: %v", err)
 			return nil, err
 		}
-		reviews = append(reviews, r)
+		ratings = append(ratings, r)
 	}
-	return reviews, nil
+	return ratings, nil
+}
+
+//AddBookRating adds or replaces a rating for a book
+func AddBookRating(db *sql.DB, id, session string, rating int) error {
+	userid, err := users.GetUserID(db, session)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return err
+	}
+	query := "REPLACE INTO ratings (userid, bookid, rating) VALUES (?,?,?)"
+	_, err = db.Exec(query, userid, id, rating)
+	return err
 }
 
 func intArrToStr(arr []int64, del string) string {
