@@ -55,8 +55,8 @@ angular.module('libraryOrganizer')
             case 'deweys':
                 $scope.setStatSubView('bydeweys');
                 break;
-            case 'formats':
-                $scope.setStatSubView('byformats');
+            case 'bindings':
+                $scope.setStatSubView('bybindings');
                 break;
             case 'contributors':
                 $scope.setStatSubView('bycontributorstop');
