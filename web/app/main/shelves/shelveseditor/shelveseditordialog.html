@@ -34,7 +34,7 @@
 					<thead><tr><th></th><th>Value Type</th><th>Value</th><th>Break Type</th></tr></thead>
 					<tbody><tr ng-repeat="break in breaks">
 						<td><md-button aria-label="Remove Break" class="icon remove-icon" ng-click="removeBreak($index)"><md-tooltip md-delay="500">Remove Break</md-tooltip></md-button></td>
-						<td><md-select ng-disabled="true" ng-model="break.valuetype" required>
+						<td><md-select ng-model="break.valuetype" required>
 							<md-option ng-repeat="v in $parent.valuetypes" ng-value="v">{{v}}</md-option>
 						</md-select></td>
 						<td><md-input-container>

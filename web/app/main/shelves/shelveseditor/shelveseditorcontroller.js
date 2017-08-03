@@ -214,10 +214,13 @@ angular.module('libraryOrganizer')
 	}
     $scope.updateBreaks();
     $scope.breaktypes = ["SHELF", "CASE"];
-    $scope.valuetypes = ["DEWEY"];
+    $scope.valuetypes = ["DEWEY", "SERIES"];
 	$scope.updateValueType =function(b) {
 		if (b.valuetype == "DEWEY") {
 			b.possiblevalues = $scope.deweys;
+		}
+		if (b.valuetype == "DEWEY") {
+			b.possiblevalues = $scope.series;
 		}
 	}
 	$scope.addBreak = function() {
@@ -241,7 +244,6 @@ angular.module('libraryOrganizer')
 			url: '/libraries/'+$scope.libraryid+'/sort',
 			method: 'GET'
 		}).then(function(response){
-			console.log(response.data)
 			var orders = response.data.split("||");
 			var normalOrders = orders[0].split("--");
 			for (o in normalOrders) {
