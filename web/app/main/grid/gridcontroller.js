@@ -62,6 +62,7 @@ angular.module('libraryOrganizer')
             if (!$scope.forms.sortAndFilter || $scope.forms.sortAndFilter.$valid) {
                 var loadingName = $scope.guid();
                 $scope.addToLoading(loadingName)
+                $scope.gridSelectedLibraries = $scope.stringLibraryIds();
                 $scope.setParameters({
                         sort: $scope.sort,
                         numbertoget: $scope.numberToGet,
@@ -96,7 +97,8 @@ angular.module('libraryOrganizer')
                         owned: $scope.owned,
                         loaned: $scope.loaned,
                         shipping: $scope.shipping,
-                        reading: $scope.reading
+                        reading: $scope.reading,
+                        gridselectedlibraries: $scope.gridSelectedLibraries
                     })
                 var fromlex = $scope.convertFromLexile($scope.fromlexile);
                 var tolex = $scope.convertFromLexile($scope.tolexile);

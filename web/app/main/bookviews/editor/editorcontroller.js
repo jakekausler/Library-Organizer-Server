@@ -134,6 +134,7 @@ angular.module('libraryOrganizer')
 	$scope.deweys = [];
 	$scope.genres = {};
 	$scope.tags = [];
+	$scope.awards = [];
 	$scope.libraries = [];
 	$scope.deweySearchText = $scope.book.dewey;
 	$scope.updateLibraries = function() {
@@ -289,6 +290,21 @@ angular.module('libraryOrganizer')
 		});
 	}
     $scope.updateTags();
+	$scope.updateAwards = function() {
+        var loadingName = $vm.guid();
+        $vm.addToLoading(loadingName)
+		$http({
+			url: '/information/awards',
+			method: 'GET'
+		}).then(function(response){
+			if (!response.data) {
+				response.data = [];
+			}
+			$scope.awards = response.data;
+            $vm.removeFromLoading(loadingName);
+		});
+	}
+    $scope.updateAwards();
 	$scope.newContributor = {
 		role: 'Role',
 		name: {

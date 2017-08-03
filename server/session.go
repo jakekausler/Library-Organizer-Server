@@ -70,6 +70,7 @@ func RunServer(username, password, database string) {
 	r.HandleFunc("/information/languages", GetLanguagesHandler).Methods("GET")
 	r.HandleFunc("/information/deweys", GetDeweysHandler).Methods("GET")
 	r.HandleFunc("/information/tags", GetTagsHandler).Methods("GET")
+	r.HandleFunc("/information/awards", GetAwardsHandler).Methods("GET")
 	r.HandleFunc("/libraries", GetLibrariesHandler).Methods("GET")
 	r.HandleFunc("/libraries/owned", GetOwnedLibrariesHandler).Methods("GET")
 	r.HandleFunc("/libraries/owned", SaveOwnedLibrariesHandler).Methods("PUT")

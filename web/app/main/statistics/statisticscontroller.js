@@ -1,6 +1,6 @@
 angular.module('libraryOrganizer')
     .controller('statisticsController', function($scope, $http) {
-        $scope.gridSelectedLibraries = $scope.getParameterByName("statsselectedlibraries", "").split(',')
+        $scope.statSelectedLibraries = $scope.getParameterByName("statsselectedlibraries", "").split(',')
         $scope.libraries = [];
         $scope.output = [];
         $scope.stringLibraryIds = function() {
@@ -25,6 +25,10 @@ angular.module('libraryOrganizer')
         $scope.updateDimensions = function() {
             var loadingName = $scope.guid();
             $scope.addToLoading(loadingName)
+            $scope.statSelectedLibraries = $scope.stringLibraryIds();
+            $scope.setParameters({
+                statsselectedlibraries: $scope.statSelectedLibraries
+            })
             $http({
                 url: '/information/dimensions',
                 method: 'GET',
@@ -116,11 +120,11 @@ angular.module('libraryOrganizer')
                         id: $scope.libraries[l].id,
                         name: $scope.libraries[l].name,
                         children: [],
-                        selected: $.inArray($scope.libraries[l].id+"", $scope.gridSelectedLibraries)!=-1
+                        selected: $.inArray($scope.libraries[l].id+"", $scope.statSelectedLibraries)!=-1
                     });
                 }
                 for (k in libStructure) {
-                    if ((!$scope.gridSelectedLibraries || !$scope.gridSelectedLibraries[0]) && !$scope.currentLibraryId && k == $scope.username) {
+                    if ((!$scope.statSelectedLibraries || !$scope.statSelectedLibraries[0]) && !$scope.currentLibraryId && k == $scope.username) {
                         $scope.currentLibraryId = libStructure[k][0].id
                         libStructure[k][0].selected = true;
                     }

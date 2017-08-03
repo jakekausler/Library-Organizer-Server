@@ -41,12 +41,12 @@
                                             <md-button aria-label="Cancel Pasting URL" ng-show="pastingurl" class="icon cancel-icon"
                                                 ng-click="cancelPastingURL()"></md-button>
                                         </div>
-                                        <div class="image-button" flex>
-                                            <md-button aria-label="Import Image" class="icon import-icon"></md-button>
-                                        </div>
                                         <!-- <div class="image-button" flex>
-                                            <md-button aria-label="Choose Spine Color" class="icon eyedropper-icon" ng-click="chooseSpineColor()"></md-button>
+                                            <md-button aria-label="Import Image" class="icon import-icon"></md-button>
                                         </div> -->
+                                        <div class="image-button" flex>
+                                            <md-button aria-label="Remove Image" class="icon remove-icon" ng-click="book.imageurl=""></md-button>
+                                        </div>
                                     </div>
                                 </div>
                                 <md-input-container ng-show="pastingurl">
@@ -365,6 +365,19 @@
                                   md-item-text="item"
                                   placeholder="Add Tags...">
                                 <span md-highlight-text="tagSearch">{{item}}</span>
+                              </md-autocomplete>
+                            </md-chips>
+                        </div>
+                        <div>
+                            <h1 class="md-subhead">Add awards</h1>
+                            <md-chips ng-model="book.awards" md-autocomplete-snap md-require-match="false">
+                              <md-autocomplete
+                                  md-selected-item="selectedTag"
+                                  md-search-text="awardSearch"
+                                  md-items="item in query(awards, awardSearch)"
+                                  md-item-text="item"
+                                  placeholder="Add Awards...">
+                                <span md-highlight-text="awardSearch">{{item}}</span>
                               </md-autocomplete>
                             </md-chips>
                         </div>

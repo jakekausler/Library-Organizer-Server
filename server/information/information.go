@@ -25,6 +25,7 @@ const (
 	getRolesQuery        = "SELECT DISTINCT(Role) from written_by"
 	getContributorsQuery = "SELECT PersonID, Role, FirstName, MiddleNames, LastName from written_by join persons on written_by.AuthorID = persons.PersonID WHERE BookID=?"
 	getTagsQuery         = "SELECT DISTINCT(Tag) from tags"
+	getAwardsQuery         = "SELECT DISTINCT(Award) from awards"
 
 	SORTMETHOD = "Dewey:ASC--Author:ASC--Series:ASC--Volume:ASC--Title:ASC--Subtitle:ASC--Edition:ASC--Lexile:ASC||Dewey:ASC--Series:ASC--Volume:ASC--Author:ASC--Title:ASC--Subtitle:ASC--Edition:ASC--Lexile:ASC"
 )
@@ -1248,6 +1249,25 @@ func GetTags(db *sql.DB) ([]string, error) {
 		var tag string
 		if err := rows.Scan(&tag); err != nil {
 			logger.Printf("Error scanning tags: %v", err)
+			return nil, err
+		}
+		r = append(r, tag)
+	}
+	return r, nil
+}
+
+//GetAwards gets all tags
+func GetAwards(db *sql.DB) ([]string, error) {
+	var r []string
+	rows, err := db.Query(getAwardsQuery)
+	if err != nil {
+		logger.Printf("Error querying awards: %v", err)
+		return nil, err
+	}
+	for rows.Next() {
+		var tag string
+		if err := rows.Scan(&tag); err != nil {
+			logger.Printf("Error scanning awards: %v", err)
 			return nil, err
 		}
 		r = append(r, tag)

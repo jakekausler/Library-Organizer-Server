@@ -126,6 +126,12 @@ func SaveBook(db *sql.DB, book Book) error {
 				logger.Printf("Error while saving image: %v", err)
 				return err
 			}
+		} else if book.ImageURL == "" {
+			err := removeImage(book.ID)
+			if err != nil {
+				logger.Printf("Error while removing image: %v", err)
+				return err
+			}
 		}
 
 		spinecolor := book.SpineColor
@@ -560,6 +566,22 @@ func loadImage(fileInput string) (image.Image, error) {
 	}
 
 	return img, nil
+}
+
+func removeImage(bookid string) error {
+	fs, err := filepath.Glob("../web/res/bookimages/"+bookid+"*")
+	if err != nil {
+		logger.Printf("Error removing image: %v", err)
+		return err
+	}
+	for _, f := fs {
+		err = os.Remove(f)
+		if err != nil {
+			logger.Printf("Error removing image: %v", err)
+			return err
+		}
+	}
+	return nil
 }
 
 //GetBooks gets all books
