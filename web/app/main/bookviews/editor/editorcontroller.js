@@ -42,7 +42,37 @@ angular.module('libraryOrganizer')
 			$scope.book.dewey = value;
 		});
 		$vm.getSettingByName('Lexile', function(value) {
-			$scope.book.lexile = $vm.convertToLexile(value);
+			$scope.book.lexile = value;
+		});
+		$vm.getSettingByName('Interest Level', function(value) {
+			$scope.book.interestlevel = value;
+		});
+		$vm.getSettingByName('AR', function(value) {
+			$scope.book.ar = value;
+		});
+		$vm.getSettingByName('Learning AZ', function(value) {
+			$scope.book.learningaz = value;
+		});
+		$vm.getSettingByName('Guided Reading', function(value) {
+			$scope.book.guidedreading = value;
+		});
+		$vm.getSettingByName('DRA', function(value) {
+			$scope.book.dra = value;
+		});
+		$vm.getSettingByName('Grade', function(value) {
+			$scope.book.grade = value;
+		});
+		$vm.getSettingByName('Fountas Spinnell', function(value) {
+			$scope.book.fountaspinnell = value;
+		});
+		$vm.getSettingByName('Age', function(value) {
+			$scope.book.age = value;
+		});
+		$vm.getSettingByName('Reading Recovery', function(value) {
+			$scope.book.readingrecovery = value;
+		});
+		$vm.getSettingByName('PM Readers', function(value) {
+			$scope.book.pmreaders = value;
 		});
 		$vm.getSettingByName('Binding', function(value) {
 			$scope.book.binding = value;
@@ -91,7 +121,7 @@ angular.module('libraryOrganizer')
 		});
 	}
 	if (!isNaN($scope.book.lexile)) {
-		$scope.book.lexile = $vm.convertToLexile($scope.book.lexile);
+		$scope.book.lexile = $vm.convertToLexile($scope.book.lexile, $scope.book.lexilecode);
 	}
 	$scope.publishers = [];
 	$scope.cities = [];
@@ -270,6 +300,7 @@ angular.module('libraryOrganizer')
 	$scope.oldUrl = $scope.book.imageurl;
 	$scope.pastingurl = false;
 	$scope.save = function(book) {
+		lex = $vm.convertFromLexile(book.lexile);
         var loadingName = $vm.guid();
         $vm.addToLoading(loadingName)
 		$scope.convertIsbn();
@@ -280,7 +311,18 @@ angular.module('libraryOrganizer')
 		book.height = parseInt(book.height);
 		book.depth = parseInt(book.depth);
 		book.weight = parseFloat(book.weight);
-		book.lexile = parseInt($vm.convertFromLexile(book.lexile));
+		book.lexile = lex[0];
+		book.lexilecode = lex[1];
+		book.interestlevel = book.interestlevel?book.interestlevel:null;
+		book.ar = book.ar?book.ar:null;
+		book.learningaz = book.learningaz?book.learningaz:null;
+		book.guidedreading = book.guidedreading?book.guidedreading:null;
+		book.dra = book.dra?book.dra:null;
+		book.grade = book.grade?book.grade:null;
+		book.fountaspinnell = book.fountaspinnell?book.fountaspinnell:null;
+		book.age = book.age?book.age:null;
+		book.readingrecovery = book.readingrecovery?book.readingrecovery:null;
+		book.pmreaders = book.pmreaders?book.pmreaders:null;
 		book.originallypublished = book.originallypublished+'-01-01';
 		book.editionpublished = book.editionpublished+'-01-01';
 		book.series = book.series?book.series:$scope.seriesSearchText;

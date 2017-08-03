@@ -221,17 +221,19 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
             })
         }
         $scope.convertFromLexile = function(lexile) {
-            lexile = lexile+"";
-            if (lexile.startsWith("BR")) {
-                lexile = -(parseInt(lexile.substring(2,lexile.length-1)))
+            if (lexile == "") {
+                return [null, ""]
             }
-            return lexile;
+            lexile = (lexile+"").substring(0, lexile.length-1);
+            code = "";
+            while (isNaN(lexile.charAt(0))) {
+                code += lexile.charAt(0);
+                lexile = substring(1, lexile.length);
+            }
+            lexile = parseInt(lexile);
+            return [lexile, code];
         }
-        $scope.convertToLexile = function(lexile) {
-            if (lexile < 0) {
-                lexile = "BR"+Math.abs(lexile);
-            }
-            lexile += "L";
-            return lexile;
+        $scope.convertToLexile = function(lexile, code) {
+            return code+lexile+"L";
         }
 })

@@ -23,8 +23,8 @@ import (
 )
 
 const (
-	saveBookQuery = "UPDATE books SET Title=?, Subtitle=?, OriginallyPublished=?, EditionPublished=?, PublisherID=?, IsRead=?, IsReference=?, IsOwned=?, IsShipping=?, IsReading=?, isbn=?, Dewey=?, Pages=?, Width=?, Height=?, Depth=?, Weight=?, PrimaryLanguage=?, SecondaryLanguage=?, OriginalLanguage=?, Series=?, Volume=?, Format=?, Edition=?, ImageURL=?, LibraryId=?, Lexile=?, SpineColor=?, Notes=? WHERE BookId=?"
-	addBookQuery  = "INSERT INTO books (Title, Subtitle, OriginallyPublished, PublisherID, IsRead, IsReference, IsOwned, IsShipping, IsReading, isbn, Dewey, Pages, Width, Height, Depth, Weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, Series, Volume, Format, Edition, EditionPublished, LibraryId, Lexile, Notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+	saveBookQuery = "UPDATE books SET Title=?, Subtitle=?, OriginallyPublished=?, EditionPublished=?, PublisherID=?, IsRead=?, IsReference=?, IsOwned=?, IsShipping=?, IsReading=?, isbn=?, Dewey=?, Pages=?, Width=?, Height=?, Depth=?, Weight=?, PrimaryLanguage=?, SecondaryLanguage=?, OriginalLanguage=?, Series=?, Volume=?, Format=?, Edition=?, ImageURL=?, LibraryId=?, Lexile=?, LexileCode=?, InterestLevel=?, AR=?, LearningAZ=?, GuidedReading=?, DRA=?, Grade=?, FountasPinnell=?, Age=?, ReadingRecovery=?, PMReaders=?, SpineColor=?, Notes=? WHERE BookId=?"
+	addBookQuery  = "INSERT INTO books (Title, Subtitle, OriginallyPublished, PublisherID, IsRead, IsReference, IsOwned, IsShipping, IsReading, isbn, Dewey, Pages, Width, Height, Depth, Weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, Series, Volume, Format, Edition, EditionPublished, LibraryId, Lexile, LexileCode, InterestLevel, AR, LearningAZ, GuidedReading, DRA, Grade, FountasPinnell, Age, ReadingRecovery, PMReaders, Notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 )
 
 var logger = log.New(os.Stderr, "log: ", log.LstdFlags|log.Lshortfile)
@@ -74,8 +74,20 @@ type Book struct {
 	CheapestUsed        float64       `json:"cheapestused"`
 	EditionPublished    string        `json:"editionpublished"`
 	Contributors        []information.Contributor `json:"contributors"`
-	Library             Library       `json:"library"`
-	Lexile				int64		  `json:"lexile"`
+	Library             Library       		`json:"library"`
+	Lexile				sql.NullFloat64		`json:"lexile"`
+	LexileCode			string		  		`json:"lexilecode"`
+	InterestLevel		sql.NullFloat64		`json:"interestlevel"`
+	AR					sql.NullFloat64		`json:"ar"`
+	LearningAZ			sql.NullFloat64		`json:"learningaz"`
+	GuidedReading		sql.NullFloat64		`json:"guidedreading"`
+	DRA					sql.NullFloat64		`json:"dra"`
+	Grade				sql.NullFloat64		`json:"grade"`
+	FountasPinnell		sql.NullFloat64		`json:"fountaspinnell"`
+	Age					sql.NullFloat64		`json:"age"`
+	ReadingRecovery		sql.NullFloat64		`json:"readingrecovery"`
+	PMReaders			sql.NullFloat64		`json:"pmreaders"`
+	Awards				[]string	  `json:"awards"`
 	Notes				string		  `json:"notes"`
 	Tags				[]string	  `json:"tags"`
 }
@@ -160,10 +172,22 @@ func SaveBook(db *sql.DB, book Book) error {
 			logger.Printf("Error when saving OriginalLanguage: %v", err)
 			return err
 		}
-		_, err = db.Exec(saveBookQuery, book.Title, book.Subtitle, book.OriginallyPublished, book.EditionPublished, publisherID, book.IsRead, book.IsReference, book.IsOwned, book.IsShipping, book.IsReading, book.ISBN, book.Dewey, book.Pages, book.Width, book.Height, book.Depth, book.Weight, book.PrimaryLanguage, book.SecondaryLanguage, book.OriginalLanguage, book.Series, book.Volume, book.Format, book.Edition, "res/bookimages/"+book.ID+imageType, book.Library.ID, book.Lexile, spinecolor, book.Notes, book.ID)
+		_, err = db.Exec(saveBookQuery, book.Title, book.Subtitle, book.OriginallyPublished, book.EditionPublished, publisherID, book.IsRead, book.IsReference, book.IsOwned, book.IsShipping, book.IsReading, book.ISBN, book.Dewey, book.Pages, book.Width, book.Height, book.Depth, book.Weight, book.PrimaryLanguage, book.SecondaryLanguage, book.OriginalLanguage, book.Series, book.Volume, book.Format, book.Edition, "res/bookimages/"+book.ID+imageType, book.Library.ID, book.Lexile.Value(), book.LexileCode, book.AR.Value(), book.LearningAZ.Value(), book.GuidedReading.Value(), book.DRA.Value(), book.Grade.Value(), book.FountasPinnell.Value(), book.Age.Value(), book.ReadingRecovery.Value(), book.PMReaders.Value(), spinecolor, book.Notes, book.ID)
 		if err != nil {
 			logger.Printf("Error when saving book: %v", err)
 			return err
+		}
+		err = removeAllAwards(db, book.ID)
+		if err != nil {
+			logger.Printf("Error when saving awards: %v", err)
+			return err
+		}
+		for _, award := range book.Awards {
+			err = addAward(db, book.ID, award)
+			if err != nil {
+				logger.Printf("Error when saving awards: %v", err)
+				return err
+			}
 		}
 		err = removeAllWrittenBy(db, book.ID)
 		if err != nil {
@@ -227,7 +251,7 @@ func SaveBook(db *sql.DB, book Book) error {
 			logger.Printf("Error when saving OriginalLanguage: %v", err)
 			return err
 		}
-		res, err := db.Exec(addBookQuery, book.Title, book.Subtitle, book.OriginallyPublished, publisherID, book.IsRead, book.IsReference, book.IsOwned, book.IsShipping, book.IsReading, book.ISBN, book.Dewey, book.Pages, book.Width, book.Height, book.Depth, book.Weight, book.PrimaryLanguage, book.SecondaryLanguage, book.OriginalLanguage, book.Series, book.Volume, book.Format, book.Edition, book.EditionPublished, book.Library.ID, book.Lexile, book.Notes)
+		res, err := db.Exec(addBookQuery, book.Title, book.Subtitle, book.OriginallyPublished, publisherID, book.IsRead, book.IsReference, book.IsOwned, book.IsShipping, book.IsReading, book.ISBN, book.Dewey, book.Pages, book.Width, book.Height, book.Depth, book.Weight, book.PrimaryLanguage, book.SecondaryLanguage, book.OriginalLanguage, book.Series, book.Volume, book.Format, book.Edition, book.EditionPublished, book.Library.ID, book.Lexile.Value(), book.LexileCode, book.AR.Value(), book.LearningAZ.Value(), book.GuidedReading.Value(), book.DRA.Value(), book.Grade.Value(), book.FountasPinnell.Value(), book.Age.Value(), book.ReadingRecovery.Value(), book.PMReaders.Value(), book.Notes)
 		if err != nil {
 			logger.Printf("Error when saving book: %v", err)
 			return err
@@ -255,6 +279,13 @@ func SaveBook(db *sql.DB, book Book) error {
 		if err != nil {
 			logger.Printf("Error when saving image: %v", err)
 			return err
+		}
+		for _, award := range book.Awards {
+			err = addAward(db, bookid, award)
+			if err != nil {
+				logger.Printf("Error when saving awards: %v", err)
+				return err
+			}
 		}
 		for _, contributor := range book.Contributors {
 			err = addContributor(db, bookid, contributor)
@@ -286,6 +317,16 @@ func removeAllWrittenBy(db *sql.DB, bookid string) error {
 	_, err := db.Exec(query, bookid)
 	if err != nil {
 		logger.Printf("Error when deleting written_by: %v", err)
+		return err
+	}
+	return nil
+}
+
+func removeAllAwards(db *sql.DB, bookid string) error {
+	query := "DELETE FROM awards WHERE BookId=?"
+	_, err := db.Exec(query, bookid)
+	if err != nil {
+		logger.Printf("Error when deleting award: %v", err)
 		return err
 	}
 	return nil
@@ -330,6 +371,16 @@ func addContributor(db *sql.DB, bookid string, contributor information.Contribut
 	}
 	query := "REPLACE INTO written_by (BookID, AuthorID, Role) VALUES (?,?,?)"
 	_, err = db.Exec(query, bookid, personID, contributor.Role)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return err
+	}
+	return nil
+}
+
+func addAward(db *sql.DB, bookid, award string) error {
+	query := "REPLACE INTO awards (BookID, Award) VALUES (?,?)"
+	_, err = db.Exec(query, bookid, award)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return err
@@ -513,7 +564,7 @@ func loadImage(fileInput string) (image.Image, error) {
 
 //GetBooks gets all books
 //todo include authors in filter
-func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, fromLexile, toLexile, libraryids, isbn, session string, authorseries []string) ([]Book, int64, error) {
+func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, fromLexile, toLexile, fromInterestLevel, toInterestLevel, fromAR, toAR, fromLearningAZ, toLearingAZ, fromGuidedReading, toGuidedReading, fromDRA, toDRA, fromGrade, toGrade, fromFountasPinnell, toFountasFinnell, fromAge, toAge, fromReadingRecovery, toReadingRecovery, fromPMReaders, toPMReaders, libraryids, isbn, session string, authorseries []string) ([]Book, int64, error) {
 	text = strings.Replace(text, "'", "\\'", -1)
 	if libraryids == "" {
 		return nil, 0, nil
@@ -600,10 +651,102 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 	} else if isshipping == "no" {
 		shipping = "isshipping=0"
 	}
-	startDewey := "Dewey >= '" + formatDewey(fromDewey) + "'"
-	endDewey := "Dewey <= '" + formatDewey(toDewey) + "'"
-	startLexile := "Lexile >= '" + fromLexile + "'"
-	endLexile := "Lexile <= '" + toLexile + "'"
+	startDewey := ""
+	if fromDewey != "" {
+		startDewey = "Dewey >= '" + formatDewey(fromDewey) + "'"
+	}
+	endDewey := ""
+	if toDewey != "" {
+		endDewey = "Dewey <= '" + formatDewey(toDewey) + "'"
+	}
+	startLexile := ""
+	if fromLexile != "" {
+		startLexile = "Lexile >= '" + fromLexile + "'"
+	}
+	endLexile := ""
+	if toLexile != "" {
+		endLexile = "Lexile <= '" + toLexile + "'"
+	}
+	startInterestLevel := ""
+	if fromInterestLevel != "" {
+		startInterestLevel = "InterestLevel >= '" + fromInterestLevel + "'"
+	}
+	endInterestLevel := ""
+	if toInterestLevel != "" {
+		endInterestLevel = "InterestLevel <= '" + toInterestLevel + "'"
+	}
+	startAR := ""
+	if fromAR != "" {
+		startAR = "AR >= '" + fromAR + "'"
+	}
+	endAR := ""
+	if toAR != "" {
+		endAR = "AR <= '" + toAR + "'"
+	}
+	startLearningAZ := ""
+	if fromLearningAZ != "" {
+		startLearningAZ = "LearningAZ >= '" + fromLearningAZ + "'"
+	}
+	endLearningAZ := ""
+	if toLearningAZ != "" {
+		endLearningAZ = "LearningAZ <= '" + toLearningAZ + "'"
+	}
+	startGuidedReading := ""
+	if fromGuidedReading != "" {
+		startGuidedReading = "GuidedReading >= '" + fromGuidedReading + "'"
+	}
+	endGuidedReading := ""
+	if toGuidedReading != "" {
+		endGuidedReading = "GuidedReading <= '" + toGuidedReading + "'"
+	}
+	startDRA := ""
+	if fromDRA != "" {
+		startDRA = "DRA >= '" + fromDRA + "'"
+	}
+	endDRA := ""
+	if toDRA != "" {
+		endDRA = "DRA <= '" + toDRA + "'"
+	}
+	startGrade := ""
+	if fromGrade != "" {
+		startGrade = "Grade >= '" + fromGrade + "'"
+	}
+	endGrade := ""
+	if toGrade != "" {
+		endGrade = "Grade <= '" + toGrade + "'"
+	}
+	startFountasPinnell := ""
+	if fromFountasPinnell != "" {
+		startFountasPinnell = "FountasPinnell >= '" + fromFountasPinnell + "'"
+	}
+	endFountasPinnell := ""
+	if toFountasPinnell != "" {
+		endFountasPinnell = "FountasPinnell <= '" + toFountasPinnell + "'"
+	}
+	startAge := ""
+	if fromAge != "" {
+		startAge = "Age >= '" + fromAge + "'"
+	}
+	endAge := ""
+	if toAge != "" {
+		endAge = "Age <= '" + toAge + "'"
+	}
+	startReadingRecovery := ""
+	if fromReadingRecovery != "" {
+		startReadingRecovery = "ReadingRecovery >= '" + fromReadingRecovery + "'"
+	}
+	endReadingRecovery := ""
+	if toReadingRecovery != "" {
+		endReadingRecovery = "ReadingRecovery <= '" + toReadingRecovery + "'"
+	}
+	startPMReaders := ""
+	if fromPMReaders != "" {
+		startPMReaders = "Lexile >= '" + fromPMReaders + "'"
+	}
+	endPMReaders := ""
+	if toPMReaders != "" {
+		endPMReaders = "PMReaders <= '" + toPMReaders + "'"
+	}
 	filter := "WHERE "
 	if read != "" {
 		filter = filter + read
@@ -664,6 +807,137 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 		}
 		filter = filter + endLexile
 	}
+
+	if startInterestLevel != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + startInterestLevel
+	}
+	if endInterestLevel != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + endInterestLevel
+	}
+
+	if startAR != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + startAR
+	}
+	if endAR != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + endAR
+	}
+
+	if startLearningAZ != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + startLearningAZ
+	}
+	if endLearningAZ != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + endLearningAZ
+	}
+
+	if startGuidedReading != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + startGuidedReading
+	}
+	if endGuidedReading != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + endGuidedReading
+	}
+
+	if startDRA != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + startDRA
+	}
+	if endDRA != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + endDRA
+	}
+
+	if startGradeLexile != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + startGradeLexile
+	}
+	if endGradeLexile != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + endGradeLexile
+	}
+
+	if startFountasPinnell != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + startFountasPinnell
+	}
+	if endFountasPinnell != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + endFountasPinnell
+	}
+
+	if startAge != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + startAge
+	}
+	if endAge != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + endAge
+	}
+
+	if startReadingRecovery != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + startReadingRecovery
+	}
+	if endReadingRecovery != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + endReadingRecovery
+	}
+
+	if startPMReaders != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + startPMReaders
+	}
+	if endPMReaders != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + endPMReaders
+	}
+
 	if isbn != "" {
 		if filter != "WHERE " {
 			filter = filter + " AND "
@@ -724,7 +998,6 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 	var SpineColor sql.NullString
 	var EditionPublished mysql.NullTime
 	var spinecoloroverridden int64
-	var lexile int64
 
 	var p information.Publisher
 	var c []information.Contributor
@@ -740,7 +1013,7 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 		return nil, 0, err
 	}
 	for rows.Next() {
-		if err := rows.Scan(&b.ID, &Title, &Subtitle, &OriginallyPublished, &PublisherID, &IsRead, &IsReference, &IsOwned, &ISBN, &LoaneeId, &Dewey, &b.Pages, &b.Width, &b.Height, &b.Depth, &b.Weight, &PrimaryLanguage, &SecondaryLanguage, &OriginalLanguage, &Series, &b.Volume, &Format, &b.Edition, &ImageURL, &IsReading, &IsShipping, &SpineColor, &b.CheapestNew, &b.CheapestUsed, &EditionPublished, &spinecoloroverridden, &lexile, &b.Notes, &b.Library.ID, &b.Library.Name, &b.Library.Owner, &b.Library.Permissions); err != nil {
+		if err := rows.Scan(&b.ID, &Title, &Subtitle, &OriginallyPublished, &PublisherID, &IsRead, &IsReference, &IsOwned, &ISBN, &LoaneeId, &Dewey, &b.Pages, &b.Width, &b.Height, &b.Depth, &b.Weight, &PrimaryLanguage, &SecondaryLanguage, &OriginalLanguage, &Series, &b.Volume, &Format, &b.Edition, &ImageURL, &IsReading, &IsShipping, &SpineColor, &b.CheapestNew, &b.CheapestUsed, &EditionPublished, &spinecoloroverridden, &b.Lexile, &b.LexileCode, &b.InterestLevel, &b.AR, &b.LearningAZ, &b.GuidedReading, &b.DRA, &b.Grade, &b.FountasPinnell, &b.Age, &b.ReadingRecovery, &b.PMReaders, &b.Notes, &b.Library.ID, &b.Library.Name, &b.Library.Owner, &b.Library.Permissions); err != nil {
 			logger.Printf("Error scanning books: %v", err)
 			return nil, 0, err
 		}
@@ -775,7 +1048,6 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 		b.IsRead = IsRead == 1
 		b.IsShipping = IsShipping == 1
 		b.SpineColorOverridden = spinecoloroverridden == 1
-		b.Lexile = lexile
 		b.Title = ""
 		if Title.Valid {
 			b.Title = Title.String

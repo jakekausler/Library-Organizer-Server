@@ -11,135 +11,277 @@
 </md-toolbar>
 <div layout="row" >
 	<md-sidenav md-is-locked-open="isFiltersOpen" class="md-sidenav-left" md-component-id="filterSideNav" md-whiteframe=4 layout-padding="5">
-		<form name="forms.sortAndFilter"  layout="column">
-			<div id="sort"  layout="column">
-				<md-input-container class="md-input-has-value">
-					<label id="sort-label">Sort By</label>
-					<md-radio-group ng-change="updateRecieved()" ng-model="$parent.sort" layout="row">
-						<md-radio-button value="title">Title</md-radio-button>
-						<md-radio-button value="series">Series</md-radio-button>
-						<md-radio-button value="dewey">Dewey</md-radio-button>
-					</md-radio-group>
-				</md-input-container>
-				<div layout="row">
-					<div id="number-to-get" class="sort-group">
-						<md-input-container>
-							<label id="number-to-get-label">Limit</label>
-							<input id="number-to-get" class="pagination-input" type="text" ng-change="updateRecieved()" ng-model="$parent.numberToGet" name="number-to-get" value="50" required positive-integer-input/>
-						</md-input-container>
-					</div>
-					<div id="page-group" class="sort-group">
-						<md-input-container>
-							<label id="page-label">Page</label>
-							<input id="page" class="pagination-input" type="text" ng-change="updateRecieved()" ng-model="$parent.page" name="page" required pages-input> of {{countPages()}}
-						</md-input-container>
-					</div>
-				</div>
-				<div layout="row">
-					<div id="from-dewey" class="sort-group">
-						<md-input-container>
-							<label id="from-dewey-label">From Dewey</label>
-							<input id="from-dewey-input" class="dewey-input" type="text" ng-change="updateRecieved()" ng-model="$parent.fromdewey" name="fromdewey" value="0" required dewey-input/>
-						</md-input-container>
-					</div>
-					<div id="to-dewey" class="sort-group">
-						<md-input-container>
-							<label id="to-dewey-label">To Dewey</label>
-							<input id="to-dewey-input" class="dewey-input" type="text" ng-change="updateRecieved()" ng-model="$parent.todewey" name="todewey" value="FIC" required dewey-input/>
-						</md-input-container>
-					</div>
-				</div>
-				<div layout="row">
-					<div id="from-lexile" class="sort-group">
-						<md-input-container>
-							<label id="from-lexile-label">From Lexile</label>
-							<input id="from-lexile-input" class="lexile-input" type="text" ng-change="updateRecieved()" ng-model="$parent.fromlexile" name="fromlexile" value="0" required lexile-input/>
-						</md-input-container>
-					</div>
-					<div id="to-lexile" class="sort-group">
-						<md-input-container>
-							<label id="to-lexile-label">To Lexile</label>
-							<input id="to-lexile-input" class="lexile-input" type="text" ng-change="updateRecieved()" ng-model="$parent.tolexile" name="tolexile" value="2000" required lexile-input/>
-						</md-input-container>
-					</div>
-				</div>
-			</div>
-			<div id="filter"  layout="column">
-				<div id="filter-text">
-					<md-input-container class="md-block">
-						<label id="filter-text-label">Search for</label>
-						<input type="text" ng-change="updateRecieved()" ng-model="$parent.filter" name="filter" value=""/>
+		<md-content>
+			<form name="forms.sortAndFilter"  layout="column">
+				<div id="sort"  layout="column">
+					<md-input-container class="md-input-has-value">
+						<label id="sort-label">Sort By</label>
+						<md-radio-group ng-change="updateRecieved()" ng-model="$parent.sort" layout="row">
+							<md-radio-button value="title">Title</md-radio-button>
+							<md-radio-button value="series">Series</md-radio-button>
+							<md-radio-button value="dewey">Dewey</md-radio-button>
+						</md-radio-group>
 					</md-input-container>
+					<div layout="row">
+						<div id="number-to-get" class="sort-group">
+							<md-input-container>
+								<label id="number-to-get-label">Limit</label>
+								<input id="number-to-get" class="pagination-input" type="text" ng-change="updateRecieved()" ng-model="$parent.numberToGet" name="number-to-get" value="50" required positive-integer-input/>
+							</md-input-container>
+						</div>
+						<div id="page-group" class="sort-group">
+							<md-input-container>
+								<label id="page-label">Page</label>
+								<input id="page" class="pagination-input" type="text" ng-change="updateRecieved()" ng-model="$parent.page" name="page" required pages-input> of {{countPages()}}
+							</md-input-container>
+						</div>
+					</div>
+					<div layout="row">
+						<div id="from-dewey" class="sort-group">
+							<md-input-container>
+								<label id="from-dewey-label">From Dewey</label>
+								<input id="from-dewey-input" class="dewey-input" type="text" ng-change="updateRecieved()" ng-model="$parent.fromdewey" name="fromdewey" value="0" required dewey-input/>
+							</md-input-container>
+						</div>
+						<div id="to-dewey" class="sort-group">
+							<md-input-container>
+								<label id="to-dewey-label">To Dewey</label>
+								<input id="to-dewey-input" class="dewey-input" type="text" ng-change="updateRecieved()" ng-model="$parent.todewey" name="todewey" value="FIC" required dewey-input/>
+							</md-input-container>
+						</div>
+					</div>
+					<div layout="row">
+						<div id="from-lexile" class="sort-group">
+							<md-input-container>
+								<label id="from-lexile-label">From Lexile</label>
+								<input id="from-lexile-input" class="lexile-input" type="text" ng-change="updateRecieved()" ng-model="$parent.fromlexile" name="fromlexile" value="0" required lexile-input/>
+							</md-input-container>
+						</div>
+						<div id="to-lexile" class="sort-group">
+							<md-input-container>
+								<label id="to-lexile-label">To Lexile</label>
+								<input id="to-lexile-input" class="lexile-input" type="text" ng-change="updateRecieved()" ng-model="$parent.tolexile" name="tolexile" value="2000" required lexile-input/>
+							</md-input-container>
+						</div>
+					</div>
+					<div layout="row">
+						<div id="from-interestlevel" class="sort-group">
+							<md-input-container>
+								<label id="from-interestlevel-label">From Interest Level</label>
+								<input id="from-interestlevel-input" class="interestlevel-input" type="text" ng-change="updateRecieved()" ng-model="$parent.frominterestlevel" name="frominterestlevel" value="0" required non-negative-number-input/>
+							</md-input-container>
+						</div>
+						<div id="to-interestlevel" class="sort-group">
+							<md-input-container>
+								<label id="to-interestlevel-label">To Interest Level</label>
+								<input id="to-interestlevel-input" class="interestlevel-input" type="text" ng-change="updateRecieved()" ng-model="$parent.tointerestlevel" name="tointerestlevel" value="0" required non-negative-number-input/>
+							</md-input-container>
+						</div>
+					</div>
+					<div layout="row">
+						<div id="from-ar" class="sort-group">
+							<md-input-container>
+								<label id="from-ar-label">From AR</label>
+								<input id="from-ar-input" class="ar-input" type="text" ng-change="updateRecieved()" ng-model="$parent.fromar" name="fromar" value="0" required non-negative-number-input/>
+							</md-input-container>
+						</div>
+						<div id="to-ar" class="sort-group">
+							<md-input-container>
+								<label id="to-ar-label">To AR</label>
+								<input id="to-ar-input" class="ar-input" type="text" ng-change="updateRecieved()" ng-model="$parent.toar" name="toar" value="0" required non-negative-number-input/>
+							</md-input-container>
+						</div>
+					</div>
+					<div layout="row">
+						<div id="from-learningaz" class="sort-group">
+							<md-input-container>
+								<label id="from-learningaz-label">From Learning AZ</label>
+								<input id="from-learningaz-input" class="learningaz-input" type="text" ng-change="updateRecieved()" ng-model="$parent.fromlearningaz" name="fromlearningaz" value="0" required non-negative-number-input/>
+							</md-input-container>
+						</div>
+						<div id="to-learningaz" class="sort-group">
+							<md-input-container>
+								<label id="to-learningaz-label">To Learning AZ</label>
+								<input id="to-learningaz-input" class="learningaz-input" type="text" ng-change="updateRecieved()" ng-model="$parent.tolearningaz" name="tolearningaz" value="0" required non-negative-number-input/>
+							</md-input-container>
+						</div>
+					</div>
+					<div layout="row">
+						<div id="from-guidedreading" class="sort-group">
+							<md-input-container>
+								<label id="from-guidedreading-label">From Guided Reading</label>
+								<input id="from-guidedreading-input" class="guidedreading-input" type="text" ng-change="updateRecieved()" ng-model="$parent.fromguidedreading" name="fromguidedreading" value="0" required non-negative-number-input/>
+							</md-input-container>
+						</div>
+						<div id="to-guidedreading" class="sort-group">
+							<md-input-container>
+								<label id="to-guidedreading-label">To Guided Reading</label>
+								<input id="to-guidedreading-input" class="guidedreading-input" type="text" ng-change="updateRecieved()" ng-model="$parent.toguidedreading" name="toguidedreading" value="0" required non-negative-number-input/>
+							</md-input-container>
+						</div>
+					</div>
+					<div layout="row">
+						<div id="from-dra" class="sort-group">
+							<md-input-container>
+								<label id="from-dra-label">From dra</label>
+								<input id="from-dra-input" class="dra-input" type="text" ng-change="updateRecieved()" ng-model="$parent.fromdra" name="fromdra" value="0" required non-negative-number-input/>
+							</md-input-container>
+						</div>
+						<div id="to-dra" class="sort-group">
+							<md-input-container>
+								<label id="to-dra-label">To dra</label>
+								<input id="to-dra-input" class="dra-input" type="text" ng-change="updateRecieved()" ng-model="$parent.todra" name="todra" value="0" required non-negative-number-input/>
+							</md-input-container>
+						</div>
+					</div>
+					<div layout="row">
+						<div id="from-grade" class="sort-group">
+							<md-input-container>
+								<label id="from-grade-label">From Grade</label>
+								<input id="from-grade-input" class="grade-input" type="text" ng-change="updateRecieved()" ng-model="$parent.fromgrade" name="fromgrade" value="0" required non-negative-number-input/>
+							</md-input-container>
+						</div>
+						<div id="to-grade" class="sort-group">
+							<md-input-container>
+								<label id="to-grade-label">To Grade</label>
+								<input id="to-grade-input" class="grade-input" type="text" ng-change="updateRecieved()" ng-model="$parent.tograde" name="tograde" value="0" required non-negative-number-input/>
+							</md-input-container>
+						</div>
+					</div>
+					<div layout="row">
+						<div id="from-fountaspinnell" class="sort-group">
+							<md-input-container>
+								<label id="from-fountaspinnell-label">From Fountas Pinnell</label>
+								<input id="from-fountaspinnell-input" class="fountaspinnell-input" type="text" ng-change="updateRecieved()" ng-model="$parent.fromfountaspinnell" name="fromfountaspinnell" value="0" required non-negative-number-input/>
+							</md-input-container>
+						</div>
+						<div id="to-fountaspinnell" class="sort-group">
+							<md-input-container>
+								<label id="to-fountaspinnell-label">To Fountas Pinnell</label>
+								<input id="to-fountaspinnell-input" class="fountaspinnell-input" type="text" ng-change="updateRecieved()" ng-model="$parent.tofountaspinnell" name="tofountaspinnell" value="0" required non-negative-number-input/>
+							</md-input-container>
+						</div>
+					</div>
+					<div layout="row">
+						<div id="from-age" class="sort-group">
+							<md-input-container>
+								<label id="from-age-label">From Age</label>
+								<input id="from-age-input" class="age-input" type="text" ng-change="updateRecieved()" ng-model="$parent.fromage" name="fromage" value="0" required non-negative-number-input/>
+							</md-input-container>
+						</div>
+						<div id="to-age" class="sort-group">
+							<md-input-container>
+								<label id="to-age-label">To Age</label>
+								<input id="to-age-input" class="age-input" type="text" ng-change="updateRecieved()" ng-model="$parent.toage" name="toage" value="0" required non-negative-number-input/>
+							</md-input-container>
+						</div>
+					</div>
+					<div layout="row">
+						<div id="from-readingrecovery" class="sort-group">
+							<md-input-container>
+								<label id="from-readingrecovery-label">From Reading Recovery</label>
+								<input id="from-readingrecovery-input" class="readingrecovery-input" type="text" ng-change="updateRecieved()" ng-model="$parent.fromreadingrecovery" name="fromreadingrecovery" value="0" required non-negative-number-input/>
+							</md-input-container>
+						</div>
+						<div id="to-readingrecovery" class="sort-group">
+							<md-input-container>
+								<label id="to-readingrecovery-label">To Reading Recovery</label>
+								<input id="to-readingrecovery-input" class="readingrecovery-input" type="text" ng-change="updateRecieved()" ng-model="$parent.toreadingrecovery" name="toreadingrecovery" value="0" required non-negative-number-input/>
+							</md-input-container>
+						</div>
+					</div>
+					<div layout="row">
+						<div id="from-pmreaders" class="sort-group">
+							<md-input-container>
+								<label id="from-pmreaders-label">From PM Readers</label>
+								<input id="from-pmreaders-input" class="pmreaders-input" type="text" ng-change="updateRecieved()" ng-model="$parent.frompmreaders" name="frompmreaders" value="0" required non-negative-number-input/>
+							</md-input-container>
+						</div>
+						<div id="to-pmreaders" class="sort-group">
+							<md-input-container>
+								<label id="to-pmreaders-label">To PM Readers</label>
+								<input id="to-pmreaders-input" class="pmreaders-input" type="text" ng-change="updateRecieved()" ng-model="$parent.topmreaders" name="topmreaders" value="0" required non-negative-number-input/>
+							</md-input-container>
+						</div>
+					</div>
 				</div>
-				<div id="read-buttons" class="filter-radio-group" flex="33">
-					<md-tooltip md-delay="500"><div class="tooltip-inner"><span class="span-white-space">Whether or not the <em>owner</em> has read the book.</span></div></md-tooltip>
+				<div id="filter"  layout="column">
+					<div id="filter-text">
+						<md-input-container class="md-block">
+							<label id="filter-text-label">Search for</label>
+							<input type="text" ng-change="updateRecieved()" ng-model="$parent.filter" name="filter" value=""/>
+						</md-input-container>
+					</div>
+					<div id="read-buttons" class="filter-radio-group" flex="33">
+						<md-tooltip md-delay="500"><div class="tooltip-inner"><span class="span-white-space">Whether or not the <em>owner</em> has read the book.</span></div></md-tooltip>
+							<md-input-container class="md-input-has-value">
+								<label id="read-buttons-label">Read</label>
+								<md-radio-group ng-change="updateRecieved()" ng-model="$parent.read" layout="row">
+									<md-radio-button value="yes">Yes</md-radio-button>
+									<md-radio-button value="no">No</md-radio-button>
+									<md-radio-button value="both" checked>Both</md-radio-button>
+								</md-radio-group>
+							</md-input-container>
+					</div>
+					<div id="reference-buttons" class="filter-radio-group" flex="33">
+						<md-tooltip md-delay="500"><div class="tooltip-inner"><span class="span-white-space">Whether or not the <em>owner</em> consideres the book reference. Reference books are not counted toward the "To Read" statistic.</span></div></md-tooltip>
 						<md-input-container class="md-input-has-value">
-							<label id="read-buttons-label">Read</label>
-							<md-radio-group ng-change="updateRecieved()" ng-model="$parent.read" layout="row">
+							<label id="reference-buttons-label">Reference</label>
+							<md-radio-group ng-change="updateRecieved()" ng-model="$parent.reference" layout="row">
 								<md-radio-button value="yes">Yes</md-radio-button>
 								<md-radio-button value="no">No</md-radio-button>
 								<md-radio-button value="both" checked>Both</md-radio-button>
 							</md-radio-group>
 						</md-input-container>
+					</div>
+					<div id="owned-buttons" class="filter-radio-group" flex="33">
+						<md-tooltip md-delay="500"><div class="tooltip-inner"><span class="span-white-space">Whether or not the corresponding <em>library owner</em> owns the book. If it is marked as not owned, it is considered on a wish list. If no, the book is unavailable for checkout.</span></div></md-tooltip>
+						<md-input-container class="md-input-has-value">
+							<label id="owned-buttons-label">Owned</label>
+							<md-radio-group ng-change="updateRecieved()" ng-model="$parent.owned" layout="row">
+								<md-radio-button value="yes" checked>Yes</md-radio-button>
+								<md-radio-button value="no">No</md-radio-button>
+								<md-radio-button value="both">Both</md-radio-button>
+							</md-radio-group>
+						</md-input-container>
+					</div>
+					<div id="loaned-buttons" class="filter-radio-group" flex="33">
+						<md-tooltip md-delay="500"><div class="tooltip-inner"><span class="span-white-space">Whether or not the book is checked out of the <em>owner's</em> library.</span></div></md-tooltip>
+						<md-input-container class="md-input-has-value">
+							<label id="loaned-buttons-label">Loaned</label>
+							<md-radio-group ng-change="updateRecieved()" ng-model="$parent.loaned" layout="row">
+								<md-radio-button value="yes">Yes</md-radio-button>
+								<md-radio-button value="no" checked>No</md-radio-button>
+								<md-radio-button value="both">Both</md-radio-button>
+							</md-radio-group>
+						</md-input-container>
+					</div>
+					<div id="shipping-buttons" class="filter-radio-group" flex="33">
+						<md-tooltip md-delay="500"><div class="tooltip-inner"><span class="span-white-space">Whether or not the book is shipping to the <em>owner</em>. It is up to the owner to decide whether a shipping book is also considered owned. If yes, the book is unavailable for checkout.</span></div></md-tooltip>
+						<md-input-container class="md-input-has-value">
+							<label id="shipping-buttons-label">Shipping</label>
+							<md-radio-group ng-change="updateRecieved()" ng-model="$parent.shipping" layout="row">
+								<md-radio-button value="yes">Yes</md-radio-button>
+								<md-radio-button value="no" checked>No</md-radio-button>
+								<md-radio-button value="both">Both</md-radio-button>
+							</md-radio-group>
+						</md-input-container>
+					</div>
+					<div id="reading-buttons" class="filter-radio-group" flex="33">
+						<md-tooltip md-delay="500"><div class="tooltip-inner"><span class="span-white-space">Whether or not the <em>owner</em> is reading the book. If yes, the book is unavailable for checkout.</span></div></md-tooltip>
+						<md-input-container class="md-input-has-value">
+							<label id="reading-buttons-label">Reading</label>
+							<md-radio-group ng-change="updateRecieved()" ng-model="$parent.reading" layout="row">
+								<md-radio-button value="yes">Yes</md-radio-button>
+								<md-radio-button value="no" checked>No</md-radio-button>
+								<md-radio-button value="both">Both</md-radio-button>
+							</md-radio-group>
+						</md-input-container>
+					</div>
 				</div>
-				<div id="reference-buttons" class="filter-radio-group" flex="33">
-					<md-tooltip md-delay="500"><div class="tooltip-inner"><span class="span-white-space">Whether or not the <em>owner</em> consideres the book reference. Reference books are not counted toward the "To Read" statistic.</span></div></md-tooltip>
-					<md-input-container class="md-input-has-value">
-						<label id="reference-buttons-label">Reference</label>
-						<md-radio-group ng-change="updateRecieved()" ng-model="$parent.reference" layout="row">
-							<md-radio-button value="yes">Yes</md-radio-button>
-							<md-radio-button value="no">No</md-radio-button>
-							<md-radio-button value="both" checked>Both</md-radio-button>
-						</md-radio-group>
-					</md-input-container>
-				</div>
-				<div id="owned-buttons" class="filter-radio-group" flex="33">
-					<md-tooltip md-delay="500"><div class="tooltip-inner"><span class="span-white-space">Whether or not the corresponding <em>library owner</em> owns the book. If it is marked as not owned, it is considered on a wish list. If no, the book is unavailable for checkout.</span></div></md-tooltip>
-					<md-input-container class="md-input-has-value">
-						<label id="owned-buttons-label">Owned</label>
-						<md-radio-group ng-change="updateRecieved()" ng-model="$parent.owned" layout="row">
-							<md-radio-button value="yes" checked>Yes</md-radio-button>
-							<md-radio-button value="no">No</md-radio-button>
-							<md-radio-button value="both">Both</md-radio-button>
-						</md-radio-group>
-					</md-input-container>
-				</div>
-				<div id="loaned-buttons" class="filter-radio-group" flex="33">
-					<md-tooltip md-delay="500"><div class="tooltip-inner"><span class="span-white-space">Whether or not the book is checked out of the <em>owner's</em> library.</span></div></md-tooltip>
-					<md-input-container class="md-input-has-value">
-						<label id="loaned-buttons-label">Loaned</label>
-						<md-radio-group ng-change="updateRecieved()" ng-model="$parent.loaned" layout="row">
-							<md-radio-button value="yes">Yes</md-radio-button>
-							<md-radio-button value="no" checked>No</md-radio-button>
-							<md-radio-button value="both">Both</md-radio-button>
-						</md-radio-group>
-					</md-input-container>
-				</div>
-				<div id="shipping-buttons" class="filter-radio-group" flex="33">
-					<md-tooltip md-delay="500"><div class="tooltip-inner"><span class="span-white-space">Whether or not the book is shipping to the <em>owner</em>. It is up to the owner to decide whether a shipping book is also considered owned. If yes, the book is unavailable for checkout.</span></div></md-tooltip>
-					<md-input-container class="md-input-has-value">
-						<label id="shipping-buttons-label">Shipping</label>
-						<md-radio-group ng-change="updateRecieved()" ng-model="$parent.shipping" layout="row">
-							<md-radio-button value="yes">Yes</md-radio-button>
-							<md-radio-button value="no" checked>No</md-radio-button>
-							<md-radio-button value="both">Both</md-radio-button>
-						</md-radio-group>
-					</md-input-container>
-				</div>
-				<div id="reading-buttons" class="filter-radio-group" flex="33">
-					<md-tooltip md-delay="500"><div class="tooltip-inner"><span class="span-white-space">Whether or not the <em>owner</em> is reading the book. If yes, the book is unavailable for checkout.</span></div></md-tooltip>
-					<md-input-container class="md-input-has-value">
-						<label id="reading-buttons-label">Reading</label>
-						<md-radio-group ng-change="updateRecieved()" ng-model="$parent.reading" layout="row">
-							<md-radio-button value="yes">Yes</md-radio-button>
-							<md-radio-button value="no" checked>No</md-radio-button>
-							<md-radio-button value="both">Both</md-radio-button>
-						</md-radio-group>
-					</md-input-container>
-				</div>
-			</div>
-			<md-button aria-label="Choose Libraries" ng-click="chooseLibrary($event)">Choose Libraries</md-button>
-		</form>
+				<md-button aria-label="Choose Libraries" ng-click="chooseLibrary($event)">Choose Libraries</md-button>
+			</form>
+		</md-content>
 	</md-sidenav>
 	<md-content flex>
 		<md-content class="grid-content" flex>

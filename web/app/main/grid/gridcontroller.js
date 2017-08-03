@@ -6,8 +6,28 @@ angular.module('libraryOrganizer')
         $scope.numberOfBooks = 0;
         $scope.fromdewey = $scope.getParameterByName("fromdewey", "0");
         $scope.todewey = $scope.getParameterByName("todewey", "FIC");
-        $scope.fromlexile = $scope.getParameterByName("fromlexile", $scope.convertToLexile("0"));
-        $scope.tolexile = $scope.getParameterByName("tolexile", $scope.convertToLexile("2000"));
+        $scope.fromlexile = $scope.getParameterByName("fromlexile", $scope.convertToLexile("0", ""));
+        $scope.tolexile = $scope.getParameterByName("tolexile", $scope.convertToLexile("2000", ""));
+        $scope.frominterestlevel = $scope.getParameterByName("frominterestlevel", "0")
+        $scope.tointerestlevel = $scope.getParameterByName("tointerestlevel", "0")
+        $scope.fromar = $scope.getParameterByName("fromar", "0")
+        $scope.toar = $scope.getParameterByName("toar", "0")
+        $scope.fromlearningaz = $scope.getParameterByName("fromlearningaz", "0")
+        $scope.tolearningaz = $scope.getParameterByName("tolearningaz", "0")
+        $scope.fromguidedreading = $scope.getParameterByName("fromguidedreading", "0")
+        $scope.toguidedreading = $scope.getParameterByName("toguidedreading", "0")
+        $scope.fromdra = $scope.getParameterByName("fromdra", "0")
+        $scope.todra = $scope.getParameterByName("todra", "0")
+        $scope.fromgrade = $scope.getParameterByName("fromgrade", "0")
+        $scope.tograde = $scope.getParameterByName("tograde", "0")
+        $scope.fromfountaspinnell = $scope.getParameterByName("fromfountaspinnell", "0")
+        $scope.tofountaspinnell = $scope.getParameterByName("tofountaspinnell", "0")
+        $scope.fromage = $scope.getParameterByName("fromage", "0")
+        $scope.toage = $scope.getParameterByName("toage", "0")
+        $scope.fromreadingrecovery = $scope.getParameterByName("fromreadingrecovery", "0")
+        $scope.toreadingrecovery = $scope.getParameterByName("toreadingrecovery", "0")
+        $scope.frompmreaders = $scope.getParameterByName("frompmreaders", "0")
+        $scope.topmreaders = $scope.getParameterByName("topmreaders", "0")
         $scope.filter = $scope.getParameterByName("filter", "");
         $scope.read = $scope.getParameterByName("read", "both");
         $scope.reference = $scope.getParameterByName("reference", "both");
@@ -50,6 +70,26 @@ angular.module('libraryOrganizer')
                         todewey: $scope.todewey.toUpperCase(),
                         fromlexile: $scope.fromlexile,
                         tolexile: $scope.tolexile,
+                        frominterestlevel: $scope.frominterestlevel,
+                        tointerestlevel: $scope.tointerestlevel,
+                        fromar: $scope.fromar,
+                        toar: $scope.toar,
+                        fromlearningaz: $scope.fromlearningaz,
+                        tolearningaz: $scope.tolearningaz,
+                        fromguidedreading: $scope.fromguidedreading,
+                        toguidedreading: $scope.toguidedreading,
+                        fromdra: $scope.fromdra,
+                        todra: $scope.todra,
+                        fromgrade: $scope.fromgrade,
+                        tograde: $scope.tograde,
+                        fromfountaspinnell: $scope.fromfountaspinnell,
+                        tofountaspinnell: $scope.tofountaspinnell,
+                        fromage: $scope.fromage,
+                        toage: $scope.toage,
+                        fromreadingrecovery: $scope.fromreadingrecovery,
+                        toreadingrecovery: $scope.toreadingrecovery,
+                        frompmreaders: $scope.frompmreaders,
+                        topmreaders: $scope.topmreaders,
                         filter: $scope.filter,
                         read: $scope.read,
                         reference: $scope.reference,
@@ -58,6 +98,8 @@ angular.module('libraryOrganizer')
                         shipping: $scope.shipping,
                         reading: $scope.reading
                     })
+                var fromlex = $scope.convertFromLexile($scope.fromlexile);
+                var tolex = $scope.convertFromLexile($scope.tolexile);
                 $http({
                     url: '/books',
                     method: 'GET',
@@ -67,8 +109,30 @@ angular.module('libraryOrganizer')
                         page: $scope.page,
                         fromdewey: $scope.fromdewey.toUpperCase(),
                         todewey: $scope.todewey.toUpperCase(),
-                        fromlexile: $scope.convertFromLexile($scope.fromlexile),
-                        tolexile: $scope.convertFromLexile($scope.tolexile),
+                        fromlexile: fromlex[0],
+                        fromlexilecode: fromlex[1],
+                        tolexile: tolex[0],
+                        tolexilecode: tolex[1],
+                        frominterestlevel: $scope.frominterestlevel,
+                        tointerestlevel: $scope.tointerestlevel,
+                        fromar: $scope.fromar,
+                        toar: $scope.toar,
+                        fromlearningaz: $scope.fromlearningaz,
+                        tolearningaz: $scope.tolearningaz,
+                        fromguidedreading: $scope.fromguidedreading,
+                        toguidedreading: $scope.toguidedreading,
+                        fromdra: $scope.fromdra,
+                        todra: $scope.todra,
+                        fromgrade: $scope.fromgrade,
+                        tograde: $scope.tograde,
+                        fromfountaspinnell: $scope.fromfountaspinnell,
+                        tofountaspinnell: $scope.tofountaspinnell,
+                        fromage: $scope.fromage,
+                        toage: $scope.toage,
+                        fromreadingrecovery: $scope.fromreadingrecovery,
+                        toreadingrecovery: $scope.toreadingrecovery,
+                        frompmreaders: $scope.frompmreaders,
+                        topmreaders: $scope.topmreaders,
                         text: $scope.filter,
                         isread: $scope.read,
                         isreference: $scope.reference,

@@ -116,6 +116,8 @@ angular.module('libraryOrganizer')
         $scope.searchByISBN = function(isbn) {
             var loadingName = $scope.vm.guid();
             $scope.vm.addToLoading(loadingName)
+            var fromlex = $scope.convertFromLexile($scope.vm.fromlexile);
+            var tolex = $scope.convertFromLexile($scope.vm.tolexile);
             $http({
                 url: '/books',
                 method: 'GET',
@@ -125,8 +127,10 @@ angular.module('libraryOrganizer')
                     page: 1,
                     fromdewey: $scope.vm.fromdewey.toUpperCase(),
                     todewey: $scope.vm.todewey.toUpperCase(),
-                    fromlexile: $scope.vm.convertFromLexile($scope.vm.fromlexile),
-                    tolexile: $scope.vm.convertFromLexile($scope.vm.tolexile),
+                    fromlexile: fromlex[0],
+                    fromlexilecode: fromlex[1],
+                    tolexile: tolex[0],
+                    tolexilecode: tolex[1],
                     text: $scope.vm.filter,
                     isread: $scope.vm.read,
                     isreference: $scope.vm.reference,
