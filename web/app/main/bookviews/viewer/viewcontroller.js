@@ -5,7 +5,7 @@ angular.module('libraryOrganizer')
 	$scope.viewType = viewType;
 	$scope.username = username;
 	$scope.canEdit = (book.library.permissions&4)==4;
-	$scope.canCheckout = (book.library.permissions&2)==2 && book.loanee.id == -1;
+	$scope.canCheckout = (book.library.permissions&2)==2 && book.loanee.id == -1 && !book.isreading && book.isowned && !book.isshipping;
 	$scope.canCheckin = book.loanee.id != -1 && ((book.library.permissions&4)==4 || book.loanee.username == $scope.username);
 	$scope.checkout = function(ev) {
 	    var d = $mdDialog.confirm()
