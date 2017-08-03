@@ -41,12 +41,12 @@
                                             <md-button aria-label="Cancel Pasting URL" ng-show="pastingurl" class="icon cancel-icon"
                                                 ng-click="cancelPastingURL()"></md-button>
                                         </div>
-                                        <div class="image-button" flex>
-                                            <md-button aria-label="Import Image" class="icon import-icon"></md-button>
-                                        </div>
                                         <!-- <div class="image-button" flex>
-                                            <md-button aria-label="Choose Spine Color" class="icon eyedropper-icon" ng-click="chooseSpineColor()"></md-button>
+                                            <md-button aria-label="Import Image" class="icon import-icon"></md-button>
                                         </div> -->
+                                        <div class="image-button" flex>
+                                            <md-button aria-label="Remove Image" class="icon remove-icon" ng-click="book.imageurl=""></md-button>
+                                        </div>
                                     </div>
                                 </div>
                                 <md-input-container ng-show="pastingurl">
@@ -214,11 +214,6 @@
                                     required non-negative-integer-input/>
                             </md-input-container>
                             <md-input-container flex="10">
-                                <label>Lexile</label>
-                                <input type="text" ng-model="book.lexile" name="lexile" value="{{book.lexile}}"
-                                    required lexile-input/>
-                            </md-input-container>
-                            <md-input-container flex="10">
                                 <label>Dewey</label>
                                 <input type="text" ng-model="book.dewey" name="dewey" value="{{book.dewey}}"
                                     required dewey-input/>
@@ -228,11 +223,68 @@
                             </p>
                         </div>
                         <div flex layout="row">
-                            <md-autocomplete flex="25" md-input-name="format" md-search-text="formatSearchText"
-                                md-selected-item="book.format" md-items="s in query(formats, formatSearchText)"
-                                md-item-text="s" md-floating-label="Format">
+                            <md-input-container flex>
+                                <label>Lexile</label>
+                                <input type="text" ng-model="book.lexile" name="lexile" value="{{book.lexile}}"
+                                    required lexile-input/>
+                            </md-input-container>
+                            <md-input-container flex>
+                                <label>Interest Level</label>
+                                <input type="text" ng-model="book.interestlevel" name="interestlevel" value="{{book.interestlevel}}"
+                                    required non-negative-number-input/>
+                            </md-input-container>
+                            <md-input-container flex>
+                                <label>AR</label>
+                                <input type="text" ng-model="book.ar" name="ar" value="{{book.ar}}"
+                                    required non-negative-number-input/>
+                            </md-input-container>
+                            <md-input-container flex>
+                                <label>Learning AZ</label>
+                                <input type="text" ng-model="book.learningaz" name="learningaz" value="{{book.learningaz}}"
+                                    required non-negative-number-input/>
+                            </md-input-container>
+                            <md-input-container flex>
+                                <label>Guided Reading</label>
+                                <input type="text" ng-model="book.guidedreading" name="guidedreading" value="{{book.guidedreading}}"
+                                    required non-negative-number-input/>
+                            </md-input-container>
+                            <md-input-container flex>
+                                <label>DRA</label>
+                                <input type="text" ng-model="book.dra" name="dra" value="{{book.dra}}"
+                                    required non-negative-number-input/>
+                            </md-input-container>
+                            <md-input-container flex>
+                                <label>Grade</label>
+                                <input type="text" ng-model="book.grade" name="grade" value="{{book.grade}}"
+                                    required non-negative-number-input/>
+                            </md-input-container>
+                            <md-input-container flex>
+                                <label>Fountas Pinnell</label>
+                                <input type="text" ng-model="book.fountaspinnell" name="fountaspinnell" value="{{book.fountaspinnell}}"
+                                    required non-negative-number-input/>
+                            </md-input-container>
+                            <md-input-container flex>
+                                <label>Age</label>
+                                <input type="text" ng-model="book.age" name="age" value="{{book.age}}"
+                                    required non-negative-number-input/>
+                            </md-input-container>
+                            <md-input-container flex>
+                                <label>Reading Recovery</label>
+                                <input type="text" ng-model="book.readingrecovery" name="readingrecovery" value="{{book.readingrecovery}}"
+                                    required non-negative-number-input/>
+                            </md-input-container>
+                            <md-input-container flex>
+                                <label>PM Readers</label>
+                                <input type="text" ng-model="book.pmreaders" name="pmreaders" value="{{book.pmreaders}}"
+                                    required non-negative-number-input/>
+                            </md-input-container>
+                        </div>
+                        <div flex layout="row">
+                            <md-autocomplete flex="25" md-input-name="binding" md-search-text="bindingSearchText"
+                                md-selected-item="book.format" md-items="s in query(bindings, bindingSearchText)"
+                                md-item-text="s" md-floating-label="Binding">
                                 <md-item-template>
-                                    <span md-highlight-text="formatSearchText" md-highlight-flags="^i">{{s}}</span>
+                                    <span md-highlight-text="bindingSearchText" md-highlight-flags="^i">{{s}}</span>
                                 </md-item-template>
                             </md-autocomplete>
                             <md-input-container flex>
@@ -313,6 +365,19 @@
                                   md-item-text="item"
                                   placeholder="Add Tags...">
                                 <span md-highlight-text="tagSearch">{{item}}</span>
+                              </md-autocomplete>
+                            </md-chips>
+                        </div>
+                        <div>
+                            <h1 class="md-subhead">Add awards</h1>
+                            <md-chips ng-model="book.awards" md-autocomplete-snap md-require-match="false">
+                              <md-autocomplete
+                                  md-selected-item="selectedTag"
+                                  md-search-text="awardSearch"
+                                  md-items="item in query(awards, awardSearch)"
+                                  md-item-text="item"
+                                  placeholder="Add Awards...">
+                                <span md-highlight-text="awardSearch">{{item}}</span>
                               </md-autocomplete>
                             </md-chips>
                         </div>

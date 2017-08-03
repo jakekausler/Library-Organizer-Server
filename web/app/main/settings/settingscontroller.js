@@ -8,9 +8,6 @@ angular.module('libraryOrganizer')
 		var settings = [];
 		for (group in $scope.settings) {
 			for (s in $scope.settings[group].settings) {
-                if ($scope.settings[group].settings[s].valuetype == "lexile") {
-                    $scope.settings[group].settings[s].value = $scope.vm.convertFromLexile($scope.settings[group].settings[s].value);
-                }
 				setting = {
 					group: $scope.settings[group].group,
 					name: $scope.settings[group].settings[s].setting,
@@ -41,9 +38,6 @@ angular.module('libraryOrganizer')
             response.data.forEach(function(v, i) {
                 if (!settinggroups[v.group]) {
                     settinggroups[v.group] = [];
-                }
-                if (v.valuetype == "lexile") {
-                    v.value = $scope.vm.convertToLexile(v.value);
                 }
                 settinggroups[v.group].push({
                     setting: v.name,

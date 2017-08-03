@@ -18,6 +18,9 @@ angular.module('libraryOrganizer')
 				}
 			}
 		}
+        $scope.setParameters({
+            shelfselectedlibrary: $scope.currentLibraryId
+        })
 		$http({
             url: '/libraries/'+$scope.currentLibraryId+'/cases',
             method: 'GET'

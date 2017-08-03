@@ -286,3 +286,26 @@ func GetTagsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(data)
 }
+
+//GetAwardsHandler gets tags
+func GetAwardsHandler(w http.ResponseWriter, r *http.Request) {
+	if ok, _ := Registered(r); !ok {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
+		return
+	}
+	d, err := information.GetAwards(db)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	data, err := json.Marshal(d)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+}
