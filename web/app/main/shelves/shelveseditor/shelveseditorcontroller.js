@@ -265,9 +265,6 @@ angular.module('libraryOrganizer')
 		});
 	}
 	$scope.updateSortOrders();
-	$scope.changeSortMethod = function(item) {
-		item.method = item.method=="ASC"?"DESC":"ASC"
-	}
 	$scope.stringifySortOrders = function() {
 		var normalOrders = [];
 		var specialOrders = [];

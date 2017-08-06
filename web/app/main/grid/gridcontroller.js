@@ -4,30 +4,34 @@ angular.module('libraryOrganizer')
         $scope.numberToGet = parseInt($scope.getParameterByName("numbertoget", "50"));
         $scope.page = parseInt($scope.getParameterByName("page", "1"));
         $scope.numberOfBooks = 0;
-        $scope.fromdewey = $scope.getParameterByName("fromdewey", "0");
-        $scope.todewey = $scope.getParameterByName("todewey", "FIC");
-        $scope.fromlexile = $scope.getParameterByName("fromlexile", $scope.convertToLexile("0", ""));
-        $scope.tolexile = $scope.getParameterByName("tolexile", $scope.convertToLexile("2000", ""));
-        $scope.frominterestlevel = $scope.getParameterByName("frominterestlevel", "0")
-        $scope.tointerestlevel = $scope.getParameterByName("tointerestlevel", "0")
-        $scope.fromar = $scope.getParameterByName("fromar", "0")
-        $scope.toar = $scope.getParameterByName("toar", "0")
-        $scope.fromlearningaz = $scope.getParameterByName("fromlearningaz", "0")
-        $scope.tolearningaz = $scope.getParameterByName("tolearningaz", "0")
-        $scope.fromguidedreading = $scope.getParameterByName("fromguidedreading", "0")
-        $scope.toguidedreading = $scope.getParameterByName("toguidedreading", "0")
-        $scope.fromdra = $scope.getParameterByName("fromdra", "0")
-        $scope.todra = $scope.getParameterByName("todra", "0")
-        $scope.fromgrade = $scope.getParameterByName("fromgrade", "0")
-        $scope.tograde = $scope.getParameterByName("tograde", "0")
-        $scope.fromfountaspinnell = $scope.getParameterByName("fromfountaspinnell", "0")
-        $scope.tofountaspinnell = $scope.getParameterByName("tofountaspinnell", "0")
-        $scope.fromage = $scope.getParameterByName("fromage", "0")
-        $scope.toage = $scope.getParameterByName("toage", "0")
-        $scope.fromreadingrecovery = $scope.getParameterByName("fromreadingrecovery", "0")
-        $scope.toreadingrecovery = $scope.getParameterByName("toreadingrecovery", "0")
-        $scope.frompmreaders = $scope.getParameterByName("frompmreaders", "0")
-        $scope.topmreaders = $scope.getParameterByName("topmreaders", "0")
+        $scope.fromdewey = $scope.getParameterByName("fromdewey", "");
+        $scope.todewey = $scope.getParameterByName("todewey", "");
+        $scope.fromlexile = $scope.getParameterByName("fromlexile", "");
+        $scope.tolexile = $scope.getParameterByName("tolexile", "");
+        $scope.withcodes = $scope.getParameterByName("withcodes", "").split(",");
+        if ($scope.withcodes.length > 0 && $scope.withcodes[0] == "") {
+            $scope.withcodes.splice(0, 1)
+        }
+        $scope.frominterestlevel = $scope.getParameterByName("frominterestlevel", "")
+        $scope.tointerestlevel = $scope.getParameterByName("tointerestlevel", "")
+        $scope.fromar = $scope.getParameterByName("fromar", "")
+        $scope.toar = $scope.getParameterByName("toar", "")
+        $scope.fromlearningaz = $scope.getParameterByName("fromlearningaz", "")
+        $scope.tolearningaz = $scope.getParameterByName("tolearningaz", "")
+        $scope.fromguidedreading = $scope.getParameterByName("fromguidedreading", "")
+        $scope.toguidedreading = $scope.getParameterByName("toguidedreading", "")
+        $scope.fromdra = $scope.getParameterByName("fromdra", "")
+        $scope.todra = $scope.getParameterByName("todra", "")
+        $scope.fromgrade = $scope.getParameterByName("fromgrade", "")
+        $scope.tograde = $scope.getParameterByName("tograde", "")
+        $scope.fromfountaspinnell = $scope.getParameterByName("fromfountaspinnell", "")
+        $scope.tofountaspinnell = $scope.getParameterByName("tofountaspinnell", "")
+        $scope.fromage = $scope.getParameterByName("fromage", "")
+        $scope.toage = $scope.getParameterByName("toage", "")
+        $scope.fromreadingrecovery = $scope.getParameterByName("fromreadingrecovery", "")
+        $scope.toreadingrecovery = $scope.getParameterByName("toreadingrecovery", "")
+        $scope.frompmreaders = $scope.getParameterByName("frompmreaders", "")
+        $scope.topmreaders = $scope.getParameterByName("topmreaders", "")
         $scope.filter = $scope.getParameterByName("filter", "");
         $scope.read = $scope.getParameterByName("read", "both");
         $scope.reference = $scope.getParameterByName("reference", "both");
@@ -63,7 +67,7 @@ angular.module('libraryOrganizer')
                 var loadingName = $scope.guid();
                 $scope.addToLoading(loadingName)
                 $scope.gridSelectedLibraries = $scope.stringLibraryIds();
-                $scope.setParameters({
+                var params = {
                         sort: $scope.sort,
                         numbertoget: $scope.numberToGet,
                         page: $scope.page,
@@ -71,26 +75,27 @@ angular.module('libraryOrganizer')
                         todewey: $scope.todewey.toUpperCase(),
                         fromlexile: $scope.fromlexile,
                         tolexile: $scope.tolexile,
-                        frominterestlevel: $scope.frominterestlevel,
-                        tointerestlevel: $scope.tointerestlevel,
-                        fromar: $scope.fromar,
-                        toar: $scope.toar,
-                        fromlearningaz: $scope.fromlearningaz,
-                        tolearningaz: $scope.tolearningaz,
-                        fromguidedreading: $scope.fromguidedreading,
-                        toguidedreading: $scope.toguidedreading,
-                        fromdra: $scope.fromdra,
-                        todra: $scope.todra,
-                        fromgrade: $scope.fromgrade,
-                        tograde: $scope.tograde,
-                        fromfountaspinnell: $scope.fromfountaspinnell,
-                        tofountaspinnell: $scope.tofountaspinnell,
-                        fromage: $scope.fromage,
-                        toage: $scope.toage,
-                        fromreadingrecovery: $scope.fromreadingrecovery,
-                        toreadingrecovery: $scope.toreadingrecovery,
-                        frompmreaders: $scope.frompmreaders,
-                        topmreaders: $scope.topmreaders,
+                        withcodes: $scope.withcodes.join(","),
+                        frominterestlevel: $scope.frominterestlevel+"",
+                        tointerestlevel: $scope.tointerestlevel+"",
+                        fromar: $scope.fromar?$scope.fromar:"",
+                        toar: $scope.toar?$scope.toar:"",
+                        fromlearningaz: $scope.fromlearningaz+"",
+                        tolearningaz: $scope.tolearningaz+"",
+                        fromguidedreading: $scope.fromguidedreading+"",
+                        toguidedreading: $scope.toguidedreading+"",
+                        fromdra: $scope.fromdra+"",
+                        todra: $scope.todra+"",
+                        fromgrade: $scope.fromgrade+"",
+                        tograde: $scope.tograde+"",
+                        fromfountaspinnell: $scope.fromfountaspinnell+"",
+                        tofountaspinnell: $scope.tofountaspinnell+"",
+                        fromage: $scope.fromage+"",
+                        toage: $scope.toage+"",
+                        fromreadingrecovery: $scope.fromreadingrecovery+"",
+                        toreadingrecovery: $scope.toreadingrecovery+"",
+                        frompmreaders: $scope.frompmreaders+"",
+                        topmreaders: $scope.topmreaders+"",
                         filter: $scope.filter,
                         read: $scope.read,
                         reference: $scope.reference,
@@ -99,9 +104,13 @@ angular.module('libraryOrganizer')
                         shipping: $scope.shipping,
                         reading: $scope.reading,
                         gridselectedlibraries: $scope.gridSelectedLibraries
-                    })
-                var fromlex = $scope.convertFromLexile($scope.fromlexile);
-                var tolex = $scope.convertFromLexile($scope.tolexile);
+                    }
+                for (key in params) {
+                    if (key != "filter" && params[key] == "") {
+                        delete params[key]
+                    }
+                }
+                $scope.setParameters(params)
                 $http({
                     url: '/books',
                     method: 'GET',
@@ -111,10 +120,9 @@ angular.module('libraryOrganizer')
                         page: $scope.page,
                         fromdewey: $scope.fromdewey.toUpperCase(),
                         todewey: $scope.todewey.toUpperCase(),
-                        fromlexile: fromlex[0],
-                        fromlexilecode: fromlex[1],
-                        tolexile: tolex[0],
-                        tolexilecode: tolex[1],
+                        fromlexile: $scope.fromlexile,
+                        tolexile: $scope.tolexile,
+                        lexilecode: $scope.lexilecode,
                         frominterestlevel: $scope.frominterestlevel,
                         tointerestlevel: $scope.tointerestlevel,
                         fromar: $scope.fromar,
@@ -192,7 +200,10 @@ angular.module('libraryOrganizer')
                 "isreference": false,
                 "isowned": false,
                 "isbn": "",
-                "dewey": "0",
+                "dewey": {
+                    "String": "",
+                    "Valid": false
+                },
                 "pages": 0,
                 "width": 0,
                 "height": 0,
@@ -214,12 +225,57 @@ angular.module('libraryOrganizer')
                 "editionpublished": "",
                 "contributors": [],
                 "library": {},
-                "lexile": 0,
+                "lexile": {
+                    "Int64": 0,
+                    "Valid": false
+                },
+                "lexilecode": "",
+                "interestlevel": {
+                    "Int64": "",
+                    "Valid": false
+                },
+                "ar": {
+                    "Float64": "",
+                    "Valid": false
+                },
+                "learningaz": {
+                    "Int64": "",
+                    "Valid": false
+                },
+                "guidedreading": {
+                    "Int64": "",
+                    "Valid": false
+                },
+                "dra": {
+                    "Int64": "",
+                    "Valid": false
+                },
+                "grade": {
+                    "Int64": "",
+                    "Valid": false
+                },
+                "age": {
+                    "Int64": "",
+                    "Valid": false
+                },
+                "fountaspinnell": {
+                    "Int64": "",
+                    "Valid": false
+                },
+                "readingrecovery": {
+                    "Int64": "",
+                    "Valid": false
+                },
+                "pmreaders": {
+                    "Int64": "",
+                    "Valid": false
+                },
                 "notes": ""
             }
             $scope.showEditDialog(ev, book, $scope, 'gridadd');
         }
         $scope.updateLibraries = function() {
+            console.log($scope.fromguidedreading)
             var loadingName = $scope.guid();
             $scope.addToLoading(loadingName)
             $http({
@@ -293,4 +349,240 @@ angular.module('libraryOrganizer')
             // 2a. If not found, return false and display
             // 2b. If found, close the dialog and navigate to the book
         }
+        $scope.lexilecodes = ["AD","NC","HL","IG","GN","BR","NP"]
+        $scope.interestlevels = [{
+            name: "",
+            value: ""
+        }, {
+            name: "LG",
+            value: 0
+        }, {
+            name: "MG",
+            value: 1
+        }, {
+            name: "MG+",
+            value: 2
+        }, {
+            name: "UG",
+            value: 3
+        }]
+        $scope.letters = [{
+            name: "",
+            value: ""
+        }, {
+            name: "A",
+            value: 0
+        }, {
+            name: "B",
+            value: 1
+        }, {
+            name: "C",
+            value: 2
+        }, {
+            name: "D",
+            value: 3
+        }, {
+            name: "E",
+            value: 4
+        }, {
+            name: "F",
+            value: 5
+        }, {
+            name: "G",
+            value: 6
+        }, {
+            name: "H",
+            value: 7
+        }, {
+            name: "I",
+            value: 8
+        }, {
+            name: "J",
+            value: 9
+        }, {
+            name: "K",
+            value: 10
+        }, {
+            name: "L",
+            value: 11
+        }, {
+            name: "M",
+            value: 12
+        }, {
+            name: "N",
+            value: 13
+        }, {
+            name: "O",
+            value: 14
+        }, {
+            name: "P",
+            value: 15
+        }, {
+            name: "Q",
+            value: 16
+        }, {
+            name: "R",
+            value: 17
+        }, {
+            name: "S",
+            value: 18
+        }, {
+            name: "T",
+            value: 19
+        }, {
+            name: "U",
+            value: 20
+        }, {
+            name: "V",
+            value: 21
+        }, {
+            name: "W",
+            value: 22
+        }, {
+            name: "X",
+            value: 23
+        }, {
+            name: "Y",
+            value: 24
+        }, {
+            name: "Z",
+            value: 25
+        }]
+        $scope.learningazlevels = [{
+            name: "",
+            value: ""
+        }, {
+            name: "aa",
+            value: -1
+        }, {
+            name: "A",
+            value: 0
+        }, {
+            name: "B",
+            value: 1
+        }, {
+            name: "C",
+            value: 2
+        }, {
+            name: "D",
+            value: 3
+        }, {
+            name: "E",
+            value: 4
+        }, {
+            name: "F",
+            value: 5
+        }, {
+            name: "G",
+            value: 6
+        }, {
+            name: "H",
+            value: 7
+        }, {
+            name: "I",
+            value: 8
+        }, {
+            name: "J",
+            value: 9
+        }, {
+            name: "K",
+            value: 10
+        }, {
+            name: "L",
+            value: 11
+        }, {
+            name: "M",
+            value: 12
+        }, {
+            name: "N",
+            value: 13
+        }, {
+            name: "O",
+            value: 14
+        }, {
+            name: "P",
+            value: 15
+        }, {
+            name: "Q",
+            value: 16
+        }, {
+            name: "R",
+            value: 17
+        }, {
+            name: "S",
+            value: 18
+        }, {
+            name: "T",
+            value: 19
+        }, {
+            name: "U",
+            value: 20
+        }, {
+            name: "V",
+            value: 21
+        }, {
+            name: "W",
+            value: 22
+        }, {
+            name: "X",
+            value: 23
+        }, {
+            name: "Y",
+            value: 24
+        }, {
+            name: "Z",
+            value: 25
+        }, {
+            name: "Z1",
+            value: 26
+        }, {
+            name: "Z2",
+            value: 27
+        }]
+        $scope.grades = [{
+            name: "",
+            value: ""
+        }, {
+            name: "PK",
+            value: 0
+        }, {
+            name: "K",
+            value: 1
+        }, {
+            name: "1",
+            value: 2
+        }, {
+            name: "2",
+            value: 3
+        }, {
+            name: "3",
+            value: 4
+        }, {
+            name: "4",
+            value: 5
+        }, {
+            name: "5",
+            value: 6
+        }, {
+            name: "6",
+            value: 7
+        }, {
+            name: "7",
+            value: 8
+        }, {
+            name: "8",
+            value: 9
+        }, {
+            name: "9",
+            value: 10
+        }, {
+            name: "10",
+            value: 11
+        }, {
+            name: "11",
+            value: 12
+        }, {
+            name: "12",
+            value: 13
+        }]
     });

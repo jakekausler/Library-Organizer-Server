@@ -52,7 +52,7 @@ type Book struct {
 	IsOwned             bool          `json:"isowned"`
 	ISBN                string        `json:"isbn"`
 	Loanee              users.User    `json:"loanee"`
-	Dewey               string        `json:"dewey"`
+	Dewey               sql.NullString	`json:"dewey"`
 	Pages               int64         `json:"pages"`
 	Width               int64         `json:"width"`
 	Height              int64         `json:"height"`
@@ -75,18 +75,18 @@ type Book struct {
 	EditionPublished    string        `json:"editionpublished"`
 	Contributors        []information.Contributor `json:"contributors"`
 	Library             Library       		`json:"library"`
-	Lexile				sql.NullFloat64		`json:"lexile"`
+	Lexile				sql.NullInt64		`json:"lexile"`
 	LexileCode			string		  		`json:"lexilecode"`
-	InterestLevel		sql.NullFloat64		`json:"interestlevel"`
+	InterestLevel		sql.NullInt64		`json:"interestlevel"`
 	AR					sql.NullFloat64		`json:"ar"`
-	LearningAZ			sql.NullFloat64		`json:"learningaz"`
-	GuidedReading		sql.NullFloat64		`json:"guidedreading"`
-	DRA					sql.NullFloat64		`json:"dra"`
-	Grade				sql.NullFloat64		`json:"grade"`
-	FountasPinnell		sql.NullFloat64		`json:"fountaspinnell"`
-	Age					sql.NullFloat64		`json:"age"`
-	ReadingRecovery		sql.NullFloat64		`json:"readingrecovery"`
-	PMReaders			sql.NullFloat64		`json:"pmreaders"`
+	LearningAZ			sql.NullInt64		`json:"learningaz"`
+	GuidedReading		sql.NullInt64		`json:"guidedreading"`
+	DRA					sql.NullInt64		`json:"dra"`
+	Grade				sql.NullInt64		`json:"grade"`
+	FountasPinnell		sql.NullInt64		`json:"fountaspinnell"`
+	Age					sql.NullInt64		`json:"age"`
+	ReadingRecovery		sql.NullInt64		`json:"readingrecovery"`
+	PMReaders			sql.NullInt64		`json:"pmreaders"`
 	Awards				[]string	  `json:"awards"`
 	Notes				string		  `json:"notes"`
 	Tags				[]string	  `json:"tags"`
@@ -148,7 +148,12 @@ func SaveBook(db *sql.DB, book Book) error {
 			logger.Printf("Error when saving publisher: %v", err)
 			return err
 		}
-		err = addDewey(db, book.Dewey)
+		Dewey, err := book.Dewey.Value()
+		if err != nil {
+			logger.Printf("Error: %v")
+			return err
+		}
+		err = addDewey(db, book.Dewey.String)
 		if err != nil {
 			logger.Printf("Error when saving dewey: %v", err)
 			return err
@@ -178,7 +183,66 @@ func SaveBook(db *sql.DB, book Book) error {
 			logger.Printf("Error when saving OriginalLanguage: %v", err)
 			return err
 		}
-		_, err = db.Exec(saveBookQuery, book.Title, book.Subtitle, book.OriginallyPublished, book.EditionPublished, publisherID, book.IsRead, book.IsReference, book.IsOwned, book.IsShipping, book.IsReading, book.ISBN, book.Dewey, book.Pages, book.Width, book.Height, book.Depth, book.Weight, book.PrimaryLanguage, book.SecondaryLanguage, book.OriginalLanguage, book.Series, book.Volume, book.Format, book.Edition, "res/bookimages/"+book.ID+imageType, book.Library.ID, book.Lexile.Value(), book.LexileCode, book.AR.Value(), book.LearningAZ.Value(), book.GuidedReading.Value(), book.DRA.Value(), book.Grade.Value(), book.FountasPinnell.Value(), book.Age.Value(), book.ReadingRecovery.Value(), book.PMReaders.Value(), spinecolor, book.Notes, book.ID)
+		Lexile, err := book.Lexile.Value()
+		if err != nil {
+			logger.Printf("Error: %v")
+			return err
+		}
+		LexileCode := book.LexileCode
+		AR, err := book.AR.Value()
+		if err != nil {
+			logger.Printf("Error: %v")
+			return err
+		}
+		InterestLevel, err := book.InterestLevel.Value()
+		if err != nil {
+			logger.Printf("Error: %v")
+			return err
+		}
+		LearningAZ, err := book.LearningAZ.Value()
+		if err != nil {
+			logger.Printf("Error: %v")
+			return err
+		}
+		GuidedReading, err := book.GuidedReading.Value()
+		if err != nil {
+			logger.Printf("Error: %v")
+			return err
+		}
+		DRA, err := book.DRA.Value()
+		if err != nil {
+			logger.Printf("Error: %v")
+			return err
+		}
+		Grade, err := book.Grade.Value()
+		if err != nil {
+			logger.Printf("Error: %v")
+			return err
+		}
+		FountasPinnell, err := book.FountasPinnell.Value()
+		if err != nil {
+			logger.Printf("Error: %v")
+			return err
+		}
+		Age, err := book.Age.Value()
+		if err != nil {
+			logger.Printf("Error: %v")
+			return err
+		}
+		ReadingRecovery, err := book.ReadingRecovery.Value()
+		if err != nil {
+			logger.Printf("Error: %v")
+			return err
+		}
+		PMReaders, err := book.PMReaders.Value()
+		if err != nil {
+			logger.Printf("Error: %v")
+			return err
+		}
+		logger.Printf("AR: %v", AR)
+		logger.Printf("InterestLevel: %v", InterestLevel)
+		logger.Printf("ReadingRecovery: %v", ReadingRecovery)
+		_, err = db.Exec(saveBookQuery, book.Title, book.Subtitle, book.OriginallyPublished, book.EditionPublished, publisherID, book.IsRead, book.IsReference, book.IsOwned, book.IsShipping, book.IsReading, book.ISBN, Dewey, book.Pages, book.Width, book.Height, book.Depth, book.Weight, book.PrimaryLanguage, book.SecondaryLanguage, book.OriginalLanguage, book.Series, book.Volume, book.Format, book.Edition, "res/bookimages/"+book.ID+imageType, book.Library.ID, Lexile, LexileCode, InterestLevel, AR, LearningAZ, GuidedReading, DRA, Grade, FountasPinnell, Age, ReadingRecovery, PMReaders, spinecolor, book.Notes, book.ID)
 		if err != nil {
 			logger.Printf("Error when saving book: %v", err)
 			return err
@@ -227,7 +291,12 @@ func SaveBook(db *sql.DB, book Book) error {
 			logger.Printf("Error when saving publisher: %v", err)
 			return err
 		}
-		err = addDewey(db, book.Dewey)
+		Dewey, err := book.Dewey.Value()
+		if err != nil {
+			logger.Printf("Error: %v")
+			return err
+		}
+		err = addDewey(db, book.Dewey.String)
 		if err != nil {
 			logger.Printf("Error when saving dewey: %v", err)
 			return err
@@ -257,7 +326,63 @@ func SaveBook(db *sql.DB, book Book) error {
 			logger.Printf("Error when saving OriginalLanguage: %v", err)
 			return err
 		}
-		res, err := db.Exec(addBookQuery, book.Title, book.Subtitle, book.OriginallyPublished, publisherID, book.IsRead, book.IsReference, book.IsOwned, book.IsShipping, book.IsReading, book.ISBN, book.Dewey, book.Pages, book.Width, book.Height, book.Depth, book.Weight, book.PrimaryLanguage, book.SecondaryLanguage, book.OriginalLanguage, book.Series, book.Volume, book.Format, book.Edition, book.EditionPublished, book.Library.ID, book.Lexile.Value(), book.LexileCode, book.AR.Value(), book.LearningAZ.Value(), book.GuidedReading.Value(), book.DRA.Value(), book.Grade.Value(), book.FountasPinnell.Value(), book.Age.Value(), book.ReadingRecovery.Value(), book.PMReaders.Value(), book.Notes)
+		Lexile, err := book.Lexile.Value()
+		if err != nil {
+			logger.Printf("Error: %v")
+			return err
+		}
+		LexileCode := book.LexileCode
+		AR, err := book.AR.Value()
+		if err != nil {
+			logger.Printf("Error: %v")
+			return err
+		}
+		InterestLevel, err := book.InterestLevel.Value()
+		if err != nil {
+			logger.Printf("Error: %v")
+			return err
+		}
+		LearningAZ, err := book.LearningAZ.Value()
+		if err != nil {
+			logger.Printf("Error: %v")
+			return err
+		}
+		GuidedReading, err := book.GuidedReading.Value()
+		if err != nil {
+			logger.Printf("Error: %v")
+			return err
+		}
+		DRA, err := book.DRA.Value()
+		if err != nil {
+			logger.Printf("Error: %v")
+			return err
+		}
+		Grade, err := book.Grade.Value()
+		if err != nil {
+			logger.Printf("Error: %v")
+			return err
+		}
+		FountasPinnell, err := book.FountasPinnell.Value()
+		if err != nil {
+			logger.Printf("Error: %v")
+			return err
+		}
+		Age, err := book.Age.Value()
+		if err != nil {
+			logger.Printf("Error: %v")
+			return err
+		}
+		ReadingRecovery, err := book.ReadingRecovery.Value()
+		if err != nil {
+			logger.Printf("Error: %v")
+			return err
+		}
+		PMReaders, err := book.PMReaders.Value()
+		if err != nil {
+			logger.Printf("Error: %v")
+			return err
+		}
+		res, err := db.Exec(addBookQuery, book.Title, book.Subtitle, book.OriginallyPublished, publisherID, book.IsRead, book.IsReference, book.IsOwned, book.IsShipping, book.IsReading, book.ISBN, Dewey, book.Pages, book.Width, book.Height, book.Depth, book.Weight, book.PrimaryLanguage, book.SecondaryLanguage, book.OriginalLanguage, book.Series, book.Volume, book.Format, book.Edition, book.EditionPublished, book.Library.ID, Lexile, LexileCode, InterestLevel, AR, LearningAZ, GuidedReading, DRA, Grade, FountasPinnell, Age, ReadingRecovery, PMReaders, book.Notes)
 		if err != nil {
 			logger.Printf("Error when saving book: %v", err)
 			return err
@@ -386,7 +511,7 @@ func addContributor(db *sql.DB, bookid string, contributor information.Contribut
 
 func addAward(db *sql.DB, bookid, award string) error {
 	query := "REPLACE INTO awards (BookID, Award) VALUES (?,?)"
-	_, err = db.Exec(query, bookid, award)
+	_, err := db.Exec(query, bookid, award)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return err
@@ -574,7 +699,7 @@ func removeImage(bookid string) error {
 		logger.Printf("Error removing image: %v", err)
 		return err
 	}
-	for _, f := fs {
+	for _, f := range fs {
 		err = os.Remove(f)
 		if err != nil {
 			logger.Printf("Error removing image: %v", err)
@@ -586,7 +711,7 @@ func removeImage(bookid string) error {
 
 //GetBooks gets all books
 //todo include authors in filter
-func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, fromLexile, toLexile, fromInterestLevel, toInterestLevel, fromAR, toAR, fromLearningAZ, toLearingAZ, fromGuidedReading, toGuidedReading, fromDRA, toDRA, fromGrade, toGrade, fromFountasPinnell, toFountasFinnell, fromAge, toAge, fromReadingRecovery, toReadingRecovery, fromPMReaders, toPMReaders, libraryids, isbn, session string, authorseries []string) ([]Book, int64, error) {
+func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, fromLexile, toLexile, fromInterestLevel, toInterestLevel, fromAR, toAR, fromLearningAZ, toLearningAZ, fromGuidedReading, toGuidedReading, fromDRA, toDRA, fromGrade, toGrade, fromFountasPinnell, toFountasPinnell, fromAge, toAge, fromReadingRecovery, toReadingRecovery, fromPMReaders, toPMReaders, libraryids, isbn, session string, authorseries []string) ([]Book, int64, error) {
 	text = strings.Replace(text, "'", "\\'", -1)
 	if libraryids == "" {
 		return nil, 0, nil
@@ -895,17 +1020,17 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 		filter = filter + endDRA
 	}
 
-	if startGradeLexile != "" {
+	if startGrade != "" {
 		if filter != "WHERE " {
 			filter = filter + " AND "
 		}
-		filter = filter + startGradeLexile
+		filter = filter + startGrade
 	}
-	if endGradeLexile != "" {
+	if endGrade != "" {
 		if filter != "WHERE " {
 			filter = filter + " AND "
 		}
-		filter = filter + endGradeLexile
+		filter = filter + endGrade
 	}
 
 	if startFountasPinnell != "" {
@@ -990,7 +1115,7 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 		logger.Printf("Error: %+v", err)
 		return nil, 0, err
 	}
-	query := "SELECT bookid, title, subtitle, OriginallyPublished, PublisherID, isread, isreference, IsOwned, ISBN, LoaneeId, dewey, pages, width, height, depth, weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, series, volume, format, Edition, ImageURL, IsReading, isshipping, SpineColor, CheapestNew, CheapestUsed, EditionPublished, SpineColorOverridden, Lexile, Notes, blid, libraries.Name, library_members.usr, permissions.Permission from (select books.*, books.libraryid as blid, " + titlechange + ", " + subtitlechange + ", " + serieschange + ", min(name) as minname FROM books LEFT JOIN " + authors + " ON books.BookID = Authors.BookID " + filter + " GROUP BY books.BookID) i LEFT JOIN libraries ON blid=libraries.id JOIN library_members on libraries.ownerid=library_members.id JOIN permissions on permissions.userid=? and libraries.id=permissions.libraryid ORDER BY " + order
+	query := "SELECT bookid, title, subtitle, OriginallyPublished, PublisherID, isread, isreference, IsOwned, ISBN, LoaneeId, dewey, pages, width, height, depth, weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, series, volume, format, Edition, ImageURL, IsReading, isshipping, SpineColor, CheapestNew, CheapestUsed, EditionPublished, SpineColorOverridden, Lexile,  LexileCode, InterestLevel, AR, LearningAZ, GuidedReading, DRA, Grade, FountasPinnell, Age, ReadingRecovery, PMReaders, Notes, blid, libraries.Name, library_members.usr, permissions.Permission from (select books.*, books.libraryid as blid, " + titlechange + ", " + subtitlechange + ", " + serieschange + ", min(name) as minname FROM books LEFT JOIN " + authors + " ON books.BookID = Authors.BookID " + filter + " GROUP BY books.BookID) i LEFT JOIN libraries ON blid=libraries.id JOIN library_members on libraries.ownerid=library_members.id JOIN permissions on permissions.userid=? and libraries.id=permissions.libraryid ORDER BY " + order
 	if numberToGet != "-1" {
 		query += " LIMIT " + numberToGet + " OFFSET " + strconv.FormatInt(((pag-1)*ntg), 10)
 	}
@@ -1082,10 +1207,7 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 		if OriginallyPublished.Valid {
 			b.OriginallyPublished = strconv.Itoa(OriginallyPublished.Time.Year())
 		}
-		b.Dewey = ""
-		if Dewey.Valid {
-			b.Dewey = Dewey.String
-		}
+		b.Dewey = Dewey
 		b.ISBN = ""
 		if ISBN.Valid {
 			b.ISBN = ISBN.String

@@ -1,6 +1,7 @@
 angular.module('libraryOrganizer')
 .controller('viewController', function($scope, $mdDialog, $mdToast, $http, book, $vm, viewType, username) {
 	$scope.book = book;
+	console.log(book)
 	$scope.vm = $vm;
 	$scope.viewType = viewType;
 	$scope.username = username;

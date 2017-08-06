@@ -99,7 +99,7 @@ func GetCases(db *sql.DB, libraryid, session string) ([]Bookcase, error) {
 		logger.Printf("Error: %+v", err)
 		return nil, err
 	}
-	books, _, err := books.GetBooks(db, sortMethod, "both", "both", "yes", "both", "both", "both", "", "1", "-1", "0", "FIC", "0", "2000", libraryid, "", session, authorseries)
+	books, _, err := books.GetBooks(db, sortMethod, "both", "both", "yes", "both", "both", "both", "", "1", "-1", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", libraryid, "", session, authorseries)
 	breaks, err := GetLibraryBreaks(db, libraryid)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
@@ -208,7 +208,7 @@ func GetCases(db *sql.DB, libraryid, session string) ([]Bookcase, error) {
 							break
 						}
 					case "DEWEY":
-						if index != 0 && books[index-1].Dewey < b.Value && books[index].Dewey >= b.Value {
+						if index != 0 && books[index-1].Dewey.Valid && books[index-1].Dewey.String < b.Value && books[index].Dewey.Valid && books[index].Dewey.String >= b.Value {
 							breakInner = true
 							if b.BreakType == "CASE" {
 								breakcase = true

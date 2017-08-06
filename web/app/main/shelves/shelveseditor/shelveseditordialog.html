@@ -64,14 +64,14 @@
 							<div flex="50">
 								<div class="drag-and-drop-container">
 									<ul dnd-list="sortOrder">
-										<li ng-click="changeSortMethod(item)" ng-repeat="item in sortOrder" dnd-draggable="item" dnd-moved="sortOrder.splice($index, 1)" dnd-effect-allowed="move">{{item.label}} {{item.method}}</li>
+										<li ng-repeat="item in sortOrder" dnd-draggable="item" dnd-moved="sortOrder.splice($index, 1)" dnd-effect-allowed="move">{{item.label}}</li>
 									</ul>
 								</div>
 							</div>
 							<div flex="50">
 								<div class="drag-and-drop-container">
 									<ul dnd-list="specialSortOrder">
-										<li ng-click="changeSortMethod(item)" ng-repeat="item in specialSortOrder" dnd-draggable="item" dnd-moved="specialSortOrder.splice($index, 1)" dnd-effect-allowed="move">{{item.label}} {{item.method}}</li>
+										<li ng-repeat="item in specialSortOrder" dnd-draggable="item" dnd-moved="specialSortOrder.splice($index, 1)" dnd-effect-allowed="move">{{item.label}}</li>
 									</ul>
 								</div>
 							</div>
