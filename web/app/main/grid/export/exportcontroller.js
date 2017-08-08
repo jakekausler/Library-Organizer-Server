@@ -32,7 +32,10 @@ angular.module('libraryOrganizer')
 				download: 'authors.csv'
 			})[0].click();
             $scope.removeFromLoading(authorsloadingname);
-		});
+		}).then(function(response) {
+        	$mdToast.showSimple("Failed to export books");
+        	$vm.removeFromLoading(loadingName);
+        });
 		$mdDialog.cancel()
 	};
 });

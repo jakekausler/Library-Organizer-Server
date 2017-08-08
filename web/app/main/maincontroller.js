@@ -92,6 +92,9 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
             }).then(function(response) {
                 callback(response.data);
                 $scope.removeFromLoading(loadingName);
+            }).then(function(response) {
+                $mdToast.showSimple("Failed to get setting "+name);
+                $vm.removeFromLoading(loadingName);
             });
         }
         $scope.display = $scope.getParameterByName("display", "grid");
@@ -187,7 +190,10 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
             }).then(function(response) {
                 $scope.username = response.data;
                 $scope.removeFromLoading(loadingName);
-            })
+            }).then(function(response) {
+                $mdToast.showSimple("Failed to get username");
+                $vm.removeFromLoading(loadingName);
+            });
         }
         $scope.updateUsername()
         $scope.showLibraryChooserDialog = function(ev, vm, multiselect) {

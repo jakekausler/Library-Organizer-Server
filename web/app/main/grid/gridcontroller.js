@@ -162,6 +162,9 @@ angular.module('libraryOrganizer')
                     }
                     $scope.numberOfBooks = response.data.numbooks;
                     $scope.removeFromLoading(loadingName);
+                }).then(function(response) {
+                    $mdToast.showSimple("Failed to get books");
+                    $vm.removeFromLoading(loadingName);
                 });
             }
         };
@@ -311,7 +314,10 @@ angular.module('libraryOrganizer')
                 $scope.libraries = angular.copy(data);
                 $scope.output = angular.copy($scope.libraries);
                 $scope.removeFromLoading(loadingName);
-            });
+            }).then(function(response) {
+                $mdToast.showSimple("Failed to get list of libraries");
+                $vm.removeFromLoading(loadingName);
+            });;
         };
         $scope.chooseLibrary = function($ev) {
             $scope.showLibraryChooserDialog($ev, $scope, true)
