@@ -16,7 +16,7 @@ import (
 
 	"../users"
 	"../information"
-	"github.com/EdlinOrg/prominentcolor"
+	"github.com/jakekausler/prominentcolor"
 	"github.com/go-sql-driver/mysql"
 )
 
