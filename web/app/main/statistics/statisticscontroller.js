@@ -1,5 +1,5 @@
 angular.module('libraryOrganizer')
-    .controller('statisticsController', function($scope, $http) {
+    .controller('statisticsController', function($scope, $mdToast, $http) {
         $scope.statSelectedLibraries = $scope.getParameterByName("statsselectedlibraries", "").split(',')
         $scope.libraries = [];
         $scope.output = [];
@@ -40,7 +40,7 @@ angular.module('libraryOrganizer')
                 $scope.removeFromLoading(loadingName)
             }).then(function(response) {
                 $mdToast.showSimple("Failed to get dimension data");
-                $vm.removeFromLoading(loadingName);
+                $scope.removeFromLoading(loadingName);
             });
         }
         $scope.setStatView = function(view) {
@@ -144,7 +144,7 @@ angular.module('libraryOrganizer')
                 $scope.removeFromLoading(loadingName)
             }).then(function(response) {
                 $mdToast.showSimple("Failed to get list of libraries");
-                $vm.removeFromLoading(loadingName);
+                $scope.removeFromLoading(loadingName);
             });
         };
         $scope.updateLibraries();

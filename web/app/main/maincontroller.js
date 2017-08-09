@@ -6,7 +6,7 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
             .warnPalette('red')
             .backgroundPalette('indigo')
     })
-    .controller('libraryOrganizerController', function($scope, $http, $timeout, $mdSidenav, $mdDialog) {
+    .controller('libraryOrganizerController', function($scope, $mdToast, $http, $timeout, $mdSidenav, $mdDialog) {
         $scope.guid = function() {
             function s4() {
                 return Math.floor((1 + Math.random()) * 0x10000)
@@ -94,7 +94,7 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
                 $scope.removeFromLoading(loadingName);
             }).then(function(response) {
                 $mdToast.showSimple("Failed to get setting "+name);
-                $vm.removeFromLoading(loadingName);
+                $scope.removeFromLoading(loadingName);
             });
         }
         $scope.display = $scope.getParameterByName("display", "grid");
@@ -192,7 +192,7 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
                 $scope.removeFromLoading(loadingName);
             }).then(function(response) {
                 $mdToast.showSimple("Failed to get username");
-                $vm.removeFromLoading(loadingName);
+                $scope.removeFromLoading(loadingName);
             });
         }
         $scope.updateUsername()

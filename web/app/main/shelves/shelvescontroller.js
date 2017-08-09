@@ -1,5 +1,5 @@
 angular.module('libraryOrganizer')
-.controller('shelvesController', function($scope, $http, $mdDialog) {
+.controller('shelvesController', function($scope, $mdToast, $http, $mdDialog) {
 	$scope.editingShelves = false;
 	$scope.shelfSearchString = "";
 	$scope.bookcases = [];
@@ -21,7 +21,7 @@ angular.module('libraryOrganizer')
         $scope.setParameters({
             shelfselectedlibrary: $scope.currentLibraryId
         })
-		$http({
+		$http({$mdToast, 
             url: '/libraries/'+$scope.currentLibraryId+'/cases',
             method: 'GET'
 		}).then(function(response){
@@ -32,7 +32,7 @@ angular.module('libraryOrganizer')
             $scope.removeFromLoading(loadingName);
 		}).then(function(response) {
             $mdToast.showSimple("Failed to get library cases");
-            $vm.removeFromLoading(loadingName);
+            $scope.removeFromLoading(loadingName);
         });
 	}
 	$scope.editShelves = function(ev) {
@@ -95,7 +95,7 @@ angular.module('libraryOrganizer')
             $scope.removeFromLoading(loadingName);
         }).then(function(response) {
             $mdToast.showSimple("Failed to get list of libraries");
-            $vm.removeFromLoading(loadingName);
+            $scope.removeFromLoading(loadingName);
         });
     };
     $scope.updateLibraries();
