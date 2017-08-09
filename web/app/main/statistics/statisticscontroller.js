@@ -38,6 +38,9 @@ angular.module('libraryOrganizer')
             }).then(function(response) {
                 $scope.dimensions = response.data;
                 $scope.removeFromLoading(loadingName)
+            }).then(function(response) {
+                $mdToast.showSimple("Failed to get dimension data");
+                $vm.removeFromLoading(loadingName);
             });
         }
         $scope.setStatView = function(view) {
@@ -139,6 +142,9 @@ angular.module('libraryOrganizer')
                 $scope.output = angular.copy($scope.libraries);
                 $scope.updateDimensions();
                 $scope.removeFromLoading(loadingName)
+            }).then(function(response) {
+                $mdToast.showSimple("Failed to get list of libraries");
+                $vm.removeFromLoading(loadingName);
             });
         };
         $scope.updateLibraries();

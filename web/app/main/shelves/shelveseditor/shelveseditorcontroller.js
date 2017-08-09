@@ -67,7 +67,11 @@ angular.module('libraryOrganizer')
 			$mdDialog.cancel();
             $mdToast.showSimple("Successfully saved sort method")
         	$scope.vm.removeFromLoading(sortLoadingName)
-		});
+		}).then(function(response) {
+			$mdDialog.cancel();
+            $mdToast.showSimple("Failed to save sort method");
+            $vm.removeFromLoading(loadingName);
+        });
         var casesLoadingName = $scope.vm.guid();
         $scope.vm.addToLoading(casesLoadingName)
 		$http({
@@ -79,7 +83,11 @@ angular.module('libraryOrganizer')
 			$mdDialog.cancel();
             $mdToast.showSimple("Successfully saved shelves")
         	$scope.vm.removeFromLoading(casesLoadingName)
-		});
+		}).then(function(response) {
+			$mdDialog.cancel();
+            $mdToast.showSimple("Failed to save shelves");
+            $vm.removeFromLoading(loadingName);
+        });
         var seriesLoadingName = $scope.vm.guid();
         $scope.vm.addToLoading(seriesLoadingName)
 		$http({
@@ -91,7 +99,11 @@ angular.module('libraryOrganizer')
 			$mdDialog.cancel();
             $mdToast.showSimple("Successfully saved series types")
         	$scope.vm.removeFromLoading(seriesLoadingName)
-		});
+		}).then(function(response) {
+			$mdDialog.cancel();
+            $mdToast.showSimple("Failed to save series types");
+            $vm.removeFromLoading(loadingName);
+        });
         var breaksLoadingName = $scope.vm.guid();
         $scope.vm.addToLoading(breaksLoadingName)
 		$http({
@@ -103,7 +115,11 @@ angular.module('libraryOrganizer')
 			$mdDialog.cancel();
             $mdToast.showSimple("Successfully saved breaks")
         	$scope.vm.removeFromLoading(breaksLoadingName)
-		});
+		}).then(function(response) {
+			$mdDialog.cancel();
+            $mdToast.showSimple("Failed to save breaks");
+            $vm.removeFromLoading(loadingName);
+        });
 	};
 	$scope.moveShelfUp = function(cas) {
 		var c = cas.casenumber;
@@ -161,7 +177,10 @@ angular.module('libraryOrganizer')
 		}).then(function(response){
 			$scope.series = response.data;
         	$scope.vm.removeFromLoading(loadingName)
-		});
+		}).then(function(response) {
+            $mdToast.showSimple("Failed to get series list");
+            $vm.removeFromLoading(loadingName);
+        });
 	}
     $scope.updateSeries();
 	$scope.updateAuthorBasedSeries = function() {
@@ -170,13 +189,10 @@ angular.module('libraryOrganizer')
 		$http({
 			url: '/libraries/'+$scope.libraryid+'/series',
 			method: 'GET'
-		}).then(function(response){
-			if (response.data == null) {
-				response.data = [];
-			}
-			$scope.authorBasedSeries = response.data;
-        	$scope.vm.removeFromLoading(loadingName)
-		});
+		}).then(function(response) {
+            $mdToast.showSimple("Failed to get special series");
+            $vm.removeFromLoading(loadingName);
+        });
 	}
     $scope.updateAuthorBasedSeries();
     $scope.addToSeries = function() {
@@ -210,14 +226,20 @@ angular.module('libraryOrganizer')
 			}
 			$scope.breaks = response.data;
         	$scope.vm.removeFromLoading(loadingName)
-		});
+		}).then(function(response) {
+            $mdToast.showSimple("Failed to get existing breaks");
+            $vm.removeFromLoading(loadingName);
+        });
 	}
     $scope.updateBreaks();
     $scope.breaktypes = ["SHELF", "CASE"];
-    $scope.valuetypes = ["DEWEY"];
+    $scope.valuetypes = ["DEWEY", "SERIES"];
 	$scope.updateValueType =function(b) {
 		if (b.valuetype == "DEWEY") {
 			b.possiblevalues = $scope.deweys;
+		}
+		if (b.valuetype == "DEWEY") {
+			b.possiblevalues = $scope.series;
 		}
 	}
 	$scope.addBreak = function() {
@@ -241,7 +263,6 @@ angular.module('libraryOrganizer')
 			url: '/libraries/'+$scope.libraryid+'/sort',
 			method: 'GET'
 		}).then(function(response){
-			console.log(response.data)
 			var orders = response.data.split("||");
 			var normalOrders = orders[0].split("--");
 			for (o in normalOrders) {
@@ -260,12 +281,12 @@ angular.module('libraryOrganizer')
 				})
 			}
         	$scope.vm.removeFromLoading(loadingName)
-		});
+		}).then(function(response) {
+            $mdToast.showSimple("Failed to get sort orders");
+            $vm.removeFromLoading(loadingName);
+        });
 	}
 	$scope.updateSortOrders();
-	$scope.changeSortMethod = function(item) {
-		item.method = item.method=="ASC"?"DESC":"ASC"
-	}
 	$scope.stringifySortOrders = function() {
 		var normalOrders = [];
 		var specialOrders = [];

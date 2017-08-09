@@ -1,4 +1,4 @@
-angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselect-searchtree', 'anguFixedHeaderTable', 'ngRateIt', 'dndLists', 'colorpicker'])
+angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselect-searchtree', 'anguFixedHeaderTable', 'ngRateIt', 'dndLists', 'colorpicker', "dcbClearInput"])
     .config(function($mdThemingProvider) {
         $mdThemingProvider.theme('default')
             .primaryPalette('indigo')
@@ -92,6 +92,9 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
             }).then(function(response) {
                 callback(response.data);
                 $scope.removeFromLoading(loadingName);
+            }).then(function(response) {
+                $mdToast.showSimple("Failed to get setting "+name);
+                $vm.removeFromLoading(loadingName);
             });
         }
         $scope.display = $scope.getParameterByName("display", "grid");
@@ -187,7 +190,10 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
             }).then(function(response) {
                 $scope.username = response.data;
                 $scope.removeFromLoading(loadingName);
-            })
+            }).then(function(response) {
+                $mdToast.showSimple("Failed to get username");
+                $vm.removeFromLoading(loadingName);
+            });
         }
         $scope.updateUsername()
         $scope.showLibraryChooserDialog = function(ev, vm, multiselect) {
@@ -219,21 +225,5 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
                     username: $scope.username
                 }
             })
-        }
-        $scope.convertFromLexile = function(lexile) {
-            if (lexile == "") {
-                return [null, ""]
-            }
-            lexile = (lexile+"").substring(0, lexile.length-1);
-            code = "";
-            while (isNaN(lexile.charAt(0))) {
-                code += lexile.charAt(0);
-                lexile = substring(1, lexile.length);
-            }
-            lexile = parseInt(lexile);
-            return [lexile, code];
-        }
-        $scope.convertToLexile = function(lexile, code) {
-            return code+lexile+"L";
         }
 })

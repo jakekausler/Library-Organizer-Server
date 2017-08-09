@@ -33,7 +33,10 @@ angular.module('libraryOrganizer')
                         $scope.results.online.push(v)
                     })
                     $scope.vm.removeFromLoading(loadingName);
-                })
+                }).then(function(response) {
+                    $mdToast.showSimple("Failed to retrieve books");
+                    $vm.removeFromLoading(loadingName);
+                });
             }
         };
         $scope.selectOnline = function(ev, result) {
@@ -54,7 +57,10 @@ angular.module('libraryOrganizer')
                 "isreference": false,
                 "isowned": true,
                 "isbn": $scope.isbn,
-                "dewey": "0",
+                "dewey": {
+                    "String": "",
+                    "Valid": false
+                },
                 "pages": result.volumeInfo.pageCount ? result.volumeInfo.pageCount : 0,
                 "width": result.volumeInfo.dimensions && result.volumeInfo.dimensions.width ? result.volumeInfo.dimensions.width : 0,
                 "height": result.volumeInfo.dimensions && result.volumeInfo.dimensions.depth ? result.volumeInfo.dimensions.depth : 0,
@@ -76,7 +82,51 @@ angular.module('libraryOrganizer')
                 "editionpublished": result.volumeInfo.publishedDate ? result.volumeInfo.publishedDate.substring(0, 4) : '',
                 "contributors": $scope.getAuthors(result.volumeInfo.authors),
                 "library": {},
-                "lexile": 0,
+                "lexile": {
+                    "Int64": 0,
+                    "Valid": false
+                },
+                "lexilecode": "",
+                "interestlevel": {
+                    "Int64": "",
+                    "Valid": false
+                },
+                "ar": {
+                    "Float64": "",
+                    "Valid": false
+                },
+                "learningaz": {
+                    "Int64": "",
+                    "Valid": false
+                },
+                "guidedreading": {
+                    "Int64": "",
+                    "Valid": false
+                },
+                "dra": {
+                    "Int64": "",
+                    "Valid": false
+                },
+                "grade": {
+                    "Int64": "",
+                    "Valid": false
+                },
+                "age": {
+                    "Int64": "",
+                    "Valid": false
+                },
+                "fountaspinnell": {
+                    "Int64": "",
+                    "Valid": false
+                },
+                "readingrecovery": {
+                    "Int64": "",
+                    "Valid": false
+                },
+                "pmreaders": {
+                    "Int64": "",
+                    "Valid": false
+                },
                 "notes": ""
             }
             $scope.vm.showEditDialog(ev, book, $scope.vm, 'scanadd');
@@ -116,8 +166,6 @@ angular.module('libraryOrganizer')
         $scope.searchByISBN = function(isbn) {
             var loadingName = $scope.vm.guid();
             $scope.vm.addToLoading(loadingName)
-            var fromlex = $scope.convertFromLexile($scope.vm.fromlexile);
-            var tolex = $scope.convertFromLexile($scope.vm.tolexile);
             $http({
                 url: '/books',
                 method: 'GET',
@@ -127,10 +175,9 @@ angular.module('libraryOrganizer')
                     page: 1,
                     fromdewey: $scope.vm.fromdewey.toUpperCase(),
                     todewey: $scope.vm.todewey.toUpperCase(),
-                    fromlexile: fromlex[0],
-                    fromlexilecode: fromlex[1],
-                    tolexile: tolex[0],
-                    tolexilecode: tolex[1],
+                    fromlexile: $scope.vm.fromlexile,
+                    tolexile: $scope.vm.tolexile,
+                    lexilecode: $scope.vm.lexilecode,
                     text: $scope.vm.filter,
                     isread: $scope.vm.read,
                     isreference: $scope.vm.reference,
@@ -144,6 +191,9 @@ angular.module('libraryOrganizer')
             }).then(function(response) {
                 $scope.results.inlibrary = response.data.books;
                 $scope.vm.removeFromLoading(loadingName);
+            }).then(function(response) {
+                $mdToast.showSimple("Failed to search library.");
+                $vm.removeFromLoading(loadingName);
             });
         };
         $scope.languages = {

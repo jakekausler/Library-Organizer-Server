@@ -45,7 +45,7 @@
                                             <md-button aria-label="Import Image" class="icon import-icon"></md-button>
                                         </div> -->
                                         <div class="image-button" flex>
-                                            <md-button aria-label="Remove Image" class="icon remove-icon" ng-click="book.imageurl=""></md-button>
+                                            <md-button aria-label="Remove Image" class="icon remove-icon" ng-click="book.imageurl=''"></md-button>
                                         </div>
                                     </div>
                                 </div>
@@ -215,7 +215,7 @@
                             </md-input-container>
                             <md-input-container flex="10">
                                 <label>Dewey</label>
-                                <input type="text" ng-model="book.dewey" name="dewey" value="{{book.dewey}}"
+                                <input type="text" ng-model="book.dewey.String" name="dewey" value="{{book.dewey.String}}"
                                     required dewey-input/>
                             </md-input-container>
                             <p flex="25">
@@ -225,58 +225,63 @@
                         <div flex layout="row">
                             <md-input-container flex>
                                 <label>Lexile</label>
-                                <input type="text" ng-model="book.lexile" name="lexile" value="{{book.lexile}}"
-                                    required lexile-input/>
+                                <input type="number" ng-model="book.lexile.Int64" name="lexile" value="" min="0" step="1" />
+                            </md-input-container>
+                            <md-input-container flex>
+                                <label>Lexile Code</label>
+                                <md-select multiple="false" ng-model="book.lexilecode">
+                                    <md-option ng-value="code" ng-repeat="code in lexilecodes">{{code}}</md-option>
+                                </md-select>
                             </md-input-container>
                             <md-input-container flex>
                                 <label>Interest Level</label>
-                                <input type="text" ng-model="book.interestlevel" name="interestlevel" value="{{book.interestlevel}}"
-                                    required non-negative-number-input/>
+                                <md-select multiple="false" ng-model="book.interestlevel.Int64">
+                                    <md-option ng-value="level.value" ng-repeat="level in interestlevels">{{level.name}}</md-option>
+                                </md-select>
                             </md-input-container>
                             <md-input-container flex>
                                 <label>AR</label>
-                                <input type="text" ng-model="book.ar" name="ar" value="{{book.ar}}"
-                                    required non-negative-number-input/>
+                                <input type="number" ng-model="book.ar.Float64" name="ar" value="" min="0.1" max="20.0" step="0.1" non-negative-number-input/>
                             </md-input-container>
                             <md-input-container flex>
                                 <label>Learning AZ</label>
-                                <input type="text" ng-model="book.learningaz" name="learningaz" value="{{book.learningaz}}"
-                                    required non-negative-number-input/>
+                                <md-select multiple="false" ng-model="book.learningaz.Int64">
+                                    <md-option ng-value="level.value" ng-repeat="level in learningazlevels">{{level.name}}</md-option>
+                                </md-select>
                             </md-input-container>
                             <md-input-container flex>
                                 <label>Guided Reading</label>
-                                <input type="text" ng-model="book.guidedreading" name="guidedreading" value="{{book.guidedreading}}"
-                                    required non-negative-number-input/>
+                                <md-select multiple="false" ng-model="book.guidedreading.Int64">
+                                    <md-option ng-value="level.value" ng-repeat="level in letters">{{level.name}}</md-option>
+                                </md-select>
                             </md-input-container>
                             <md-input-container flex>
                                 <label>DRA</label>
-                                <input type="text" ng-model="book.dra" name="dra" value="{{book.dra}}"
-                                    required non-negative-number-input/>
+                                <input type="number" ng-model="book.dra.Int64" name="dra" value="" min="1" max="80" step="1" non-negative-number-input/>
                             </md-input-container>
                             <md-input-container flex>
                                 <label>Grade</label>
-                                <input type="text" ng-model="book.grade" name="grade" value="{{book.grade}}"
-                                    required non-negative-number-input/>
+                                <md-select multiple="false" ng-model="book.grade.Int64">
+                                    <md-option ng-value="level.value" ng-repeat="level in grades">{{level.name}}</md-option>
+                                </md-select>
                             </md-input-container>
                             <md-input-container flex>
                                 <label>Fountas Pinnell</label>
-                                <input type="text" ng-model="book.fountaspinnell" name="fountaspinnell" value="{{book.fountaspinnell}}"
-                                    required non-negative-number-input/>
+                                <md-select multiple="false" ng-model="book.fountaspinnell.Int64">
+                                    <md-option ng-value="level.value" ng-repeat="level in letters">{{level.name}}</md-option>
+                                </md-select>
                             </md-input-container>
                             <md-input-container flex>
                                 <label>Age</label>
-                                <input type="text" ng-model="book.age" name="age" value="{{book.age}}"
-                                    required non-negative-number-input/>
+                                <input type="number" ng-model="book.age.Int64" name="age" value="" min="1" max="99" step="1" non-negative-number-input/>
                             </md-input-container>
                             <md-input-container flex>
                                 <label>Reading Recovery</label>
-                                <input type="text" ng-model="book.readingrecovery" name="readingrecovery" value="{{book.readingrecovery}}"
-                                    required non-negative-number-input/>
+                                <input type="number" ng-model="book.readingrecovery.Int64" name="readingrecovery" value="" min="1" max="40" step="1" non-negative-number-input/>
                             </md-input-container>
                             <md-input-container flex>
                                 <label>PM Readers</label>
-                                <input type="text" ng-model="book.pmreaders" name="pmreaders" value="{{book.pmreaders}}"
-                                    required non-negative-number-input/>
+                                <input type="number" ng-model="book.pmreaders.Int64" name="pmreaders" value="" min="1" max="30" step="1" non-negative-number-input/>
                             </md-input-container>
                         </div>
                         <div flex layout="row">

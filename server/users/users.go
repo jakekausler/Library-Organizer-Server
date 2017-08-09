@@ -12,12 +12,19 @@ import (
 )
 
 const (
-	getValidUserSession = "SELECT sessionkey from usersession WHERE sessionkey=? AND EXISTS (SELECT id FROM library_members where id=userid)"
-	addUser             = "INSERT INTO library_members (usr,pass,email,firstname,lastname) values (?,?,?,?,?)"
-	addSession          = "INSERT INTO usersession (sessionkey,userid,LastSeenTime) values (?,?,NOW())"
-	updateSessionTime   = "UPDATE usersession SET LastSeenTime=NOW()"
-	isSessionNameTaken  = "SELECT sessionkey from usersession where sessionkey=?"
-	deleteSession       = "DELETE FROM usersession WHERE sessionkey=?"
+	getValidUserSessionQuery = "SELECT sessionkey from usersession WHERE sessionkey=? AND EXISTS (SELECT id FROM library_members where id=userid)"
+	addUserQuery             = "INSERT INTO library_members (usr,pass,email,firstname,lastname) values (?,?,?,?,?)"
+	addSessionQuery          = "INSERT INTO usersession (sessionkey,userid,LastSeenTime) values (?,?,NOW())"
+	updateSessionTimeQuery   = "UPDATE usersession SET LastSeenTime=NOW()"
+	deleteSessionQuery       = "DELETE FROM usersession WHERE sessionkey=?"
+	getIdByEmailQuery = "SELECT id FROM library_members WHERE email=?"
+	getUserForCheckQuery = "SELECT id, pass FROM library_members WHERE usr=?"
+	addLibraryQuery = "INSERT INTO libraries (name, ownerid, sortmethod) VALUES (?,?,?)"
+	addPermissionQuery = "INSERT INTO permissions (userid, libraryid, permission) VALUES (?,?,?)"
+	getUsernameQuery = "SELECT usr FROM library_members JOIN usersession ON UserID=ID WHERE sessionkey=?"
+	getUserIDQuery = "SELECT id FROM library_members JOIN usersession ON UserID=ID WHERE sessionkey=?"
+	getUsersQuery = "SELECT id, usr, firstname, lastname, email FROM library_members WHERE id != ?"
+
 	charset             = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 )
 
@@ -36,9 +43,8 @@ type User struct {
 //ResetPassword sends a link to reset a password
 //Todo
 func ResetPassword(db *sql.DB, email string) error {
-	// query := "SELECT id FROM library_members WHERE email=?"
 	// var userid int64
-	// err := db.QueryRow(query, email).Scan(&userid)
+	// err := db.QueryRow(getIdByEmailQuery, email).Scan(&userid)
 	// if err != nil {
 	// 	logger.Printf("%+v", err)
 	// 	return err
@@ -49,7 +55,7 @@ func ResetPassword(db *sql.DB, email string) error {
 //IsRegistered returns whether a user session is registered and the corresponding user exists
 func IsRegistered(db *sql.DB, session string) (bool, error) {
 	var sessionkey string
-	if err := db.QueryRow(getValidUserSession, session).Scan(&sessionkey); err == nil {
+	if err := db.QueryRow(getValidUserSessionQuery, session).Scan(&sessionkey); err == nil {
 		return true, nil
 	} else if err == sql.ErrNoRows {
 		return false, nil
@@ -60,7 +66,7 @@ func IsRegistered(db *sql.DB, session string) (bool, error) {
 
 //MarkAsSeen marks a user session as seen
 func MarkAsSeen(db *sql.DB, session string) error {
-	_, err := db.Exec(updateSessionTime, session)
+	_, err := db.Exec(updateSessionTimeQuery, session)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return err
@@ -70,10 +76,9 @@ func MarkAsSeen(db *sql.DB, session string) error {
 
 //IsUser returns whether a username and password is valid. If they are, return the userid. If not, return -1
 func IsUser(db *sql.DB, username, password string) (int64, error) {
-	query := "SELECT id, pass FROM library_members WHERE usr=?"
 	var id int64
 	var hash string
-	if err := db.QueryRow(query, username).Scan(&id, &hash); err == nil {
+	if err := db.QueryRow(getUserForCheckQuery, username).Scan(&id, &hash); err == nil {
 		if err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password)); err != nil {
 			return -1, err
 		}
@@ -103,7 +108,7 @@ func LoginUser(db *sql.DB, username, password string) (string, error) {
 		return "", err
 	}
 	key := GenerateSessionKey(db)
-	_, err = db.Exec(addSession, key, id)
+	_, err = db.Exec(addSessionQuery, key, id)
 	return key, err
 }
 
@@ -114,7 +119,7 @@ func RegisterUser(db *sql.DB, username, password, email, first, last string) (st
 		logger.Printf("Error: %+v", err)
 		return "", err
 	}
-	result, err := db.Exec(addUser, username, hash, email, first, last)
+	result, err := db.Exec(addUserQuery, username, hash, email, first, last)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return "", err
@@ -125,13 +130,12 @@ func RegisterUser(db *sql.DB, username, password, email, first, last string) (st
 		return "", err
 	}
 	key := GenerateSessionKey(db)
-	_, err = db.Exec(addSession, key, id)
+	_, err = db.Exec(addSessionQuery, key, id)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return "", err
 	}
-	query := "INSERT INTO libraries (name, ownerid, sortmethod) VALUES (?,?,?)"
-	result, err = db.Exec(query, "default", id, information.SORTMETHOD)
+	result, err = db.Exec(addLibraryQuery, "default", id, information.SORTMETHOD)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return "", err
@@ -141,14 +145,13 @@ func RegisterUser(db *sql.DB, username, password, email, first, last string) (st
 		logger.Printf("Error: %+v", err)
 		return "", err
 	}
-	query = "INSERT INTO permissions (userid, libraryid, permission) VALUES (?,?,7)"
-	_, err = db.Exec(query, id, libID)
+	_, err = db.Exec(addPermissionQuery, id, libID, 7)
 	return key, err
 }
 
 //LogoutSession logs out a user
 func LogoutSession(db *sql.DB, sessionkey string) error {
-	_, err := db.Exec(deleteSession, sessionkey)
+	_, err := db.Exec(deleteSessionQuery, sessionkey)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return err
@@ -159,16 +162,14 @@ func LogoutSession(db *sql.DB, sessionkey string) error {
 //GetUsername gets a username from a session
 func GetUsername(db *sql.DB, session string) (string, error) {
 	var name string
-	query := "SELECT usr FROM library_members JOIN usersession ON UserID=ID WHERE sessionkey=?"
-	err := db.QueryRow(query, session).Scan(&name)
+	err := db.QueryRow(getUsernameQuery, session).Scan(&name)
 	return name, err
 }
 
 //GetUserID gets a userid from a session
 func GetUserID(db *sql.DB, session string) (string, error) {
 	var name string
-	query := "SELECT id FROM library_members JOIN usersession ON UserID=ID WHERE sessionkey=?"
-	err := db.QueryRow(query, session).Scan(&name)
+	err := db.QueryRow(getUserIDQuery, session).Scan(&name)
 	return name, err
 }
 
@@ -180,8 +181,7 @@ func GetUsers(db *sql.DB, session string) ([]User, error) {
 		return nil, err
 	}
 	var users []User
-	query := "SELECT id, usr, firstname, lastname, email FROM library_members WHERE id != ?"
-	rows, err := db.Query(query, userid)
+	rows, err := db.Query(getUsersQuery, userid)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return nil, err

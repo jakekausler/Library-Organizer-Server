@@ -44,23 +44,6 @@ angular.module('libraryOrganizer')
 		}
 	}
 })
-.directive('lexileInput', function() {
-	return {
-		require: 'ngModel',
-		link: function(scope, element, attr, mCtrl) {
-			function validation(value) {
-				var v = value;
-				if (v.startsWith('BR')) {
-					v = v.substring(2,v.length);
-				}
-				valid = v.charAt(v.length-1)=="L" && !isNaN(v.substring(0,v.length-1))
-				mCtrl.$setValidity('lexileInput', valid);
-				return value;
-			}
-			mCtrl.$parsers.push(validation);
-		}
-	}
-})
 .directive('nonNegativeIntegerInput', function() {
 	return {
 		require: 'ngModel',

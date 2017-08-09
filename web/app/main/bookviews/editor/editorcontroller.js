@@ -1,6 +1,7 @@
 angular.module('libraryOrganizer')
 .controller('editorController', function($scope, $http, $mdDialog, $mdToast, book, $vm, viewType, username) {
 	$scope.book = angular.copy(book);
+	console.log(book)
 	if (!$scope.book.tags) {
 		$scope.book.tags = [];
 	}
@@ -39,40 +40,40 @@ angular.module('libraryOrganizer')
 			$scope.book.editionpublished = value;
 		});
 		$vm.getSettingByName('Dewey', function(value) {
-			$scope.book.dewey = value;
+			$scope.book.dewey.String = value;
 		});
 		$vm.getSettingByName('Lexile', function(value) {
-			$scope.book.lexile = value;
+			$scope.book.lexile.Int64 = value;
 		});
 		$vm.getSettingByName('Interest Level', function(value) {
-			$scope.book.interestlevel = value;
+			$scope.book.interestlevel.Int64 = value;
 		});
 		$vm.getSettingByName('AR', function(value) {
-			$scope.book.ar = value;
+			$scope.book.ar.Float64 = value;
 		});
 		$vm.getSettingByName('Learning AZ', function(value) {
-			$scope.book.learningaz = value;
+			$scope.book.learningaz.Int64 = value;
 		});
 		$vm.getSettingByName('Guided Reading', function(value) {
-			$scope.book.guidedreading = value;
+			$scope.book.guidedreading.Int64 = value;
 		});
 		$vm.getSettingByName('DRA', function(value) {
-			$scope.book.dra = value;
+			$scope.book.dra.Int64 = value;
 		});
 		$vm.getSettingByName('Grade', function(value) {
-			$scope.book.grade = value;
+			$scope.book.grade.Int64 = value;6
 		});
 		$vm.getSettingByName('Fountas Spinnell', function(value) {
-			$scope.book.fountaspinnell = value;
+			$scope.book.fountaspinnell.Int64 = value;
 		});
 		$vm.getSettingByName('Age', function(value) {
-			$scope.book.age = value;
+			$scope.book.age.Int64 = value;
 		});
 		$vm.getSettingByName('Reading Recovery', function(value) {
-			$scope.book.readingrecovery = value;
+			$scope.book.readingrecovery.Int64 = value;
 		});
 		$vm.getSettingByName('PM Readers', function(value) {
-			$scope.book.pmreaders = value;
+			$scope.book.pmreaders.Int64 = value;
 		});
 		$vm.getSettingByName('Binding', function(value) {
 			$scope.book.binding = value;
@@ -120,8 +121,38 @@ angular.module('libraryOrganizer')
 			$scope.book.edition = value;
 		});
 	}
-	if (!isNaN($scope.book.lexile)) {
-		$scope.book.lexile = $vm.convertToLexile($scope.book.lexile, $scope.book.lexilecode);
+	if (!$scope.book.lexile.Valid) {
+		$scope.book.lexile.Int64 = "";
+	}
+	if (!$scope.book.interestlevel.Valid) {
+		$scope.book.interestlevel.Int64 = "";
+	}
+	if (!$scope.book.ar.Valid) {
+		$scope.book.ar.Float64 = "";
+	}
+	if (!$scope.book.learningaz.Valid) {
+		$scope.book.learningaz.Int64 = "";
+	}
+	if (!$scope.book.guidedreading.Valid) {
+		$scope.book.guidedreading.Int64 = "";
+	}
+	if (!$scope.book.dra.Valid) {
+		$scope.book.dra.Int64 = "";
+	}
+	if (!$scope.book.grade.Valid) {
+		$scope.book.grade.Int64 = "";
+	}
+	if (!$scope.book.fountaspinnell.Valid) {
+		$scope.book.fountaspinnell.Int64 = "";
+	}
+	if (!$scope.book.age.Valid) {
+		$scope.book.age.Int64 = "";
+	}
+	if (!$scope.book.readingrecovery.Valid) {
+		$scope.book.readingrecovery.Int64 = "";
+	}
+	if (!$scope.book.pmreaders.Valid) {
+		$scope.book.pmreaders.Int64 = "";
 	}
 	$scope.publishers = [];
 	$scope.cities = [];
@@ -136,7 +167,6 @@ angular.module('libraryOrganizer')
 	$scope.tags = [];
 	$scope.awards = [];
 	$scope.libraries = [];
-	$scope.deweySearchText = $scope.book.dewey;
 	$scope.updateLibraries = function() {
         var loadingName = $vm.guid();
         $vm.addToLoading(loadingName)
@@ -162,6 +192,9 @@ angular.module('libraryOrganizer')
             	}
             }
             $vm.removeFromLoading(loadingName);
+        }).then(function(response) {
+        	$mdToast.showSimple("Failed to retrieve list of libraries");
+        	$vm.removeFromLoading(loadingName);
         });
     };
 	$scope.updatePublishers = function() {
@@ -173,7 +206,10 @@ angular.module('libraryOrganizer')
 		}).then(function(response){
 			$scope.publishers = response.data;
             $vm.removeFromLoading(loadingName);
-		});
+		}).then(function(response) {
+        	$mdToast.showSimple("Failed to retrieve list of publishers");
+        	$vm.removeFromLoading(loadingName);
+        });
 	}
     $scope.updatePublishers();
 	$scope.updateCities = function() {
@@ -185,7 +221,10 @@ angular.module('libraryOrganizer')
 		}).then(function(response){
 			$scope.cities = response.data;
             $vm.removeFromLoading(loadingName);
-		});
+		}).then(function(response) {
+        	$mdToast.showSimple("Failed to retrieve list of cities");
+        	$vm.removeFromLoading(loadingName);
+        });
 	}
     $scope.updateCities();
 	$scope.updateStates = function() {
@@ -197,7 +236,10 @@ angular.module('libraryOrganizer')
 		}).then(function(response){
 			$scope.states = response.data;
             $vm.removeFromLoading(loadingName);
-		});
+		}).then(function(response) {
+        	$mdToast.showSimple("Failed to retrieve list of states");
+        	$vm.removeFromLoading(loadingName);
+        });
 	}
     $scope.updateStates();
 	$scope.updateCountries = function() {
@@ -209,7 +251,10 @@ angular.module('libraryOrganizer')
 		}).then(function(response){
 			$scope.countries = response.data;
             $vm.removeFromLoading(loadingName);
-		});
+		}).then(function(response) {
+        	$mdToast.showSimple("Failed to retrieve list of countries");
+        	$vm.removeFromLoading(loadingName);
+        });
 	}
     $scope.updateCountries();
 	$scope.updateSeries = function() {
@@ -221,7 +266,10 @@ angular.module('libraryOrganizer')
 		}).then(function(response){
 			$scope.series = response.data;
             $vm.removeFromLoading(loadingName);
-		});
+		}).then(function(response) {
+        	$mdToast.showSimple("Failed to retrieve list of series");
+        	$vm.removeFromLoading(loadingName);
+        });
 	}
     $scope.updateSeries();
 	$scope.updateBindings = function() {
@@ -233,7 +281,10 @@ angular.module('libraryOrganizer')
 		}).then(function(response){
 			$scope.bindings = response.data;
             $vm.removeFromLoading(loadingName);
-		});
+		}).then(function(response) {
+        	$mdToast.showSimple("Failed to retrieve list of bindings");
+        	$vm.removeFromLoading(loadingName);
+        });
 	}
     $scope.updateBindings();
 	$scope.updateLanguages = function() {
@@ -245,7 +296,10 @@ angular.module('libraryOrganizer')
 		}).then(function(response){
 			$scope.languages = response.data;
             $vm.removeFromLoading(loadingName);
-		});
+		}).then(function(response) {
+        	$mdToast.showSimple("Failed to retrieve list of languages");
+        	$vm.removeFromLoading(loadingName);
+        });
 	}
     $scope.updateLanguages();
 	$scope.updateRoles = function() {
@@ -257,7 +311,10 @@ angular.module('libraryOrganizer')
 		}).then(function(response){
 			$scope.roles = response.data;
             $vm.removeFromLoading(loadingName);
-		});
+		}).then(function(response) {
+        	$mdToast.showSimple("Failed to retrieve list of roles");
+        	$vm.removeFromLoading(loadingName);
+        });
 	}
     $scope.updateRoles();
 	$scope.updateDeweys = function() {
@@ -272,7 +329,10 @@ angular.module('libraryOrganizer')
 				$scope.genres[response.data[i].dewey] = response.data[i].genre;
 			}
             $vm.removeFromLoading(loadingName);
-		});
+		}).then(function(response) {
+        	$mdToast.showSimple("Failed to retrieve list of deweys");
+        	$vm.removeFromLoading(loadingName);
+        });
 	}
     $scope.updateDeweys();
 	$scope.updateTags = function() {
@@ -287,7 +347,10 @@ angular.module('libraryOrganizer')
 			}
 			$scope.tags = response.data;
             $vm.removeFromLoading(loadingName);
-		});
+		}).then(function(response) {
+        	$mdToast.showSimple("Failed to retrieve list of tags");
+        	$vm.removeFromLoading(loadingName);
+        });
 	}
     $scope.updateTags();
 	$scope.updateAwards = function() {
@@ -302,7 +365,10 @@ angular.module('libraryOrganizer')
 			}
 			$scope.awards = response.data;
             $vm.removeFromLoading(loadingName);
-		});
+		}).then(function(response) {
+        	$mdToast.showSimple("Failed to retrieve list of awards");
+        	$vm.removeFromLoading(loadingName);
+        });
 	}
     $scope.updateAwards();
 	$scope.newContributor = {
@@ -316,7 +382,6 @@ angular.module('libraryOrganizer')
 	$scope.oldUrl = $scope.book.imageurl;
 	$scope.pastingurl = false;
 	$scope.save = function(book) {
-		lex = $vm.convertFromLexile(book.lexile);
         var loadingName = $vm.guid();
         $vm.addToLoading(loadingName)
 		$scope.convertIsbn();
@@ -327,18 +392,29 @@ angular.module('libraryOrganizer')
 		book.height = parseInt(book.height);
 		book.depth = parseInt(book.depth);
 		book.weight = parseFloat(book.weight);
-		book.lexile = lex[0];
-		book.lexilecode = lex[1];
-		book.interestlevel = book.interestlevel?book.interestlevel:null;
-		book.ar = book.ar?book.ar:null;
-		book.learningaz = book.learningaz?book.learningaz:null;
-		book.guidedreading = book.guidedreading?book.guidedreading:null;
-		book.dra = book.dra?book.dra:null;
-		book.grade = book.grade?book.grade:null;
-		book.fountaspinnell = book.fountaspinnell?book.fountaspinnell:null;
-		book.age = book.age?book.age:null;
-		book.readingrecovery = book.readingrecovery?book.readingrecovery:null;
-		book.pmreaders = book.pmreaders?book.pmreaders:null;
+		book.lexile.Valid = isNaN(book.lexile.Int64)
+		book.lexile.Int64 = isNaN(book.lexile.Int64)?0:parseInt(book.lexile.Int64);
+		book.lexilecode = book.lexilecode?book.lexilecode:$scope.lexileSearchText;
+		book.interestlevel.Valid = book.interestlevel.Int64 != ""
+		book.interestlevel.Int64 = book.interestlevel.Int64==""?0:parseInt(book.interestlevel.Int64);
+		book.ar.Valid = isNaN(book.ar.Float64)
+		book.ar.Float64 = isNaN(book.ar.Float64)?0:parseFloat(book.ar.Float64);
+		book.learningaz.Valid = book.learningaz.Int64 != ""
+		book.learningaz.Int64 = book.learningaz.Int64==""?0:parseInt(book.learningaz.Int64);
+		book.guidedreading.Valid = book.guidedreading.Int64 != ""
+		book.guidedreading.Int64 = book.guidedreading.Int64==""?0:parseInt(book.guidedreading.Int64);
+		book.dra.Valid = isNaN(book.dra.Int64)
+		book.dra.Int64 = isNaN(book.dra.Int64)?0:parseInt(book.dra.Int64);
+		book.grade.Valid = book.grade.Int64 != ""
+		book.grade.Int64 = book.grade.Int64==""?0:parseInt(book.grade.Int64);
+		book.fountaspinnell.Valid = book.fountaspinnell.Int64 != ""
+		book.fountaspinnell.Int64 = book.fountaspinnell.Int64==""?0:parseInt(book.fountaspinnell.Int64);
+		book.age.Valid = isNaN(book.age.Int64)
+		book.age.Int64 = isNaN(book.age.Int64)?0:parseInt(book.age.Int64);
+		book.readingrecovery.Valid = isNaN(book.readingrecovery.Int64)
+		book.readingrecovery.Int64 = isNaN(book.readingrecovery.Int64)?0:parseInt(book.readingrecovery.Int64);
+		book.pmreaders.Valid = isNaN(book.pmreaders.Int64)
+		book.pmreaders.Int64 = isNaN(book.pmreaders.Int64)?0:parseInt(book.pmreaders.Int64);
 		book.originallypublished = book.originallypublished+'-01-01';
 		book.editionpublished = book.editionpublished+'-01-01';
 		book.series = book.series?book.series:$scope.seriesSearchText;
@@ -346,15 +422,16 @@ angular.module('libraryOrganizer')
 		book.publisher.city = book.publisher.city?book.publisher.city:$scope.CitySearchText;
 		book.publisher.state = book.publisher.state?book.publisher.state:$scope.stateSearchText;
 		book.publisher.country = book.publisher.country?book.publisher.country:$scope.countrySearchText;
-		book.dewey = book.dewey?book.dewey:$scope.deweySearchText;
 		book.format = book.format?book.format:$scope.bindingSearchText;
-		if (book.dewey == "0") {
-			book.dewey = "000";
+		if (book.dewey.String == "0" || book.dewey.String == "00") {
+			book.dewey.String = "000";
 		}
+		book.dewey.Valid = book.dewey.String || book.dewey.String == "000"
 		book.primarylanguage = book.primarylanguage?book.primarylanguage:$scope.primaryLanguageSearchText;
 		book.secondarylanguage = book.secondarylanguage?book.secondarylanguage:$scope.secondaryLanguageSearchText;
 		book.originallanguage = book.originallanguage?book.originallanguage:$scope.originalLanguageSearchText;
 		var method = book.id ? 'PUT':'POST';
+		console.log(book)
 		$http({
 			url: '/books',
 			method: method,
@@ -448,10 +525,10 @@ angular.module('libraryOrganizer')
 		console.log(item)
 	}
 	$scope.getGenre = function() {
-		if ($scope.book.dewey == "FIC") {
+		if ($scope.book.dewey.String == "FIC") {
 			return 'Fiction';
 		}
-		return $scope.genres[$scope.book.dewey]?$scope.genres[$scope.book.dewey].replace(">", "\u003e"):'';
+		return $scope.genres[$scope.book.dewey.String]?$scope.genres[$scope.book.dewey.String].replace(">", "\u003e"):'';
 	}
     $scope.updateLibraries();
     $scope.convertIsbn = function() {
@@ -503,4 +580,240 @@ angular.module('libraryOrganizer')
 		}
 		return valid;
     }
+    $scope.lexilecodes = ["","AD","NC","HL","IG","GN","BR","NP"]
+    $scope.interestlevels = [{
+        name: "",
+        value: ""
+    }, {
+        name: "LG",
+        value: 0
+    }, {
+        name: "MG",
+        value: 1
+    }, {
+        name: "MG+",
+        value: 2
+    }, {
+        name: "UG",
+        value: 3
+    }]
+    $scope.letters = [{
+        name: "",
+        value: ""
+    }, {
+        name: "A",
+        value: 0
+    }, {
+        name: "B",
+        value: 1
+    }, {
+        name: "C",
+        value: 2
+    }, {
+        name: "D",
+        value: 3
+    }, {
+        name: "E",
+        value: 4
+    }, {
+        name: "F",
+        value: 5
+    }, {
+        name: "G",
+        value: 6
+    }, {
+        name: "H",
+        value: 7
+    }, {
+        name: "I",
+        value: 8
+    }, {
+        name: "J",
+        value: 9
+    }, {
+        name: "K",
+        value: 10
+    }, {
+        name: "L",
+        value: 11
+    }, {
+        name: "M",
+        value: 12
+    }, {
+        name: "N",
+        value: 13
+    }, {
+        name: "O",
+        value: 14
+    }, {
+        name: "P",
+        value: 15
+    }, {
+        name: "Q",
+        value: 16
+    }, {
+        name: "R",
+        value: 17
+    }, {
+        name: "S",
+        value: 18
+    }, {
+        name: "T",
+        value: 19
+    }, {
+        name: "U",
+        value: 20
+    }, {
+        name: "V",
+        value: 21
+    }, {
+        name: "W",
+        value: 22
+    }, {
+        name: "X",
+        value: 23
+    }, {
+        name: "Y",
+        value: 24
+    }, {
+        name: "Z",
+        value: 25
+    }]
+    $scope.learningazlevels = [{
+        name: "",
+        value: ""
+    }, {
+        name: "aa",
+        value: -1
+    }, {
+        name: "A",
+        value: 0
+    }, {
+        name: "B",
+        value: 1
+    }, {
+        name: "C",
+        value: 2
+    }, {
+        name: "D",
+        value: 3
+    }, {
+        name: "E",
+        value: 4
+    }, {
+        name: "F",
+        value: 5
+    }, {
+        name: "G",
+        value: 6
+    }, {
+        name: "H",
+        value: 7
+    }, {
+        name: "I",
+        value: 8
+    }, {
+        name: "J",
+        value: 9
+    }, {
+        name: "K",
+        value: 10
+    }, {
+        name: "L",
+        value: 11
+    }, {
+        name: "M",
+        value: 12
+    }, {
+        name: "N",
+        value: 13
+    }, {
+        name: "O",
+        value: 14
+    }, {
+        name: "P",
+        value: 15
+    }, {
+        name: "Q",
+        value: 16
+    }, {
+        name: "R",
+        value: 17
+    }, {
+        name: "S",
+        value: 18
+    }, {
+        name: "T",
+        value: 19
+    }, {
+        name: "U",
+        value: 20
+    }, {
+        name: "V",
+        value: 21
+    }, {
+        name: "W",
+        value: 22
+    }, {
+        name: "X",
+        value: 23
+    }, {
+        name: "Y",
+        value: 24
+    }, {
+        name: "Z",
+        value: 25
+    }, {
+        name: "Z1",
+        value: 26
+    }, {
+        name: "Z2",
+        value: 27
+    }]
+    $scope.grades = [{
+        name: "",
+        value: ""
+    }, {
+        name: "PK",
+        value: 0
+    }, {
+        name: "K",
+        value: 1
+    }, {
+        name: "1",
+        value: 2
+    }, {
+        name: "2",
+        value: 3
+    }, {
+        name: "3",
+        value: 4
+    }, {
+        name: "4",
+        value: 5
+    }, {
+        name: "5",
+        value: 6
+    }, {
+        name: "6",
+        value: 7
+    }, {
+        name: "7",
+        value: 8
+    }, {
+        name: "8",
+        value: 9
+    }, {
+        name: "9",
+        value: 10
+    }, {
+        name: "10",
+        value: 11
+    }, {
+        name: "11",
+        value: 12
+    }, {
+        name: "12",
+        value: 13
+    }]
 });
