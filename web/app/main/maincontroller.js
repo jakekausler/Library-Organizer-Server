@@ -92,7 +92,7 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
             }).then(function(response) {
                 callback(response.data);
                 $scope.removeFromLoading(loadingName);
-            }).then(function(response) {
+            }, function(response) {
                 $mdToast.showSimple("Failed to get setting "+name);
                 $scope.removeFromLoading(loadingName);
             });
@@ -190,7 +190,7 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
             }).then(function(response) {
                 $scope.username = response.data;
                 $scope.removeFromLoading(loadingName);
-            }).then(function(response) {
+            }, function(response) {
                 $mdToast.showSimple("Failed to get username");
                 $scope.removeFromLoading(loadingName);
             });

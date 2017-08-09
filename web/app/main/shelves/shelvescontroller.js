@@ -30,7 +30,7 @@ angular.module('libraryOrganizer')
                 $scope.bookcases = [];
             }
             $scope.removeFromLoading(loadingName);
-		}).then(function(response) {
+		}, function(response) {
             $mdToast.showSimple("Failed to get library cases");
             $scope.removeFromLoading(loadingName);
         });
@@ -93,7 +93,7 @@ angular.module('libraryOrganizer')
             $scope.libraries = angular.copy(data);
             $scope.updateCases();
             $scope.removeFromLoading(loadingName);
-        }).then(function(response) {
+        }, function(response) {
             $mdToast.showSimple("Failed to get list of libraries");
             $scope.removeFromLoading(loadingName);
         });

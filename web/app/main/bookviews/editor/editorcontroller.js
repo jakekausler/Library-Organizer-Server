@@ -192,7 +192,7 @@ angular.module('libraryOrganizer')
             	}
             }
             $vm.removeFromLoading(loadingName);
-        }).then(function(response) {
+        }, function(response) {
         	$mdToast.showSimple("Failed to retrieve list of libraries");
         	$vm.removeFromLoading(loadingName);
         });
@@ -206,7 +206,7 @@ angular.module('libraryOrganizer')
 		}).then(function(response){
 			$scope.publishers = response.data;
             $vm.removeFromLoading(loadingName);
-		}).then(function(response) {
+		}, function(response) {
         	$mdToast.showSimple("Failed to retrieve list of publishers");
         	$vm.removeFromLoading(loadingName);
         });
@@ -221,7 +221,7 @@ angular.module('libraryOrganizer')
 		}).then(function(response){
 			$scope.cities = response.data;
             $vm.removeFromLoading(loadingName);
-		}).then(function(response) {
+		}, function(response) {
         	$mdToast.showSimple("Failed to retrieve list of cities");
         	$vm.removeFromLoading(loadingName);
         });
@@ -236,7 +236,7 @@ angular.module('libraryOrganizer')
 		}).then(function(response){
 			$scope.states = response.data;
             $vm.removeFromLoading(loadingName);
-		}).then(function(response) {
+		}, function(response) {
         	$mdToast.showSimple("Failed to retrieve list of states");
         	$vm.removeFromLoading(loadingName);
         });
@@ -251,7 +251,7 @@ angular.module('libraryOrganizer')
 		}).then(function(response){
 			$scope.countries = response.data;
             $vm.removeFromLoading(loadingName);
-		}).then(function(response) {
+		}, function(response) {
         	$mdToast.showSimple("Failed to retrieve list of countries");
         	$vm.removeFromLoading(loadingName);
         });
@@ -263,7 +263,7 @@ angular.module('libraryOrganizer')
 		$http({
 			url: '/information/series',
 			method: 'GET'
-		}).then(function(response){
+		}, function(response){
 			$scope.series = response.data;
             $vm.removeFromLoading(loadingName);
 		}).then(function(response) {
@@ -281,7 +281,7 @@ angular.module('libraryOrganizer')
 		}).then(function(response){
 			$scope.bindings = response.data;
             $vm.removeFromLoading(loadingName);
-		}).then(function(response) {
+		}, function(response) {
         	$mdToast.showSimple("Failed to retrieve list of bindings");
         	$vm.removeFromLoading(loadingName);
         });
@@ -296,7 +296,7 @@ angular.module('libraryOrganizer')
 		}).then(function(response){
 			$scope.languages = response.data;
             $vm.removeFromLoading(loadingName);
-		}).then(function(response) {
+		}, function(response) {
         	$mdToast.showSimple("Failed to retrieve list of languages");
         	$vm.removeFromLoading(loadingName);
         });
@@ -311,7 +311,7 @@ angular.module('libraryOrganizer')
 		}).then(function(response){
 			$scope.roles = response.data;
             $vm.removeFromLoading(loadingName);
-		}).then(function(response) {
+		}, function(response) {
         	$mdToast.showSimple("Failed to retrieve list of roles");
         	$vm.removeFromLoading(loadingName);
         });
@@ -329,7 +329,7 @@ angular.module('libraryOrganizer')
 				$scope.genres[response.data[i].dewey] = response.data[i].genre;
 			}
             $vm.removeFromLoading(loadingName);
-		}).then(function(response) {
+		}, function(response) {
         	$mdToast.showSimple("Failed to retrieve list of deweys");
         	$vm.removeFromLoading(loadingName);
         });
@@ -347,7 +347,7 @@ angular.module('libraryOrganizer')
 			}
 			$scope.tags = response.data;
             $vm.removeFromLoading(loadingName);
-		}).then(function(response) {
+		}, function(response) {
         	$mdToast.showSimple("Failed to retrieve list of tags");
         	$vm.removeFromLoading(loadingName);
         });
@@ -365,7 +365,7 @@ angular.module('libraryOrganizer')
 			}
 			$scope.awards = response.data;
             $vm.removeFromLoading(loadingName);
-		}).then(function(response) {
+		}, function(response) {
         	$mdToast.showSimple("Failed to retrieve list of awards");
         	$vm.removeFromLoading(loadingName);
         });
