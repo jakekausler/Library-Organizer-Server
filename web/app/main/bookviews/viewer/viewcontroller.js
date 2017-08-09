@@ -36,7 +36,11 @@ angular.module('libraryOrganizer')
 				$mdToast.showSimple("Successfully checked out book")
             	$scope.vm.removeFromLoading(loadingName);
 	    		$scope.cancel()
-	    	})
+	    	}).then(function(response) {
+	        	$mdToast.showSimple("Failed to check out book");
+	        	$vm.removeFromLoading(loadingName);
+	        	$scope.cancel()
+	        })
 	    }, function() {
 	    	$scope.cancel()
 	    });
@@ -69,9 +73,12 @@ angular.module('libraryOrganizer')
 				$mdToast.showSimple("Returned book")
             	$scope.vm.removeFromLoading(loadingName);
 	    		$scope.cancel()
-	    	})
+	    	}).then(function(response) {
+	        	$mdToast.showSimple("Failed to return book");
+	        	$vm.removeFromLoading(loadingName);
+	        	$scope.cancel()
+	        })
 	    }, function() {
-			$mdToast.showSimple("Failed to return book")
 	    	$scope.cancel()
 	    });
 	}
@@ -133,7 +140,10 @@ angular.module('libraryOrganizer')
     			$scope.averageRating = -1;
     		}
         	$scope.vm.removeFromLoading(loadingName);
-    	})
+    	}).then(function(response) {
+        	$mdToast.showSimple("Failed to get ratings");
+        	$vm.removeFromLoading(loadingName);
+        })
 	}
 	$scope.updateRating()
 	$scope.rate = function() {
@@ -147,7 +157,10 @@ angular.module('libraryOrganizer')
 			$mdToast.showSimple("Successfully rated book")
 			$scope.updateRating();
         	$scope.vm.removeFromLoading(loadingName);
-    	})
+    	}).then(function(response) {
+        	$mdToast.showSimple("Failed to rate book");
+        	$vm.removeFromLoading(loadingName);
+        })
 	}
 	$scope.reviews = [{
 		username: $scope.username,
@@ -177,7 +190,10 @@ angular.module('libraryOrganizer')
 				}];
     		}
         	$scope.vm.removeFromLoading(loadingName);
-		})
+		}).then(function(response) {
+        	$mdToast.showSimple("Failed to get reviews");
+        	$vm.removeFromLoading(loadingName);
+        })
     }
 	$scope.updateReviews()
 	$scope.saveReview = function() {
@@ -191,6 +207,9 @@ angular.module('libraryOrganizer')
 			$mdToast.showSimple("Successfully reviewed book")
 			$scope.updateRating();
         	$scope.vm.removeFromLoading(loadingName);
-    	})
+    	}).then(function(response) {
+        	$mdToast.showSimple("Failed to review book");
+        	$vm.removeFromLoading(loadingName);
+        })
 	}
 })

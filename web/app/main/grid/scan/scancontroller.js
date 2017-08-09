@@ -33,7 +33,10 @@ angular.module('libraryOrganizer')
                         $scope.results.online.push(v)
                     })
                     $scope.vm.removeFromLoading(loadingName);
-                })
+                }).then(function(response) {
+                    $mdToast.showSimple("Failed to retrieve books");
+                    $vm.removeFromLoading(loadingName);
+                });
             }
         };
         $scope.selectOnline = function(ev, result) {
@@ -188,6 +191,9 @@ angular.module('libraryOrganizer')
             }).then(function(response) {
                 $scope.results.inlibrary = response.data.books;
                 $scope.vm.removeFromLoading(loadingName);
+            }).then(function(response) {
+                $mdToast.showSimple("Failed to search library.");
+                $vm.removeFromLoading(loadingName);
             });
         };
         $scope.languages = {

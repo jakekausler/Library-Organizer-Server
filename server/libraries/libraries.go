@@ -14,7 +14,38 @@ import (
 
 const (
 	getLibrariesQuery = "SELECT libraries.id, name, permission, usr FROM libraries JOIN permissions ON libraries.id=permissions.libraryid join library_members on libraries.ownerid=library_members.id WHERE permissions.permission & 1 and permissions.userid=(SELECT id from library_members join usersession on library_members.id=usersession.userid WHERE sessionkey=?)"
-	getBreaks         = "SELECT BreakType, ValueType, Value FROM breaks WHERE libraryid=?"
+	getBreaksQuery = "SELECT breaktype, valuetype, value FROM breaks WHERE libraryid=?"
+	getCasesQuery = "SELECT CaseId, Width, SpacerHeight, PaddingLeft, PaddingRight, BookMargin, CaseNumber, NumberOfShelves, ShelfHeight FROM bookcases WHERE libraryid=? ORDER BY CaseNumber"
+	addCaseQuery = "INSERT INTO bookcases (casenumber, width, spacerheight, paddingleft, paddingright, libraryid, numberofshelves, shelfheight) VALUES (?,?,?,?,?,?,?,?)"
+	updateCaseQuery = "INSERT INTO bookcases (casenumber, width, spacerheight, paddingleft, paddingright, libraryid, numberofshelves, shelfheight) VALUES (?,?,?,?,?,?,?,?)" := "UPDATE bookcases SET casenumber=?, width=?, spacerheight=?, paddingleft=?, paddingright=?, libraryid=?, numberOfShelves=?, shelfheight=? WHERE caseid=?"
+	deleteBreaksQuery = "DELETE FROM breaks WHERE libraryid=?"
+	addBreakQuery = "INSERT INTO breaks (libraryid, breaktype, valuetype, value) VALUES (?,?,?,?)"
+	getOwnedLibrariesQuery = "SELECT libraries.id, libraries.name FROM libraries WHERE libraries.ownerid=?"
+	getLibraryMembersPermissionQuery = "SELECT library_members.id, library_members.usr, library_members.firstname, library_members.lastname, library_members.email, library_members.iconurl, permissions.permission FROM libraries JOIN permissions ON libraries.id=permissions.libraryid JOIN library_members ON permissions.userid=library_members.id WHERE libraries.id=? AND permissions.userid != ?"
+	deleteLibrariesQuery = "DELETE FROM libraries WHERE ownerid=?"
+	addLibraryQuery = "INSERT INTO libraries (name, ownerid, sortmethod) VALUES (?,?)"
+	deletePermissionsQuery = "DELETE FROM permissions WHERE libraryid=?"
+	updateBooksLibraryQuery = "UPDATE books SET libraryid=? WHERE libraryid=?"
+	updateCasesLibraryQuery = "UPDATE bookcases SET libraryid=? WHERE libraryid=?"
+	updateBreaksLibraryQuery = "UPDATE breaks SET libraryid=? WHERE libraryid=?"
+	updateSortsLibraryQuery = "UPDATE series_author_sorts SET libraryid=? WHERE libraryid=?"
+	addPermissionQuery = "INSERT INTO permissions (userid, libraryid, permission) VALUES (?,?,?)"
+	getBooksLibrariesQuery = "SELECT DISTINCT(libraryid) FROM books"
+	getPermissionsLibrariesQuery = "SELECT DISTINCT(libraryid) FROM permissions"
+	getCasesLibrariesQuery = "SELECT DISTINCT(libraryid) FROM bookcases"
+	getBreaksLibrariesQuery = "SELECT DISTINCT(libraryid) FROM breaks"
+	getSeriesLibrariesQuery = "SELECT DISTINCT(libraryid) FROM series_author_sorts"
+	getLibraryIdsQuery = "SELECT id FROM libraries"
+	deleteBooksLibraryQuery = "DELETE FROM books WHERE libraryid=?"
+	deletePermissionsLibraryQuery = "DELETE FROM permissions WHERE libraryid=?"
+	deleteBreaksLibraryQuery = "DELETE FROM breaks WHERE libraryid=?"
+	deleteCasesLibraryQuery = "DELETE FROM bookcases WHERE libraryid=?"
+	deleteSeriesLibraryQuery = "DELETE FROM series_author_sorts WHERE libraryid=?"
+	getAuthorBasedSeriesQuery = "SELECT series FROM series_author_sorts WHERE libraryid=?"
+	updateAuthorBasedSeriesQuery = "DELETE FROM series_author_sorts WHERE libraryid=?"
+	addAuthorBasedSeriesQuery = "INSERT INTO series_author_sorts (libraryid, series) VALUES (?,?)"
+	getSortMethodQuery = "SELECT sortmethod FROM libraries WHERE id=?"
+	updateSortMethodQuery = "UPDATE libraries SET sortmethod=? WHERE id=?"
 )
 
 var logger = log.New(os.Stderr, "log: ", log.LstdFlags|log.Lshortfile)
@@ -105,8 +136,7 @@ func GetCases(db *sql.DB, libraryid, session string) ([]Bookcase, error) {
 		logger.Printf("Error: %+v", err)
 		return nil, err
 	}
-	query := "SELECT CaseId, Width, SpacerHeight, PaddingLeft, PaddingRight, BookMargin, CaseNumber, NumberOfShelves, ShelfHeight FROM bookcases WHERE libraryid=? ORDER BY CaseNumber"
-	rows, err := db.Query(query, libraryid)
+	rows, err := db.Query(getCasesQuery, libraryid)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return nil, err
@@ -144,20 +174,6 @@ func GetCases(db *sql.DB, libraryid, session string) ([]Bookcase, error) {
 			AverageBookHeight: float64(avgHeight),
 			CaseNumber:        caseNumber,
 		}
-		// 		shelfquery := "SELECT id, Height FROM shelves WHERE CaseId=? ORDER BY ShelfNumber"
-		// 		shelfrows, err := db.Query(shelfquery, id)
-		// 		if err != nil {
-		// logger.Printf("Error: %+v", err)
-		// return nil, err
-		// 		}
-		// 		for shelfrows.Next() {
-		// 			var shelfid, height int64
-		// 			shelfrows.Scan(&shelfid, &height)
-		// 			bookcase.Shelves = append(bookcase.Shelves, Bookshelf{
-		// 				ID:     shelfid,
-		// 				Height: height,
-		// 			})
-		// 		}
 		for i := 0; i < int(numberOfShelves); i++ {
 			bookcase.Shelves = append(bookcase.Shelves, Bookshelf{
 				ID:     0,
@@ -266,15 +282,13 @@ func SaveCases(db *sql.DB, libraryid string, cases EditedCases) error {
 		shelfHeight := c.ShelfHeight
 		numberOfShelves := c.NumberOfShelves
 		if id == 0 {
-			query := "INSERT INTO bookcases (casenumber, width, spacerheight, paddingleft, paddingright, libraryid, numberofshelves, shelfheight) VALUES (?,?,?,?,?,?,?,?)"
-			_, err := db.Exec(query, caseNumber, width, spacerHeight, paddingLeft, paddingRight, libraryid, numberOfShelves, shelfHeight)
+			_, err := db.Exec(addCaseQuery, caseNumber, width, spacerHeight, paddingLeft, paddingRight, libraryid, numberOfShelves, shelfHeight)
 			if err != nil {
 				logger.Printf("Error: %+v", err)
 				return err
 			}
 		} else {
-			query := "UPDATE bookcases SET casenumber=?, width=?, spacerheight=?, paddingleft=?, paddingright=?, libraryid=?, numberOfShelves=?, shelfheight=? WHERE caseid=?"
-			_, err := db.Exec(query, caseNumber, width, spacerHeight, paddingLeft, paddingRight, libraryid, numberOfShelves, shelfHeight, id)
+			_, err := db.Exec(updateCaseQuery, caseNumber, width, spacerHeight, paddingLeft, paddingRight, libraryid, numberOfShelves, shelfHeight, id)
 			if err != nil {
 				logger.Printf("Error: %+v", err)
 				return err
@@ -299,15 +313,13 @@ func SaveCases(db *sql.DB, libraryid string, cases EditedCases) error {
 
 //AddBreak adds a shelf break
 func UpdateBreaks(db *sql.DB, libraryid string, breaks []Break) error {
-	query := "DELETE FROM breaks WHERE libraryid=?"
-	_, err := db.Exec(query, libraryid)
+	_, err := db.Exec(deleteBreaksQuery, libraryid)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return err
 	}
 	for _, b := range breaks {
-		query = "INSERT INTO breaks (libraryid, breaktype, valuetype, value) VALUES (?,?,?,?)"
-		_, err = db.Exec(query, libraryid, b.BreakType, b.ValueType, b.Value)
+		_, err = db.Exec(addBreakQuery, libraryid, b.BreakType, b.ValueType, b.Value)
 		if err != nil {
 			logger.Printf("Error: %+v", err)
 			return err
@@ -319,8 +331,7 @@ func UpdateBreaks(db *sql.DB, libraryid string, breaks []Break) error {
 //GetLibraryBreaks gets shelf breaks
 func GetLibraryBreaks(db *sql.DB, libraryid string) ([]Break, error) {
 	var breaks []Break
-	query := "SELECT breaktype, valuetype, value FROM breaks WHERE libraryid=?"
-	rows, err := db.Query(query, libraryid)
+	rows, err := db.Query(getBreaksQuery, libraryid)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return nil, err
@@ -346,8 +357,7 @@ func GetOwnedLibraries(db *sql.DB, session string) ([]OwnedLibrary, error) {
 		return nil, err
 	}
 	var libraries []OwnedLibrary
-	query := "SELECT libraries.id, libraries.name FROM libraries WHERE libraries.ownerid=?"
-	rows, err := db.Query(query, userid)
+	rows, err := db.Query(getOwnedLibrariesQuery, userid)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return nil, err
@@ -359,8 +369,7 @@ func GetOwnedLibraries(db *sql.DB, session string) ([]OwnedLibrary, error) {
 			logger.Printf("Error: %+v", err)
 			return nil, err
 		}
-		query = "SELECT library_members.id, library_members.usr, library_members.firstname, library_members.lastname, library_members.email, library_members.iconurl, permissions.permission FROM libraries JOIN permissions ON libraries.id=permissions.libraryid JOIN library_members ON permissions.userid=library_members.id WHERE libraries.id=? AND permissions.userid != ?"
-		innerRows, err := db.Query(query, library.ID, userid)
+		innerRows, err := db.Query(getLibraryMembersPermissionQuery, library.ID, userid)
 		if err != nil {
 			logger.Printf("Error: %+v", err)
 			return nil, err
@@ -387,76 +396,65 @@ func SaveOwnedLibraries(db *sql.DB, ownedLibraries []OwnedLibrary, session strin
 		logger.Printf("Error: %+v", err)
 		return err
 	}
-	query := "DELETE FROM libraries WHERE ownerid=?"
-	_, err = db.Exec(query, userid)
+	_, err = db.Exec(deleteLibrariesQuery, userid)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return err
 	}
 	for _, ownedLibrary := range ownedLibraries {
 		oldID := ownedLibrary.ID
-		query = "INSERT INTO libraries (name, ownerid, sortmethod) VALUES (?,?)"
-		res, err := db.Exec(query, ownedLibrary.Name, userid, information.SORTMETHOD)
+		res, err := db.Exec(addLibraryQuery, ownedLibrary.Name, userid, information.SORTMETHOD)
 		if err != nil {
 			logger.Printf("Error: %+v", err)
 			return err
 		}
 		ownedLibrary.ID, err = res.LastInsertId()
-		query = "DELETE FROM permissions WHERE libraryid=?"
-		_, err = db.Exec(query, ownedLibrary.ID)
+		_, err = db.Exec(deletePermissionsQuery, ownedLibrary.ID)
 		if err != nil {
 			logger.Printf("Error: %+v", err)
 			return err
 		}
-		query = "DELETE FROM permissions WHERE libraryid=?"
-		_, err = db.Exec(query, oldID)
+		_, err = db.Exec(deletePermissionsQuery, oldID)
 		if err != nil {
 			logger.Printf("Error: %+v", err)
 			return err
 		}
 		if oldID != -1 {
-			query = "UPDATE books SET libraryid=? WHERE libraryid=?"
-			_, err = db.Exec(query, ownedLibrary.ID, oldID)
+			_, err = db.Exec(updateBooksLibraryQuery, ownedLibrary.ID, oldID)
 			if err != nil {
 				logger.Printf("Error: %+v", err)
 				return err
 			}
-			query = "UPDATE bookcases SET libraryid=? WHERE libraryid=?"
-			_, err = db.Exec(query, ownedLibrary.ID, oldID)
+			_, err = db.Exec(updateCasesLibraryQuery, ownedLibrary.ID, oldID)
 			if err != nil {
 				logger.Printf("Error: %+v", err)
 				return err
 			}
-			query = "UPDATE breaks SET libraryid=? WHERE libraryid=?"
-			_, err = db.Exec(query, ownedLibrary.ID, oldID)
+			_, err = db.Exec(updateBreaksLibraryQuery, ownedLibrary.ID, oldID)
 			if err != nil {
 				logger.Printf("Error: %+v", err)
 				return err
 			}
-			query = "UPDATE series_author_sorts SET libraryid=? WHERE libraryid=?"
-			_, err = db.Exec(query, ownedLibrary.ID, oldID)
+			_, err = db.Exec(updateSortsLibraryQuery, ownedLibrary.ID, oldID)
 			if err != nil {
 				logger.Printf("Error: %+v", err)
 				return err
 			}
 		}
-		query = "INSERT INTO permissions (userid, libraryid, permission) VALUES (?,?,7)"
-		_, err = db.Exec(query, userid, ownedLibrary.ID)
+		_, err = db.Exec(addPermissionQuery, userid, ownedLibrary.ID, 7)
 		if err != nil {
 			logger.Printf("Error: %+v", err)
 			return err
 		}
 		for _, user := range ownedLibrary.Users {
-			query = "INSERT INTO permissions (userid, libraryid, permission) VALUES (?,?,?)"
-			_, err = db.Exec(query, user.ID, ownedLibrary.ID, user.Permission)
+			_, err = db.Exec(addPermissionQuery, user.ID, ownedLibrary.ID, user.Permission)
 			if err != nil {
 				logger.Printf("Error: %+v", err)
 				return err
 			}
 		}
 	}
-	query = "SELECT DISTINCT(libraryid) FROM books";
-	rows, err := db.Query(query)
+	rows, err := db.Query(getBooksLibrariesQuery)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return err
@@ -471,8 +469,7 @@ func SaveOwnedLibraries(db *sql.DB, ownedLibraries []OwnedLibrary, session strin
 		}
 		booklibraryids = append(booklibraryids, lid)
 	}
-	query = "SELECT DISTINCT(libraryid) FROM permissions";
-	rows, err = db.Query(query)
+	rows, err = db.Query(getPermissionsLibrariesQuery)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return err
@@ -487,8 +484,7 @@ func SaveOwnedLibraries(db *sql.DB, ownedLibraries []OwnedLibrary, session strin
 		}
 		permissionslibraryids = append(permissionslibraryids, lid)
 	}
-	query = "SELECT DISTINCT(libraryid) FROM bookcases";
-	rows, err = db.Query(query)
+	rows, err = db.Query(getCasesLibrariesQuery)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return err
@@ -503,8 +499,7 @@ func SaveOwnedLibraries(db *sql.DB, ownedLibraries []OwnedLibrary, session strin
 		}
 		bookcaseslibraryids = append(bookcaseslibraryids, lid)
 	}
-	query = "SELECT DISTINCT(libraryid) FROM breaks";
-	rows, err = db.Query(query)
+	rows, err = db.Query(getBreaksLibrariesQuery)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return err
@@ -519,8 +514,7 @@ func SaveOwnedLibraries(db *sql.DB, ownedLibraries []OwnedLibrary, session strin
 		}
 		breakslibraryids = append(breakslibraryids, lid)
 	}
-	query = "SELECT DISTINCT(libraryid) FROM series_author_sorts";
-	rows, err = db.Query(query)
+	rows, err = db.Query(getSeriesLibrariesQuery)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return err
@@ -535,8 +529,7 @@ func SaveOwnedLibraries(db *sql.DB, ownedLibraries []OwnedLibrary, session strin
 		}
 		serieslibraryids = append(serieslibraryids, lid)
 	}
-	query = "SELECT id FROM libraries"
-	rows, err = db.Query(query)
+	rows, err = db.Query(getLibraryIdsQuery)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return err
@@ -553,8 +546,7 @@ func SaveOwnedLibraries(db *sql.DB, ownedLibraries []OwnedLibrary, session strin
 	}
 	for _, id := range booklibraryids {
 		if !contains(actuallibraryids, id) {
-			query = "DELETE FROM books WHERE libraryid=?"
-			_, err := db.Exec(query, id)
+			_, err := db.Exec(deleteBooksLibraryQuery, id)
 			if err != nil {
 				logger.Printf("Error: %+v", err)
 				return err
@@ -563,8 +555,7 @@ func SaveOwnedLibraries(db *sql.DB, ownedLibraries []OwnedLibrary, session strin
 	}
 	for _, id := range permissionslibraryids {
 		if !contains(actuallibraryids, id) {
-			query = "DELETE FROM books WHERE libraryid=?"
-			_, err := db.Exec(query, id)
+			_, err := db.Exec(deletePermissionsLibraryQuery, id)
 			if err != nil {
 				logger.Printf("Error: %+v", err)
 				return err
@@ -573,8 +564,7 @@ func SaveOwnedLibraries(db *sql.DB, ownedLibraries []OwnedLibrary, session strin
 	}
 	for _, id := range breakslibraryids {
 		if !contains(actuallibraryids, id) {
-			query = "DELETE FROM books WHERE libraryid=?"
-			_, err := db.Exec(query, id)
+			_, err := db.Exec(deleteBreaksLibraryQuery, id)
 			if err != nil {
 				logger.Printf("Error: %+v", err)
 				return err
@@ -583,8 +573,7 @@ func SaveOwnedLibraries(db *sql.DB, ownedLibraries []OwnedLibrary, session strin
 	}
 	for _, id := range bookcaseslibraryids {
 		if !contains(actuallibraryids, id) {
-			query = "DELETE FROM books WHERE libraryid=?"
-			_, err := db.Exec(query, id)
+			_, err := db.Exec(deleteCasesLibraryQuery, id)
 			if err != nil {
 				logger.Printf("Error: %+v", err)
 				return err
@@ -593,8 +582,7 @@ func SaveOwnedLibraries(db *sql.DB, ownedLibraries []OwnedLibrary, session strin
 	}
 	for _, id := range serieslibraryids {
 		if !contains(actuallibraryids, id) {
-			query = "DELETE FROM books WHERE libraryid=?"
-			_, err := db.Exec(query, id)
+			_, err := db.Exec(deleteSeriesLibraryQuery, id)
 			if err != nil {
 				logger.Printf("Error: %+v", err)
 				return err
@@ -616,8 +604,7 @@ func contains(s []int64, e int64) bool {
 //GetAuthorBasedSeries gets series that are sorted by author then title, instead of volume
 func GetAuthorBasedSeries(db *sql.DB, libraryid string) ([]string, error) {
 	var series []string
-	query := "SELECT series FROM series_author_sorts WHERE libraryid=?"
-	rows, err := db.Query(query, libraryid)
+	rows, err := db.Query(getAuthorBasedSeriesQuery, libraryid)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return nil, err
@@ -638,15 +625,13 @@ func GetAuthorBasedSeries(db *sql.DB, libraryid string) ([]string, error) {
 
 //UpdateAuthorBasedSeries updates series that are sorted by author then title, instead of volume
 func UpdateAuthorBasedSeries(db *sql.DB, libraryid string, series []string) error {
-	query := "DELETE FROM series_author_sorts WHERE libraryid=?"
-	_, err := db.Exec(query, libraryid)
+	_, err := db.Exec(updateAuthorBasedSeriesQuery, libraryid)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return err
 	}
 	for _, s := range series {
-		query = "INSERT INTO series_author_sorts (libraryid, series) VALUES (?,?)"
-		_, err = db.Exec(query, libraryid, s)
+		_, err = db.Exec(addAuthorBasedSeriesQuery, libraryid, s)
 		if err != nil {
 			logger.Printf("Error: %+v", err)
 			return err
@@ -658,8 +643,7 @@ func UpdateAuthorBasedSeries(db *sql.DB, libraryid string, series []string) erro
 //GetLibrarySort gets the sort method of a library
 func GetLibrarySort(db *sql.DB, libraryid string) (string, error) {
 	var method string
-	query := "SELECT sortmethod FROM libraries WHERE id=?"
-	err := db.QueryRow(query, libraryid).Scan(&method)
+	err := db.QueryRow(getSortMethodQuery, libraryid).Scan(&method)
 	return method, err
 }
 
@@ -667,7 +651,6 @@ func GetLibrarySort(db *sql.DB, libraryid string) (string, error) {
 
 //UpdateLibrarySort updates the sort method of a library
 func UpdateLibrarySort(db *sql.DB, libraryid string, method string) error {
-	query := "UPDATE libraries SET sortmethod=? WHERE id=?"
-	_, err := db.Exec(query, method, libraryid)
+	_, err := db.Exec(updateSortMethodQuery, method, libraryid)
 	return err
 }

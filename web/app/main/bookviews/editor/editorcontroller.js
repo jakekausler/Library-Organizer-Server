@@ -192,6 +192,9 @@ angular.module('libraryOrganizer')
             	}
             }
             $vm.removeFromLoading(loadingName);
+        }).then(function(response) {
+        	$mdToast.showSimple("Failed to retrieve list of libraries");
+        	$vm.removeFromLoading(loadingName);
         });
     };
 	$scope.updatePublishers = function() {
@@ -203,7 +206,10 @@ angular.module('libraryOrganizer')
 		}).then(function(response){
 			$scope.publishers = response.data;
             $vm.removeFromLoading(loadingName);
-		});
+		}).then(function(response) {
+        	$mdToast.showSimple("Failed to retrieve list of publishers");
+        	$vm.removeFromLoading(loadingName);
+        });
 	}
     $scope.updatePublishers();
 	$scope.updateCities = function() {
@@ -215,7 +221,10 @@ angular.module('libraryOrganizer')
 		}).then(function(response){
 			$scope.cities = response.data;
             $vm.removeFromLoading(loadingName);
-		});
+		}).then(function(response) {
+        	$mdToast.showSimple("Failed to retrieve list of cities");
+        	$vm.removeFromLoading(loadingName);
+        });
 	}
     $scope.updateCities();
 	$scope.updateStates = function() {
@@ -227,7 +236,10 @@ angular.module('libraryOrganizer')
 		}).then(function(response){
 			$scope.states = response.data;
             $vm.removeFromLoading(loadingName);
-		});
+		}).then(function(response) {
+        	$mdToast.showSimple("Failed to retrieve list of states");
+        	$vm.removeFromLoading(loadingName);
+        });
 	}
     $scope.updateStates();
 	$scope.updateCountries = function() {
@@ -239,7 +251,10 @@ angular.module('libraryOrganizer')
 		}).then(function(response){
 			$scope.countries = response.data;
             $vm.removeFromLoading(loadingName);
-		});
+		}).then(function(response) {
+        	$mdToast.showSimple("Failed to retrieve list of countries");
+        	$vm.removeFromLoading(loadingName);
+        });
 	}
     $scope.updateCountries();
 	$scope.updateSeries = function() {
@@ -251,7 +266,10 @@ angular.module('libraryOrganizer')
 		}).then(function(response){
 			$scope.series = response.data;
             $vm.removeFromLoading(loadingName);
-		});
+		}).then(function(response) {
+        	$mdToast.showSimple("Failed to retrieve list of series");
+        	$vm.removeFromLoading(loadingName);
+        });
 	}
     $scope.updateSeries();
 	$scope.updateBindings = function() {
@@ -263,7 +281,10 @@ angular.module('libraryOrganizer')
 		}).then(function(response){
 			$scope.bindings = response.data;
             $vm.removeFromLoading(loadingName);
-		});
+		}).then(function(response) {
+        	$mdToast.showSimple("Failed to retrieve list of bindings");
+        	$vm.removeFromLoading(loadingName);
+        });
 	}
     $scope.updateBindings();
 	$scope.updateLanguages = function() {
@@ -275,7 +296,10 @@ angular.module('libraryOrganizer')
 		}).then(function(response){
 			$scope.languages = response.data;
             $vm.removeFromLoading(loadingName);
-		});
+		}).then(function(response) {
+        	$mdToast.showSimple("Failed to retrieve list of languages");
+        	$vm.removeFromLoading(loadingName);
+        });
 	}
     $scope.updateLanguages();
 	$scope.updateRoles = function() {
@@ -287,7 +311,10 @@ angular.module('libraryOrganizer')
 		}).then(function(response){
 			$scope.roles = response.data;
             $vm.removeFromLoading(loadingName);
-		});
+		}).then(function(response) {
+        	$mdToast.showSimple("Failed to retrieve list of roles");
+        	$vm.removeFromLoading(loadingName);
+        });
 	}
     $scope.updateRoles();
 	$scope.updateDeweys = function() {
@@ -302,7 +329,10 @@ angular.module('libraryOrganizer')
 				$scope.genres[response.data[i].dewey] = response.data[i].genre;
 			}
             $vm.removeFromLoading(loadingName);
-		});
+		}).then(function(response) {
+        	$mdToast.showSimple("Failed to retrieve list of deweys");
+        	$vm.removeFromLoading(loadingName);
+        });
 	}
     $scope.updateDeweys();
 	$scope.updateTags = function() {
@@ -317,7 +347,10 @@ angular.module('libraryOrganizer')
 			}
 			$scope.tags = response.data;
             $vm.removeFromLoading(loadingName);
-		});
+		}).then(function(response) {
+        	$mdToast.showSimple("Failed to retrieve list of tags");
+        	$vm.removeFromLoading(loadingName);
+        });
 	}
     $scope.updateTags();
 	$scope.updateAwards = function() {
@@ -332,7 +365,10 @@ angular.module('libraryOrganizer')
 			}
 			$scope.awards = response.data;
             $vm.removeFromLoading(loadingName);
-		});
+		}).then(function(response) {
+        	$mdToast.showSimple("Failed to retrieve list of awards");
+        	$vm.removeFromLoading(loadingName);
+        });
 	}
     $scope.updateAwards();
 	$scope.newContributor = {

@@ -7,7 +7,6 @@ import (
 	"image/jpeg"
 	"image/gif"
 	"image/png"
-	// "io"
 	"log"
 	"net/http"
 	"os"
@@ -18,13 +17,37 @@ import (
 	"../users"
 	"../information"
 	"github.com/EdlinOrg/prominentcolor"
-	// "github.com/nfnt/resize"
 	"github.com/go-sql-driver/mysql"
 )
 
 const (
 	saveBookQuery = "UPDATE books SET Title=?, Subtitle=?, OriginallyPublished=?, EditionPublished=?, PublisherID=?, IsRead=?, IsReference=?, IsOwned=?, IsShipping=?, IsReading=?, isbn=?, Dewey=?, Pages=?, Width=?, Height=?, Depth=?, Weight=?, PrimaryLanguage=?, SecondaryLanguage=?, OriginalLanguage=?, Series=?, Volume=?, Format=?, Edition=?, ImageURL=?, LibraryId=?, Lexile=?, LexileCode=?, InterestLevel=?, AR=?, LearningAZ=?, GuidedReading=?, DRA=?, Grade=?, FountasPinnell=?, Age=?, ReadingRecovery=?, PMReaders=?, SpineColor=?, Notes=? WHERE BookId=?"
 	addBookQuery  = "INSERT INTO books (Title, Subtitle, OriginallyPublished, PublisherID, IsRead, IsReference, IsOwned, IsShipping, IsReading, isbn, Dewey, Pages, Width, Height, Depth, Weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, Series, Volume, Format, Edition, EditionPublished, LibraryId, Lexile, LexileCode, InterestLevel, AR, LearningAZ, GuidedReading, DRA, Grade, FountasPinnell, Age, ReadingRecovery, PMReaders, Notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+	deleteWrittenByQuery = "DELETE FROM written_by WHERE BookId=?"
+	deleteAwardsQuery = "DELETE FROM awards WHERE BookId=?"
+	deleteBookQuery = "DELETE FROM books WHERE BookId=?"
+	checkoutBookQuery = "UPDATE books SET loaneeid=? WHERE bookid=?"
+	checkinBookQuery = "UPDATE books SET loaneeid=-1 WHERE bookid=?"
+	addContributorQuery = "REPLACE INTO written_by (BookID, AuthorID, Role) VALUES (?,?,?)"
+	addAwardQuery = "REPLACE INTO awards (BookID, Award) VALUES (?,?)"
+	getPersonQuery = "SELECT PersonID FROM persons WHERE FirstName=? AND MiddleNames=? AND LastName=?"
+	addPersonQuery = "INSERT INTO persons (FirstName, MiddleNames, LastName) VALUES (?,?,?)"
+	getPublisherQuery = "SELECT PublisherID FROM publishers WHERE Publisher=? AND City=? AND State=? AND Country=?"
+	addPublisherQuery = "INSERT INTO publishers (Publisher, City, State, Country) VALUES (?,?,?,?)"
+	addDeweyQuery = "REPLACE INTO dewey_numbers (Number) VALUES (?)"
+	addFormatQuery = "REPLACE INTO formats (Format) VALUES (?)"
+	addSeriesQuery = "REPLACE INTO series (Series) VALUES (?)"
+	addLanguageQuery = "REPLACE INTO languages (Langauge) VALUES (?)"
+	getLibraryMemberQuery = "SELECT firstname, lastname, usr, email from library_members WHERE id=?"
+	addTagQuery = "INSERT INTO tags (bookid, tag) VALUES (?,?)"
+	getTagsQuery = "SELECT tag FROM tags WHERE bookid=?"
+	deleteTagsQuery = "DELETE FROM tags WHERE bookid=?"
+	getExportBooksQuery = "SELECT * FROM books JOIN publishers ON books.PublisherID=publishers.PublisherID"
+	getExportAuthorsQuery = "SELECT BookID, FirstName, MiddleNames, LastName, Role FROM written_by JOIN persons ON written_by.AuthorID=persons.PersonID"
+	getBookForMatchQuery = "SELECT ISBN, Title, Subtitle, Series, Volume FROM books WHERE bookid=?"
+	getGuessedMatchesQuery = "SELECT BookId FROM books WHERE isbn=? || (title=? && subtitle=? && series=? && volume=?)"
+	addReviewQuery = "REPLACE INTO reviews (userid, bookid, review) VALUES (?,?,?)"
+	addRatingQuery = "REPLACE INTO ratings (userid, bookid, rating) VALUES (?,?,?)"
 )
 
 var logger = log.New(os.Stderr, "log: ", log.LstdFlags|log.Lshortfile)
@@ -271,15 +294,13 @@ func SaveBook(db *sql.DB, book Book) error {
 				return err
 			}
 		}
-		query := "DELETE FROM tags WHERE bookid=?"
-		_, err = db.Exec(query, book.ID)
+		_, err = db.Exec(deleteTagsQuery, book.ID)
 		if err != nil {
 			logger.Printf("Error when saving authors: %v", err)
 			return err
 		}
-		query = "INSERT INTO tags (bookid, tag) VALUES (?,?)"
 		for _, tag := range book.Tags {
-			_, err = db.Exec(query, book.ID, tag)
+			_, err = db.Exec(addTagQuery, book.ID, tag)
 			if err != nil {
 				logger.Printf("Error when saving authors: %v", err)
 				return err
@@ -425,15 +446,13 @@ func SaveBook(db *sql.DB, book Book) error {
 				return err
 			}
 		}
-		query := "DELETE FROM tags WHERE bookid=?"
-		_, err = db.Exec(query, id)
+		_, err = db.Exec(deleteTagsQuery, id)
 		if err != nil {
 			logger.Printf("Error when saving authors: %v", err)
 			return err
 		}
-		query = "INSERT INTO tags (bookid, tag) VALUES (?,?)"
 		for _, tag := range book.Tags {
-			_, err = db.Exec(query, id, tag)
+			_, err = db.Exec(addTagQuery, id, tag)
 			if err != nil {
 				logger.Printf("Error when saving authors: %v", err)
 				return err
@@ -444,8 +463,7 @@ func SaveBook(db *sql.DB, book Book) error {
 }
 
 func removeAllWrittenBy(db *sql.DB, bookid string) error {
-	query := "DELETE FROM written_by WHERE BookId=?"
-	_, err := db.Exec(query, bookid)
+	_, err := db.Exec(deleteWrittenByQuery, bookid)
 	if err != nil {
 		logger.Printf("Error when deleting written_by: %v", err)
 		return err
@@ -454,8 +472,7 @@ func removeAllWrittenBy(db *sql.DB, bookid string) error {
 }
 
 func removeAllAwards(db *sql.DB, bookid string) error {
-	query := "DELETE FROM awards WHERE BookId=?"
-	_, err := db.Exec(query, bookid)
+	_, err := db.Exec(deleteAwardsQuery, bookid)
 	if err != nil {
 		logger.Printf("Error when deleting award: %v", err)
 		return err
@@ -466,8 +483,8 @@ func removeAllAwards(db *sql.DB, bookid string) error {
 //DeleteBook deletes a book
 func DeleteBook(db *sql.DB, bookid string) error {
 	removeAllWrittenBy(db, bookid)
-	query := "DELETE FROM books WHERE BookId=?"
-	_, err := db.Exec(query, bookid)
+	removeAllAwards(db, bookid)
+	_, err := db.Exec(deleteBookQuery, bookid)
 	if err != nil {
 		logger.Printf("Error when deleting book: %v", err)
 		return err
@@ -482,15 +499,13 @@ func CheckoutBook(db *sql.DB, session string, bookid int) error {
 		logger.Printf("Error: %+v", err)
 		return err
 	}
-	query := "UPDATE books SET loaneeid=? WHERE bookid=?"
-	_, err = db.Exec(query, userid, bookid)
+	_, err = db.Exec(checkoutBookQuery, userid, bookid)
 	return err
 }
 
 //CheckinBook checks in a book
 func CheckinBook(db *sql.DB, bookid int) error {
-	query := "UPDATE books SET loaneeid=-1 WHERE bookid=?"
-	_, err := db.Exec(query, bookid)
+	_, err := db.Exec(checkinBookQuery, bookid)
 	return err
 }
 
@@ -500,8 +515,7 @@ func addContributor(db *sql.DB, bookid string, contributor information.Contribut
 		logger.Printf("Error: %+v", err)
 		return err
 	}
-	query := "REPLACE INTO written_by (BookID, AuthorID, Role) VALUES (?,?,?)"
-	_, err = db.Exec(query, bookid, personID, contributor.Role)
+	_, err = db.Exec(addContributorQuery, bookid, personID, contributor.Role)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return err
@@ -510,8 +524,7 @@ func addContributor(db *sql.DB, bookid string, contributor information.Contribut
 }
 
 func addAward(db *sql.DB, bookid, award string) error {
-	query := "REPLACE INTO awards (BookID, Award) VALUES (?,?)"
-	_, err := db.Exec(query, bookid, award)
+	_, err := db.Exec(addAward, bookid, award)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return err
@@ -522,8 +535,7 @@ func addAward(db *sql.DB, bookid, award string) error {
 func addOrGetPerson(db *sql.DB, first, middles, last string) (string, error) {
 	var id int64
 	id = -1
-	query := "SELECT PersonID FROM persons WHERE FirstName=? AND MiddleNames=? AND LastName=?"
-	rows, err := db.Query(query, first, middles, last)
+	rows, err := db.Query(getPersonQuery, first, middles, last)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return "", err
@@ -534,8 +546,7 @@ func addOrGetPerson(db *sql.DB, first, middles, last string) (string, error) {
 		}
 	}
 	if id == -1 {
-		query = "INSERT INTO persons (FirstName, MiddleNames, LastName) VALUES (?,?,?)"
-		res, err := db.Exec(query, first, middles, last)
+		res, err := db.Exec(addPersonQuery, first, middles, last)
 		if err != nil {
 			logger.Printf("Error: %+v", err)
 			return "", err
@@ -552,8 +563,7 @@ func addOrGetPerson(db *sql.DB, first, middles, last string) (string, error) {
 func addOrGetPublisher(db *sql.DB, publisher, city, state, country string) (string, error) {
 	var id int64
 	id = -1
-	query := "SELECT PublisherID FROM publishers WHERE Publisher=? AND City=? AND State=? AND Country=?"
-	rows, err := db.Query(query, publisher, city, state, country)
+	rows, err := db.Query(getPublisherQuery, publisher, city, state, country)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return "", err
@@ -564,8 +574,7 @@ func addOrGetPublisher(db *sql.DB, publisher, city, state, country string) (stri
 		}
 	}
 	if id == -1 {
-		query = "INSERT INTO publishers (Publisher, City, State, Country) VALUES (?,?,?,?)"
-		res, err := db.Exec(query, publisher, city, state, country)
+		res, err := db.Exec(addPublisherQuery, publisher, city, state, country)
 		if err != nil {
 			logger.Printf("Error: %+v", err)
 			return "", err
@@ -580,8 +589,7 @@ func addOrGetPublisher(db *sql.DB, publisher, city, state, country string) (stri
 }
 
 func addDewey(db *sql.DB, v string) error {
-	query := "REPLACE INTO dewey_numbers (Number) VALUES (?)"
-	_, err := db.Exec(query, v)
+	_, err := db.Exec(addDeweyQuery, v)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return err
@@ -590,8 +598,7 @@ func addDewey(db *sql.DB, v string) error {
 }
 
 func addFormat(db *sql.DB, v string) error {
-	query := "REPLACE INTO formats (Format) VALUES (?)"
-	_, err := db.Exec(query, v)
+	_, err := db.Exec(addFormatQuery, v)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return err
@@ -600,8 +607,7 @@ func addFormat(db *sql.DB, v string) error {
 }
 
 func addSeries(db *sql.DB, v string) error {
-	query := "REPLACE INTO series (Series) VALUES (?)"
-	_, err := db.Exec(query, v)
+	_, err := db.Exec(addSeriesQuery, v)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return err
@@ -610,8 +616,7 @@ func addSeries(db *sql.DB, v string) error {
 }
 
 func addLanguage(db *sql.DB, v string) error {
-	query := "REPLACE INTO languages (Langauge) VALUES (?)"
-	_, err := db.Exec(query, v)
+	_, err := db.Exec(addLanguageQuery, v)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return err
@@ -631,7 +636,6 @@ func downloadImage(url, fileLocation string) error {
 		logger.Printf("Error: %+v", err)
 		return err
 	}
-	// img = resize.Thumbnail(400, 400, img, resize.Lanczos3)
 	file, err := os.Create(fileLocation)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
@@ -1182,10 +1186,9 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 			ID: LoaneeId,
 		}
 		if b.Loanee.ID != -1 {
-			query = "SELECT firstname, lastname, usr, email from library_members WHERE id=?"
-			err = db.QueryRow(query, b.Loanee.ID).Scan(&b.Loanee.FirstName, &b.Loanee.LastName, &b.Loanee.Username, &b.Loanee.Email)
+			err = db.QueryRow(getLibraryMemberQuery, b.Loanee.ID).Scan(&b.Loanee.FirstName, &b.Loanee.LastName, &b.Loanee.Username, &b.Loanee.Email)
 			if err != nil {
-				logger.Printf("Error getting contributors: %v", err)
+				logger.Printf("Error getting loanee: %v", err)
 				return nil, 0, err
 			}
 		}
@@ -1244,8 +1247,7 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 		if EditionPublished.Valid {
 			b.EditionPublished = strconv.Itoa(EditionPublished.Time.Year())
 		}
-		query = "SELECT tag FROM tags WHERE bookid=?"
-		innerRows, err := db.Query(query, b.ID)
+		innerRows, err := db.Query(getTagsQuery, b.ID)
 		if err != nil {
 			logger.Printf("Error: %v", err)
 			return nil, 0, err
@@ -1311,8 +1313,7 @@ func formFilterText(text string) string {
 
 //GetBooksForExport selects all books as strings
 func GetBooksForExport(db *sql.DB) ([][]string, error) {
-	query := "select * from books join publishers on books.PublisherID=publishers.PublisherID"
-	rows, err := db.Query(query)
+	rows, err := db.Query(getExportBooksQuery)
 	if err != nil {
 		logger.Printf("Error exporting books: %v", err)
 		return nil, err
@@ -1352,8 +1353,7 @@ func GetBooksForExport(db *sql.DB) ([][]string, error) {
 
 //GetAuthorsForExport selects all books as strings
 func GetAuthorsForExport(db *sql.DB) ([][]string, error) {
-	query := "SELECT BookID, FirstName, MiddleNames, LastName, Role from written_by JOIN persons on written_by.AuthorID=persons.PersonID"
-	rows, err := db.Query(query)
+	rows, err := db.Query(getExportAuthorsQuery)
 	if err != nil {
 		logger.Printf("Error exporting books: %v", err)
 		return nil, err
@@ -1398,23 +1398,21 @@ func ImportBooks(db *sql.DB, records [][]string) error {
 	return nil
 }
 
-//GetBook gets a book by its id
-func GetBook(db *sql.DB, id string) (Book, error) {
-	query := "SELECT ISBN, Title, Subtitle, Series, Volume FROM books WHERE bookid=?"
+//GetBookForMatch gets a book by its id
+func GetBookForMatch(db *sql.DB, id string) (Book, error) {
 	var book Book
-	err := db.QueryRow(query, id).Scan(&book.ISBN, &book.Title, &book.Subtitle, &book.Series, &book.Volume)
+	err := db.QueryRow(getBookForMatchQuery, id).Scan(&book.ISBN, &book.Title, &book.Subtitle, &book.Series, &book.Volume)
 	return book, err
 }
 
 //GetGuessMatchedBooks gets ids of books that are similar enough to a book that they could be the same
 func GetGuessMatchedBooks(db *sql.DB, id string) ([]int64, error) {
-	book, err := GetBook(db, id)
+	book, err := GetBookforMatch(db, id)
 	if err != nil {
 		logger.Printf("Error: %v", err)
 		return nil, err
 	}
-	query := "SELECT BookId FROM books WHERE isbn=? || (title=? && subtitle=? && series=? && volume=?)"
-	rows, err := db.Query(query, book.ISBN, book.Title, book.Subtitle, book.Series, book.Volume)
+	rows, err := db.Query(getGuessedMatchesQuery, book.ISBN, book.Title, book.Subtitle, book.Series, book.Volume)
 	if err != nil {
 		logger.Printf("Error: %v", err)
 		return nil, err
@@ -1475,8 +1473,7 @@ func AddBookReview(db *sql.DB, id, session string, review string) error {
 		logger.Printf("Error: %+v", err)
 		return err
 	}
-	query := "REPLACE INTO reviews (userid, bookid, review) VALUES (?,?,?)"
-	_, err = db.Exec(query, userid, id, review)
+	_, err = db.Exec(addReviewQuery, userid, id, review)
 	return err
 }
 
@@ -1513,8 +1510,7 @@ func AddBookRating(db *sql.DB, id, session string, rating int) error {
 		logger.Printf("Error: %+v", err)
 		return err
 	}
-	query := "REPLACE INTO ratings (userid, bookid, rating) VALUES (?,?,?)"
-	_, err = db.Exec(query, userid, id, rating)
+	_, err = db.Exec(addRatingQuery, userid, id, rating)
 	return err
 }
 

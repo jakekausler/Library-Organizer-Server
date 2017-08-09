@@ -30,7 +30,10 @@ angular.module('libraryOrganizer')
                 $scope.bookcases = [];
             }
             $scope.removeFromLoading(loadingName);
-		});
+		}).then(function(response) {
+            $mdToast.showSimple("Failed to get library cases");
+            $vm.removeFromLoading(loadingName);
+        });
 	}
 	$scope.editShelves = function(ev) {
         $mdDialog.show({
@@ -90,6 +93,9 @@ angular.module('libraryOrganizer')
             $scope.libraries = angular.copy(data);
             $scope.updateCases();
             $scope.removeFromLoading(loadingName);
+        }).then(function(response) {
+            $mdToast.showSimple("Failed to get list of libraries");
+            $vm.removeFromLoading(loadingName);
         });
     };
     $scope.updateLibraries();
