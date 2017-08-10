@@ -1,5 +1,5 @@
 angular.module('libraryOrganizer')
-    .controller('gridController', function($scope, $http, $mdSidenav, $mdDialog) {
+    .controller('gridController', function($scope, $mdToast, $http, $mdSidenav, $mdDialog) {
         $scope.sort = $scope.getParameterByName("sort", "dewey");
         $scope.numberToGet = parseInt($scope.getParameterByName("numbertoget", "50"));
         $scope.page = parseInt($scope.getParameterByName("page", "1"));
@@ -162,9 +162,9 @@ angular.module('libraryOrganizer')
                     }
                     $scope.numberOfBooks = response.data.numbooks;
                     $scope.removeFromLoading(loadingName);
-                }).then(function(response) {
+                }, function(response) {
                     $mdToast.showSimple("Failed to get books");
-                    $vm.removeFromLoading(loadingName);
+                    $scope.removeFromLoading(loadingName);
                 });
             }
         };
@@ -314,9 +314,9 @@ angular.module('libraryOrganizer')
                 $scope.libraries = angular.copy(data);
                 $scope.output = angular.copy($scope.libraries);
                 $scope.removeFromLoading(loadingName);
-            }).then(function(response) {
+            }, function(response) {
                 $mdToast.showSimple("Failed to get list of libraries");
-                $vm.removeFromLoading(loadingName);
+                $scope.removeFromLoading(loadingName);
             });;
         };
         $scope.chooseLibrary = function($ev) {

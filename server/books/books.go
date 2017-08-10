@@ -16,7 +16,7 @@ import (
 
 	"../users"
 	"../information"
-	"github.com/EdlinOrg/prominentcolor"
+	"github.com/jakekausler/prominentcolor"
 	"github.com/go-sql-driver/mysql"
 )
 
@@ -30,7 +30,7 @@ const (
 	checkinBookQuery = "UPDATE books SET loaneeid=-1 WHERE bookid=?"
 	addContributorQuery = "REPLACE INTO written_by (BookID, AuthorID, Role) VALUES (?,?,?)"
 	addAwardQuery = "REPLACE INTO awards (BookID, Award) VALUES (?,?)"
-	getPersonQuery = "SELECT PersonID FROM persons WHERE FirstName=? AND MiddleNames=? AND LastName=?"
+	getPersonQuery = "SELECT PersonID FROM persons WHE6RE FirstName=? AND MiddleNames=? AND LastName=?"
 	addPersonQuery = "INSERT INTO persons (FirstName, MiddleNames, LastName) VALUES (?,?,?)"
 	getPublisherQuery = "SELECT PublisherID FROM publishers WHERE Publisher=? AND City=? AND State=? AND Country=?"
 	addPublisherQuery = "INSERT INTO publishers (Publisher, City, State, Country) VALUES (?,?,?,?)"
@@ -524,7 +524,7 @@ func addContributor(db *sql.DB, bookid string, contributor information.Contribut
 }
 
 func addAward(db *sql.DB, bookid, award string) error {
-	_, err := db.Exec(addAward, bookid, award)
+	_, err := db.Exec(addAwardQuery, bookid, award)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return err
@@ -1333,7 +1333,7 @@ func GetBookForMatch(db *sql.DB, id string) (Book, error) {
 
 //GetGuessMatchedBooks gets ids of books that are similar enough to a book that they could be the same
 func GetGuessMatchedBooks(db *sql.DB, id string) ([]int64, error) {
-	book, err := GetBookforMatch(db, id)
+	book, err := GetBookForMatch(db, id)
 	if err != nil {
 		logger.Printf("Error: %v", err)
 		return nil, err

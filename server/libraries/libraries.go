@@ -17,7 +17,7 @@ const (
 	getBreaksQuery = "SELECT breaktype, valuetype, value FROM breaks WHERE libraryid=?"
 	getCasesQuery = "SELECT CaseId, Width, SpacerHeight, PaddingLeft, PaddingRight, BookMargin, CaseNumber, NumberOfShelves, ShelfHeight FROM bookcases WHERE libraryid=? ORDER BY CaseNumber"
 	addCaseQuery = "INSERT INTO bookcases (casenumber, width, spacerheight, paddingleft, paddingright, libraryid, numberofshelves, shelfheight) VALUES (?,?,?,?,?,?,?,?)"
-	updateCaseQuery = "INSERT INTO bookcases (casenumber, width, spacerheight, paddingleft, paddingright, libraryid, numberofshelves, shelfheight) VALUES (?,?,?,?,?,?,?,?)" := "UPDATE bookcases SET casenumber=?, width=?, spacerheight=?, paddingleft=?, paddingright=?, libraryid=?, numberOfShelves=?, shelfheight=? WHERE caseid=?"
+	updateCaseQuery = "UPDATE bookcases SET casenumber=?, width=?, spacerheight=?, paddingleft=?, paddingright=?, libraryid=?, numberOfShelves=?, shelfheight=? WHERE caseid=?"
 	deleteBreaksQuery = "DELETE FROM breaks WHERE libraryid=?"
 	addBreakQuery = "INSERT INTO breaks (libraryid, breaktype, valuetype, value) VALUES (?,?,?,?)"
 	getOwnedLibrariesQuery = "SELECT libraries.id, libraries.name FROM libraries WHERE libraries.ownerid=?"

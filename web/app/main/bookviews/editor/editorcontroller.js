@@ -176,7 +176,7 @@ angular.module('libraryOrganizer')
 		            	$scope.libraries[l].display = $scope.libraries[l].name
 	            	}
 	            }
-	        }).then(function(response) {
+	        }, function(response) {
 	        	$mdToast.showSimple("Failed to retrieve list of libraries");
 	        	$scope.libraries = [];
 	        });
@@ -188,7 +188,7 @@ angular.module('libraryOrganizer')
 				data: JSON.stringify(str)
 			}).then(function(response){
 				return response.data;
-			}).then(function(response) {
+			}, function(response) {
 	        	$mdToast.showSimple("Failed to retrieve list of publishers");
 	        	return [];
 	        });
@@ -200,7 +200,7 @@ angular.module('libraryOrganizer')
 				data: JSON.stringify(str)
 			}).then(function(response){
 				return response.data;
-			}).then(function(response) {
+			}, function(response) {
 	        	$mdToast.showSimple("Failed to retrieve list of cities");
 	        	return [];
 	        });
@@ -212,7 +212,7 @@ angular.module('libraryOrganizer')
 				data: JSON.stringify(str)
 			}).then(function(response){
 				return response.data;
-			}).then(function(response) {
+			}, function(response) {
 	        	$mdToast.showSimple("Failed to retrieve list of states");
 	        	return [];
 	        });
@@ -224,7 +224,7 @@ angular.module('libraryOrganizer')
 				data: JSON.stringify(str)
 			}).then(function(response){
 				return response.data;
-			}).then(function(response) {
+			}, function(response) {
 	        	$mdToast.showSimple("Failed to retrieve list of countries");
 	        	return [];
 	        });
@@ -236,7 +236,7 @@ angular.module('libraryOrganizer')
 				data: JSON.stringify(str)
 			}).then(function(response){
 				return response.data;
-			}).then(function(response) {
+			}, function(response) {
 	        	$mdToast.showSimple("Failed to retrieve list of series");
 	        	return [];
 	        });
@@ -248,7 +248,7 @@ angular.module('libraryOrganizer')
 				data: JSON.stringify(str)
 			}).then(function(response){
 				return response.data;
-			}).then(function(response) {
+			}, function(response) {
 	        	$mdToast.showSimple("Failed to retrieve list of bindings");
 	        	return [];
 	        });
@@ -260,7 +260,7 @@ angular.module('libraryOrganizer')
 				data: JSON.stringify(str)
 			}).then(function(response){
 				return response.data;
-			}).then(function(response) {
+			}, function(response) {
 	        	$mdToast.showSimple("Failed to retrieve list of languages");
 	        	return [];
 	        });
@@ -272,7 +272,7 @@ angular.module('libraryOrganizer')
 				data: JSON.stringify(str)
 			}).then(function(response){
 				return response.data;
-			}).then(function(response) {
+			}, function(response) {
 	        	$mdToast.showSimple("Failed to retrieve list of roles");
 	        	return [];
 	        });
@@ -284,7 +284,7 @@ angular.module('libraryOrganizer')
 				data: JSON.stringify(str)
 			}).then(function(response){
 				return response.data;
-			}).then(function(response) {
+			}, function(response) {
 	        	$mdToast.showSimple("Failed to retrieve list of deweys");
 	        	return [];
 	        });
@@ -300,7 +300,7 @@ angular.module('libraryOrganizer')
 				data: JSON.stringify(str)
 			}).then(function(response){
 				return response.data;
-			}).then(function(response) {
+			}, function(response) {
 	        	$mdToast.showSimple("Failed to retrieve list of tags");
 	        	return [];
 	        });
@@ -312,7 +312,7 @@ angular.module('libraryOrganizer')
 				data: JSON.stringify(str)
 			}).then(function(response){
 				return response.data;
-			}).then(function(response) {
+			}, function(response) {
 	        	$mdToast.showSimple("Failed to retrieve list of awards");
 	        	return [];
 	        });
