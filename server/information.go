@@ -64,7 +64,16 @@ func GetPublishersHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	d, err := information.GetPublishers(db)
+	var str string
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&str)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
+	d, err := information.GetPublishers(db, str)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -87,7 +96,16 @@ func GetCitiesHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	d, err := information.GetCities(db)
+	var str string
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&str)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
+	d, err := information.GetCities(db, str)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -110,7 +128,16 @@ func GetStatesHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	d, err := information.GetStates(db)
+	var str string
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&str)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
+	d, err := information.GetStates(db, str)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -133,7 +160,16 @@ func GetCountriesHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	d, err := information.GetCountries(db)
+	var str string
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&str)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
+	d, err := information.GetCountries(db, str)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -156,7 +192,16 @@ func GetSeriesHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	d, err := information.GetSeries(db)
+	var str string
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&str)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
+	d, err := information.GetSeries(db, str)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -179,7 +224,16 @@ func GetFormatsHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	d, err := information.GetFormats(db)
+	var str string
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&str)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
+	d, err := information.GetFormats(db, str)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -202,7 +256,16 @@ func GetLanguagesHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	d, err := information.GetLanguages(db)
+	var str string
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&str)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
+	d, err := information.GetLanguages(db, str)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -225,7 +288,16 @@ func GetRolesHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	d, err := information.GetRoles(db)
+	var str string
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&str)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
+	d, err := information.GetRoles(db, str)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -248,7 +320,40 @@ func GetDeweysHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	d, err := information.GetDeweys(db)
+	var str string
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&str)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
+	d, err := information.GetDeweys(db, str)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	data, err := json.Marshal(d)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+}
+
+//GetGenreHandler gets deweys
+func GetGenreHandler(w http.ResponseWriter, r *http.Request) {
+	if ok, _ := Registered(r); !ok {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
+		return
+	}
+	libraryid := mux.Vars(r)["dewey"]
+	d, err := information.GetGenre(db, dewey)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -271,7 +376,16 @@ func GetTagsHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	d, err := information.GetTags(db)
+	var str string
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&str)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
+	d, err := information.GetTags(db, str)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -294,7 +408,16 @@ func GetAwardsHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	d, err := information.GetAwards(db)
+	var str string
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&str)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
+	d, err := information.GetAwards(db, str)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)

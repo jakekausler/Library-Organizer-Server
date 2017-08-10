@@ -23,7 +23,7 @@ import (
 const (
 	saveBookQuery = "UPDATE books SET Title=?, Subtitle=?, OriginallyPublished=?, EditionPublished=?, PublisherID=?, IsRead=?, IsReference=?, IsOwned=?, IsShipping=?, IsReading=?, isbn=?, Dewey=?, Pages=?, Width=?, Height=?, Depth=?, Weight=?, PrimaryLanguage=?, SecondaryLanguage=?, OriginalLanguage=?, Series=?, Volume=?, Format=?, Edition=?, ImageURL=?, LibraryId=?, Lexile=?, LexileCode=?, InterestLevel=?, AR=?, LearningAZ=?, GuidedReading=?, DRA=?, Grade=?, FountasPinnell=?, Age=?, ReadingRecovery=?, PMReaders=?, SpineColor=?, Notes=? WHERE BookId=?"
 	addBookQuery  = "INSERT INTO books (Title, Subtitle, OriginallyPublished, PublisherID, IsRead, IsReference, IsOwned, IsShipping, IsReading, isbn, Dewey, Pages, Width, Height, Depth, Weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, Series, Volume, Format, Edition, EditionPublished, LibraryId, Lexile, LexileCode, InterestLevel, AR, LearningAZ, GuidedReading, DRA, Grade, FountasPinnell, Age, ReadingRecovery, PMReaders, Notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-	deleteWrittenByQuery = "DELETE FROM written_by WHERE BookId=?"
+	getBookQuery  = "SELECT bookid, title, subtitle, OriginallyPublished, PublisherID, isread, isreference, IsOwned, ISBN, LoaneeId, dewey, pages, width, height, depth, weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, series, volume, format, Edition, ImageURL, IsReading, isshipping, SpineColor, CheapestNew, CheapestUsed, EditionPublished, SpineColorOverridden, Lexile,  LexileCode, InterestLevel, AR, LearningAZ, GuidedReading, DRA, Grade, FountasPinnell, Age, ReadingRecovery, PMReaders, Notes, blid, libraries.Name, library_members.usr, permissions.Permission from (select books.*, books.libraryid as blid, FROM books LEFT JOIN (SELECT  PersonID, AuthorRoles.BookID, concat(COALESCE(lastname,''),COALESCE(firstname,''),COALESCE(middlenames,'')) as name FROM persons JOIN (SELECT written_by.BookID, AuthorID FROM written_by WHERE Role='Author') AS AuthorRoles ON AuthorRoles.AuthorID = persons.PersonID ORDER BY name ) AS Authors ON books.BookID=Authors.BookID) i LEFT JOIN libraries on blid=libraries.id JOIN library_members on libraries.ownerid=library_members.id JOIN permissions on permissions.userid=? AND libraries.id=permissions.libraryid WHERE BookId=?"
 	deleteAwardsQuery = "DELETE FROM awards WHERE BookId=?"
 	deleteBookQuery = "DELETE FROM books WHERE BookId=?"
 	checkoutBookQuery = "UPDATE books SET loaneeid=? WHERE bookid=?"
@@ -715,7 +715,7 @@ func removeImage(bookid string) error {
 
 //GetBooks gets all books
 //todo include authors in filter
-func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, fromLexile, toLexile, fromInterestLevel, toInterestLevel, fromAR, toAR, fromLearningAZ, toLearningAZ, fromGuidedReading, toGuidedReading, fromDRA, toDRA, fromGrade, toGrade, fromFountasPinnell, toFountasPinnell, fromAge, toAge, fromReadingRecovery, toReadingRecovery, fromPMReaders, toPMReaders, libraryids, isbn, session string, authorseries []string) ([]Book, int64, error) {
+func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, fromLexile, toLexile, fromInterestLevel, toInterestLevel, fromAR, toAR, fromLearningAZ, toLearningAZ, fromGuidedReading, toGuidedReading, fromDRA, toDRA, fromGrade, toGrade, fromFountasPinnell, toFountasPinnell, fromAge, toAge, fromReadingRecovery, toReadingRecovery, fromPMReaders, toPMReaders, libraryids, isbn, session string, authorseries []string, caseQuery bool) ([]Book, int64, error) {
 	text = strings.Replace(text, "'", "\\'", -1)
 	if libraryids == "" {
 		return nil, 0, nil
@@ -1119,39 +1119,25 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 		logger.Printf("Error: %+v", err)
 		return nil, 0, err
 	}
-	query := "SELECT bookid, title, subtitle, OriginallyPublished, PublisherID, isread, isreference, IsOwned, ISBN, LoaneeId, dewey, pages, width, height, depth, weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, series, volume, format, Edition, ImageURL, IsReading, isshipping, SpineColor, CheapestNew, CheapestUsed, EditionPublished, SpineColorOverridden, Lexile,  LexileCode, InterestLevel, AR, LearningAZ, GuidedReading, DRA, Grade, FountasPinnell, Age, ReadingRecovery, PMReaders, Notes, blid, libraries.Name, library_members.usr, permissions.Permission from (select books.*, books.libraryid as blid, " + titlechange + ", " + subtitlechange + ", " + serieschange + ", min(name) as minname FROM books LEFT JOIN " + authors + " ON books.BookID = Authors.BookID " + filter + " GROUP BY books.BookID) i LEFT JOIN libraries ON blid=libraries.id JOIN library_members on libraries.ownerid=library_members.id JOIN permissions on permissions.userid=? and libraries.id=permissions.libraryid ORDER BY " + order
+	fields := "bookid, title, subtitle, ImageURL, blid, libraries.Name, library_members.usr, permissions.Permission"
+	if caseQuery {
+		fields += ", SpineColor, width, height, dewey, series"
+	}
+	query := "SELECT " + fields + " FROM (select books.*, books.libraryid as blid, " + titlechange + ", " + subtitlechange + ", " + serieschange + ", min(name) as minname FROM books LEFT JOIN " + authors + " ON books.BookID = Authors.BookID " + filter + " GROUP BY books.BookID) i LEFT JOIN libraries ON blid=libraries.id JOIN library_members on libraries.ownerid=library_members.id JOIN permissions on permissions.userid=? and libraries.id=permissions.libraryid ORDER BY " + order
 	if numberToGet != "-1" {
 		query += " LIMIT " + numberToGet + " OFFSET " + strconv.FormatInt(((pag-1)*ntg), 10)
 	}
-	pageQuery := "SELECT count(bookid) from (select books.bookid, " + titlechange + ", " + subtitlechange + ", " + serieschange + ", min(name) as minname FROM books LEFT JOIN " + authors + " ON books.BookID = Authors.BookID " + filter + " GROUP BY books.BookID) i"
+	pageQuery := "SELECT count(bookid) FROM (select books.bookid, " + titlechange + ", " + subtitlechange + ", " + serieschange + ", min(name) as minname FROM books LEFT JOIN " + authors + " ON books.BookID = Authors.BookID " + filter + " GROUP BY books.BookID) i"
 
 	b := Book{}
 	var books = make([]Book, 0)
 
-	var PublisherID sql.NullString
-	var IsRead int64
-	var IsReference int64
-	var IsOwned int64
-	var IsShipping int64
-	var IsReading int64
-	var LoaneeId int64
 	var Title sql.NullString
 	var Subtitle sql.NullString
-	var OriginallyPublished mysql.NullTime
-	var Dewey sql.NullString
-	var ISBN sql.NullString
-	var PrimaryLanguage sql.NullString
-	var SecondaryLanguage sql.NullString
-	var OriginalLanguage sql.NullString
-	var Series sql.NullString
-	var Format sql.NullString
 	var ImageURL sql.NullString
 	var SpineColor sql.NullString
-	var EditionPublished mysql.NullTime
-	var spinecoloroverridden int64
-
-	var p information.Publisher
-	var c []information.Contributor
+	var Dewey sql.NullString
+	var Series sql.NullString
 
 	userid, err := users.GetUserID(db, session)
 	if err != nil {
@@ -1164,40 +1150,17 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 		return nil, 0, err
 	}
 	for rows.Next() {
-		if err := rows.Scan(&b.ID, &Title, &Subtitle, &OriginallyPublished, &PublisherID, &IsRead, &IsReference, &IsOwned, &ISBN, &LoaneeId, &Dewey, &b.Pages, &b.Width, &b.Height, &b.Depth, &b.Weight, &PrimaryLanguage, &SecondaryLanguage, &OriginalLanguage, &Series, &b.Volume, &Format, &b.Edition, &ImageURL, &IsReading, &IsShipping, &SpineColor, &b.CheapestNew, &b.CheapestUsed, &EditionPublished, &spinecoloroverridden, &b.Lexile, &b.LexileCode, &b.InterestLevel, &b.AR, &b.LearningAZ, &b.GuidedReading, &b.DRA, &b.Grade, &b.FountasPinnell, &b.Age, &b.ReadingRecovery, &b.PMReaders, &b.Notes, &b.Library.ID, &b.Library.Name, &b.Library.Owner, &b.Library.Permissions); err != nil {
-			logger.Printf("Error scanning books: %v", err)
-			return nil, 0, err
-		}
-		if PublisherID.Valid {
-			p, err = information.GetPublisher(db, PublisherID.String)
-			if err != nil {
-				logger.Printf("Error getting publisher: %v", err)
+		if caseQuery {
+			if err := rows.Scan(&b.ID, &Title, &Subtitle, &ImageURL, &b.Library.ID, &b.Library.Name, &b.Library.Owner, &b.Library.Permissions, &SpineColor, &b.Width, &b.Height, &Dewey, &Series); err != nil {
+				logger.Printf("Error scanning books: %v", err)
+				return nil, 0, err
+			}
+		} else {
+			if err := rows.Scan(&b.ID, &Title, &Subtitle, &ImageURL, &b.Library.ID, &b.Library.Name, &b.Library.Owner, &b.Library.Permissions); err != nil {
+				logger.Printf("Error scanning books: %v", err)
 				return nil, 0, err
 			}
 		}
-		b.Publisher = p
-		c, err = information.GetContributors(db, b.ID)
-		if err != nil {
-			logger.Printf("Error getting contributors: %v", err)
-			return nil, 0, err
-		}
-		b.Contributors = c
-		b.Loanee = users.User{
-			ID: LoaneeId,
-		}
-		if b.Loanee.ID != -1 {
-			err = db.QueryRow(getLibraryMemberQuery, b.Loanee.ID).Scan(&b.Loanee.FirstName, &b.Loanee.LastName, &b.Loanee.Username, &b.Loanee.Email)
-			if err != nil {
-				logger.Printf("Error getting loanee: %v", err)
-				return nil, 0, err
-			}
-		}
-		b.IsOwned = IsOwned == 1
-		b.IsReference = IsReference == 1
-		b.IsReading = IsReading == 1
-		b.IsRead = IsRead == 1
-		b.IsShipping = IsShipping == 1
-		b.SpineColorOverridden = spinecoloroverridden == 1
 		b.Title = ""
 		if Title.Valid {
 			b.Title = Title.String
@@ -1206,60 +1169,23 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 		if Subtitle.Valid {
 			b.Subtitle = Subtitle.String
 		}
-		b.OriginallyPublished = "0000"
-		if OriginallyPublished.Valid {
-			b.OriginallyPublished = strconv.Itoa(OriginallyPublished.Time.Year())
-		}
-		b.Dewey = Dewey
-		b.ISBN = ""
-		if ISBN.Valid {
-			b.ISBN = ISBN.String
-		}
-		b.PrimaryLanguage = ""
-		if PrimaryLanguage.Valid {
-			b.PrimaryLanguage = PrimaryLanguage.String
-		}
-		b.SecondaryLanguage = ""
-		if SecondaryLanguage.Valid {
-			b.SecondaryLanguage = SecondaryLanguage.String
-		}
-		b.OriginalLanguage = ""
-		if OriginalLanguage.Valid {
-			b.OriginalLanguage = OriginalLanguage.String
-		}
-		b.Series = ""
-		if Series.Valid {
-			b.Series = Series.String
-		}
-		b.Format = ""
-		if Format.Valid {
-			b.Format = Format.String
-		}
 		b.ImageURL = ""
 		if ImageURL.Valid {
 			b.ImageURL = ImageURL.String
 		}
-		b.SpineColor = ""
-		if SpineColor.Valid {
-			b.SpineColor = SpineColor.String
-		}
-		b.EditionPublished = "0000"
-		if EditionPublished.Valid {
-			b.EditionPublished = strconv.Itoa(EditionPublished.Time.Year())
-		}
-		innerRows, err := db.Query(getTagsQuery, b.ID)
-		if err != nil {
-			logger.Printf("Error: %v", err)
-			return nil, 0, err
-		}
-		for innerRows.Next() {
-			var tag string
-			err := innerRows.Scan(&tag)
-			if err != nil {
-				logger.Printf("Error: %v", err)
-				return nil, 0, err
+		if caseQuery {
+			b.SpineColor = ""
+			if SpineColor.Valid {
+				b.SpineColor = SpineColor.String
 			}
-			b.Tags = append(b.Tags, tag)
+			b.Dewey = ""
+			if Dewey.Valid {
+				b.Dewey = Dewey.String
+			}
+			b.Series = ""
+			if Series.Valid {
+				b.Series = Series.String
+			}
 		}
 		books = append(books, b)
 	}
@@ -1520,4 +1446,142 @@ func intArrToStr(arr []int64, del string) string {
 		retval = append(retval, strconv.Itoa(int(i)))
 	}
 	return strings.Join(retval, del)
+}
+
+//GetBook gets a book by its id
+func GetBook(db *sql.DB, session, bookid string) (Book, error) {
+	b := Book{}
+
+	var PublisherID sql.NullString
+	var IsRead int64
+	var IsReference int64
+	var IsOwned int64
+	var IsShipping int64
+	var IsReading int64
+	var LoaneeId int64
+	var Title sql.NullString
+	var Subtitle sql.NullString
+	var OriginallyPublished mysql.NullTime
+	var Dewey sql.NullString
+	var ISBN sql.NullString
+	var PrimaryLanguage sql.NullString
+	var SecondaryLanguage sql.NullString
+	var OriginalLanguage sql.NullString
+	var Series sql.NullString
+	var Format sql.NullString
+	var ImageURL sql.NullString
+	var SpineColor sql.NullString
+	var EditionPublished mysql.NullTime
+	var spinecoloroverridden int64
+
+	var p information.Publisher
+	var c []information.Contributor
+
+	userid, err := users.GetUserID(db, session)
+	if err != nil {
+		logger.Printf("Error getting username: %v", err)
+		return nil, 0, err
+	}
+	err = db.QueryRow(query, userid, bookid).Scan(&b.ID, &Title, &Subtitle, &OriginallyPublished, &PublisherID, &IsRead, &IsReference, &IsOwned, &ISBN, &LoaneeId, &Dewey, &b.Pages, &b.Width, &b.Height, &b.Depth, &b.Weight, &PrimaryLanguage, &SecondaryLanguage, &OriginalLanguage, &Series, &b.Volume, &Format, &b.Edition, &ImageURL, &IsReading, &IsShipping, &SpineColor, &b.CheapestNew, &b.CheapestUsed, &EditionPublished, &spinecoloroverridden, &b.Lexile, &b.LexileCode, &b.InterestLevel, &b.AR, &b.LearningAZ, &b.GuidedReading, &b.DRA, &b.Grade, &b.FountasPinnell, &b.Age, &b.ReadingRecovery, &b.PMReaders, &b.Notes, &b.Library.ID, &b.Library.Name, &b.Library.Owner, &b.Library.Permissions)
+	if err != nil {
+		logger.Printf("Error getting username: %v", err)
+		return nil, 0, err
+	}
+	if PublisherID.Valid {
+			p, err = information.GetPublisher(db, PublisherID.String)
+			if err != nil {
+				logger.Printf("Error getting publisher: %v", err)
+				return nil, 0, err
+			}
+		}
+		b.Publisher = p
+		c, err = information.GetContributors(db, b.ID)
+		if err != nil {
+			logger.Printf("Error getting contributors: %v", err)
+			return nil, 0, err
+		}
+		b.Contributors = c
+		b.Loanee = users.User{
+			ID: LoaneeId,
+		}
+		if b.Loanee.ID != -1 {
+			err = db.QueryRow(getLibraryMemberQuery, b.Loanee.ID).Scan(&b.Loanee.FirstName, &b.Loanee.LastName, &b.Loanee.Username, &b.Loanee.Email)
+			if err != nil {
+				logger.Printf("Error getting loanee: %v", err)
+				return nil, 0, err
+			}
+		}
+		b.IsOwned = IsOwned == 1
+		b.IsReference = IsReference == 1
+		b.IsReading = IsReading == 1
+		b.IsRead = IsRead == 1
+		b.IsShipping = IsShipping == 1
+		b.SpineColorOverridden = spinecoloroverridden == 1
+		b.Title = ""
+		if Title.Valid {
+			b.Title = Title.String
+		}
+		b.Subtitle = ""
+		if Subtitle.Valid {
+			b.Subtitle = Subtitle.String
+		}
+		b.OriginallyPublished = "0000"
+		if OriginallyPublished.Valid {
+			b.OriginallyPublished = strconv.Itoa(OriginallyPublished.Time.Year())
+		}
+		b.Dewey = Dewey
+		b.ISBN = ""
+		if ISBN.Valid {
+			b.ISBN = ISBN.String
+		}
+		b.PrimaryLanguage = ""
+		if PrimaryLanguage.Valid {
+			b.PrimaryLanguage = PrimaryLanguage.String
+		}
+		b.SecondaryLanguage = ""
+		if SecondaryLanguage.Valid {
+			b.SecondaryLanguage = SecondaryLanguage.String
+		}
+		b.OriginalLanguage = ""
+		if OriginalLanguage.Valid {
+			b.OriginalLanguage = OriginalLanguage.String
+		}
+		b.Series = ""
+		if Series.Valid {
+			b.Series = Series.String
+		}
+		b.Format = ""
+		if Format.Valid {
+			b.Format = Format.String
+		}
+		b.ImageURL = ""
+		if ImageURL.Valid {
+			b.ImageURL = ImageURL.String
+		}
+		b.SpineColor = ""
+		if SpineColor.Valid {
+			b.SpineColor = SpineColor.String
+		}
+		b.EditionPublished = "0000"
+		if EditionPublished.Valid {
+			b.EditionPublished = strconv.Itoa(EditionPublished.Time.Year())
+		}
+		innerRows, err := db.Query(getTagsQuery, b.ID)
+		if err != nil {
+			logger.Printf("Error: %v", err)
+			return nil, 0, err
+		}
+		for innerRows.Next() {
+			var tag string
+			err := innerRows.Scan(&tag)
+			if err != nil {
+				logger.Printf("Error: %v", err)
+				return nil, 0, err
+			}
+			b.Tags = append(b.Tags, tag)
+		}
+		books = append(books, b)
+
+	userid, err := users.GetUserID(db, session)
+	return b, err
 }
