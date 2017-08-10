@@ -11,7 +11,7 @@ import (
 	"image/gif"
 	"image/png"
 
-	"github.com/EdlinOrg/prominentcolor"
+	"github.com/jakekausler/prominentcolor"
 	"github.com/nfnt/resize"
 	_ "github.com/go-sql-driver/mysql"
 )

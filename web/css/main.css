@@ -119,9 +119,12 @@
     text-align: center;
 }
 
+#grid-view .grid-view-container {
+    height: calc(100vh - 130px);
+}
+
 #grid-view .grid-content {
     padding: 10px;
-    height: calc(100vh - 100px);
 }
 
 #grid-view md-grid-tile-header {

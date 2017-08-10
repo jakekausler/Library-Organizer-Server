@@ -67,7 +67,7 @@ angular.module('libraryOrganizer')
 			$mdDialog.cancel();
             $mdToast.showSimple("Successfully saved sort method")
         	$scope.vm.removeFromLoading(sortLoadingName)
-		}).then(function(response) {
+		}, function(response) {
 			$mdDialog.cancel();
             $mdToast.showSimple("Failed to save sort method");
             $vm.removeFromLoading(loadingName);
@@ -83,7 +83,7 @@ angular.module('libraryOrganizer')
 			$mdDialog.cancel();
             $mdToast.showSimple("Successfully saved shelves")
         	$scope.vm.removeFromLoading(casesLoadingName)
-		}).then(function(response) {
+		}, function(response) {
 			$mdDialog.cancel();
             $mdToast.showSimple("Failed to save shelves");
             $vm.removeFromLoading(loadingName);
@@ -99,7 +99,7 @@ angular.module('libraryOrganizer')
 			$mdDialog.cancel();
             $mdToast.showSimple("Successfully saved series types")
         	$scope.vm.removeFromLoading(seriesLoadingName)
-		}).then(function(response) {
+		}, function(response) {
 			$mdDialog.cancel();
             $mdToast.showSimple("Failed to save series types");
             $vm.removeFromLoading(loadingName);
@@ -115,7 +115,7 @@ angular.module('libraryOrganizer')
 			$mdDialog.cancel();
             $mdToast.showSimple("Successfully saved breaks")
         	$scope.vm.removeFromLoading(breaksLoadingName)
-		}).then(function(response) {
+		}, function(response) {
 			$mdDialog.cancel();
             $mdToast.showSimple("Failed to save breaks");
             $vm.removeFromLoading(loadingName);
@@ -177,7 +177,7 @@ angular.module('libraryOrganizer')
 		}).then(function(response){
 			$scope.series = response.data;
         	$scope.vm.removeFromLoading(loadingName)
-		}).then(function(response) {
+		}, function(response) {
             $mdToast.showSimple("Failed to get series list");
             $vm.removeFromLoading(loadingName);
         });
@@ -190,7 +190,13 @@ angular.module('libraryOrganizer')
 			url: '/libraries/'+$scope.libraryid+'/series',
 			method: 'GET'
 		}).then(function(response) {
-            $mdToast.showSimple("Failed to get special series");
+            if (response.data == null) {
+ 				response.data = [];
+ 			}
+ 			$scope.authorBasedSeries = response.data;
+         	$scope.vm.removeFromLoading(loadingName)
+        }, function(response) {
+            $mdToast.showSimple("Failed to get special series list");
             $vm.removeFromLoading(loadingName);
         });
 	}
@@ -226,7 +232,7 @@ angular.module('libraryOrganizer')
 			}
 			$scope.breaks = response.data;
         	$scope.vm.removeFromLoading(loadingName)
-		}).then(function(response) {
+		}, function(response) {
             $mdToast.showSimple("Failed to get existing breaks");
             $vm.removeFromLoading(loadingName);
         });
@@ -281,7 +287,7 @@ angular.module('libraryOrganizer')
 				})
 			}
         	$scope.vm.removeFromLoading(loadingName)
-		}).then(function(response) {
+		}, function(response) {
             $mdToast.showSimple("Failed to get sort orders");
             $vm.removeFromLoading(loadingName);
         });

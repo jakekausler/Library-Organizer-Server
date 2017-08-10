@@ -9,10 +9,85 @@
 		<md-button aria-label="Scan" class="icon scan-icon" ng-click="scan($event)"><md-tooltip md-delay="500">Insert by ISBN</md-tooltip></md-button>
 	</div>
 </md-toolbar>
-<div layout="row" >
+<div flex layout="row" class="grid-view-container">
 	<md-sidenav md-is-locked-open="isFiltersOpen" class="md-sidenav-left" md-component-id="filterSideNav" md-whiteframe=4 layout-padding="5">
 		<md-content>
 			<form name="forms.sortAndFilter"  layout="column">
+				<div id="filter"  layout="column">
+					<div id="filter-text">
+						<md-input-container class="md-block">
+							<label id="filter-text-label">Search for</label>
+							<input type="text" ng-change="updateRecieved()" ng-model="$parent.filter" name="filter" value=""/>
+						</md-input-container>
+					</div>
+					<div id="read-buttons" class="filter-radio-group" flex="33">
+						<md-tooltip md-delay="500"><div class="tooltip-inner"><span class="span-white-space">Whether or not the <em>owner</em> has read the book.</span></div></md-tooltip>
+							<md-input-container class="md-input-has-value">
+								<label id="read-buttons-label">Read</label>
+								<md-radio-group ng-change="updateRecieved()" ng-model="$parent.read" layout="row">
+									<md-radio-button value="yes">Yes</md-radio-button>
+									<md-radio-button value="no">No</md-radio-button>
+									<md-radio-button value="both" checked>Both</md-radio-button>
+								</md-radio-group>
+							</md-input-container>
+					</div>
+					<div id="reference-buttons" class="filter-radio-group" flex="33">
+						<md-tooltip md-delay="500"><div class="tooltip-inner"><span class="span-white-space">Whether or not the <em>owner</em> consideres the book reference. Reference books are not counted toward the "To Read" statistic.</span></div></md-tooltip>
+						<md-input-container class="md-input-has-value">
+							<label id="reference-buttons-label">Reference</label>
+							<md-radio-group ng-change="updateRecieved()" ng-model="$parent.reference" layout="row">
+								<md-radio-button value="yes">Yes</md-radio-button>
+								<md-radio-button value="no">No</md-radio-button>
+								<md-radio-button value="both" checked>Both</md-radio-button>
+							</md-radio-group>
+						</md-input-container>
+					</div>
+					<div id="owned-buttons" class="filter-radio-group" flex="33">
+						<md-tooltip md-delay="500"><div class="tooltip-inner"><span class="span-white-space">Whether or not the corresponding <em>library owner</em> owns the book. If it is marked as not owned, it is considered on a wish list. If no, the book is unavailable for checkout.</span></div></md-tooltip>
+						<md-input-container class="md-input-has-value">
+							<label id="owned-buttons-label">Owned</label>
+							<md-radio-group ng-change="updateRecieved()" ng-model="$parent.owned" layout="row">
+								<md-radio-button value="yes" checked>Yes</md-radio-button>
+								<md-radio-button value="no">No</md-radio-button>
+								<md-radio-button value="both">Both</md-radio-button>
+							</md-radio-group>
+						</md-input-container>
+					</div>
+					<div id="loaned-buttons" class="filter-radio-group" flex="33">
+						<md-tooltip md-delay="500"><div class="tooltip-inner"><span class="span-white-space">Whether or not the book is checked out of the <em>owner's</em> library.</span></div></md-tooltip>
+						<md-input-container class="md-input-has-value">
+							<label id="loaned-buttons-label">Loaned</label>
+							<md-radio-group ng-change="updateRecieved()" ng-model="$parent.loaned" layout="row">
+								<md-radio-button value="yes">Yes</md-radio-button>
+								<md-radio-button value="no" checked>No</md-radio-button>
+								<md-radio-button value="both">Both</md-radio-button>
+							</md-radio-group>
+						</md-input-container>
+					</div>
+					<div id="shipping-buttons" class="filter-radio-group" flex="33">
+						<md-tooltip md-delay="500"><div class="tooltip-inner"><span class="span-white-space">Whether or not the book is shipping to the <em>owner</em>. It is up to the owner to decide whether a shipping book is also considered owned. If yes, the book is unavailable for checkout.</span></div></md-tooltip>
+						<md-input-container class="md-input-has-value">
+							<label id="shipping-buttons-label">Shipping</label>
+							<md-radio-group ng-change="updateRecieved()" ng-model="$parent.shipping" layout="row">
+								<md-radio-button value="yes">Yes</md-radio-button>
+								<md-radio-button value="no" checked>No</md-radio-button>
+								<md-radio-button value="both">Both</md-radio-button>
+							</md-radio-group>
+						</md-input-container>
+					</div>
+					<div id="reading-buttons" class="filter-radio-group" flex="33">
+						<md-tooltip md-delay="500"><div class="tooltip-inner"><span class="span-white-space">Whether or not the <em>owner</em> is reading the book. If yes, the book is unavailable for checkout.</span></div></md-tooltip>
+						<md-input-container class="md-input-has-value">
+							<label id="reading-buttons-label">Reading</label>
+							<md-radio-group ng-change="updateRecieved()" ng-model="$parent.reading" layout="row">
+								<md-radio-button value="yes">Yes</md-radio-button>
+								<md-radio-button value="no" checked>No</md-radio-button>
+								<md-radio-button value="both">Both</md-radio-button>
+							</md-radio-group>
+						</md-input-container>
+					</div>
+				</div>
+				<md-button aria-label="Choose Libraries" ng-click="chooseLibrary($event)">Choose Libraries</md-button>
 				<div id="sort"  layout="column">
 					<md-input-container class="md-input-has-value">
 						<label id="sort-label">Sort By</label>
@@ -233,99 +308,22 @@
 						</div>
 					</div>
 				</div>
-				<div id="filter"  layout="column">
-					<div id="filter-text">
-						<md-input-container class="md-block">
-							<label id="filter-text-label">Search for</label>
-							<input type="text" ng-change="updateRecieved()" ng-model="$parent.filter" name="filter" value=""/>
-						</md-input-container>
-					</div>
-					<div id="read-buttons" class="filter-radio-group" flex="33">
-						<md-tooltip md-delay="500"><div class="tooltip-inner"><span class="span-white-space">Whether or not the <em>owner</em> has read the book.</span></div></md-tooltip>
-							<md-input-container class="md-input-has-value">
-								<label id="read-buttons-label">Read</label>
-								<md-radio-group ng-change="updateRecieved()" ng-model="$parent.read" layout="row">
-									<md-radio-button value="yes">Yes</md-radio-button>
-									<md-radio-button value="no">No</md-radio-button>
-									<md-radio-button value="both" checked>Both</md-radio-button>
-								</md-radio-group>
-							</md-input-container>
-					</div>
-					<div id="reference-buttons" class="filter-radio-group" flex="33">
-						<md-tooltip md-delay="500"><div class="tooltip-inner"><span class="span-white-space">Whether or not the <em>owner</em> consideres the book reference. Reference books are not counted toward the "To Read" statistic.</span></div></md-tooltip>
-						<md-input-container class="md-input-has-value">
-							<label id="reference-buttons-label">Reference</label>
-							<md-radio-group ng-change="updateRecieved()" ng-model="$parent.reference" layout="row">
-								<md-radio-button value="yes">Yes</md-radio-button>
-								<md-radio-button value="no">No</md-radio-button>
-								<md-radio-button value="both" checked>Both</md-radio-button>
-							</md-radio-group>
-						</md-input-container>
-					</div>
-					<div id="owned-buttons" class="filter-radio-group" flex="33">
-						<md-tooltip md-delay="500"><div class="tooltip-inner"><span class="span-white-space">Whether or not the corresponding <em>library owner</em> owns the book. If it is marked as not owned, it is considered on a wish list. If no, the book is unavailable for checkout.</span></div></md-tooltip>
-						<md-input-container class="md-input-has-value">
-							<label id="owned-buttons-label">Owned</label>
-							<md-radio-group ng-change="updateRecieved()" ng-model="$parent.owned" layout="row">
-								<md-radio-button value="yes" checked>Yes</md-radio-button>
-								<md-radio-button value="no">No</md-radio-button>
-								<md-radio-button value="both">Both</md-radio-button>
-							</md-radio-group>
-						</md-input-container>
-					</div>
-					<div id="loaned-buttons" class="filter-radio-group" flex="33">
-						<md-tooltip md-delay="500"><div class="tooltip-inner"><span class="span-white-space">Whether or not the book is checked out of the <em>owner's</em> library.</span></div></md-tooltip>
-						<md-input-container class="md-input-has-value">
-							<label id="loaned-buttons-label">Loaned</label>
-							<md-radio-group ng-change="updateRecieved()" ng-model="$parent.loaned" layout="row">
-								<md-radio-button value="yes">Yes</md-radio-button>
-								<md-radio-button value="no" checked>No</md-radio-button>
-								<md-radio-button value="both">Both</md-radio-button>
-							</md-radio-group>
-						</md-input-container>
-					</div>
-					<div id="shipping-buttons" class="filter-radio-group" flex="33">
-						<md-tooltip md-delay="500"><div class="tooltip-inner"><span class="span-white-space">Whether or not the book is shipping to the <em>owner</em>. It is up to the owner to decide whether a shipping book is also considered owned. If yes, the book is unavailable for checkout.</span></div></md-tooltip>
-						<md-input-container class="md-input-has-value">
-							<label id="shipping-buttons-label">Shipping</label>
-							<md-radio-group ng-change="updateRecieved()" ng-model="$parent.shipping" layout="row">
-								<md-radio-button value="yes">Yes</md-radio-button>
-								<md-radio-button value="no" checked>No</md-radio-button>
-								<md-radio-button value="both">Both</md-radio-button>
-							</md-radio-group>
-						</md-input-container>
-					</div>
-					<div id="reading-buttons" class="filter-radio-group" flex="33">
-						<md-tooltip md-delay="500"><div class="tooltip-inner"><span class="span-white-space">Whether or not the <em>owner</em> is reading the book. If yes, the book is unavailable for checkout.</span></div></md-tooltip>
-						<md-input-container class="md-input-has-value">
-							<label id="reading-buttons-label">Reading</label>
-							<md-radio-group ng-change="updateRecieved()" ng-model="$parent.reading" layout="row">
-								<md-radio-button value="yes">Yes</md-radio-button>
-								<md-radio-button value="no" checked>No</md-radio-button>
-								<md-radio-button value="both">Both</md-radio-button>
-							</md-radio-group>
-						</md-input-container>
-					</div>
-				</div>
-				<md-button aria-label="Choose Libraries" ng-click="chooseLibrary($event)">Choose Libraries</md-button>
 			</form>
 		</md-content>
 	</md-sidenav>
-	<md-content flex>
-		<md-content class="grid-content" flex>
-			<div flex layout="column" class="grid-container">
-				<md-grid-list md-cols-xs="1" md-cols-sm="2" md-cols-md="4" md-cols-gt-md="6" md-row-height-gt-md="1:1" md-row-height="2:2" md-gutter="12px" md-gutter-gt-sm="8px">
-						<md-grid-tile ng-repeat="book in books" ng-click="showBookDialog($event, book, this, 'grid')">
-							<md-grid-tile-header class="md-accent">
-								<span>{{book.title}}</span>
-							</md-grid-tile-header>
-							<img ng-src="web/{{book.imageurl}}{{'?'+getCurrentDateString()}}" alt="Image not found" onerror="this.onerror=null;this.src='web/res/book.jpg';" height="100%">
-							<md-grid-tile-footer ng-hide="book.subtitle==''">
-								<span>{{book.subtitle}}</span>
-							</md-grid-tile-footer>
-						</md-grid-tile>
-				</md-grid-list>
-	 		</div>
-	 	</md-content>
+	<md-content flex class="grid-content">
+		<div flex layout="column" class="grid-container">
+			<md-grid-list md-cols-xs="1" md-cols-sm="2" md-cols-md="4" md-cols-gt-md="6" md-row-height-gt-md="1:1" md-row-height="2:2" md-gutter="12px" md-gutter-gt-sm="8px">
+					<md-grid-tile ng-repeat="book in books" ng-click="showBookDialog($event, book, this, 'grid')">
+						<md-grid-tile-header class="md-accent">
+							<span>{{book.title}}</span>
+						</md-grid-tile-header>
+						<img ng-src="web/{{book.imageurl}}{{'?'+getCurrentDateString()}}" alt="Image not found" onerror="this.onerror=null;this.src='web/res/book.jpg';" height="100%">
+						<md-grid-tile-footer ng-hide="book.subtitle==''">
+							<span>{{book.subtitle}}</span>
+						</md-grid-tile-footer>
+					</md-grid-tile>
+			</md-grid-list>
+ 		</div>
 	</md-content>
 </div>

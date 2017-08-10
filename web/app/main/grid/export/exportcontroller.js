@@ -18,7 +18,10 @@ angular.module('libraryOrganizer')
 				download: 'books.csv'
 			})[0].click();
             $scope.removeFromLoading(booksloadingname);
-		});
+		}, function(response) {
+        	$mdToast.showSimple("Failed to export books");
+        	$vm.removeFromLoading(loadingName);
+        });
         var authorsloadingname = $scope.vm.guid();
         $scope.vm.addToLoading(authorsloadingname)
 		$http({
@@ -32,8 +35,8 @@ angular.module('libraryOrganizer')
 				download: 'authors.csv'
 			})[0].click();
             $scope.removeFromLoading(authorsloadingname);
-		}).then(function(response) {
-        	$mdToast.showSimple("Failed to export books");
+		}, function(response) {
+        	$mdToast.showSimple("Failed to export authors");
         	$vm.removeFromLoading(loadingName);
         });
 		$mdDialog.cancel()

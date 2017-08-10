@@ -24,7 +24,7 @@ angular.module('libraryOrganizer')
 			data: JSON.stringify(settings)
 		}).then(function(response) {
             $scope.vm.removeFromLoading(loadingName);
-        }).then(function(response) {
+        }, function(response) {
             $mdToast.showSimple("Failed to save settings");
             $vm.removeFromLoading(loadingName);
         })
@@ -65,7 +65,7 @@ angular.module('libraryOrganizer')
                 })
             }
             $scope.vm.removeFromLoading(loadingName);
-        }).then(function(response) {
+        }, function(response) {
             $mdToast.showSimple("Failed to get settings");
             $vm.removeFromLoading(loadingName);
         })
@@ -102,7 +102,7 @@ angular.module('libraryOrganizer')
                 }
             }
             $scope.vm.removeFromLoading(loadingName);
-        }).then(function(response) {
+        }, function(response) {
             $mdToast.showSimple("Failed to get list of owned libraries");
             $vm.removeFromLoading(loadingName);
         });
@@ -118,7 +118,7 @@ angular.module('libraryOrganizer')
         }).then(function(response) {
             $scope.users = response.data;
             $scope.vm.removeFromLoading(loadingName);
-        }).then(function(response) {
+        }, function(response) {
             $mdToast.showSimple("Failed to get list of users");
             $vm.removeFromLoading(loadingName);
         })
