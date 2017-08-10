@@ -48,37 +48,37 @@ angular.module('libraryOrganizer')
             $scope.setParameters({'statview': view})
             switch (view) {
             case 'general':
-                $scope.setStatSubView('bycounts');
+                $scope.setStatSubView('generalbycounts');
                 break;
             case 'series':
-                $scope.setStatSubView('byseries');
+                $scope.setStatSubView('series');
                 break;
             case 'publishers':
-                $scope.setStatSubView('bybooksperparent');
+                $scope.setStatSubView('publishersbooksperparent');
                 break;
             case 'languages':
-                $scope.setStatSubView('byprimary');
+                $scope.setStatSubView('languagesprimary');
                 break;
             case 'deweys':
-                $scope.setStatSubView('bydeweys');
+                $scope.setStatSubView('deweys');
                 break;
             case 'bindings':
-                $scope.setStatSubView('bybindings');
+                $scope.setStatSubView('formats');
                 break;
             case 'contributors':
-                $scope.setStatSubView('bycontributorstop');
+                $scope.setStatSubView('contributorstop');
                 break;
             case 'dimensions':
                 $scope.setStatSubView('byvolumes');
                 break;
             case 'dates':
-                $scope.setStatSubView('bydatesoriginal');
+                $scope.setStatSubView('datesoriginal');
                 break;
             case 'lexile':
-                $scope.setStatSubView('bylexile');
+                $scope.setStatSubView('lexile');
                 break;
             case 'tag':
-                $scope.setStatSubView('bytag');
+                $scope.setStatSubView('tag');
                 break;
             }
         }
@@ -86,6 +86,90 @@ angular.module('libraryOrganizer')
             if (view) {
                 $scope.statSubView = view;
                 $scope.setParameters({'statsubview': view})
+                var caption = "";
+                var subcaption = "";
+                var labelDisplay = "rotate";
+                var formatNumberScale = "";
+                var numberSuffix = "";
+                var decimals = "";
+                switch (view) {
+                    case "generalbycounts":
+                        formatNumberScale = "0";
+                        caption = "Books By Count";
+                        break;
+                    case "generalbysize":
+                        numberSuffix = " mm³";
+                        decimals = "0";
+                        caption = "Books by Size";
+                        break;
+                    case "generalbypages":
+                        numberSuffix = " pages";
+                        decimals = "0";
+                        caption = "Books by Pages";
+                        break;
+                    case "publishersbooksperparent":
+                        formatNumberScale = "0";
+                        caption = "Books by Parent Company";
+                        break;
+                    case "publisherstopchildren":
+                        formatNumberScale = "0";
+                        caption = "Books by Top Publishers";
+                        break;
+                    case "publisherstoplocations":
+                        formatNumberScale = "0";
+                        caption = "Books by Top Locations";
+                        break;
+                    case "series":
+                        formatNumberScale = "0";
+                        caption = "Books by Series";
+                        break;
+                    case "languagesprimary":
+                        formatNumberScale = "0";
+                        caption = "Books by Primary Language";
+                        break;
+                    case "languagessecondary":
+                        formatNumberScale = "0";
+                        caption = "Books by Secondary Language";
+                        break;
+                    case "languagesoriginal":
+                        formatNumberScale = "0";
+                        caption = "Books by Original Language";
+                        break;
+                    case "deweys":
+                        formatNumberScale = "0";
+                        caption = "Books by Category";
+                        break;
+                    case "formats":
+                        formatNumberScale = "0";
+                        caption = "Books by Binding";
+                        break;
+                    case "contributorstop":
+                        formatNumberScale = "0";
+                        caption = "Books by Top Contributors";
+                        break;
+                    case "contributorstop":
+                        formatNumberScale = "0";
+                        caption = "Contributors by Role";
+                        break;
+                    case "datesoriginal":
+                        formatNumberScale = "0";
+                        caption = "Books by Original Publication Date";
+                        break;
+                    case "datespublication":
+                        formatNumberScale = "0";
+                        caption = "Books by Publication Date";
+                        break;
+                    case "lexile":
+                        formatNumberScale = "0";
+                        caption = "Books by Lexile Grade Level";
+                        subcaption = "Taken from Common Core State Standards for English, Language Arts, Appendix A (Additional Information), NGA and CCSSO, 2012";                        break;
+                        break;
+                    case "tag":
+                        formatNumberScale = "0";
+                        caption = "Books by Tag";
+                        break;
+                }
+                $scope.getChartData(view, caption, subcaption, labelDisplay, formatNumberScale, numberSuffix, decimals);
             }
         }
         $scope.setStatView($scope.getParameterByName("statview", "general"));
@@ -154,4 +238,35 @@ angular.module('libraryOrganizer')
         $scope.$watch('output', function() {
             $scope.updateDimensions();
         })
+        $scope.chartData = {}
+        $scope.getChartData = function(chartType, caption, subcaption, labelDisplay, formatNumberScale, numberSuffix, decimals) {
+            var loadingName = $scope.guid();
+            $scope.addToLoading(loadingName)
+            $http({
+                url: "information/statistics",
+                method: 'GET',
+                params: {
+                    type: chartType,
+                    libraryids: $scope.stringLibraryIds()
+                }
+            }).then(function(response) {
+                $scope.chartData.chart = {
+                    caption: caption?caption:undefined,
+                    subcaption: subcaption?subcaption:undefined,
+                    labelDisplay: labelDisplay?labelDisplay:undefined,
+                    formatNumberScale: formatNumberScale?formatNumberScale:undefined,
+                    numberSuffix: numberSuffix?numberSuffix:undefined,
+                    decimals: decimals?decimals:undefined
+                }
+                if (response.data.total) {
+                    $scope.chartData.chart.caption += " (Total: " + response.data.total + ")"
+                }
+                $scope.chartData.data = response.data.data;
+                $scope.removeFromLoading(loadingName);
+            }, function(response) {
+                chartData = {}
+                $mdToast.showSimple("Failed to update chart");
+                $scope.removeFromLoading(loadingName);
+            })
+        }
     });
