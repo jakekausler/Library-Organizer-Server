@@ -69,6 +69,7 @@ angular.module('libraryOrganizer')
                 $scope.setStatSubView('bycontributorstop');
                 break;
             case 'dimensions':
+                $scope.updateDimensions();
                 $scope.setStatSubView('byvolumes');
                 break;
             case 'dates':
