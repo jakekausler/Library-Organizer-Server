@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"./information"
+	"github.com/gorilla/mux"
 )
 
 //GetStatsHandler gets statistics
@@ -64,7 +65,9 @@ func GetPublishersHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	d, err := information.GetPublishers(db)
+	params := r.URL.Query()
+	str := params.Get("str")
+	d, err := information.GetPublishers(db, str)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -87,7 +90,9 @@ func GetCitiesHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	d, err := information.GetCities(db)
+	params := r.URL.Query()
+	str := params.Get("str")
+	d, err := information.GetCities(db, str)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -110,7 +115,9 @@ func GetStatesHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	d, err := information.GetStates(db)
+	params := r.URL.Query()
+	str := params.Get("str")
+	d, err := information.GetStates(db, str)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -133,7 +140,9 @@ func GetCountriesHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	d, err := information.GetCountries(db)
+	params := r.URL.Query()
+	str := params.Get("str")
+	d, err := information.GetCountries(db, str)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -156,7 +165,9 @@ func GetSeriesHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	d, err := information.GetSeries(db)
+	params := r.URL.Query()
+	str := params.Get("str")
+	d, err := information.GetSeries(db, str)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -179,7 +190,9 @@ func GetFormatsHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	d, err := information.GetFormats(db)
+	params := r.URL.Query()
+	str := params.Get("str")
+	d, err := information.GetFormats(db, str)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -202,7 +215,9 @@ func GetLanguagesHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	d, err := information.GetLanguages(db)
+	params := r.URL.Query()
+	str := params.Get("str")
+	d, err := information.GetLanguages(db, str)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -225,7 +240,9 @@ func GetRolesHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	d, err := information.GetRoles(db)
+	params := r.URL.Query()
+	str := params.Get("str")
+	d, err := information.GetRoles(db, str)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -248,7 +265,33 @@ func GetDeweysHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	d, err := information.GetDeweys(db)
+	params := r.URL.Query()
+	str := params.Get("str")
+	d, err := information.GetDeweys(db, str)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	data, err := json.Marshal(d)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+}
+
+//GetGenreHandler gets deweys
+func GetGenreHandler(w http.ResponseWriter, r *http.Request) {
+	if ok, _ := Registered(r); !ok {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
+		return
+	}
+	dewey := mux.Vars(r)["dewey"]
+	d, err := information.GetGenre(db, dewey)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -271,7 +314,9 @@ func GetTagsHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	d, err := information.GetTags(db)
+	params := r.URL.Query()
+	str := params.Get("str")
+	d, err := information.GetTags(db, str)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -294,7 +339,9 @@ func GetAwardsHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	d, err := information.GetAwards(db)
+	params := r.URL.Query()
+	str := params.Get("str")
+	d, err := information.GetAwards(db, str)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)

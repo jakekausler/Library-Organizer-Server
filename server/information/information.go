@@ -26,6 +26,7 @@ const (
 	getContributorsQuery = "SELECT PersonID, Role, FirstName, MiddleNames, LastName from written_by join persons on written_by.AuthorID = persons.PersonID WHERE BookID=?"
 	getTagsQuery         = "SELECT DISTINCT(Tag) from tags"
 	getAwardsQuery         = "SELECT DISTINCT(Award) from awards"
+	genreQuery = "SELECT genre FROM dewey_numbers WHERE number=?"
 
 	SORTMETHOD = "Dewey:ASC--Series:ASC--Volume:ASC--Author:ASC--Title:ASC--Subtitle:ASC--Edition:ASC--Lexile:ASC--InterestLevel:ASC--AR:ASC--LearningAZ:ASC--GuidedReading:ASC--DRA:ASC--FountasPinnell:ASC--ReadingRecovery:ASC--PMReaders:ASC--Grade:ASC--Age:ASC||Dewey:ASC--Series:ASC--Volume:ASC--Author:ASC--Title:ASC--Subtitle:ASC--Edition:ASC--Lexile:ASC--InterestLevel:ASC--AR:ASC--LearningAZ:ASC--GuidedReading:ASC--DRA:ASC--FountasPinnell:ASC--ReadingRecovery:ASC--PMReaders:ASC--Grade:ASC--Age:ASC"
 )
@@ -336,7 +337,12 @@ func GetStats(db *sql.DB, t, libraryids string) (ChartInfo, error) {
 			logger.Printf("Error: %+v", err)
 			return chart, err
 		}
+<<<<<<< HEAD
 		series, err := GetSeries(db)
+=======
+		chart.Chart.Caption = "Books By Series"
+		series, err := GetSeries(db, "")
+>>>>>>> f1bcd4bfaf1da400f69774be85231baed6460986
 		if err != nil {
 			logger.Printf("Error: %+v", err)
 			return chart, err
@@ -365,7 +371,12 @@ func GetStats(db *sql.DB, t, libraryids string) (ChartInfo, error) {
 			logger.Printf("Error: %+v", err)
 			return chart, err
 		}
+<<<<<<< HEAD
 		languages, err := GetLanguages(db)
+=======
+		chart.Chart.Caption = "Books By Primary Language"
+		languages, err := GetLanguages(db, "")
+>>>>>>> f1bcd4bfaf1da400f69774be85231baed6460986
 		if err != nil {
 			logger.Printf("Error: %+v", err)
 			return chart, err
@@ -394,7 +405,12 @@ func GetStats(db *sql.DB, t, libraryids string) (ChartInfo, error) {
 			logger.Printf("Error: %+v", err)
 			return chart, err
 		}
+<<<<<<< HEAD
 		languages, err := GetLanguages(db)
+=======
+		chart.Chart.Caption = "Books By Secondary Language"
+		languages, err := GetLanguages(db, "")
+>>>>>>> f1bcd4bfaf1da400f69774be85231baed6460986
 		if err != nil {
 			logger.Printf("Error: %+v", err)
 			return chart, err
@@ -423,7 +439,12 @@ func GetStats(db *sql.DB, t, libraryids string) (ChartInfo, error) {
 			logger.Printf("Error: %+v", err)
 			return chart, err
 		}
+<<<<<<< HEAD
 		languages, err := GetLanguages(db)
+=======
+		chart.Chart.Caption = "Books By Original Language"
+		languages, err := GetLanguages(db, "")
+>>>>>>> f1bcd4bfaf1da400f69774be85231baed6460986
 		if err != nil {
 			logger.Printf("Error: %+v", err)
 			return chart, err
@@ -538,7 +559,12 @@ func GetStats(db *sql.DB, t, libraryids string) (ChartInfo, error) {
 			logger.Printf("Error: %+v", err)
 			return chart, err
 		}
+<<<<<<< HEAD
 		formats, err := GetFormats(db)
+=======
+		chart.Chart.Caption = "Books By Format"
+		formats, err := GetFormats(db, "")
+>>>>>>> f1bcd4bfaf1da400f69774be85231baed6460986
 		if err != nil {
 			logger.Printf("Error: %+v", err)
 			return chart, err
@@ -844,7 +870,12 @@ func GetStats(db *sql.DB, t, libraryids string) (ChartInfo, error) {
 			logger.Printf("Error: %+v", err)
 			return chart, err
 		}
+<<<<<<< HEAD
 		tags, err := GetTags(db)
+=======
+		chart.Chart.Caption = "Books By Tag"
+		tags, err := GetTags(db, "")
+>>>>>>> f1bcd4bfaf1da400f69774be85231baed6460986
 		if err != nil {
 			logger.Printf("Error: %+v", err)
 			return chart, err
@@ -1017,10 +1048,14 @@ func GetPublisher(db *sql.DB, id string) (Publisher, error) {
 }
 
 //GetPublishers gets all publishers
-func GetPublishers(db *sql.DB) ([]string, error) {
+func GetPublishers(db *sql.DB, queryString string) ([]string, error) {
 	var s string
 	var r = make([]string, 0)
-	rows, err := db.Query(getPublishersQuery)
+	query := getPublishersQuery
+	if queryString != "" {
+		query += " WHERE Publisher LIKE '%%" + queryString + "%%'"
+	}
+	rows, err := db.Query(query)
 	if err != nil {
 		logger.Printf("Error querying publishers: %v", err)
 		return nil, err
@@ -1036,10 +1071,14 @@ func GetPublishers(db *sql.DB) ([]string, error) {
 }
 
 //GetCities gets all cities
-func GetCities(db *sql.DB) ([]string, error) {
+func GetCities(db *sql.DB, queryString string) ([]string, error) {
 	var s string
 	var r = make([]string, 0)
-	rows, err := db.Query(getCitiesQuery)
+	query := getCitiesQuery
+	if queryString != "" {
+		query += " WHERE City LIKE '%%" + queryString + "%%'"
+	}
+	rows, err := db.Query(query)
 	if err != nil {
 		logger.Printf("Error querying cities: %v", err)
 		return nil, err
@@ -1055,10 +1094,14 @@ func GetCities(db *sql.DB) ([]string, error) {
 }
 
 //GetStates gets all states
-func GetStates(db *sql.DB) ([]string, error) {
+func GetStates(db *sql.DB, queryString string) ([]string, error) {
 	var s string
 	var r = make([]string, 0)
-	rows, err := db.Query(getStatesQuery)
+	query := getStatesQuery
+	if queryString != "" {
+		query += " WHERE State LIKE '%%" + queryString + "%%'"
+	}
+	rows, err := db.Query(query)
 	if err != nil {
 		logger.Printf("Error querying states: %v", err)
 		return nil, err
@@ -1074,10 +1117,14 @@ func GetStates(db *sql.DB) ([]string, error) {
 }
 
 //GetCountries gets all countries
-func GetCountries(db *sql.DB) ([]string, error) {
+func GetCountries(db *sql.DB, queryString string) ([]string, error) {
 	var s string
 	var r = make([]string, 0)
-	rows, err := db.Query(getCountriesQuery)
+	query := getCountriesQuery
+	if queryString != "" {
+		query += " WHERE Country LIKE '%%" + queryString + "%%'"
+	}
+	rows, err := db.Query(query)
 	if err != nil {
 		logger.Printf("Error querying countries: %v", err)
 		return nil, err
@@ -1093,10 +1140,14 @@ func GetCountries(db *sql.DB) ([]string, error) {
 }
 
 //GetSeries gets all series
-func GetSeries(db *sql.DB) ([]string, error) {
+func GetSeries(db *sql.DB, queryString string) ([]string, error) {
 	var s string
 	var r = make([]string, 0)
-	rows, err := db.Query(getSeriesQuery)
+	query := getSeriesQuery
+	if queryString != "" {
+		query += " WHERE Series LIKE '%%" + queryString + "%%'"
+	}
+	rows, err := db.Query(query)
 	if err != nil {
 		logger.Printf("Error querying series: %v", err)
 		return nil, err
@@ -1112,10 +1163,14 @@ func GetSeries(db *sql.DB) ([]string, error) {
 }
 
 //GetFormats gets all formats
-func GetFormats(db *sql.DB) ([]string, error) {
+func GetFormats(db *sql.DB, queryString string) ([]string, error) {
 	var s string
 	var r = make([]string, 0)
-	rows, err := db.Query(getFormatsQuery)
+	query := getFormatsQuery
+	if queryString != "" {
+		query += " WHERE Format LIKE '%%" + queryString + "%%'"
+	}
+	rows, err := db.Query(query)
 	if err != nil {
 		logger.Printf("Error querying formats: %v", err)
 		return nil, err
@@ -1131,10 +1186,14 @@ func GetFormats(db *sql.DB) ([]string, error) {
 }
 
 //GetLanguages gets all languages
-func GetLanguages(db *sql.DB) ([]string, error) {
+func GetLanguages(db *sql.DB, queryString string) ([]string, error) {
 	var s string
 	var r = make([]string, 0)
-	rows, err := db.Query(getLanguagesQuery)
+	query := getLanguagesQuery
+	if queryString != "" {
+		query += " WHERE Language LIKE '%%" + queryString + "%%'"
+	}
+	rows, err := db.Query(query)
 	if err != nil {
 		logger.Printf("Error querying languages: %v", err)
 		return nil, err
@@ -1150,10 +1209,14 @@ func GetLanguages(db *sql.DB) ([]string, error) {
 }
 
 //GetRoles gets all roles
-func GetRoles(db *sql.DB) ([]string, error) {
+func GetRoles(db *sql.DB, queryString string) ([]string, error) {
 	var s string
 	var r = make([]string, 0)
-	rows, err := db.Query(getRolesQuery)
+	query := getRolesQuery
+	if queryString != "" {
+		query += " WHERE Role LIKE '%%" + queryString + "%%'"
+	}
+	rows, err := db.Query(query)
 	if err != nil {
 		logger.Printf("Error querying roles: %v", err)
 		return nil, err
@@ -1169,9 +1232,13 @@ func GetRoles(db *sql.DB) ([]string, error) {
 }
 
 //GetDeweys gets all deweys
-func GetDeweys(db *sql.DB) ([]Dewey, error) {
+func GetDeweys(db *sql.DB, queryString string) ([]Dewey, error) {
 	var r = make([]Dewey, 0)
-	rows, err := db.Query(getDeweysQuery)
+	query := getDeweysQuery
+	if queryString != "" {
+		query += " WHERE Number LIKE '%%" + queryString + "%%'"
+	}
+	rows, err := db.Query(query)
 	if err != nil {
 		logger.Printf("Error querying deweys: %v", err)
 		return nil, err
@@ -1189,10 +1256,27 @@ func GetDeweys(db *sql.DB) ([]Dewey, error) {
 	return r, nil
 }
 
+//GetGenre gets the genre of a dewey
+func GetGenre(db *sql.DB, dewey string) (string, error) {
+	var genre sql.NullString
+	err := db.QueryRow(genreQuery, dewey).Scan(&genre)
+	if err == sql.ErrNoRows {
+		return "", nil
+	} else if err != nil {
+		logger.Printf("Error scanning genre: %v", err)
+		return "", err
+	}
+	return genre.String, nil
+}
+
 //GetTags gets all tags
-func GetTags(db *sql.DB) ([]string, error) {
+func GetTags(db *sql.DB, queryString string) ([]string, error) {
 	var r []string
-	rows, err := db.Query(getTagsQuery)
+	query := getTagsQuery
+	if queryString != "" {
+		query += " WHERE Tag LIKE '%%" + queryString + "%%'"
+	}
+	rows, err := db.Query(query)
 	if err != nil {
 		logger.Printf("Error querying tags: %v", err)
 		return nil, err
@@ -1209,9 +1293,13 @@ func GetTags(db *sql.DB) ([]string, error) {
 }
 
 //GetAwards gets all tags
-func GetAwards(db *sql.DB) ([]string, error) {
+func GetAwards(db *sql.DB, queryString string) ([]string, error) {
 	var r []string
-	rows, err := db.Query(getAwardsQuery)
+	query := getAwardsQuery
+	if queryString != "" {
+		query += " WHERE Award LIKE '%%" + queryString + "%%'"
+	}
+	rows, err := db.Query(query)
 	if err != nil {
 		logger.Printf("Error querying awards: %v", err)
 		return nil, err

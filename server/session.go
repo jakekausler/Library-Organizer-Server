@@ -10,7 +10,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/sessions"
-	// "github.com/gorilla/securecookie"
 )
 
 var (
@@ -25,7 +24,6 @@ func RunServer(username, password, database string) {
 	var err error
 	// Create sql.DB
 	db, err = sql.Open("mysql", "root:@/library?parseTime=true")
-	// db, _ = sql.Open("mysql", "root:@/library?parseTime=true")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -54,6 +52,7 @@ func RunServer(username, password, database string) {
 	r.HandleFunc("/books/books", ExportBooksHandler).Methods("GET")
 	r.HandleFunc("/books/contributors", ExportAuthorsHandler).Methods("GET")
 	r.HandleFunc("/books/books", ImportBooksHandler).Methods("POST")
+	r.HandleFunc("/books/{bookid}", GetBookHandler).Methods("GET")
 	r.HandleFunc("/books/{bookid}/ratings", GetRatingsHandler).Methods("GET")
 	r.HandleFunc("/books/{bookid}/ratings", AddRatingHandler).Methods("PUT")
 	r.HandleFunc("/books/{bookid}/reviews", GetReviewsHandler).Methods("GET")
@@ -69,6 +68,7 @@ func RunServer(username, password, database string) {
 	r.HandleFunc("/information/series", GetSeriesHandler).Methods("GET")
 	r.HandleFunc("/information/languages", GetLanguagesHandler).Methods("GET")
 	r.HandleFunc("/information/deweys", GetDeweysHandler).Methods("GET")
+	r.HandleFunc("/information/deweys/{{dewey}}", GetGenreHandler).Methods("GET")
 	r.HandleFunc("/information/tags", GetTagsHandler).Methods("GET")
 	r.HandleFunc("/information/awards", GetAwardsHandler).Methods("GET")
 	r.HandleFunc("/libraries", GetLibrariesHandler).Methods("GET")

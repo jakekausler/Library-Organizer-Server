@@ -1,7 +1,7 @@
 <md-dialog aria-label="Settings" id="settings-view" label="Settings"  flex>
 	<div flex class="settings-content" >
 		<md-tabs class="settings-tabs" md-selected="selectedTab"  md-stretch-tabs="always">
-			<md-tab label="Libraries" flex>
+			<md-tab label="Libraries" flex md-on-select="updateOwnedLibraries();updateUsers()">
 				<p layout-padding="5" class="settings-description" >
 					You can change the names of your libraries, and give users permission to edit, checkout, or view the libraries. If a user can edit or checkout from a library, they can automatically view it.
 				</p>
@@ -27,7 +27,7 @@
 					</form>
 				</div>
 			</md-tab>
-			<md-tab ng-repeat="group in settings" label="{{group.group}}">
+			<md-tab ng-repeat="group in settings" label="{{group.group}}" md-on-select="updateSettings()">
 				<md-content flex class="settings-inner-tab-content" >
 					<md-list>
 						<md-list-item  ng-repeat="setting in group.settings">

@@ -17,7 +17,7 @@
 						<div ng-hide="averageRating < 0"><span class="rating-holder">Average Rating</span><ng-rate-it ng-model="averageRating" step="0.1" read-only="true"></ng-rate-it> ({{numRatings}})</div>
 						<div><span class="rating-holder">Your Rating</span><ng-rate-it ng-model="userRating" step="1" resetable="false" rated="rate"></ng-rate-it></div>
 					</md-tab>
-					<md-tab label="reviews">
+					<md-tab label="reviews" md-on-select="updateReviews()">
 						<div class="review-container">
 							<div ng-repeat="review in reviews" layout="column" flex>
 								<div layout="row" ng-hide="review.username!=$parent.username">

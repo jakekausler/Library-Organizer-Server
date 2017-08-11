@@ -70,7 +70,6 @@ angular.module('libraryOrganizer')
             $vm.removeFromLoading(loadingName);
         })
     }
-    $scope.updateSettings();
 	$scope.cancel = function() {
 		$mdDialog.cancel();
 	};
@@ -107,7 +106,6 @@ angular.module('libraryOrganizer')
             $vm.removeFromLoading(loadingName);
         });
     };
-    $scope.updateOwnedLibraries();
     $scope.users = [];
     $scope.updateUsers = function() {
         var loadingName = $scope.vm.guid();
@@ -123,7 +121,6 @@ angular.module('libraryOrganizer')
             $vm.removeFromLoading(loadingName);
         })
     }
-    $scope.updateUsers();
     $scope.removeLibrary = function(libraryid) {
         for (i in $scope.ownedLibraries) {
             if ($scope.ownedLibraries[i].id == libraryid) {
