@@ -31,7 +31,7 @@ const (
 	checkinBookQuery = "UPDATE books SET loaneeid=-1 WHERE bookid=?"
 	addContributorQuery = "REPLACE INTO written_by (BookID, AuthorID, Role) VALUES (?,?,?)"
 	addAwardQuery = "REPLACE INTO awards (BookID, Award) VALUES (?,?)"
-	getPersonQuery = "SELECT PersonID FROM persons WHE6RE FirstName=? AND MiddleNames=? AND LastName=?"
+	getPersonQuery = "SELECT PersonID FROM persons WHERE FirstName=? AND MiddleNames=? AND LastName=?"
 	addPersonQuery = "INSERT INTO persons (FirstName, MiddleNames, LastName) VALUES (?,?,?)"
 	getPublisherQuery = "SELECT PublisherID FROM publishers WHERE Publisher=? AND City=? AND State=? AND Country=?"
 	addPublisherQuery = "INSERT INTO publishers (Publisher, City, State, Country) VALUES (?,?,?,?)"
@@ -263,9 +263,6 @@ func SaveBook(db *sql.DB, book Book) error {
 			logger.Printf("Error: %v")
 			return err
 		}
-		logger.Printf("AR: %v", AR)
-		logger.Printf("InterestLevel: %v", InterestLevel)
-		logger.Printf("ReadingRecovery: %v", ReadingRecovery)
 		_, err = db.Exec(saveBookQuery, book.Title, book.Subtitle, book.OriginallyPublished, book.EditionPublished, publisherID, book.IsRead, book.IsReference, book.IsOwned, book.IsShipping, book.IsReading, book.ISBN, Dewey, book.Pages, book.Width, book.Height, book.Depth, book.Weight, book.PrimaryLanguage, book.SecondaryLanguage, book.OriginalLanguage, book.Series, book.Volume, book.Format, book.Edition, "res/bookimages/"+book.ID+imageType, book.Library.ID, Lexile, LexileCode, InterestLevel, AR, LearningAZ, GuidedReading, DRA, Grade, FountasPinnell, Age, ReadingRecovery, PMReaders, spinecolor, book.Notes, book.ID)
 		if err != nil {
 			logger.Printf("Error when saving book: %v", err)
