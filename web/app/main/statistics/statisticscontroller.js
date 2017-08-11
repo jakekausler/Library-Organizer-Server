@@ -43,6 +43,37 @@ angular.module('libraryOrganizer')
                 $scope.removeFromLoading(loadingName);
             });
         }
+        $scope.chartData = {};
+        $scope.getChartData = function(chartType, caption, subcaption, labelDisplay, formatNumberScale, numberSuffix, decimals) {
+            var loadingName = $scope.guid();
+            $scope.addToLoading(loadingName);
+            $http({
+                url: "information/statistics",
+                method: 'GET',
+                params: {
+                    type: chartType,
+                    libraryids: $scope.stringLibraryIds()
+                }
+            }).then(function(response) {
+                $scope.chartData.chart = {
+                    caption: caption?caption:undefined,
+                    subcaption: subcaption?subcaption:undefined,
+                    labelDisplay: labelDisplay?labelDisplay:undefined,
+                    formatNumberScale: formatNumberScale?formatNumberScale:undefined,
+                    numberSuffix: numberSuffix?numberSuffix:undefined,
+                    decimals: decimals?decimals:undefined
+                }
+                if (response.data.total) {
+                    $scope.chartData.chart.caption += " (Total: " + response.data.total + ")"
+                }
+                $scope.chartData.data = response.data.data;
+                $scope.removeFromLoading(loadingName);
+            }, function(response) {
+                chartData = {}
+                $mdToast.showSimple("Failed to update chart");
+                $scope.removeFromLoading(loadingName);
+            })
+        }
         $scope.setStatView = function(view) {
             $scope.statView = view;
             $scope.setParameters({'statview': view})
@@ -173,8 +204,6 @@ angular.module('libraryOrganizer')
                 $scope.getChartData(view, caption, subcaption, labelDisplay, formatNumberScale, numberSuffix, decimals);
             }
         }
-        $scope.setStatView($scope.getParameterByName("statview", "general"));
-        $scope.setStatSubView($scope.getParameterByName("statsubview", ""));
         $scope.setSelected = function(data) {
             for (d in data) {
                 if (data[d].selected) {
@@ -226,6 +255,8 @@ angular.module('libraryOrganizer')
                 $scope.libraries = angular.copy(data);
                 $scope.output = angular.copy($scope.libraries);
                 $scope.updateDimensions();
+                $scope.setStatView($scope.getParameterByName("statview", "general"));
+                $scope.setStatSubView($scope.getParameterByName("statsubview", ""));
                 $scope.removeFromLoading(loadingName)
             }, function(response) {
                 $mdToast.showSimple("Failed to get list of libraries");
@@ -238,36 +269,5 @@ angular.module('libraryOrganizer')
         }
         $scope.$watch('output', function() {
             $scope.updateDimensions();
-        })
-        $scope.chartData = {}
-        $scope.getChartData = function(chartType, caption, subcaption, labelDisplay, formatNumberScale, numberSuffix, decimals) {
-            var loadingName = $scope.guid();
-            $scope.addToLoading(loadingName)
-            $http({
-                url: "information/statistics",
-                method: 'GET',
-                params: {
-                    type: chartType,
-                    libraryids: $scope.stringLibraryIds()
-                }
-            }).then(function(response) {
-                $scope.chartData.chart = {
-                    caption: caption?caption:undefined,
-                    subcaption: subcaption?subcaption:undefined,
-                    labelDisplay: labelDisplay?labelDisplay:undefined,
-                    formatNumberScale: formatNumberScale?formatNumberScale:undefined,
-                    numberSuffix: numberSuffix?numberSuffix:undefined,
-                    decimals: decimals?decimals:undefined
-                }
-                if (response.data.total) {
-                    $scope.chartData.chart.caption += " (Total: " + response.data.total + ")"
-                }
-                $scope.chartData.data = response.data.data;
-                $scope.removeFromLoading(loadingName);
-            }, function(response) {
-                chartData = {}
-                $mdToast.showSimple("Failed to update chart");
-                $scope.removeFromLoading(loadingName);
-            })
-        }
+        });
     });

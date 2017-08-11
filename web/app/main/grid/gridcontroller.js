@@ -278,7 +278,6 @@ angular.module('libraryOrganizer')
             $scope.showEditDialog(ev, book, $scope, 'gridadd');
         }
         $scope.updateLibraries = function() {
-            console.log($scope.fromguidedreading)
             var loadingName = $scope.guid();
             $scope.addToLoading(loadingName)
             $http({

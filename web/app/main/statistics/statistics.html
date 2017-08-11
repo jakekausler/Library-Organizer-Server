@@ -46,7 +46,7 @@
 	<md-content layout-padding="5">These statistics represent the owned books in the selected libraries.</md-content>
 	<div>
 		<div id="Chart" ng-hide="statView=='dimensions'">
-			<fusioncharts width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='{{chartData}}'></fusioncharts>
+			<fusioncharts width="100%" height="500px" type="column2d" dataformat="json" datasource='{{chartData}}'></fusioncharts>
 		</div>
 		<div id="Dimensions" ng-hide="statView!='dimensions'">
 			<div ng-hide="statSubView!='byvolumes'" id="dimensionsvolumes">
