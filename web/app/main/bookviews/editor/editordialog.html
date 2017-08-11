@@ -9,7 +9,7 @@
                                 <div layout="column" flex>
                                     <md-input-container>
                                         <label>Library</label>
-                                        <md-select ng-model="book.library.id" md-on-open="updateLibraries()" required>
+                                        <md-select ng-model="book.library.id"  required>
                                             <md-option ng-repeat="library in libraries" ng-value="library.id">
                                                 {{library.display}}
                                             </md-option>
@@ -286,7 +286,7 @@
                         </div>
                         <div flex layout="row">
                             <md-autocomplete flex="25" md-input-name="binding" md-search-text="bindingSearchText"
-                                md-selected-item="book.format" md-items="s in query('Bindings', bindingSearchText)"
+                                md-selected-item="book.format" md-items="s in query('Formats', bindingSearchText)"
                                 md-item-text="s" md-floating-label="Binding">
                                 <md-item-template>
                                     <span md-highlight-text="bindingSearchText" md-highlight-flags="^i">{{s}}</span>

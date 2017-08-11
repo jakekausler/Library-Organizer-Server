@@ -74,8 +74,8 @@ angular.module('libraryOrganizer')
 		$vm.getSettingByName('PM Readers', function(value) {
 			$scope.book.pmreaders.Int64 = value;
 		});
-		$vm.getSettingByName('Binding', function(value) {
-			$scope.book.binding = value;
+		$vm.getSettingByName('Format', function(value) {
+			$scope.book.format = value;
 		});
 		$vm.getSettingByName('Pages', function(value) {
 			$scope.book.pages = value;
@@ -181,6 +181,7 @@ angular.module('libraryOrganizer')
 	        	$scope.libraries = [];
 	        });
     };
+    $scope.updateLibraries();
 	$scope.updateDewey = function(d) {
         return $http({
 				url: '/information/deweys/'+d,
@@ -254,11 +255,11 @@ angular.module('libraryOrganizer')
 		if (book.dewey.String == "0" || book.dewey.String == "00") {
 			book.dewey.String = "000";
 		}
-		book.dewey.Valid = book.dewey.String || book.dewey.String == "000"
+		book.dewey.Valid = book.dewey.String != "" || book.dewey.String == "000"
 		book.primarylanguage = book.primarylanguage?book.primarylanguage:$scope.primaryLanguageSearchText;
 		book.secondarylanguage = book.secondarylanguage?book.secondarylanguage:$scope.secondaryLanguageSearchText;
 		book.originallanguage = book.originallanguage?book.originallanguage:$scope.originalLanguageSearchText;
-		var method = book.id ? 'PUT':'POST';
+		var method = book.bookid ? 'PUT':'POST';
 		console.log(book)
 		$http({
 			url: '/books',
