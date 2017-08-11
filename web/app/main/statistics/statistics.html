@@ -16,70 +16,38 @@
 				<md-button aria-label="Show Tag Statistics" ng-disabled="statView=='tag'" ng-click="setStatView('tag')">Tags</md-button>
 			</div>
 			<div id="stats-navigation-sub" ng-hide="display!='stats'">
-				<md-button aria-label="View By Count" ng-disabled="statSubView=='bycounts'" ng-hide="statView!='general'" ng-click="setStatSubView('bycounts')">By Counts</md-button>
-				<md-button aria-label="View By Pages" ng-disabled="statSubView=='bypages'" ng-hide="statView!='general'" ng-click="setStatSubView('bypages')">By Pages</md-button>
-				<md-button aria-label="View By Size" ng-disabled="statSubView=='bysize'" ng-hide="statView!='general'" ng-click="setStatSubView('bysize')">By Size</md-button>
-				<md-button aria-label="View By Parent Company" ng-disabled="statSubView=='bybooksperparent'" ng-hide="statView!='publishers'" ng-click="setStatSubView('bybooksperparent')">By Parent Company</md-button>
-				<md-button aria-label="View By Top Publishers" ng-disabled="statSubView=='bytopchildren'" ng-hide="statView!='publishers'" ng-click="setStatSubView('bytopchildren')">Top Publishers</md-button>
-				<md-button aria-label="View By Top Locations" ng-disabled="statSubView=='bytoplocations'" ng-hide="statView!='publishers'" ng-click="setStatSubView('bytoplocations')">Top Locations</md-button>
-				<md-button aria-label="View By Series" ng-disabled="statSubView=='byseries'" ng-hide="statView!='series'" ng-click="setStatSubView('byseries')">By Series</md-button>
-				<md-button aria-label="View By Primary Language" ng-disabled="statSubView=='byprimary'" ng-hide="statView!='languages'" ng-click="setStatSubView('byprimary')">By Primary Language</md-button>
-				<md-button aria-label="View By Secondary Language" ng-disabled="statSubView=='bysecondary'" ng-hide="statView!='languages'" ng-click="setStatSubView('bysecondary')">By Secondary Language</md-button>
-				<md-button aria-label="View By Original Language" ng-disabled="statSubView=='byoriginal'" ng-hide="statView!='languages'" ng-click="setStatSubView('byoriginal')">By Original Language</md-button>
-				<md-button aria-label="View By Dewey" ng-disabled="statSubView=='bydeweys'" ng-hide="statView!='deweys'" ng-click="setStatSubView('bydeweys')">By Category</md-button>
-				<md-button aria-label="View By Binding" ng-disabled="statSubView=='bybindings'" ng-hide="statView!='bindings'" ng-click="setStatSubView('bybindings')">By Binding</md-button>
-				<md-button aria-label="View By Top Contributors" ng-disabled="statSubView=='bycontributorstop'" ng-hide="statView!='contributors'" ng-click="setStatSubView('bycontributorstop')">Top Contributors</md-button>
-				<md-button aria-label="View By Contributors Per Role" ng-disabled="statSubView=='bycontributorsperrole'" ng-hide="statView!='contributors'" ng-click="setStatSubView('bycontributorsperrole')">Roles</md-button>
+				<md-button aria-label="View By Count" ng-disabled="statSubView=='generalbycounts'" ng-hide="statView!='general'" ng-click="setStatSubView('generalbycounts')">By Counts</md-button>
+				<md-button aria-label="View By Pages" ng-disabled="statSubView=='generalbypages'" ng-hide="statView!='general'" ng-click="setStatSubView('generalbypages')">By Pages</md-button>
+				<md-button aria-label="View By Size" ng-disabled="statSubView=='generalbysize'" ng-hide="statView!='general'" ng-click="setStatSubView('generalbysize')">By Size</md-button>
+				<md-button aria-label="View By Parent Company" ng-disabled="statSubView=='publishersbooksperparent'" ng-hide="statView!='publishers'" ng-click="setStatSubView('publishersbooksperparent')">By Parent Company</md-button>
+				<md-button aria-label="View By Top Publishers" ng-disabled="statSubView=='publisherstopchildren'" ng-hide="statView!='publishers'" ng-click="setStatSubView('publisherstopchildren')">Top Publishers</md-button>
+				<md-button aria-label="View By Top Locations" ng-disabled="statSubView=='publisherstoplocations'" ng-hide="statView!='publishers'" ng-click="setStatSubView('publisherstoplocations')">Top Locations</md-button>
+				<md-button aria-label="View By Series" ng-disabled="statSubView=='series'" ng-hide="statView!='series'" ng-click="setStatSubView('series')">By Series</md-button>
+				<md-button aria-label="View By Primary Language" ng-disabled="statSubView=='languagesprimary'" ng-hide="statView!='languages'" ng-click="setStatSubView('languagesprimary')">By Primary Language</md-button>
+				<md-button aria-label="View By Secondary Language" ng-disabled="statSubView=='languagessecondary'" ng-hide="statView!='languages'" ng-click="setStatSubView('languagessecondary')">By Secondary Language</md-button>
+				<md-button aria-label="View By Original Language" ng-disabled="statSubView=='languagesoriginal'" ng-hide="statView!='languages'" ng-click="setStatSubView('languagesoriginal')">By Original Language</md-button>
+				<md-button aria-label="View By Dewey" ng-disabled="statSubView=='deweys'" ng-hide="statView!='deweys'" ng-click="setStatSubView('deweys')">By Category</md-button>
+				<md-button aria-label="View By Binding" ng-disabled="statSubView=='formats'" ng-hide="statView!='bindings'" ng-click="setStatSubView('formats')">By Binding</md-button>
+				<md-button aria-label="View By Top Contributors" ng-disabled="statSubView=='contributorstop'" ng-hide="statView!='contributors'" ng-click="setStatSubView('contributorstop')">Top Contributors</md-button>
+				<md-button aria-label="View By Contributors Per Role" ng-disabled="statSubView=='contributorsperrole'" ng-hide="statView!='contributors'" ng-click="setStatSubView('contributorsperrole')">Roles</md-button>
 				<md-button aria-label="View By Volume" ng-disabled="statSubView=='byvolumes'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('byvolumes')">Volume</md-button>
 				<md-button aria-label="View By Width" ng-disabled="statSubView=='bywidths'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('bywidths')">Width</md-button>
 				<md-button aria-label="View By Height" ng-disabled="statSubView=='byheights'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('byheights')">Height</md-button>
 				<md-button aria-label="View By Depth" ng-disabled="statSubView=='bydepths'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('bydepths')">Depth</md-button>
 				<md-button aria-label="View By Weight" ng-disabled="statSubView=='byweights'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('byweights')">Weight</md-button>
 				<md-button aria-label="View By Pages" ng-disabled="statSubView=='bypages'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('bypages')">Pages</md-button>
-				<md-button aria-label="View By Original Date" ng-disabled="statSubView=='bydatesoriginal'" ng-hide="statView!='dates'" ng-click="setStatSubView('bydatesoriginal')">By Original Publication Date</md-button>
-				<md-button aria-label="View By Publication Date" ng-disabled="statSubView=='bydatespublication'" ng-hide="statView!='dates'" ng-click="setStatSubView('bydatespublication')">By Edition Publication Date</md-button>
-				<md-button aria-label="View By Lexile" ng-disabled="statSubView=='bylexile'" ng-hide="statView!='lexile'" ng-click="setStatSubView('bylexile')">By Lexile</md-button>
-				<md-button aria-label="View By Tag" ng-disabled="statSubView=='bytag'" ng-hide="statView!='tag'" ng-click="setStatSubView('bytag')">By Tag</md-button>
+				<md-button aria-label="View By Original Date" ng-disabled="statSubView=='datesoriginal'" ng-hide="statView!='dates'" ng-click="setStatSubView('datesoriginal')">By Original Publication Date</md-button>
+				<md-button aria-label="View By Publication Date" ng-disabled="statSubView=='datespublication'" ng-hide="statView!='dates'" ng-click="setStatSubView('datespublication')">By Edition Publication Date</md-button>
+				<md-button aria-label="View By Lexile" ng-disabled="statSubView=='lexile'" ng-hide="statView!='lexile'" ng-click="setStatSubView('lexile')">By Lexile</md-button>
+				<md-button aria-label="View By Tag" ng-disabled="statSubView=='tag'" ng-hide="statView!='tag'" ng-click="setStatSubView('tag')">By Tag</md-button>
 			</div>
 		</md-toolbar>
 	</div>
 	<md-content layout-padding="5">These statistics represent the owned books in the selected libraries.</md-content>
 	<div>
-		<div id="Read-Reference-Reading-ToRead-Shipping-OnLoan" ng-hide="statView!='general'" flex>
-			<fusioncharts ng-hide="statSubView!='bycounts'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='information/statistics?type=generalbycounts&libraryids={{stringLibraryIds()}}' ></fusioncharts>
-			<fusioncharts ng-hide="statSubView!='bypages'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='information/statistics?type=generalbypages&libraryids={{stringLibraryIds()}}'></fusioncharts>
-			<fusioncharts ng-hide="statSubView!='bysize'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='information/statistics?type=generalbysize&libraryids={{stringLibraryIds()}}'></fusioncharts>
+		<div id="Chart" ng-hide="statView=='dimensions'">
+			<fusioncharts width="100%" height="500px" type="column2d" dataformat="json" datasource='{{chartData}}'></fusioncharts>
 		</div>
-
-		<div id="Publishers" ng-hide="statView!='publishers'">
-			<fusioncharts ng-hide="statSubView!='bybooksperparent'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='information/statistics?type=publishersbooksperparent&libraryids={{stringLibraryIds()}}'></fusioncharts>
-			<fusioncharts ng-hide="statSubView!='bytopchildren'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='information/statistics?type=publisherstopchildren&libraryids={{stringLibraryIds()}}'></fusioncharts>
-			<fusioncharts ng-hide="statSubView!='bytoplocations'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='information/statistics?type=publisherstoplocations&libraryids={{stringLibraryIds()}}'></fusioncharts>
-		</div>
-
-		<div id="Series" ng-hide="statView!='series'">
-			<fusioncharts ng-hide="statSubView!='byseries'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='information/statistics?type=series&libraryids={{stringLibraryIds()}}'></fusioncharts>
-		</div>
-
-		<div id="Languages" ng-hide="statView!='languages'">
-			<fusioncharts ng-hide="statSubView!='byprimary'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='information/statistics?type=languagesprimary&libraryids={{stringLibraryIds()}}'></fusioncharts>
-			<fusioncharts ng-hide="statSubView!='bysecondary'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='information/statistics?type=languagessecondary&libraryids={{stringLibraryIds()}}'></fusioncharts>
-			<fusioncharts ng-hide="statSubView!='byoriginal'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='information/statistics?type=languagesoriginal&libraryids={{stringLibraryIds()}}'></fusioncharts>
-		</div>
-
-		<div id="Deweys" ng-hide="statView!='deweys'">
-			<fusioncharts ng-hide="statSubView!='bydeweys'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='information/statistics?type=deweys&libraryids={{stringLibraryIds()}}'></fusioncharts>
-		</div>
-
-		<div id="Bindings" ng-hide="statView!='bindings'">
-			<fusioncharts ng-hide="statSubView!='bybinding'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='information/statistics?type=formats&libraryids={{stringLibraryIds()}}'></fusioncharts>
-		</div>
-
-		<div id="Contributors" ng-hide="statView!='contributors'">
-			<fusioncharts ng-hide="statSubView!='bycontributorstop'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='information/statistics?type=contributorstop&libraryids={{stringLibraryIds()}}'></fusioncharts>
-			<fusioncharts ng-hide="statSubView!='bycontributorsperrole'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='information/statistics?type=contributorsperrole&libraryids={{stringLibraryIds()}}'></fusioncharts>
-		</div>
-
 		<div id="Dimensions" ng-hide="statView!='dimensions'">
 			<div ng-hide="statSubView!='byvolumes'" id="dimensionsvolumes">
 				<md-list>
@@ -198,19 +166,6 @@
 					</md-list-item>
 				</md-list>
 			</div>
-		</div>
-
-		<div id="Dates" ng-hide="statView!='dates'">
-			<fusioncharts ng-hide="statSubView!='bydatesoriginal'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='information/statistics?type=datesoriginal&libraryids={{stringLibraryIds()}}'></fusioncharts>
-			<fusioncharts ng-hide="statSubView!='bydatespublication'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='information/statistics?type=datespublication&libraryids={{stringLibraryIds()}}'></fusioncharts>
-		</div>
-
-		<div id="Lexile" ng-hide="statView!='lexile'">
-			<fusioncharts ng-hide="statSubView!='bylexile'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='information/statistics?type=lexile&libraryids={{stringLibraryIds()}}'></fusioncharts>
-		</div>
-
-		<div id="Tag" ng-hide="statView!='tag'">
-			<fusioncharts ng-hide="statSubView!='bytag'" width="100%" height="500px" type="column2d" dataformat="jsonurl" datasource='information/statistics?type=tag&libraryids={{stringLibraryIds()}}'></fusioncharts>
 		</div>
 	</div>
 </div>
