@@ -1,6 +1,9 @@
 angular.module('libraryOrganizer')
 .controller('viewController', function($scope, $mdDialog, $mdToast, $http, book, $vm, viewType, username) {
 	$scope.book = book;
+	$scope.vm = $vm;
+	$scope.viewType = viewType;
+	$scope.username = username;
 	$scope.updateBook = function() {
 		if ($scope.book.bookid) {
             var loadingName = $scope.vm.guid();
@@ -10,6 +13,9 @@ angular.module('libraryOrganizer')
 				method: 'GET'
 			}).then(function(response) {
 				$scope.book = response.data;
+				$scope.canEdit = (book.library.permissions&4)==4;
+				$scope.canCheckout = (book.library.permissions&2)==2 && book.loanee.id == -1 && !book.isreading && book.isowned && !book.isshipping;
+				$scope.canCheckin = book.loanee.id != -1 && ((book.library.permissions&4)==4 || book.loanee.username == $scope.username);
 				$scope.vm.removeFromLoading(loadingName);
 			}, function(response) {
 	        	$mdToast.showSimple("Failed to retrieve book information");
@@ -19,12 +25,6 @@ angular.module('libraryOrganizer')
 		}
 	}
 	$scope.updateBook()
-	$scope.vm = $vm;
-	$scope.viewType = viewType;
-	$scope.username = username;
-	$scope.canEdit = (book.library.permissions&4)==4;
-	$scope.canCheckout = (book.library.permissions&2)==2 && book.loanee.id == -1 && !book.isreading && book.isowned && !book.isshipping;
-	$scope.canCheckin = book.loanee.id != -1 && ((book.library.permissions&4)==4 || book.loanee.username == $scope.username);
 	$scope.checkout = function(ev) {
 	    var d = $mdDialog.confirm()
 	    	.title("Are you sure you would like to checkout this book?")

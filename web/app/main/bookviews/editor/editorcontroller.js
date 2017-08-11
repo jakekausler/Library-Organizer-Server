@@ -181,142 +181,24 @@ angular.module('libraryOrganizer')
 	        	$scope.libraries = [];
 	        });
     };
-	$scope.updatePublishers = function(str) {
-		return $http({
-				url: '/information/publishers',
-				method: 'GET',
-				data: JSON.stringify(str)
-			}).then(function(response){
-				return response.data;
-			}, function(response) {
-	        	$mdToast.showSimple("Failed to retrieve list of publishers");
-	        	return [];
-	        });
-	}
-	$scope.updateCities = function(str) {
-        return $http({
-				url: '/information/cities',
-				method: 'GET',
-				data: JSON.stringify(str)
-			}).then(function(response){
-				return response.data;
-			}, function(response) {
-	        	$mdToast.showSimple("Failed to retrieve list of cities");
-	        	return [];
-	        });
-	}
-	$scope.updateStates = function(str) {
-        return $http({
-				url: '/information/states',
-				method: 'GET',
-				data: JSON.stringify(str)
-			}).then(function(response){
-				return response.data;
-			}, function(response) {
-	        	$mdToast.showSimple("Failed to retrieve list of states");
-	        	return [];
-	        });
-	}
-	$scope.updateCountries = function(str) {
-        return $http({
-				url: '/information/countries',
-				method: 'GET',
-				data: JSON.stringify(str)
-			}).then(function(response){
-				return response.data;
-			}, function(response) {
-	        	$mdToast.showSimple("Failed to retrieve list of countries");
-	        	return [];
-	        });
-	}
-	$scope.updateSeries = function(str) {
-        return $http({
-				url: '/information/series',
-				method: 'GET',
-				data: JSON.stringify(str)
-			}).then(function(response){
-				return response.data;
-			}, function(response) {
-	        	$mdToast.showSimple("Failed to retrieve list of series");
-	        	return [];
-	        });
-	}
-	$scope.updateBindings = function(str) {
-        return $http({
-				url: '/information/bindings',
-				method: 'GET',
-				data: JSON.stringify(str)
-			}).then(function(response){
-				return response.data;
-			}, function(response) {
-	        	$mdToast.showSimple("Failed to retrieve list of bindings");
-	        	return [];
-	        });
-	}
-	$scope.updateLanguages = function(str) {
-        return $http({
-				url: '/information/languages',
-				method: 'GET',
-				data: JSON.stringify(str)
-			}).then(function(response){
-				return response.data;
-			}, function(response) {
-	        	$mdToast.showSimple("Failed to retrieve list of languages");
-	        	return [];
-	        });
-	}
-	$scope.updateRoles = function(str) {
-        return $http({
-				url: '/information/roles',
-				method: 'GET',
-				data: JSON.stringify(str)
-			}).then(function(response){
-				return response.data;
-			}, function(response) {
-	        	$mdToast.showSimple("Failed to retrieve list of roles");
-	        	return [];
-	        });
-	}
 	$scope.updateDewey = function(d) {
         return $http({
 				url: '/information/deweys/'+d,
 				method: 'GET',
-				data: JSON.stringify(str)
+				params: {
+					str: ''
+				}
 			}).then(function(response){
 				return response.data;
 			}, function(response) {
 	        	$mdToast.showSimple("Failed to retrieve list of deweys");
 	        	return [];
 	        });
-	}
+	};
 	$scope.genre = "";
 	$scope.$watch('book.dewey', function() {
         $scope.genre = $scope.updateDewey($scope.book.dewey);
-    })
-	$scope.updateTags = function(str) {
-        return $http({
-				url: '/information/tags',
-				method: 'GET',
-				data: JSON.stringify(str)
-			}).then(function(response){
-				return response.data;
-			}, function(response) {
-	        	$mdToast.showSimple("Failed to retrieve list of tags");
-	        	return [];
-	        });
-	}
-	$scope.updateAwards = function(str) {
-        return $http({
-				url: '/information/awards',
-				method: 'GET',
-				data: JSON.stringify(str)
-			}).then(function(response){
-				return response.data;
-			}, function(response) {
-	        	$mdToast.showSimple("Failed to retrieve list of awards");
-	        	return [];
-	        });
-	}
+    });
 	$scope.newContributor = {
 		role: 'Role',
 		name: {
@@ -461,10 +343,18 @@ angular.module('libraryOrganizer')
 		$scope.book.imageurl = $scope.oldUrl;
 	}
 	$scope.query = function(f, str) {
-		return = f(str);
-		// var results = str ? arr.filter(function(s) {
-		// 	return (angular.lowercase(s).indexOf(angular.lowercase(str)) !== -1);
-		// }) : arr;
+		return $http({
+				url: '/information/'+f.toLowerCase(),
+				method: 'GET',
+				params: {
+					str: str
+				}
+			}).then(function(response){
+				return response.data;
+			}, function(response) {
+	        	$mdToast.showSimple("Failed to retrieve list of " + f);
+	        	return [];
+	        });
 	}
 	$scope.log = function(item) {
 		console.log(item)

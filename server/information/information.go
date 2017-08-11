@@ -26,7 +26,7 @@ const (
 	getContributorsQuery = "SELECT PersonID, Role, FirstName, MiddleNames, LastName from written_by join persons on written_by.AuthorID = persons.PersonID WHERE BookID=?"
 	getTagsQuery         = "SELECT DISTINCT(Tag) from tags"
 	getAwardsQuery         = "SELECT DISTINCT(Award) from awards"
-	genreQuery = "SELECT genre FROM deweys WHERE number=?"
+	genreQuery = "SELECT genre FROM dewey_numbers WHERE number=?"
 
 	SORTMETHOD = "Dewey:ASC--Series:ASC--Volume:ASC--Author:ASC--Title:ASC--Subtitle:ASC--Edition:ASC--Lexile:ASC--InterestLevel:ASC--AR:ASC--LearningAZ:ASC--GuidedReading:ASC--DRA:ASC--FountasPinnell:ASC--ReadingRecovery:ASC--PMReaders:ASC--Grade:ASC--Age:ASC||Dewey:ASC--Series:ASC--Volume:ASC--Author:ASC--Title:ASC--Subtitle:ASC--Edition:ASC--Lexile:ASC--InterestLevel:ASC--AR:ASC--LearningAZ:ASC--GuidedReading:ASC--DRA:ASC--FountasPinnell:ASC--ReadingRecovery:ASC--PMReaders:ASC--Grade:ASC--Age:ASC"
 )
@@ -1276,7 +1276,7 @@ func GetDeweys(db *sql.DB, queryString string) ([]Dewey, error) {
 
 //GetGenre gets the genre of a dewey
 func GetGenre(db *sql.DB, dewey string) (string, error) {
-	var genre string
+	var genre sql.NullString
 	err := db.QueryRow(genreQuery, dewey).Scan(&genre)
 	if err == sql.ErrNoRows {
 		return "", nil
@@ -1284,7 +1284,7 @@ func GetGenre(db *sql.DB, dewey string) (string, error) {
 		logger.Printf("Error scanning genre: %v", err)
 		return "", err
 	}
-	return genre, nil
+	return genre.String, nil
 }
 
 //GetTags gets all tags
