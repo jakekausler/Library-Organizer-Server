@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"./information"
+	"github.com/gorilla/mux"
 )
 
 //GetStatsHandler gets statistics
@@ -352,7 +353,7 @@ func GetGenreHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	libraryid := mux.Vars(r)["dewey"]
+	dewey := mux.Vars(r)["dewey"]
 	d, err := information.GetGenre(db, dewey)
 	if err != nil {
 		logger.Printf("%+v", err)

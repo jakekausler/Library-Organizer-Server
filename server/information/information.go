@@ -364,7 +364,7 @@ func GetStats(db *sql.DB, t, libraryids string) (StatChart, error) {
 			return chart, err
 		}
 		chart.Chart.Caption = "Books By Series"
-		series, err := GetSeries(db)
+		series, err := GetSeries(db, "")
 		if err != nil {
 			logger.Printf("Error: %+v", err)
 			return chart, err
@@ -395,7 +395,7 @@ func GetStats(db *sql.DB, t, libraryids string) (StatChart, error) {
 			return chart, err
 		}
 		chart.Chart.Caption = "Books By Primary Language"
-		languages, err := GetLanguages(db)
+		languages, err := GetLanguages(db, "")
 		if err != nil {
 			logger.Printf("Error: %+v", err)
 			return chart, err
@@ -426,7 +426,7 @@ func GetStats(db *sql.DB, t, libraryids string) (StatChart, error) {
 			return chart, err
 		}
 		chart.Chart.Caption = "Books By Secondary Language"
-		languages, err := GetLanguages(db)
+		languages, err := GetLanguages(db, "")
 		if err != nil {
 			logger.Printf("Error: %+v", err)
 			return chart, err
@@ -457,7 +457,7 @@ func GetStats(db *sql.DB, t, libraryids string) (StatChart, error) {
 			return chart, err
 		}
 		chart.Chart.Caption = "Books By Original Language"
-		languages, err := GetLanguages(db)
+		languages, err := GetLanguages(db, "")
 		if err != nil {
 			logger.Printf("Error: %+v", err)
 			return chart, err
@@ -576,7 +576,7 @@ func GetStats(db *sql.DB, t, libraryids string) (StatChart, error) {
 			return chart, err
 		}
 		chart.Chart.Caption = "Books By Format"
-		formats, err := GetFormats(db)
+		formats, err := GetFormats(db, "")
 		if err != nil {
 			logger.Printf("Error: %+v", err)
 			return chart, err
@@ -895,7 +895,7 @@ func GetStats(db *sql.DB, t, libraryids string) (StatChart, error) {
 			return chart, err
 		}
 		chart.Chart.Caption = "Books By Tag"
-		tags, err := GetTags(db)
+		tags, err := GetTags(db, "")
 		if err != nil {
 			logger.Printf("Error: %+v", err)
 			return chart, err
@@ -1275,14 +1275,14 @@ func GetDeweys(db *sql.DB, queryString string) ([]Dewey, error) {
 }
 
 //GetGenre gets the genre of a dewey
-func GetGenre(db *sql.DB, dewey string) ([]Dewey, error) {
+func GetGenre(db *sql.DB, dewey string) (string, error) {
 	var genre string
 	err := db.QueryRow(genreQuery, dewey).Scan(&genre)
 	if err == sql.ErrNoRows {
 		return "", nil
 	} else if err != nil {
 		logger.Printf("Error scanning genre: %v", err)
-		return nil, err
+		return "", err
 	}
 	return genre, nil
 }

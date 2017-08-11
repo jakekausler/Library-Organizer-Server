@@ -444,10 +444,18 @@ func GetBookHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	bookid := mux.Vars(r)["bookid"]
-	err = books.GetBook(db, session, bookid)
+	b, err := books.GetBook(db, session, bookid)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
+	data, err := json.Marshal(b)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
 }
