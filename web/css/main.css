@@ -141,6 +141,19 @@
      display:inline-block;
 }
 
+#grid-view md-input-container {
+    width: 100%;
+    font-weight: 700;
+}
+
+#grid-view md-select span {
+    text-align: left;
+}
+
+#grid-view md-select {
+    text-align: left;
+}
+
 #import-dialog {
     text-align: center;
 }
