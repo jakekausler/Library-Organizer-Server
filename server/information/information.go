@@ -866,6 +866,35 @@ func GetStats(db *sql.DB, t, libraryids string) (ChartInfo, error) {
 				})
 			}
 		}
+	case "award":
+		var total int64
+		totalquery := `SELECT count(*) FROM books WHERE isowned=1 ` + inlibrary
+		err := db.QueryRow(totalquery).Scan(&total)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return ChartInfo{}, err
+		}
+		awards, err := GetAwards(db, "")
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return ChartInfo{}, err
+		}
+		for _, award := range awards {
+			var count int64
+			awardsQuery := `SELECT COUNT(*) FROM awards JOIN books ON awards.BookID=books.BookID WHERE tag=? AND IsOwned=1 ` + inlibrary
+			err := db.QueryRow(awardsQuery, award).Scan(&count)
+			if err != nil {
+				logger.Printf("Error: %+v", err)
+				return ChartInfo{}, err
+			}
+			if count > 0 && award != "" {
+				data = append(data, StatData{
+					Label:    award,
+					Value:    fmt.Sprintf("%d", count),
+					ToolText: fmt.Sprintf("%.2f%%", float64(count)/float64(total)*100),
+				})
+			}
+		}
 	}
 	return ChartInfo{
 		Total: totalCount,

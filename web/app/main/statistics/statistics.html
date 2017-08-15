@@ -14,6 +14,7 @@
 				<md-button aria-label="Show Dimension Statistics" ng-disabled="statView=='dimensions'" ng-click="setStatView('dimensions')">Dimensions</md-button>
 				<md-button aria-label="Show Lexile Statistics" ng-disabled="statView=='lexile'" ng-click="setStatView('lexile')">Lexiles</md-button>
 				<md-button aria-label="Show Tag Statistics" ng-disabled="statView=='tag'" ng-click="setStatView('tag')">Tags</md-button>
+				<md-button aria-label="Show Award Statistics" ng-disabled="statView=='award'" ng-click="setStatView('award')">Awards</md-button>
 			</div>
 			<div id="stats-navigation-sub" ng-hide="display!='stats'">
 				<md-button aria-label="View By Count" ng-disabled="statSubView=='generalbycounts'" ng-hide="statView!='general'" ng-click="setStatSubView('generalbycounts')">By Counts</md-button>
@@ -40,6 +41,7 @@
 				<md-button aria-label="View By Publication Date" ng-disabled="statSubView=='datespublication'" ng-hide="statView!='dates'" ng-click="setStatSubView('datespublication')">By Edition Publication Date</md-button>
 				<md-button aria-label="View By Lexile" ng-disabled="statSubView=='lexile'" ng-hide="statView!='lexile'" ng-click="setStatSubView('lexile')">By Lexile</md-button>
 				<md-button aria-label="View By Tag" ng-disabled="statSubView=='tag'" ng-hide="statView!='tag'" ng-click="setStatSubView('tag')">By Tag</md-button>
+				<md-button aria-label="View By Award" ng-disabled="statSubView=='award'" ng-hide="statView!='award'" ng-click="setStatSubView('award')">By Award</md-button>
 			</div>
 		</md-toolbar>
 	</div>

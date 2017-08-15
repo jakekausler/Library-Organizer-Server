@@ -112,6 +112,9 @@ angular.module('libraryOrganizer')
             case 'tag':
                 $scope.setStatSubView('tag');
                 break;
+            case 'award':
+                $scope.setStatSubView('award');
+                break;
             }
         }
         $scope.setStatSubView = function(view) {
@@ -199,6 +202,10 @@ angular.module('libraryOrganizer')
                     case "tag":
                         formatNumberScale = "0";
                         caption = "Books by Tag";
+                        break;
+                    case "award":
+                        formatNumberScale = "0";
+                        caption = "Books by Award";
                         break;
                 }
                 $scope.getChartData(view, caption, subcaption, labelDisplay, formatNumberScale, numberSuffix, decimals);
