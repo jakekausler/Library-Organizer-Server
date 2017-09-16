@@ -107,7 +107,7 @@
 						<div id="page-group" class="sort-group" flex>
 							<md-input-container>
 								<label id="page-label">Page</label>
-								<input id="page" class="pagination-input" type="number" ng-change="updateRecieved()" ng-model="$parent.page" name="page" min="1" max="{{countPages()}}" step="1" required pages-input> of {{countPages()}}
+								<input id="page" class="pagination-input" type="number" ng-change="updateRecieved()" ng-model="$parent.page" name="page" min="1" max="{{countPages()?countPages():1}}" step="1" required pages-input> of {{countPages()?countPages():1}}
 							</md-input-container>
 						</div>
 					</div>

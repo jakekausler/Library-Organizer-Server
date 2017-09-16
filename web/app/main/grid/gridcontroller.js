@@ -105,11 +105,6 @@ angular.module('libraryOrganizer')
                         reading: $scope.reading,
                         gridselectedlibraries: $scope.gridSelectedLibraries
                     }
-                for (key in params) {
-                    if (key != "filter" && params[key] == "") {
-                        delete params[key]
-                    }
-                }
                 $scope.setParameters(params)
                 $http({
                     url: '/books',

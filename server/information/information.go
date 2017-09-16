@@ -1190,7 +1190,7 @@ func GetLanguages(db *sql.DB, queryString string) ([]string, error) {
 	var r = make([]string, 0)
 	query := getLanguagesQuery
 	if queryString != "" {
-		query += " WHERE Language LIKE '%%" + queryString + "%%'"
+		query += " WHERE Langauge LIKE '%%" + queryString + "%%'"
 	}
 	rows, err := db.Query(query)
 	if err != nil {

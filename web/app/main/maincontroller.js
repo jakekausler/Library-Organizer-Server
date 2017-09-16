@@ -70,7 +70,9 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
             }
             var s = [];
             for (m in p) {
-                s.push( m + "=" + p[m])
+                if (p[m] != "") {
+                    s.push( m + "=" + p[m])
+                }
             }
             var qs = '?'+s.join('&');
             var newhash = hash[0]+qs
