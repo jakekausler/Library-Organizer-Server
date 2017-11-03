@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -19,7 +20,7 @@ var (
 )
 
 //RunServer runs the library server
-func RunServer(username, password, database string) {
+func RunServer(username, password, database string, port int) {
 	logger.Printf("Creating the database")
 	var err error
 	// Create sql.DB
@@ -93,9 +94,9 @@ func RunServer(username, password, database string) {
 	r.HandleFunc("/users/reset/{token}", FinishResetPasswordHandler).Methods("GET")
 	r.HandleFunc("/users/username", GetUsernameHandler).Methods("GET")
 	r.PathPrefix("/web/").Handler(http.StripPrefix("/web/", http.FileServer(http.Dir("./../web/"))))
-	logger.Printf("Listening on port 8181")
+	logger.Printf("Listening on port %v", port)
 	loggedRouter := handlers.CombinedLoggingHandler(logFile, r)
-	http.ListenAndServe(":8181", handlers.CompressHandler(loggedRouter))
+	http.ListenAndServe(fmt.Sprintf(":%v", port), handlers.CompressHandler(loggedRouter))
 	// http.ListenAndServe(":8181", nil)
 	logger.Printf("Closing")
 }

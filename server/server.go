@@ -1,11 +1,14 @@
 package main
 
-import "flag"
+import (
+	"flag"
+)
 
 var (
 	username = flag.String("username", "root", "Username of the local mysql database")
 	password = flag.String("password", "", "Password of the local mysql database")
 	database = flag.String("name", "library", "Name of the local mysql database")
+	port = flag.Int("port", 8181, "Port to run the server on")
 )
 
 func main() {
@@ -16,5 +19,5 @@ func main() {
 	if *database == "" {
 		panic("database cannot be empty!")
 	}
-	RunServer(*username, *password, *database)
+	RunServer(*username, *password, *database, *port)
 }
