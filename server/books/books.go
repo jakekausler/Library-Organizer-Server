@@ -1314,7 +1314,8 @@ func GetAuthorsForExport(db *sql.DB) ([][]string, error) {
 
 //ImportBooks imports records from a csv file
 //todo finish function
-func ImportBooks(db *sql.DB, records [][]string, lib Library) error {
+func ImportBooks(db *sql.DB, records [][]string) error {
+	/*
 	if len(records) < 2 {
 		return fmt.Errorf("Record list must contain column nams and at least one record")
 	}
@@ -1342,11 +1343,11 @@ func ImportBooks(db *sql.DB, records [][]string, lib Library) error {
 			case "Country":
 				book.Publisher.Country = d[i]
 			case "IsRead":
-				book.IsRead = strings.Lower(d[i]) == "true" || d[i] == "1"
+				book.IsRead = strings.ToLower(d[i]) == "true" || d[i] == "1"
 			case "IsReference":
-				book.IsReference = strings.Lower(d[i]) == "true" || d[i] == "1"
+				book.IsReference = strings.ToLower(d[i]) == "true" || d[i] == "1"
 			case "IsOwned":
-				book.IsOwned = strings.Lower(d[i]) == "true" || d[i] == "1"
+				book.IsOwned = strings.ToLower(d[i]) == "true" || d[i] == "1"
 			case "ISBN":
 				book.ISBN = d[i]
 			case "Dewey":
@@ -1376,9 +1377,9 @@ func ImportBooks(db *sql.DB, records [][]string, lib Library) error {
 			case "Edition":
 				book.Edition = d[i]
 			case "IsReading":
-				book.IsReading = strings.Lower(d[i]) == "true" || d[i] == "1"
+				book.IsReading = strings.ToLower(d[i]) == "true" || d[i] == "1"
 			case "IsShipping":
-				book.IsShipping = strings.Lower(d[i]) == "true" || d[i] == "1"
+				book.IsShipping = strings.ToLower(d[i]) == "true" || d[i] == "1"
 			case "ImageURL":
 				book.ImageURL = d[i]
 			case "EditionPublished":
@@ -1416,6 +1417,8 @@ func ImportBooks(db *sql.DB, records [][]string, lib Library) error {
 	for _, b := range books {
 		SaveBook(db, b)
 	}
+	return nil
+	*/
 	return nil
 }
 
