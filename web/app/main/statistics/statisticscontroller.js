@@ -17,7 +17,7 @@ angular.module('libraryOrganizer')
                 }
             }
             if (retval.endsWith(",")) {
-                retval = retval.substring(0,retval.length-1)
+                retval = retval.substring(0, retval.length - 1)
             }
             return retval;
         }
@@ -56,12 +56,12 @@ angular.module('libraryOrganizer')
                 }
             }).then(function(response) {
                 $scope.chartData.chart = {
-                    caption: caption?caption:undefined,
-                    subcaption: subcaption?subcaption:undefined,
-                    labelDisplay: labelDisplay?labelDisplay:undefined,
-                    formatNumberScale: formatNumberScale?formatNumberScale:undefined,
-                    numberSuffix: numberSuffix?numberSuffix:undefined,
-                    decimals: decimals?decimals:undefined
+                    caption: caption ? caption : undefined,
+                    subcaption: subcaption ? subcaption : undefined,
+                    labelDisplay: labelDisplay ? labelDisplay : undefined,
+                    formatNumberScale: formatNumberScale ? formatNumberScale : undefined,
+                    numberSuffix: numberSuffix ? numberSuffix : undefined,
+                    decimals: decimals ? decimals : undefined
                 }
                 if (response.data.total) {
                     $scope.chartData.chart.caption += " (Total: " + response.data.total + ")"
@@ -76,51 +76,55 @@ angular.module('libraryOrganizer')
         }
         $scope.setStatView = function(view) {
             $scope.statView = view;
-            $scope.setParameters({'statview': view})
+            $scope.setParameters({
+                'statview': view
+            })
             switch (view) {
-            case 'general':
-                $scope.setStatSubView('generalbycounts');
-                break;
-            case 'series':
-                $scope.setStatSubView('series');
-                break;
-            case 'publishers':
-                $scope.setStatSubView('publishersbooksperparent');
-                break;
-            case 'languages':
-                $scope.setStatSubView('languagesprimary');
-                break;
-            case 'deweys':
-                $scope.setStatSubView('deweys');
-                break;
-            case 'bindings':
-                $scope.setStatSubView('formats');
-                break;
-            case 'contributors':
-                $scope.setStatSubView('contributorstop');
-                break;
-            case 'dimensions':
-                $scope.updateDimensions();
-                $scope.setStatSubView('byvolumes');
-                break;
-            case 'dates':
-                $scope.setStatSubView('datesoriginal');
-                break;
-            case 'lexile':
-                $scope.setStatSubView('lexile');
-                break;
-            case 'tag':
-                $scope.setStatSubView('tag');
-                break;
-            case 'award':
-                $scope.setStatSubView('award');
-                break;
+                case 'general':
+                    $scope.setStatSubView('generalbycounts');
+                    break;
+                case 'series':
+                    $scope.setStatSubView('series');
+                    break;
+                case 'publishers':
+                    $scope.setStatSubView('publishersbooksperparent');
+                    break;
+                case 'languages':
+                    $scope.setStatSubView('languagesprimary');
+                    break;
+                case 'deweys':
+                    $scope.setStatSubView('deweys');
+                    break;
+                case 'bindings':
+                    $scope.setStatSubView('formats');
+                    break;
+                case 'contributors':
+                    $scope.setStatSubView('contributorstop');
+                    break;
+                case 'dimensions':
+                    $scope.updateDimensions();
+                    $scope.setStatSubView('byvolumes');
+                    break;
+                case 'dates':
+                    $scope.setStatSubView('datesoriginal');
+                    break;
+                case 'lexile':
+                    $scope.setStatSubView('lexile');
+                    break;
+                case 'tag':
+                    $scope.setStatSubView('tag');
+                    break;
+                case 'award':
+                    $scope.setStatSubView('award');
+                    break;
             }
         }
         $scope.setStatSubView = function(view) {
             if (view) {
                 $scope.statSubView = view;
-                $scope.setParameters({'statsubview': view})
+                $scope.setParameters({
+                    'statsubview': view
+                })
                 var caption = "";
                 var subcaption = "";
                 var labelDisplay = "rotate";
@@ -197,7 +201,8 @@ angular.module('libraryOrganizer')
                     case "lexile":
                         formatNumberScale = "0";
                         caption = "Books by Lexile Grade Level";
-                        subcaption = "Taken from Common Core State Standards for English, Language Arts, Appendix A (Additional Information), NGA and CCSSO, 2012";                        break;
+                        subcaption = "Taken from Common Core State Standards for English, Language Arts, Appendix A (Additional Information), NGA and CCSSO, 2012";
+                        break;
                         break;
                     case "tag":
                         formatNumberScale = "0";
@@ -244,7 +249,7 @@ angular.module('libraryOrganizer')
                         id: $scope.libraries[l].id,
                         name: $scope.libraries[l].name,
                         children: [],
-                        selected: $.inArray($scope.libraries[l].id+"", $scope.statSelectedLibraries)!=-1
+                        selected: $.inArray($scope.libraries[l].id + "", $scope.statSelectedLibraries) != -1
                     });
                 }
                 for (k in libStructure) {
@@ -253,7 +258,7 @@ angular.module('libraryOrganizer')
                         libStructure[k][0].selected = true;
                     }
                     data.push({
-                        id: "owner/"+k,
+                        id: "owner/" + k,
                         name: k,
                         children: libStructure[k],
                         selected: false

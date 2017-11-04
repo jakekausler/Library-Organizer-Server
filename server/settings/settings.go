@@ -9,11 +9,11 @@ import (
 )
 
 const (
-	getValueQuery = "SELECT IF (EXISTS (SELECT value FROM librarysettings WHERE userid=? AND setting=?), (SELECT value FROM librarysettings WHERE userid=? AND setting=? LIMIT 1), (SELECT value FROM librarysettings WHERE userid=0 AND setting=? LIMIT 1))"
-	getValueTypeQuery = "SELECT IF (EXISTS (SELECT valuetype FROM librarysettings WHERE userid=? AND setting=?), (SELECT valuetype FROM librarysettings WHERE userid=? AND setting=? LIMIT 1), (SELECT valuetype FROM librarysettings WHERE userid=0 AND setting=? LIMIT 1))"
-	getSettingGroupQuery = "SELECT IF (EXISTS (SELECT settinggroup FROM librarysettings WHERE userid=? AND setting=?), (SELECT settinggroup FROM librarysettings WHERE userid=? AND setting=? LIMIT 1), (SELECT settinggroup FROM librarysettings WHERE userid=0 AND setting=? LIMIT 1))"
+	getValueQuery          = "SELECT IF (EXISTS (SELECT value FROM librarysettings WHERE userid=? AND setting=?), (SELECT value FROM librarysettings WHERE userid=? AND setting=? LIMIT 1), (SELECT value FROM librarysettings WHERE userid=0 AND setting=? LIMIT 1))"
+	getValueTypeQuery      = "SELECT IF (EXISTS (SELECT valuetype FROM librarysettings WHERE userid=? AND setting=?), (SELECT valuetype FROM librarysettings WHERE userid=? AND setting=? LIMIT 1), (SELECT valuetype FROM librarysettings WHERE userid=0 AND setting=? LIMIT 1))"
+	getSettingGroupQuery   = "SELECT IF (EXISTS (SELECT settinggroup FROM librarysettings WHERE userid=? AND setting=?), (SELECT settinggroup FROM librarysettings WHERE userid=? AND setting=? LIMIT 1), (SELECT settinggroup FROM librarysettings WHERE userid=0 AND setting=? LIMIT 1))"
 	getPossibleValuesQuery = "SELECT possiblevalue FROM librarysettingspossiblevalues WHERE setting=? ORDER BY possiblevalue"
-	updateSettingQuery = "REPLACE INTO librarysettings (userid, setting, value, valuetype, settinggroup) VALUES (?,?,?,?,?)"
+	updateSettingQuery     = "REPLACE INTO librarysettings (userid, setting, value, valuetype, settinggroup) VALUES (?,?,?,?,?)"
 )
 
 var logger = log.New(os.Stderr, "log: ", log.LstdFlags|log.Lshortfile)

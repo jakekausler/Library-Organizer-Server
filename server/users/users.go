@@ -7,8 +7,8 @@ import (
 	"os"
 	"time"
 
-	"golang.org/x/crypto/bcrypt"
 	"../information"
+	"golang.org/x/crypto/bcrypt"
 )
 
 const (
@@ -17,27 +17,27 @@ const (
 	addSessionQuery          = "INSERT INTO usersession (sessionkey,userid,LastSeenTime) values (?,?,NOW())"
 	updateSessionTimeQuery   = "UPDATE usersession SET LastSeenTime=NOW()"
 	deleteSessionQuery       = "DELETE FROM usersession WHERE sessionkey=?"
-	getIdByEmailQuery = "SELECT id FROM library_members WHERE email=?"
-	getUserForCheckQuery = "SELECT id, pass FROM library_members WHERE usr=?"
-	addLibraryQuery = "INSERT INTO libraries (name, ownerid, sortmethod) VALUES (?,?,?)"
-	addPermissionQuery = "INSERT INTO permissions (userid, libraryid, permission) VALUES (?,?,?)"
-	getUsernameQuery = "SELECT usr FROM library_members JOIN usersession ON UserID=ID WHERE sessionkey=?"
-	getUserIDQuery = "SELECT id FROM library_members JOIN usersession ON UserID=ID WHERE sessionkey=?"
-	getUsersQuery = "SELECT id, usr, firstname, lastname, email FROM library_members WHERE id != ?"
+	getIdByEmailQuery        = "SELECT id FROM library_members WHERE email=?"
+	getUserForCheckQuery     = "SELECT id, pass FROM library_members WHERE usr=?"
+	addLibraryQuery          = "INSERT INTO libraries (name, ownerid, sortmethod) VALUES (?,?,?)"
+	addPermissionQuery       = "INSERT INTO permissions (userid, libraryid, permission) VALUES (?,?,?)"
+	getUsernameQuery         = "SELECT usr FROM library_members JOIN usersession ON UserID=ID WHERE sessionkey=?"
+	getUserIDQuery           = "SELECT id FROM library_members JOIN usersession ON UserID=ID WHERE sessionkey=?"
+	getUsersQuery            = "SELECT id, usr, firstname, lastname, email FROM library_members WHERE id != ?"
 
-	charset             = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 )
 
 var logger = log.New(os.Stderr, "log: ", log.LstdFlags|log.Lshortfile)
 
 //User is a library member
 type User struct {
-	ID int64 `json:"id"`
-	Username string `json:"username"`
+	ID        int64  `json:"id"`
+	Username  string `json:"username"`
 	FirstName string `json:"first"`
-	LastName string `json:"last"`
-	FullName string `json:"fullname"`
-	Email string `json:"email"`
+	LastName  string `json:"last"`
+	FullName  string `json:"fullname"`
+	Email     string `json:"email"`
 }
 
 //ResetPassword sends a link to reset a password

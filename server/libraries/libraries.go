@@ -13,46 +13,46 @@ import (
 )
 
 const (
-	getLibrariesQuery = "SELECT libraries.id, name, permission, usr FROM libraries JOIN permissions ON libraries.id=permissions.libraryid join library_members on libraries.ownerid=library_members.id WHERE permissions.permission & 1 and permissions.userid=(SELECT id from library_members join usersession on library_members.id=usersession.userid WHERE sessionkey=?)"
-	getBreaksQuery = "SELECT breaktype, valuetype, value FROM breaks WHERE libraryid=?"
-	getCasesQuery = "SELECT CaseId, Width, SpacerHeight, PaddingLeft, PaddingRight, BookMargin, CaseNumber, NumberOfShelves, ShelfHeight FROM bookcases WHERE libraryid=? ORDER BY CaseNumber"
-	addCaseQuery = "INSERT INTO bookcases (casenumber, width, spacerheight, paddingleft, paddingright, libraryid, numberofshelves, shelfheight) VALUES (?,?,?,?,?,?,?,?)"
-	updateCaseQuery = "UPDATE bookcases SET casenumber=?, width=?, spacerheight=?, paddingleft=?, paddingright=?, libraryid=?, numberOfShelves=?, shelfheight=? WHERE caseid=?"
-	deleteBreaksQuery = "DELETE FROM breaks WHERE libraryid=?"
-	addBreakQuery = "INSERT INTO breaks (libraryid, breaktype, valuetype, value) VALUES (?,?,?,?)"
-	getOwnedLibrariesQuery = "SELECT libraries.id, libraries.name FROM libraries WHERE libraries.ownerid=?"
+	getLibrariesQuery                = "SELECT libraries.id, name, permission, usr FROM libraries JOIN permissions ON libraries.id=permissions.libraryid join library_members on libraries.ownerid=library_members.id WHERE permissions.permission & 1 and permissions.userid=(SELECT id from library_members join usersession on library_members.id=usersession.userid WHERE sessionkey=?)"
+	getBreaksQuery                   = "SELECT breaktype, valuetype, value FROM breaks WHERE libraryid=?"
+	getCasesQuery                    = "SELECT CaseId, Width, SpacerHeight, PaddingLeft, PaddingRight, BookMargin, CaseNumber, NumberOfShelves, ShelfHeight FROM bookcases WHERE libraryid=? ORDER BY CaseNumber"
+	addCaseQuery                     = "INSERT INTO bookcases (casenumber, width, spacerheight, paddingleft, paddingright, libraryid, numberofshelves, shelfheight) VALUES (?,?,?,?,?,?,?,?)"
+	updateCaseQuery                  = "UPDATE bookcases SET casenumber=?, width=?, spacerheight=?, paddingleft=?, paddingright=?, libraryid=?, numberOfShelves=?, shelfheight=? WHERE caseid=?"
+	deleteBreaksQuery                = "DELETE FROM breaks WHERE libraryid=?"
+	addBreakQuery                    = "INSERT INTO breaks (libraryid, breaktype, valuetype, value) VALUES (?,?,?,?)"
+	getOwnedLibrariesQuery           = "SELECT libraries.id, libraries.name FROM libraries WHERE libraries.ownerid=?"
 	getLibraryMembersPermissionQuery = "SELECT library_members.id, library_members.usr, library_members.firstname, library_members.lastname, library_members.email, library_members.iconurl, permissions.permission FROM libraries JOIN permissions ON libraries.id=permissions.libraryid JOIN library_members ON permissions.userid=library_members.id WHERE libraries.id=? AND permissions.userid != ?"
-	deleteLibrariesQuery = "DELETE FROM libraries WHERE ownerid=?"
-	addLibraryQuery = "INSERT INTO libraries (name, ownerid, sortmethod) VALUES (?,?)"
-	deletePermissionsQuery = "DELETE FROM permissions WHERE libraryid=?"
-	updateBooksLibraryQuery = "UPDATE books SET libraryid=? WHERE libraryid=?"
-	updateCasesLibraryQuery = "UPDATE bookcases SET libraryid=? WHERE libraryid=?"
-	updateBreaksLibraryQuery = "UPDATE breaks SET libraryid=? WHERE libraryid=?"
-	updateSortsLibraryQuery = "UPDATE series_author_sorts SET libraryid=? WHERE libraryid=?"
-	addPermissionQuery = "INSERT INTO permissions (userid, libraryid, permission) VALUES (?,?,?)"
-	getBooksLibrariesQuery = "SELECT DISTINCT(libraryid) FROM books"
-	getPermissionsLibrariesQuery = "SELECT DISTINCT(libraryid) FROM permissions"
-	getCasesLibrariesQuery = "SELECT DISTINCT(libraryid) FROM bookcases"
-	getBreaksLibrariesQuery = "SELECT DISTINCT(libraryid) FROM breaks"
-	getSeriesLibrariesQuery = "SELECT DISTINCT(libraryid) FROM series_author_sorts"
-	getLibraryIdsQuery = "SELECT id FROM libraries"
-	deleteBooksLibraryQuery = "DELETE FROM books WHERE libraryid=?"
-	deletePermissionsLibraryQuery = "DELETE FROM permissions WHERE libraryid=?"
-	deleteBreaksLibraryQuery = "DELETE FROM breaks WHERE libraryid=?"
-	deleteCasesLibraryQuery = "DELETE FROM bookcases WHERE libraryid=?"
-	deleteSeriesLibraryQuery = "DELETE FROM series_author_sorts WHERE libraryid=?"
-	getAuthorBasedSeriesQuery = "SELECT series FROM series_author_sorts WHERE libraryid=?"
-	updateAuthorBasedSeriesQuery = "DELETE FROM series_author_sorts WHERE libraryid=?"
-	addAuthorBasedSeriesQuery = "INSERT INTO series_author_sorts (libraryid, series) VALUES (?,?)"
-	getSortMethodQuery = "SELECT sortmethod FROM libraries WHERE id=?"
-	updateSortMethodQuery = "UPDATE libraries SET sortmethod=? WHERE id=?"
+	deleteLibrariesQuery             = "DELETE FROM libraries WHERE ownerid=?"
+	addLibraryQuery                  = "INSERT INTO libraries (name, ownerid, sortmethod) VALUES (?,?)"
+	deletePermissionsQuery           = "DELETE FROM permissions WHERE libraryid=?"
+	updateBooksLibraryQuery          = "UPDATE books SET libraryid=? WHERE libraryid=?"
+	updateCasesLibraryQuery          = "UPDATE bookcases SET libraryid=? WHERE libraryid=?"
+	updateBreaksLibraryQuery         = "UPDATE breaks SET libraryid=? WHERE libraryid=?"
+	updateSortsLibraryQuery          = "UPDATE series_author_sorts SET libraryid=? WHERE libraryid=?"
+	addPermissionQuery               = "INSERT INTO permissions (userid, libraryid, permission) VALUES (?,?,?)"
+	getBooksLibrariesQuery           = "SELECT DISTINCT(libraryid) FROM books"
+	getPermissionsLibrariesQuery     = "SELECT DISTINCT(libraryid) FROM permissions"
+	getCasesLibrariesQuery           = "SELECT DISTINCT(libraryid) FROM bookcases"
+	getBreaksLibrariesQuery          = "SELECT DISTINCT(libraryid) FROM breaks"
+	getSeriesLibrariesQuery          = "SELECT DISTINCT(libraryid) FROM series_author_sorts"
+	getLibraryIdsQuery               = "SELECT id FROM libraries"
+	deleteBooksLibraryQuery          = "DELETE FROM books WHERE libraryid=?"
+	deletePermissionsLibraryQuery    = "DELETE FROM permissions WHERE libraryid=?"
+	deleteBreaksLibraryQuery         = "DELETE FROM breaks WHERE libraryid=?"
+	deleteCasesLibraryQuery          = "DELETE FROM bookcases WHERE libraryid=?"
+	deleteSeriesLibraryQuery         = "DELETE FROM series_author_sorts WHERE libraryid=?"
+	getAuthorBasedSeriesQuery        = "SELECT series FROM series_author_sorts WHERE libraryid=?"
+	updateAuthorBasedSeriesQuery     = "DELETE FROM series_author_sorts WHERE libraryid=?"
+	addAuthorBasedSeriesQuery        = "INSERT INTO series_author_sorts (libraryid, series) VALUES (?,?)"
+	getSortMethodQuery               = "SELECT sortmethod FROM libraries WHERE id=?"
+	updateSortMethodQuery            = "UPDATE libraries SET sortmethod=? WHERE id=?"
 )
 
 var logger = log.New(os.Stderr, "log: ", log.LstdFlags|log.Lshortfile)
 
 //Break is a case break
 type Break struct {
-	LibraryID string    `json:"libaryid"`
+	LibraryID string `json:"libaryid"`
 	ValueType string `json:"valuetype"`
 	Value     string `json:"value"`
 	BreakType string `json:"breaktype"`
@@ -101,21 +101,21 @@ type Bookshelf struct {
 
 //OwnedLibrary is a library owned by the user and the users that have permission to view them
 type OwnedLibrary struct {
-	ID int64 `json:"id"`
-	Name string `json:"name"`
+	ID    int64                `json:"id"`
+	Name  string               `json:"name"`
 	Users []UserWithPermission `json:"user"`
 }
 
 //UserWithPermission is a user and permission
 type UserWithPermission struct {
-	ID int64 `json:"id"`
-	Username string `json:"username"`
-	FirstName string `json:"firstname"`
-	LastName string `json:"lastname"`
-	FullName string `json:"fullname"`
-	Email string `json:"email"`
-	IconURL string `json:"iconurl"`
-	Permission int64 `json:"permission"`
+	ID         int64  `json:"id"`
+	Username   string `json:"username"`
+	FirstName  string `json:"firstname"`
+	LastName   string `json:"lastname"`
+	FullName   string `json:"fullname"`
+	Email      string `json:"email"`
+	IconURL    string `json:"iconurl"`
+	Permission int64  `json:"permission"`
 }
 
 //GetCases gets cases
@@ -154,14 +154,14 @@ func GetCases(db *sql.DB, libraryid, session string) ([]Bookcase, error) {
 			logger.Printf("Error: %+v", err)
 			return nil, err
 		}
-		avgWidth := 1;
-		avgHeight := 26;
-		if (dim["averagewidth"] > 0) {
-			avgWidth = int(dim["averagewidth"]);
+		avgWidth := 1
+		avgHeight := 26
+		if dim["averagewidth"] > 0 {
+			avgWidth = int(dim["averagewidth"])
 		}
 		//Leave room for text
 		if dim["averageheight"] > 25 {
-			avgHeight = int(dim["averageheight"]);
+			avgHeight = int(dim["averageheight"])
 		}
 		bookcase := Bookcase{
 			ID:                id,
@@ -215,7 +215,7 @@ func GetCases(db *sql.DB, libraryid, session string) ([]Bookcase, error) {
 					switch b.ValueType {
 					case "ID":
 						if b.Value == books[index].ID {
-							breakInner = true;
+							breakInner = true
 							if b.BreakType == "CASE" {
 								breakcase = true
 							} else {
@@ -593,12 +593,12 @@ func SaveOwnedLibraries(db *sql.DB, ownedLibraries []OwnedLibrary, session strin
 }
 
 func contains(s []int64, e int64) bool {
-    for _, a := range s {
-        if a == e {
-            return true
-        }
-    }
-    return false
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }
 
 //GetAuthorBasedSeries gets series that are sorted by author then title, instead of volume
@@ -620,8 +620,6 @@ func GetAuthorBasedSeries(db *sql.DB, libraryid string) ([]string, error) {
 	}
 	return series, nil
 }
-
-
 
 //UpdateAuthorBasedSeries updates series that are sorted by author then title, instead of volume
 func UpdateAuthorBasedSeries(db *sql.DB, libraryid string, series []string) error {
@@ -646,8 +644,6 @@ func GetLibrarySort(db *sql.DB, libraryid string) (string, error) {
 	err := db.QueryRow(getSortMethodQuery, libraryid).Scan(&method)
 	return method, err
 }
-
-
 
 //UpdateLibrarySort updates the sort method of a library
 func UpdateLibrarySort(db *sql.DB, libraryid string, method string) error {

@@ -1,84 +1,104 @@
 .icon:before {
-	font-family: FontAwesome;
-	font-size: large;
-	min-width: 5% !important;
-	width: 5% !important;
+    font-family: FontAwesome;
+    font-size: large;
+    min-width: 5% !important;
+    width: 5% !important;
 }
 
-.filter-icon:before{
-	content:'\f0b0';
+.filter-icon:before {
+    content: '\f0b0';
 }
-.add-icon:before{
-	content:'\f067';
+
+.add-icon:before {
+    content: '\f067';
 }
-.import-icon:before{
-	content:'\f093';
+
+.import-icon:before {
+    content: '\f093';
 }
-.export-icon:before{
-	content:'\f019';
+
+.export-icon:before {
+    content: '\f019';
 }
-.statistics-icon:before{
-	content:'\f080';
+
+.statistics-icon:before {
+    content: '\f080';
 }
-.shelves-icon:before{
-	content:'\f19c';
+
+.shelves-icon:before {
+    content: '\f19c';
 }
-.grid-icon:before{
-	content: '\f00a';
+
+.grid-icon:before {
+    content: '\f00a';
 }
-.previous-icon:before{
-	content:'\f191';
+
+.previous-icon:before {
+    content: '\f191';
 }
-.next-icon:before{
-	content:'\f152';
+
+.next-icon:before {
+    content: '\f152';
 }
-.save-icon:before{
-	content:'\f0c7';
+
+.save-icon:before {
+    content: '\f0c7';
 }
-.remove-icon:before{
-	content:'\f014';
+
+.remove-icon:before {
+    content: '\f014';
 }
-.cancel-icon:before{
-	content:'\f00d';
+
+.cancel-icon:before {
+    content: '\f00d';
 }
-.edit-icon:before{
-	content:'\f040';
+
+.edit-icon:before {
+    content: '\f040';
 }
-.url-icon:before{
-	content:'\f0ea';
+
+.url-icon:before {
+    content: '\f0ea';
 }
-.settings-icon:before{
-	content:'\f013';
+
+.settings-icon:before {
+    content: '\f013';
 }
-.checkout-icon:before{
-	content:'\f217';
+
+.checkout-icon:before {
+    content: '\f217';
 }
-.checkin-icon:before{
-	content:'\f218';
+
+.checkin-icon:before {
+    content: '\f218';
 }
-.scan-icon:before{
-	content:'\f02a';
+
+.scan-icon:before {
+    content: '\f02a';
 }
-.up-icon:before{
-	content:'\f151';
+
+.up-icon:before {
+    content: '\f151';
 }
-.down-icon:before{
-	content:'\f150';
+
+.down-icon:before {
+    content: '\f150';
 }
-.search-icon:before{
-	content:'\f002';
+
+.search-icon:before {
+    content: '\f002';
 }
-.copy-icon:before{
-	content:'\f0c5';
+
+.copy-icon:before {
+    content: '\f0c5';
 }
-.eyedropper-icon:before{
-	content:'\f1fb';
+
+.eyedropper-icon:before {
+    content: '\f1fb';
 }
 
 figcaption {
-	margin: auto;
+    margin: auto;
 }
 
-#editor-view{
-
-}
+#editor-view {}

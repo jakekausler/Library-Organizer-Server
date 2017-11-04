@@ -2,4 +2,5 @@ server/tmp/*
 web/res/bookimages/*
 web/res/userimages/*
 server/server.exe
+server/server
 logs/*

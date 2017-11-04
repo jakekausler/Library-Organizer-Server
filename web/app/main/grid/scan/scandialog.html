@@ -1,34 +1,34 @@
 <md-dialog id="scan-dialog" layout-padding="5" flex>
-	<h1 class="md-title">Insert by ISBN</h1>
-	<p>Insert a book by ISBN. Either type in the ISBN below and press enter, or use a barcode scanner. If using a barcode scanner, the input will be split on spaces the second part (or first if only one part) will be interpreted as the isbn.</p>
-	<md-input-container>
-		<label>ISBN</label>
-		<input ng-model="isbn" type="text" scan="scan()" md-autofocus />
-	</md-input-container>
-	<div layout="row" ng-hide="results.online.length == 0 && results.inlibrary.length==0">
-		<div flex class="grid">
-			<h1 class="md-subhead">Online Results</h1>
-			<p class="md-body-1">Click on a result to add it to a library</p>
-			<md-grid-list md-cols-xs="1" md-cols-sm="2" md-cols-md="3" md-cols-gt-md="4" md-row-height-gt-md="1:1" md-row-height="2:2" md-gutter="12px" md-gutter-gt-sm="8px">
-				<md-grid-tile ng-repeat="result in results.online" ng-click="selectOnline($event, result)">
-					<md-grid-tile-header class="md-accent">
-						<span>{{result.volumeInfo.title}}</span>
-					</md-grid-tile-header>
-					<img ng-src="{{result.volumeInfo.imageLinks.thumbnail}}" alt="Image not found" onerror="this.onerror=null;this.src='web/res/book.jpg';" height="100%">
-				</md-grid-tile>
-			</md-grid-list>
-		</div>
-		<div flex class="grid">
-			<h1 class="md-subhead">Local Results</h1>
-			<p class="md-body-1">Click on a result to bring up the book</p>
-			<md-grid-list md-cols-xs="1" md-cols-sm="2" md-cols-md="3" md-cols-gt-md="4" md-row-height-gt-md="1:1" md-row-height="2:2" md-gutter="12px" md-gutter-gt-sm="8px">
-				<md-grid-tile ng-repeat="result in results.inlibrary" ng-click="selectInLibrary($event, result)">
-					<md-grid-tile-header class="md-accent">
-						<span>{{result.title}}</span>
-					</md-grid-tile-header>
-					<img ng-src="web/{{result.imageurl}}" alt="Image not found" onerror="this.onerror=null;this.src='web/res/book.jpg';" height="100%">
-				</md-grid-tile>
-			</md-grid-list>
-		</div>
-	</div>
+    <h1 class="md-title">Insert by ISBN</h1>
+    <p>Insert a book by ISBN. Either type in the ISBN below and press enter, or use a barcode scanner. If using a barcode scanner, the input will be split on spaces the second part (or first if only one part) will be interpreted as the isbn.</p>
+    <md-input-container>
+        <label>ISBN</label>
+        <input ng-model="isbn" type="text" scan="scan()" md-autofocus />
+    </md-input-container>
+    <div layout="row" ng-hide="results.online.length == 0 && results.inlibrary.length==0">
+        <div flex class="grid">
+            <h1 class="md-subhead">Online Results</h1>
+            <p class="md-body-1">Click on a result to add it to a library</p>
+            <md-grid-list md-cols-xs="1" md-cols-sm="2" md-cols-md="3" md-cols-gt-md="4" md-row-height-gt-md="1:1" md-row-height="2:2" md-gutter="12px" md-gutter-gt-sm="8px">
+                <md-grid-tile ng-repeat="result in results.online" ng-click="selectOnline($event, result)">
+                    <md-grid-tile-header class="md-accent">
+                        <span>{{result.volumeInfo.title}}</span>
+                    </md-grid-tile-header>
+                    <img ng-src="{{result.volumeInfo.imageLinks.thumbnail}}" alt="Image not found" onerror="this.onerror=null;this.src='web/res/book.jpg';" height="100%">
+                </md-grid-tile>
+            </md-grid-list>
+        </div>
+        <div flex class="grid">
+            <h1 class="md-subhead">Local Results</h1>
+            <p class="md-body-1">Click on a result to bring up the book</p>
+            <md-grid-list md-cols-xs="1" md-cols-sm="2" md-cols-md="3" md-cols-gt-md="4" md-row-height-gt-md="1:1" md-row-height="2:2" md-gutter="12px" md-gutter-gt-sm="8px">
+                <md-grid-tile ng-repeat="result in results.inlibrary" ng-click="selectInLibrary($event, result)">
+                    <md-grid-tile-header class="md-accent">
+                        <span>{{result.title}}</span>
+                    </md-grid-tile-header>
+                    <img ng-src="web/{{result.imageurl}}" alt="Image not found" onerror="this.onerror=null;this.src='web/res/book.jpg';" height="100%">
+                </md-grid-tile>
+            </md-grid-list>
+        </div>
+    </div>
 </md-dialog>

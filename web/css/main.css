@@ -45,9 +45,12 @@
 
 #editor-view textarea {
     width: 100%;
-    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
-    box-sizing: border-box;         /* Opera/IE 8+ */
+    -webkit-box-sizing: border-box;
+    /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;
+    /* Firefox, other Gecko */
+    box-sizing: border-box;
+    /* Opera/IE 8+ */
 }
 
 #loading-circle {
@@ -63,38 +66,49 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(255,255,255,0.5);
+    background: rgba(255, 255, 255, 0.5);
 }
 
 #settings-view .settings-content {
-    position: relative; height: 60vh;
+    position: relative;
+    height: 60vh;
 }
 
 #settings-view .settings-tabs {
-    position: absolute;top: 0;bottom: 0;left: 0;right: 0;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
 }
 
 #settings-view .settings-description {
-    position: relative;height:10%;
+    position: relative;
+    height: 10%;
 }
 
 #settings-view .settings-inner-content {
-    position: relative;height:85%;
+    position: relative;
+    height: 85%;
 }
 
 #settings-view .settings-inner-tabs {
-    position: absolute;top: 0;bottom: 0;left: 0;right: 0;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
 }
 
 #settings-view .settings-inner-tab-content {
     height: 100%;
 }
 
-#settings-view .settings-inner-tab-content  md-list-item {
+#settings-view .settings-inner-tab-content md-list-item {
     float: left;
 }
 
-#settings-view .settings-inner-tab-content  md-input-container {
+#settings-view .settings-inner-tab-content md-input-container {
     min-width: 200px;
 }
 
@@ -136,9 +150,9 @@
 }
 
 #grid-view span {
-     text-align: center;
-     margin: auto;
-     display:inline-block;
+    text-align: center;
+    margin: auto;
+    display: inline-block;
 }
 
 #grid-view md-input-container {
@@ -169,12 +183,12 @@
 #scan-dialog span {
     text-align: center;
     margin: auto;
-    display:inline-block;
+    display: inline-block;
 }
 
 #app-header .left {
     display: inline-block;
-    float:left;
+    float: left;
 }
 
 #app-header .right {

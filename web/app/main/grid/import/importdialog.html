@@ -1,8 +1,8 @@
 <md-dialog id="import-dialog" layout-padding="5">
-	<h1 class="md-title">Import Books</h1>
-	<p>
-		Please upload a csv file with the books you would like to import. Note that the csv should contain column names exactly as they would be used in a mysql query, with three exceptions. First, do not supply the fields BookID or PublisherID. Second, include four columns to make up for PublisherID: Publisher, City, State, and Country. Finally, include a column named Contributors which contains the contributors for each book. Each contributor should be formatted as "last, first middle[ middle_1... middle_N]:role". Separate contributors with a semicolon. The image url should be a web location from which to download the book image. All numeric values should be in the correct format. Each cell must contain a title.
-	</p>
-	<app-upload-file></app-upload-file>
-	<md-button ng-click="cancel()" flex class="icon cancel-icon"></md-button>
+    <h1 class="md-title">Import Books</h1>
+    <p>
+        Please upload a csv file with the books you would like to import. Note that the csv should contain column names exactly as they would be used in a mysql query, with three exceptions. First, do not supply the fields BookID or PublisherID. Second, include four columns to make up for PublisherID: Publisher, City, State, and Country. Finally, include a column named Contributors which contains the contributors for each book. Each contributor should be formatted as "last, first middle[ middle_1... middle_N]:role". Separate contributors with a semicolon. The image url should be a web location from which to download the book image. All numeric values should be in the correct format. Each cell must contain a title.
+    </p>
+    <app-upload-file></app-upload-file>
+    <md-button ng-click="cancel()" flex class="icon cancel-icon"></md-button>
 </md-dialog>

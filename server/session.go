@@ -8,15 +8,15 @@ import (
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/gorilla/mux"
 	"github.com/gorilla/handlers"
+	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 )
 
 var (
 	db     *sql.DB
 	logger = log.New(os.Stderr, "log: ", log.LstdFlags|log.Lshortfile)
-	store = sessions.NewCookieStore([]byte("Session"))
+	store  = sessions.NewCookieStore([]byte("Session"))
 )
 
 //RunServer runs the library server
@@ -24,7 +24,7 @@ func RunServer(username, password, database string, port int) {
 	logger.Printf("Creating the database")
 	var err error
 	// Create sql.DB
-	db, err = sql.Open("mysql", "root:@/library?parseTime=true")
+	db, err = sql.Open("mysql", fmt.Sprintf("%v:%v@/%v?parseTime=true", username, password, database))
 	if err != nil {
 		panic(err.Error())
 	}

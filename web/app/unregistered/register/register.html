@@ -1,27 +1,27 @@
-<form class="input-form" action="/users" method="post" layout-padding="5" >
+<form class="input-form" action="/users" method="post" layout-padding="5">
     <h1 class="md-title">Register</h1>
     <div layout="column">
-        <md-input-container class="md-block" >
+        <md-input-container class="md-block">
             <label>Username</label>
             <input type="text" name="username" required/>
         </md-input-container>
-        <md-input-container class="md-block" >
+        <md-input-container class="md-block">
             <label>Email</label>
             <input type="email" name="email" required/>
         </md-input-container>
-        <md-input-container class="md-block" >
+        <md-input-container class="md-block">
             <label>First Name</label>
             <input type="text" name="first" required/>
         </md-input-container>
-        <md-input-container class="md-block" >
+        <md-input-container class="md-block">
             <label>Last Name</label>
             <input type="text" name="last" required/>
         </md-input-container>
-        <md-input-container class="md-block" >
+        <md-input-container class="md-block">
             <label>Password</label>
             <input ng-model="password" type="password" name="password" required/>
         </md-input-container>
-        <md-input-container class="md-block" >
+        <md-input-container class="md-block">
             <label>Confirm Password</label>
             <input ng-model="confirm" type="password" name="confirm" compare-to="password" required/>
         </md-input-container>

@@ -12,8 +12,8 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
                 return Math.floor((1 + Math.random()) * 0x10000)
                     .toString(16)
                     .substring(1);
-          }
-          return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+            }
+            return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
         }
         $scope.loading = [];
         $scope.addToLoading = function(name) {
@@ -71,11 +71,11 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
             var s = [];
             for (m in p) {
                 if (p[m] != "") {
-                    s.push( m + "=" + p[m])
+                    s.push(m + "=" + p[m])
                 }
             }
-            var qs = '?'+s.join('&');
-            var newhash = hash[0]+qs
+            var qs = '?' + s.join('&');
+            var newhash = hash[0] + qs
             window.location.hash = newhash
         }
         $scope.getParameterByName = function(name, def) {
@@ -88,14 +88,14 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
             var loadingName = $scope.guid();
             $scope.addToLoading(loadingName)
             $http({
-                url: '/settings/'+name,
+                url: '/settings/' + name,
                 method: 'GET',
                 data: name
             }).then(function(response) {
                 callback(response.data);
                 $scope.removeFromLoading(loadingName);
             }, function(response) {
-                $mdToast.showSimple("Failed to get setting "+name);
+                $mdToast.showSimple("Failed to get setting " + name);
                 $scope.removeFromLoading(loadingName);
             });
         }
@@ -139,15 +139,21 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
             })
         }
         $scope.displayGrid = function() {
-            $scope.setParameters({'display': 'grid'})
+            $scope.setParameters({
+                'display': 'grid'
+            })
             $scope.display = 'grid';
         }
         $scope.displayStats = function() {
-            $scope.setParameters({'display': 'stats'})
+            $scope.setParameters({
+                'display': 'stats'
+            })
             $scope.display = 'stats';
         }
         $scope.displayShelves = function() {
-            $scope.setParameters({'display': 'shelves'})
+            $scope.setParameters({
+                'display': 'shelves'
+            })
             $scope.display = 'shelves';
         }
         $scope.import = function(ev) {
@@ -228,4 +234,4 @@ angular.module('libraryOrganizer', ['ngMaterial', 'ng-fusioncharts', 'multiselec
                 }
             })
         }
-})
+    })

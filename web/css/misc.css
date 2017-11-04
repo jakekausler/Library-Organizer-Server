@@ -1,5 +1,5 @@
 .user-container input {
-	min-width: 400px;
+    min-width: 400px;
 }
 
 .md-tooltip {
@@ -8,6 +8,7 @@
 }
 
 /* Apply this to the inner tooltip component */
+
 .tooltip-inner {
     word-break: break-word;
     max-width: 300px !important;
@@ -15,6 +16,7 @@
 }
 
 /* Apply this to the text inside the tooltip */
+
 .span-white-space {
     white-space: normal;
 }

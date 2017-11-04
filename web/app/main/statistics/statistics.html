@@ -1,173 +1,175 @@
 <div layout="column" flex>
-	<div>
-		<md-toolbar>
-			<div id="stats-navigation">
-				<md-button aria-label="Choose Libraries" class="icon filter-icon" ng-click="chooseLibrary($event)"><md-tooltip md-delay="500">Choose Libraries</md-tooltip></md-button>
-				<md-button aria-label="Show General Statistics" ng-disabled="statView=='general'" ng-click="setStatView('general')">General</md-button>
-				<md-button aria-label="Show Publisher Statistics" ng-disabled="statView=='publishers'" ng-click="setStatView('publishers')">Publishers</md-button>
-				<md-button aria-label="Show Series Statistics" ng-disabled="statView=='series'" ng-click="setStatView('series')">Series</md-button>
-				<md-button aria-label="Show Language Statistics" ng-disabled="statView=='languages'" ng-click="setStatView('languages')">Languages</md-button>
-				<md-button aria-label="Show Dewey Statistics" ng-disabled="statView=='deweys'" ng-click="setStatView('deweys')">Deweys</md-button>
-				<md-button aria-label="Show Binding Statistics" ng-disabled="statView=='bindings'" ng-click="setStatView('bindings')">Bindings</md-button>
-				<md-button aria-label="Show Contributor Statistics" ng-disabled="statView=='contributors'" ng-click="setStatView('contributors')">Contributors</md-button>
-				<md-button aria-label="Show Date Statistics" ng-disabled="statView=='dates'" ng-click="setStatView('dates')">Dates</md-button>
-				<md-button aria-label="Show Dimension Statistics" ng-disabled="statView=='dimensions'" ng-click="setStatView('dimensions')">Dimensions</md-button>
-				<md-button aria-label="Show Lexile Statistics" ng-disabled="statView=='lexile'" ng-click="setStatView('lexile')">Lexiles</md-button>
-				<md-button aria-label="Show Tag Statistics" ng-disabled="statView=='tag'" ng-click="setStatView('tag')">Tags</md-button>
-				<md-button aria-label="Show Award Statistics" ng-disabled="statView=='award'" ng-click="setStatView('award')">Awards</md-button>
-			</div>
-			<div id="stats-navigation-sub" ng-hide="display!='stats'">
-				<md-button aria-label="View By Count" ng-disabled="statSubView=='generalbycounts'" ng-hide="statView!='general'" ng-click="setStatSubView('generalbycounts')">By Counts</md-button>
-				<md-button aria-label="View By Pages" ng-disabled="statSubView=='generalbypages'" ng-hide="statView!='general'" ng-click="setStatSubView('generalbypages')">By Pages</md-button>
-				<md-button aria-label="View By Size" ng-disabled="statSubView=='generalbysize'" ng-hide="statView!='general'" ng-click="setStatSubView('generalbysize')">By Size</md-button>
-				<md-button aria-label="View By Parent Company" ng-disabled="statSubView=='publishersbooksperparent'" ng-hide="statView!='publishers'" ng-click="setStatSubView('publishersbooksperparent')">By Parent Company</md-button>
-				<md-button aria-label="View By Top Publishers" ng-disabled="statSubView=='publisherstopchildren'" ng-hide="statView!='publishers'" ng-click="setStatSubView('publisherstopchildren')">Top Publishers</md-button>
-				<md-button aria-label="View By Top Locations" ng-disabled="statSubView=='publisherstoplocations'" ng-hide="statView!='publishers'" ng-click="setStatSubView('publisherstoplocations')">Top Locations</md-button>
-				<md-button aria-label="View By Series" ng-disabled="statSubView=='series'" ng-hide="statView!='series'" ng-click="setStatSubView('series')">By Series</md-button>
-				<md-button aria-label="View By Primary Language" ng-disabled="statSubView=='languagesprimary'" ng-hide="statView!='languages'" ng-click="setStatSubView('languagesprimary')">By Primary Language</md-button>
-				<md-button aria-label="View By Secondary Language" ng-disabled="statSubView=='languagessecondary'" ng-hide="statView!='languages'" ng-click="setStatSubView('languagessecondary')">By Secondary Language</md-button>
-				<md-button aria-label="View By Original Language" ng-disabled="statSubView=='languagesoriginal'" ng-hide="statView!='languages'" ng-click="setStatSubView('languagesoriginal')">By Original Language</md-button>
-				<md-button aria-label="View By Dewey" ng-disabled="statSubView=='deweys'" ng-hide="statView!='deweys'" ng-click="setStatSubView('deweys')">By Category</md-button>
-				<md-button aria-label="View By Binding" ng-disabled="statSubView=='formats'" ng-hide="statView!='bindings'" ng-click="setStatSubView('formats')">By Binding</md-button>
-				<md-button aria-label="View By Top Contributors" ng-disabled="statSubView=='contributorstop'" ng-hide="statView!='contributors'" ng-click="setStatSubView('contributorstop')">Top Contributors</md-button>
-				<md-button aria-label="View By Contributors Per Role" ng-disabled="statSubView=='contributorsperrole'" ng-hide="statView!='contributors'" ng-click="setStatSubView('contributorsperrole')">Roles</md-button>
-				<md-button aria-label="View By Volume" ng-disabled="statSubView=='byvolumes'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('byvolumes')">Volume</md-button>
-				<md-button aria-label="View By Width" ng-disabled="statSubView=='bywidths'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('bywidths')">Width</md-button>
-				<md-button aria-label="View By Height" ng-disabled="statSubView=='byheights'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('byheights')">Height</md-button>
-				<md-button aria-label="View By Depth" ng-disabled="statSubView=='bydepths'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('bydepths')">Depth</md-button>
-				<md-button aria-label="View By Weight" ng-disabled="statSubView=='byweights'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('byweights')">Weight</md-button>
-				<md-button aria-label="View By Pages" ng-disabled="statSubView=='bypages'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('bypages')">Pages</md-button>
-				<md-button aria-label="View By Original Date" ng-disabled="statSubView=='datesoriginal'" ng-hide="statView!='dates'" ng-click="setStatSubView('datesoriginal')">By Original Publication Date</md-button>
-				<md-button aria-label="View By Publication Date" ng-disabled="statSubView=='datespublication'" ng-hide="statView!='dates'" ng-click="setStatSubView('datespublication')">By Edition Publication Date</md-button>
-				<md-button aria-label="View By Lexile" ng-disabled="statSubView=='lexile'" ng-hide="statView!='lexile'" ng-click="setStatSubView('lexile')">By Lexile</md-button>
-				<md-button aria-label="View By Tag" ng-disabled="statSubView=='tag'" ng-hide="statView!='tag'" ng-click="setStatSubView('tag')">By Tag</md-button>
-				<md-button aria-label="View By Award" ng-disabled="statSubView=='award'" ng-hide="statView!='award'" ng-click="setStatSubView('award')">By Award</md-button>
-			</div>
-		</md-toolbar>
-	</div>
-	<md-content layout-padding="5">These statistics represent the owned books in the selected libraries.</md-content>
-	<div>
-		<div id="Chart" ng-hide="statView=='dimensions'">
-			<fusioncharts width="100%" height="500px" type="column2d" dataformat="json" datasource='{{chartData}}'></fusioncharts>
-		</div>
-		<div id="Dimensions" ng-hide="statView!='dimensions'">
-			<div ng-hide="statSubView!='byvolumes'" id="dimensionsvolumes">
-				<md-list>
-					<md-list-item class="md-list-item-text" >
-						Volume: {{(parseFloat(dimensions.volume)/1000000000).toFixed(2)}} m&sup3;
-					</md-list-item>
-				</md-list>
-			</div>
-			<div ng-hide="statSubView!='bywidths'" id="dimensionswidths">
-				<md-list>
-					<md-list-item class="md-list-item-text" >
-						Total: {{(parseFloat(dimensions.totalwidth)/1000).toFixed(2)}} m
-					</md-list-item>
-				</md-list>
-				<md-list>
-					<md-list-item class="md-list-item-text" >
-						Average: {{(parseFloat(dimensions.averagewidth)).toFixed(2)}} mm
-					</md-list-item>
-				</md-list>
-				<md-list>
-					<md-list-item class="md-list-item-text" >
-						Minimum: {{dimensions.minimumwidth}} mm
-					</md-list-item>
-				</md-list>
-				<md-list>
-					<md-list-item class="md-list-item-text" >
-						Maximum: {{dimensions.maximumwidth}} mm
-					</md-list-item>
-				</md-list>
-			</div>
-			<div ng-hide="statSubView!='byheights'" id="dimensionsheights">
-				<md-list>
-					<md-list-item class="md-list-item-text" >
-						Total: {{(parseFloat(dimensions.totalheight)/1000).toFixed(2)}} m
-					</md-list-item>
-				</md-list>
-				<md-list>
-					<md-list-item class="md-list-item-text" >
-						Average: {{(parseFloat(dimensions.averageheight)).toFixed(2)}} mm
-					</md-list-item>
-				</md-list>
-				<md-list>
-					<md-list-item class="md-list-item-text" >
-						Minimum: {{dimensions.minimumheight}} mm
-					</md-list-item>
-				</md-list>
-				<md-list>
-					<md-list-item class="md-list-item-text" >
-						Maximum: {{dimensions.maximumheight}} mm
-					</md-list-item>
-				</md-list>
-			</div>
-			<div ng-hide="statSubView!='bydepths'" id="dimensionsdepths">
-				<md-list>
-					<md-list-item class="md-list-item-text" >
-						Total: {{(parseFloat(dimensions.totaldepth)/1000).toFixed(2)}} m
-					</md-list-item>
-				</md-list>
-				<md-list>
-					<md-list-item class="md-list-item-text" >
-						Average: {{(parseFloat(dimensions.averagedepth)).toFixed(2)}} mm
-					</md-list-item>
-				</md-list>
-				<md-list>
-					<md-list-item class="md-list-item-text" >
-						Minimum: {{dimensions.minimumdepth}} mm
-					</md-list-item>
-				</md-list>
-				<md-list>
-					<md-list-item class="md-list-item-text" >
-						Maximum: {{dimensions.maximumdepth}} mm
-					</md-list-item>
-				</md-list>
-			</div>
-			<div ng-hide="statSubView!='byweights'" id="dimensionsweights">
-				<md-list>
-					<md-list-item class="md-list-item-text" >
-						Total: {{(parseFloat(dimensions.totalweight)/16).toFixed(2)}} lbs
-					</md-list-item>
-				</md-list>
-				<md-list>
-					<md-list-item class="md-list-item-text" >
-						Average: {{(parseFloat(dimensions.averageweight)).toFixed(2)}} oz
-					</md-list-item>
-				</md-list>
-				<md-list>
-					<md-list-item class="md-list-item-text" >
-						Minimum: {{dimensions.minimumweight}} oz
-					</md-list-item>
-				</md-list>
-				<md-list>
-					<md-list-item class="md-list-item-text" >
-						Maximum: {{dimensions.maximumweight}} oz
-					</md-list-item>
-				</md-list>
-			</div>
-			<div ng-hide="statSubView!='bypages'" id="dimensionspages">
-				<md-list>
-					<md-list-item class="md-list-item-text" >
-						Total: {{(parseFloat(dimensions.totalpages)/1000).toFixed(1)+"K"}} pages
-					</md-list-item>
-				</md-list>
-				<md-list>
-					<md-list-item class="md-list-item-text" >
-						Average: {{(parseFloat(dimensions.averagepages)).toFixed(2)}} pages
-					</md-list-item>
-				</md-list>
-				<md-list>
-					<md-list-item class="md-list-item-text" >
-						Minimum: {{dimensions.minimumpages}} pages
-					</md-list-item>
-				</md-list>
-				<md-list>
-					<md-list-item class="md-list-item-text" >
-						Maximum: {{dimensions.maximumpages}} pages
-					</md-list-item>
-				</md-list>
-			</div>
-		</div>
-	</div>
+    <div>
+        <md-toolbar>
+            <div id="stats-navigation">
+                <md-button aria-label="Choose Libraries" class="icon filter-icon" ng-click="chooseLibrary($event)">
+                    <md-tooltip md-delay="500">Choose Libraries</md-tooltip>
+                </md-button>
+                <md-button aria-label="Show General Statistics" ng-disabled="statView=='general'" ng-click="setStatView('general')">General</md-button>
+                <md-button aria-label="Show Publisher Statistics" ng-disabled="statView=='publishers'" ng-click="setStatView('publishers')">Publishers</md-button>
+                <md-button aria-label="Show Series Statistics" ng-disabled="statView=='series'" ng-click="setStatView('series')">Series</md-button>
+                <md-button aria-label="Show Language Statistics" ng-disabled="statView=='languages'" ng-click="setStatView('languages')">Languages</md-button>
+                <md-button aria-label="Show Dewey Statistics" ng-disabled="statView=='deweys'" ng-click="setStatView('deweys')">Deweys</md-button>
+                <md-button aria-label="Show Binding Statistics" ng-disabled="statView=='bindings'" ng-click="setStatView('bindings')">Bindings</md-button>
+                <md-button aria-label="Show Contributor Statistics" ng-disabled="statView=='contributors'" ng-click="setStatView('contributors')">Contributors</md-button>
+                <md-button aria-label="Show Date Statistics" ng-disabled="statView=='dates'" ng-click="setStatView('dates')">Dates</md-button>
+                <md-button aria-label="Show Dimension Statistics" ng-disabled="statView=='dimensions'" ng-click="setStatView('dimensions')">Dimensions</md-button>
+                <md-button aria-label="Show Lexile Statistics" ng-disabled="statView=='lexile'" ng-click="setStatView('lexile')">Lexiles</md-button>
+                <md-button aria-label="Show Tag Statistics" ng-disabled="statView=='tag'" ng-click="setStatView('tag')">Tags</md-button>
+                <md-button aria-label="Show Award Statistics" ng-disabled="statView=='award'" ng-click="setStatView('award')">Awards</md-button>
+            </div>
+            <div id="stats-navigation-sub" ng-hide="display!='stats'">
+                <md-button aria-label="View By Count" ng-disabled="statSubView=='generalbycounts'" ng-hide="statView!='general'" ng-click="setStatSubView('generalbycounts')">By Counts</md-button>
+                <md-button aria-label="View By Pages" ng-disabled="statSubView=='generalbypages'" ng-hide="statView!='general'" ng-click="setStatSubView('generalbypages')">By Pages</md-button>
+                <md-button aria-label="View By Size" ng-disabled="statSubView=='generalbysize'" ng-hide="statView!='general'" ng-click="setStatSubView('generalbysize')">By Size</md-button>
+                <md-button aria-label="View By Parent Company" ng-disabled="statSubView=='publishersbooksperparent'" ng-hide="statView!='publishers'" ng-click="setStatSubView('publishersbooksperparent')">By Parent Company</md-button>
+                <md-button aria-label="View By Top Publishers" ng-disabled="statSubView=='publisherstopchildren'" ng-hide="statView!='publishers'" ng-click="setStatSubView('publisherstopchildren')">Top Publishers</md-button>
+                <md-button aria-label="View By Top Locations" ng-disabled="statSubView=='publisherstoplocations'" ng-hide="statView!='publishers'" ng-click="setStatSubView('publisherstoplocations')">Top Locations</md-button>
+                <md-button aria-label="View By Series" ng-disabled="statSubView=='series'" ng-hide="statView!='series'" ng-click="setStatSubView('series')">By Series</md-button>
+                <md-button aria-label="View By Primary Language" ng-disabled="statSubView=='languagesprimary'" ng-hide="statView!='languages'" ng-click="setStatSubView('languagesprimary')">By Primary Language</md-button>
+                <md-button aria-label="View By Secondary Language" ng-disabled="statSubView=='languagessecondary'" ng-hide="statView!='languages'" ng-click="setStatSubView('languagessecondary')">By Secondary Language</md-button>
+                <md-button aria-label="View By Original Language" ng-disabled="statSubView=='languagesoriginal'" ng-hide="statView!='languages'" ng-click="setStatSubView('languagesoriginal')">By Original Language</md-button>
+                <md-button aria-label="View By Dewey" ng-disabled="statSubView=='deweys'" ng-hide="statView!='deweys'" ng-click="setStatSubView('deweys')">By Category</md-button>
+                <md-button aria-label="View By Binding" ng-disabled="statSubView=='formats'" ng-hide="statView!='bindings'" ng-click="setStatSubView('formats')">By Binding</md-button>
+                <md-button aria-label="View By Top Contributors" ng-disabled="statSubView=='contributorstop'" ng-hide="statView!='contributors'" ng-click="setStatSubView('contributorstop')">Top Contributors</md-button>
+                <md-button aria-label="View By Contributors Per Role" ng-disabled="statSubView=='contributorsperrole'" ng-hide="statView!='contributors'" ng-click="setStatSubView('contributorsperrole')">Roles</md-button>
+                <md-button aria-label="View By Volume" ng-disabled="statSubView=='byvolumes'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('byvolumes')">Volume</md-button>
+                <md-button aria-label="View By Width" ng-disabled="statSubView=='bywidths'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('bywidths')">Width</md-button>
+                <md-button aria-label="View By Height" ng-disabled="statSubView=='byheights'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('byheights')">Height</md-button>
+                <md-button aria-label="View By Depth" ng-disabled="statSubView=='bydepths'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('bydepths')">Depth</md-button>
+                <md-button aria-label="View By Weight" ng-disabled="statSubView=='byweights'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('byweights')">Weight</md-button>
+                <md-button aria-label="View By Pages" ng-disabled="statSubView=='bypages'" ng-hide="statView!='dimensions'" ng-click="setStatSubView('bypages')">Pages</md-button>
+                <md-button aria-label="View By Original Date" ng-disabled="statSubView=='datesoriginal'" ng-hide="statView!='dates'" ng-click="setStatSubView('datesoriginal')">By Original Publication Date</md-button>
+                <md-button aria-label="View By Publication Date" ng-disabled="statSubView=='datespublication'" ng-hide="statView!='dates'" ng-click="setStatSubView('datespublication')">By Edition Publication Date</md-button>
+                <md-button aria-label="View By Lexile" ng-disabled="statSubView=='lexile'" ng-hide="statView!='lexile'" ng-click="setStatSubView('lexile')">By Lexile</md-button>
+                <md-button aria-label="View By Tag" ng-disabled="statSubView=='tag'" ng-hide="statView!='tag'" ng-click="setStatSubView('tag')">By Tag</md-button>
+                <md-button aria-label="View By Award" ng-disabled="statSubView=='award'" ng-hide="statView!='award'" ng-click="setStatSubView('award')">By Award</md-button>
+            </div>
+        </md-toolbar>
+    </div>
+    <md-content layout-padding="5">These statistics represent the owned books in the selected libraries.</md-content>
+    <div>
+        <div id="Chart" ng-hide="statView=='dimensions'">
+            <fusioncharts width="100%" height="500px" type="column2d" dataformat="json" datasource='{{chartData}}'></fusioncharts>
+        </div>
+        <div id="Dimensions" ng-hide="statView!='dimensions'">
+            <div ng-hide="statSubView!='byvolumes'" id="dimensionsvolumes">
+                <md-list>
+                    <md-list-item class="md-list-item-text">
+                        Volume: {{(parseFloat(dimensions.volume)/1000000000).toFixed(2)}} m&sup3;
+                    </md-list-item>
+                </md-list>
+            </div>
+            <div ng-hide="statSubView!='bywidths'" id="dimensionswidths">
+                <md-list>
+                    <md-list-item class="md-list-item-text">
+                        Total: {{(parseFloat(dimensions.totalwidth)/1000).toFixed(2)}} m
+                    </md-list-item>
+                </md-list>
+                <md-list>
+                    <md-list-item class="md-list-item-text">
+                        Average: {{(parseFloat(dimensions.averagewidth)).toFixed(2)}} mm
+                    </md-list-item>
+                </md-list>
+                <md-list>
+                    <md-list-item class="md-list-item-text">
+                        Minimum: {{dimensions.minimumwidth}} mm
+                    </md-list-item>
+                </md-list>
+                <md-list>
+                    <md-list-item class="md-list-item-text">
+                        Maximum: {{dimensions.maximumwidth}} mm
+                    </md-list-item>
+                </md-list>
+            </div>
+            <div ng-hide="statSubView!='byheights'" id="dimensionsheights">
+                <md-list>
+                    <md-list-item class="md-list-item-text">
+                        Total: {{(parseFloat(dimensions.totalheight)/1000).toFixed(2)}} m
+                    </md-list-item>
+                </md-list>
+                <md-list>
+                    <md-list-item class="md-list-item-text">
+                        Average: {{(parseFloat(dimensions.averageheight)).toFixed(2)}} mm
+                    </md-list-item>
+                </md-list>
+                <md-list>
+                    <md-list-item class="md-list-item-text">
+                        Minimum: {{dimensions.minimumheight}} mm
+                    </md-list-item>
+                </md-list>
+                <md-list>
+                    <md-list-item class="md-list-item-text">
+                        Maximum: {{dimensions.maximumheight}} mm
+                    </md-list-item>
+                </md-list>
+            </div>
+            <div ng-hide="statSubView!='bydepths'" id="dimensionsdepths">
+                <md-list>
+                    <md-list-item class="md-list-item-text">
+                        Total: {{(parseFloat(dimensions.totaldepth)/1000).toFixed(2)}} m
+                    </md-list-item>
+                </md-list>
+                <md-list>
+                    <md-list-item class="md-list-item-text">
+                        Average: {{(parseFloat(dimensions.averagedepth)).toFixed(2)}} mm
+                    </md-list-item>
+                </md-list>
+                <md-list>
+                    <md-list-item class="md-list-item-text">
+                        Minimum: {{dimensions.minimumdepth}} mm
+                    </md-list-item>
+                </md-list>
+                <md-list>
+                    <md-list-item class="md-list-item-text">
+                        Maximum: {{dimensions.maximumdepth}} mm
+                    </md-list-item>
+                </md-list>
+            </div>
+            <div ng-hide="statSubView!='byweights'" id="dimensionsweights">
+                <md-list>
+                    <md-list-item class="md-list-item-text">
+                        Total: {{(parseFloat(dimensions.totalweight)/16).toFixed(2)}} lbs
+                    </md-list-item>
+                </md-list>
+                <md-list>
+                    <md-list-item class="md-list-item-text">
+                        Average: {{(parseFloat(dimensions.averageweight)).toFixed(2)}} oz
+                    </md-list-item>
+                </md-list>
+                <md-list>
+                    <md-list-item class="md-list-item-text">
+                        Minimum: {{dimensions.minimumweight}} oz
+                    </md-list-item>
+                </md-list>
+                <md-list>
+                    <md-list-item class="md-list-item-text">
+                        Maximum: {{dimensions.maximumweight}} oz
+                    </md-list-item>
+                </md-list>
+            </div>
+            <div ng-hide="statSubView!='bypages'" id="dimensionspages">
+                <md-list>
+                    <md-list-item class="md-list-item-text">
+                        Total: {{(parseFloat(dimensions.totalpages)/1000).toFixed(1)+"K"}} pages
+                    </md-list-item>
+                </md-list>
+                <md-list>
+                    <md-list-item class="md-list-item-text">
+                        Average: {{(parseFloat(dimensions.averagepages)).toFixed(2)}} pages
+                    </md-list-item>
+                </md-list>
+                <md-list>
+                    <md-list-item class="md-list-item-text">
+                        Minimum: {{dimensions.minimumpages}} pages
+                    </md-list-item>
+                </md-list>
+                <md-list>
+                    <md-list-item class="md-list-item-text">
+                        Maximum: {{dimensions.maximumpages}} pages
+                    </md-list-item>
+                </md-list>
+            </div>
+        </div>
+    </div>
 </div>

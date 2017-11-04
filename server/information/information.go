@@ -25,8 +25,8 @@ const (
 	getRolesQuery        = "SELECT DISTINCT(Role) from written_by"
 	getContributorsQuery = "SELECT PersonID, Role, FirstName, MiddleNames, LastName from written_by join persons on written_by.AuthorID = persons.PersonID WHERE BookID=?"
 	getTagsQuery         = "SELECT DISTINCT(Tag) from tags"
-	getAwardsQuery         = "SELECT DISTINCT(Award) from awards"
-	genreQuery = "SELECT genre FROM dewey_numbers WHERE number=?"
+	getAwardsQuery       = "SELECT DISTINCT(Award) from awards"
+	genreQuery           = "SELECT genre FROM dewey_numbers WHERE number=?"
 
 	SORTMETHOD = "Dewey:ASC--Series:ASC--Volume:ASC--Author:ASC--Title:ASC--Subtitle:ASC--Edition:ASC--Lexile:ASC--InterestLevel:ASC--AR:ASC--LearningAZ:ASC--GuidedReading:ASC--DRA:ASC--FountasPinnell:ASC--ReadingRecovery:ASC--PMReaders:ASC--Grade:ASC--Age:ASC||Dewey:ASC--Series:ASC--Volume:ASC--Author:ASC--Title:ASC--Subtitle:ASC--Edition:ASC--Lexile:ASC--InterestLevel:ASC--AR:ASC--LearningAZ:ASC--GuidedReading:ASC--DRA:ASC--FountasPinnell:ASC--ReadingRecovery:ASC--PMReaders:ASC--Grade:ASC--Age:ASC"
 )
@@ -34,8 +34,8 @@ const (
 var logger = log.New(os.Stderr, "log: ", log.LstdFlags|log.Lshortfile)
 
 type ChartInfo struct {
-	Total int `json:"total"`
-	Data []StatData `json:"data"`
+	Total int        `json:"total"`
+	Data  []StatData `json:"data"`
 }
 
 //StatData is chart data
@@ -898,7 +898,7 @@ func GetStats(db *sql.DB, t, libraryids string) (ChartInfo, error) {
 	}
 	return ChartInfo{
 		Total: totalCount,
-		Data: data,
+		Data:  data,
 	}, nil
 }
 

@@ -58,7 +58,7 @@ angular.module('libraryOrganizer')
                 }
             }
             if (retval.endsWith(",")) {
-                retval = retval.substring(0,retval.length-1)
+                retval = retval.substring(0, retval.length - 1)
             }
             return retval;
         }
@@ -68,43 +68,43 @@ angular.module('libraryOrganizer')
                 $scope.addToLoading(loadingName)
                 $scope.gridSelectedLibraries = $scope.stringLibraryIds();
                 var params = {
-                        sort: $scope.sort,
-                        numbertoget: $scope.numberToGet,
-                        page: $scope.page,
-                        fromdewey: $scope.fromdewey.toUpperCase(),
-                        todewey: $scope.todewey.toUpperCase(),
-                        fromlexile: $scope.fromlexile,
-                        tolexile: $scope.tolexile,
-                        withcodes: $scope.withcodes.join(","),
-                        frominterestlevel: $scope.frominterestlevel+"",
-                        tointerestlevel: $scope.tointerestlevel+"",
-                        fromar: $scope.fromar?$scope.fromar:"",
-                        toar: $scope.toar?$scope.toar:"",
-                        fromlearningaz: $scope.fromlearningaz+"",
-                        tolearningaz: $scope.tolearningaz+"",
-                        fromguidedreading: $scope.fromguidedreading+"",
-                        toguidedreading: $scope.toguidedreading+"",
-                        fromdra: $scope.fromdra+"",
-                        todra: $scope.todra+"",
-                        fromgrade: $scope.fromgrade+"",
-                        tograde: $scope.tograde+"",
-                        fromfountaspinnell: $scope.fromfountaspinnell+"",
-                        tofountaspinnell: $scope.tofountaspinnell+"",
-                        fromage: $scope.fromage+"",
-                        toage: $scope.toage+"",
-                        fromreadingrecovery: $scope.fromreadingrecovery+"",
-                        toreadingrecovery: $scope.toreadingrecovery+"",
-                        frompmreaders: $scope.frompmreaders+"",
-                        topmreaders: $scope.topmreaders+"",
-                        filter: $scope.filter,
-                        read: $scope.read,
-                        reference: $scope.reference,
-                        owned: $scope.owned,
-                        loaned: $scope.loaned,
-                        shipping: $scope.shipping,
-                        reading: $scope.reading,
-                        gridselectedlibraries: $scope.gridSelectedLibraries
-                    }
+                    sort: $scope.sort,
+                    numbertoget: $scope.numberToGet,
+                    page: $scope.page,
+                    fromdewey: $scope.fromdewey.toUpperCase(),
+                    todewey: $scope.todewey.toUpperCase(),
+                    fromlexile: $scope.fromlexile,
+                    tolexile: $scope.tolexile,
+                    withcodes: $scope.withcodes.join(","),
+                    frominterestlevel: $scope.frominterestlevel + "",
+                    tointerestlevel: $scope.tointerestlevel + "",
+                    fromar: $scope.fromar ? $scope.fromar : "",
+                    toar: $scope.toar ? $scope.toar : "",
+                    fromlearningaz: $scope.fromlearningaz + "",
+                    tolearningaz: $scope.tolearningaz + "",
+                    fromguidedreading: $scope.fromguidedreading + "",
+                    toguidedreading: $scope.toguidedreading + "",
+                    fromdra: $scope.fromdra + "",
+                    todra: $scope.todra + "",
+                    fromgrade: $scope.fromgrade + "",
+                    tograde: $scope.tograde + "",
+                    fromfountaspinnell: $scope.fromfountaspinnell + "",
+                    tofountaspinnell: $scope.tofountaspinnell + "",
+                    fromage: $scope.fromage + "",
+                    toage: $scope.toage + "",
+                    fromreadingrecovery: $scope.fromreadingrecovery + "",
+                    toreadingrecovery: $scope.toreadingrecovery + "",
+                    frompmreaders: $scope.frompmreaders + "",
+                    topmreaders: $scope.topmreaders + "",
+                    filter: $scope.filter,
+                    read: $scope.read,
+                    reference: $scope.reference,
+                    owned: $scope.owned,
+                    loaned: $scope.loaned,
+                    shipping: $scope.shipping,
+                    reading: $scope.reading,
+                    gridselectedlibraries: $scope.gridSelectedLibraries
+                }
                 $scope.setParameters(params)
                 $http({
                     url: '/books',
@@ -290,7 +290,7 @@ angular.module('libraryOrganizer')
                         id: $scope.libraries[l].id,
                         name: $scope.libraries[l].name,
                         children: [],
-                        selected: $.inArray($scope.libraries[l].id+"", $scope.gridSelectedLibraries)!=-1
+                        selected: $.inArray($scope.libraries[l].id + "", $scope.gridSelectedLibraries) != -1
                     });
                 }
                 for (k in libStructure) {
@@ -299,7 +299,7 @@ angular.module('libraryOrganizer')
                         libStructure[k][0].selected = true;
                     }
                     data.push({
-                        id: "owner/"+k,
+                        id: "owner/" + k,
                         name: k,
                         children: libStructure[k],
                         selected: false
@@ -321,13 +321,13 @@ angular.module('libraryOrganizer')
         })
         $scope.updateLibraries();
         $scope.getBookIcon = function(book) {
-            if (book.library.owner==$scope.username) {
+            if (book.library.owner == $scope.username) {
                 return "web/res/edit.svg";
-            } else if ((book.library.permissions&4)==4) {
+            } else if ((book.library.permissions & 4) == 4) {
                 return "web/res/edit.svg";
-            } else if ((book.library.permissions&2)==2) {
+            } else if ((book.library.permissions & 2) == 2) {
                 return "web/res/checkout.svg";
-            } else if ((book.library.permissions&1)==1) {
+            } else if ((book.library.permissions & 1) == 1) {
                 return "web/res/view.svg";
             }
         }
@@ -349,7 +349,7 @@ angular.module('libraryOrganizer')
             // 2a. If not found, return false and display
             // 2b. If found, close the dialog and navigate to the book
         }
-        $scope.lexilecodes = ["AD","NC","HL","IG","GN","BR","NP"]
+        $scope.lexilecodes = ["AD", "NC", "HL", "IG", "GN", "BR", "NP"]
         $scope.interestlevels = [{
             name: "",
             value: ""

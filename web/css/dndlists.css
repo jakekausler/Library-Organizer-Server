@@ -2,6 +2,7 @@
  * The dnd-list should always have a min-height,
  * otherwise you can't drop to it once it's empty
  */
+
 .drag-and-drop-container ul[dnd-list] {
     min-height: 42px;
     padding-left: 0px;
@@ -13,6 +14,7 @@
  * sense to hide it to give the user the feeling
  * that he's actually moving it.
  */
+
 .drag-and-drop-container ul[dnd-list] .dndDraggingSource {
     display: none;
 }
@@ -22,6 +24,7 @@
  * added to the dnd-list while the user is dragging
  * over it.
  */
+
 .drag-and-drop-container ul[dnd-list] .dndPlaceholder {
     background-color: #ddd;
     display: block;
@@ -41,6 +44,7 @@
 /**
  * Show selected elements in green
  */
+
 .drag-and-drop-container ul[dnd-list] li.selected {
     background-color: #dff0d8;
     color: #3c763d;

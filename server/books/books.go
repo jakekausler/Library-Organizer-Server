@@ -1316,108 +1316,108 @@ func GetAuthorsForExport(db *sql.DB) ([][]string, error) {
 //todo finish function
 func ImportBooks(db *sql.DB, records [][]string) error {
 	/*
-	if len(records) < 2 {
-		return fmt.Errorf("Record list must contain column nams and at least one record")
-	}
-	columnNames := records[0]
-	data := records[1:]
-	books := []Book{}
-	for _, d := range data {
-		book := &Book{
-			Library: lib,
+		if len(records) < 2 {
+			return fmt.Errorf("Record list must contain column nams and at least one record")
 		}
-		for i, col := range columnNames {
-			switch col {
-			case "Title":
-				book.Title = d[i]
-			case "Subtitle":
-				book.Subtitle = d[i]
-			case "OriginallyPublished":
-				book.OriginallyPublished = d[i]
-			case "Publisher":
-				book.Publisher.Publisher = d[i]
-			case "City":
-				book.Publisher.City = d[i]
-			case "State":
-				book.Publisher.State = d[i]
-			case "Country":
-				book.Publisher.Country = d[i]
-			case "IsRead":
-				book.IsRead = strings.ToLower(d[i]) == "true" || d[i] == "1"
-			case "IsReference":
-				book.IsReference = strings.ToLower(d[i]) == "true" || d[i] == "1"
-			case "IsOwned":
-				book.IsOwned = strings.ToLower(d[i]) == "true" || d[i] == "1"
-			case "ISBN":
-				book.ISBN = d[i]
-			case "Dewey":
-				book.Dewey = d[i]
-			case "Pages":
-				book.Pages = d[i]
-			case "Width":
-				book.Width = d[i]
-			case "Height":
-				book.Height = d[i]
-			case "Depth":
-				book.Depth = d[i]
-			case "Weight":
-				book.Weight = d[i]
-			case "PrimaryLanguage":
-				book.PrimaryLanguage = d[i]
-			case "SecondaryLanguage":
-				book.SecondaryLanguage = d[i]
-			case "OriginalLanguage":
-				book.OriginalLanguage = d[i]
-			case "Series":
-				book.Series = d[i]
-			case "Volume":
-				book.Volume = d[i]
-			case "Format":
-				book.Format = d[i]
-			case "Edition":
-				book.Edition = d[i]
-			case "IsReading":
-				book.IsReading = strings.ToLower(d[i]) == "true" || d[i] == "1"
-			case "IsShipping":
-				book.IsShipping = strings.ToLower(d[i]) == "true" || d[i] == "1"
-			case "ImageURL":
-				book.ImageURL = d[i]
-			case "EditionPublished":
-				book.EditionPublished = d[i]
-			case "Contributors":
-			case "Lexile":
-			case "InterestLevel":
-				book.InterestLevel = d[i]
-			case "AR":
-				book.AR = d[i]
-			case "LearningAZ":
-				book.LearningAZ = d[i]
-			case "GuidedReading":
-				book.GuidedReading = d[i]
-			case "DRA":
-				book.DRA = d[i]
-			case "Grade":
-				book.Grade = d[i]
-			case "FountasPinnell":
-				book.FountasPinnell = d[i]
-			case "Age":
-				book.Age = d[i]
-			case "ReadingRecovery":
-				book.ReadingRecovery = d[i]
-			case "PMReaders":
-				book.PMReaders = d[i]
-			case "Awards":
-			case "Notes":
-				book.Notes = d[i]
-			case "Tags":
+		columnNames := records[0]
+		data := records[1:]
+		books := []Book{}
+		for _, d := range data {
+			book := &Book{
+				Library: lib,
 			}
+			for i, col := range columnNames {
+				switch col {
+				case "Title":
+					book.Title = d[i]
+				case "Subtitle":
+					book.Subtitle = d[i]
+				case "OriginallyPublished":
+					book.OriginallyPublished = d[i]
+				case "Publisher":
+					book.Publisher.Publisher = d[i]
+				case "City":
+					book.Publisher.City = d[i]
+				case "State":
+					book.Publisher.State = d[i]
+				case "Country":
+					book.Publisher.Country = d[i]
+				case "IsRead":
+					book.IsRead = strings.ToLower(d[i]) == "true" || d[i] == "1"
+				case "IsReference":
+					book.IsReference = strings.ToLower(d[i]) == "true" || d[i] == "1"
+				case "IsOwned":
+					book.IsOwned = strings.ToLower(d[i]) == "true" || d[i] == "1"
+				case "ISBN":
+					book.ISBN = d[i]
+				case "Dewey":
+					book.Dewey = d[i]
+				case "Pages":
+					book.Pages = d[i]
+				case "Width":
+					book.Width = d[i]
+				case "Height":
+					book.Height = d[i]
+				case "Depth":
+					book.Depth = d[i]
+				case "Weight":
+					book.Weight = d[i]
+				case "PrimaryLanguage":
+					book.PrimaryLanguage = d[i]
+				case "SecondaryLanguage":
+					book.SecondaryLanguage = d[i]
+				case "OriginalLanguage":
+					book.OriginalLanguage = d[i]
+				case "Series":
+					book.Series = d[i]
+				case "Volume":
+					book.Volume = d[i]
+				case "Format":
+					book.Format = d[i]
+				case "Edition":
+					book.Edition = d[i]
+				case "IsReading":
+					book.IsReading = strings.ToLower(d[i]) == "true" || d[i] == "1"
+				case "IsShipping":
+					book.IsShipping = strings.ToLower(d[i]) == "true" || d[i] == "1"
+				case "ImageURL":
+					book.ImageURL = d[i]
+				case "EditionPublished":
+					book.EditionPublished = d[i]
+				case "Contributors":
+				case "Lexile":
+				case "InterestLevel":
+					book.InterestLevel = d[i]
+				case "AR":
+					book.AR = d[i]
+				case "LearningAZ":
+					book.LearningAZ = d[i]
+				case "GuidedReading":
+					book.GuidedReading = d[i]
+				case "DRA":
+					book.DRA = d[i]
+				case "Grade":
+					book.Grade = d[i]
+				case "FountasPinnell":
+					book.FountasPinnell = d[i]
+				case "Age":
+					book.Age = d[i]
+				case "ReadingRecovery":
+					book.ReadingRecovery = d[i]
+				case "PMReaders":
+					book.PMReaders = d[i]
+				case "Awards":
+				case "Notes":
+					book.Notes = d[i]
+				case "Tags":
+				}
+			}
+			books = append(books, book)
 		}
-		books = append(books, book)
-	}
-	for _, b := range books {
-		SaveBook(db, b)
-	}
-	return nil
+		for _, b := range books {
+			SaveBook(db, b)
+		}
+		return nil
 	*/
 	return nil
 }

@@ -1,10 +1,14 @@
 <div id="shelves-view" layout="column" flex>
-	<md-toolbar>
-		<div id="shelf-navigation">
-			<md-button aria-label="Change Library" class="icon filter-icon" ng-click="chooseLibrary($event)"><md-tooltip md-delay="500">Choose Library</md-tooltip></md-button>
-			<md-button aria-label="Edit Shelves" ng-disabled="!canEditCurrentShelf" ng-click="editShelves($event)" class="icon edit-icon"><md-tooltip md-delay="500">Edit Shelves</md-tooltip></md-button>
-			<div class="search-container"><input type="text" ng-change="findBook()" ng-model="shelvesSearchString" name="shelvesSearchString" value="{{shelvesSearchString}}" /></div>
-		</div>
-	</md-toolbar>
-	<div bookcases class="bookcases" ng-model="bookcases"></div>
+    <md-toolbar>
+        <div id="shelf-navigation">
+            <md-button aria-label="Change Library" class="icon filter-icon" ng-click="chooseLibrary($event)">
+                <md-tooltip md-delay="500">Choose Library</md-tooltip>
+            </md-button>
+            <md-button aria-label="Edit Shelves" ng-disabled="!canEditCurrentShelf" ng-click="editShelves($event)" class="icon edit-icon">
+                <md-tooltip md-delay="500">Edit Shelves</md-tooltip>
+            </md-button>
+            <div class="search-container"><input type="text" ng-change="findBook()" ng-model="shelvesSearchString" name="shelvesSearchString" value="{{shelvesSearchString}}" /></div>
+        </div>
+    </md-toolbar>
+    <div bookcases class="bookcases" ng-model="bookcases"></div>
 </div>
