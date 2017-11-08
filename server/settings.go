@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"./settings"
 	"github.com/gorilla/mux"
+	"github.com/jakekausler/Library-Organizer-2.0/server/settings"
 )
 
 //GetSettingsHandler gets settings

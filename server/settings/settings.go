@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"../users"
+	"github.com/jakekausler/Library-Organizer-2.0/server/users"
 )
 
 const (

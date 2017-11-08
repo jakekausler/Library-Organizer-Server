@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"../information"
+	"github.com/jakekausler/Library-Organizer-2.0/server/information"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -17,7 +17,7 @@ const (
 	addSessionQuery          = "INSERT INTO usersession (sessionkey,userid,LastSeenTime) values (?,?,NOW())"
 	updateSessionTimeQuery   = "UPDATE usersession SET LastSeenTime=NOW()"
 	deleteSessionQuery       = "DELETE FROM usersession WHERE sessionkey=?"
-	getIdByEmailQuery        = "SELECT id FROM library_members WHERE email=?"
+	getIDByEmailQuery        = "SELECT id FROM library_members WHERE email=?"
 	getUserForCheckQuery     = "SELECT id, pass FROM library_members WHERE usr=?"
 	addLibraryQuery          = "INSERT INTO libraries (name, ownerid, sortmethod) VALUES (?,?,?)"
 	addPermissionQuery       = "INSERT INTO permissions (userid, libraryid, permission) VALUES (?,?,?)"
@@ -44,7 +44,7 @@ type User struct {
 //Todo
 func ResetPassword(db *sql.DB, email string) error {
 	// var userid int64
-	// err := db.QueryRow(getIdByEmailQuery, email).Scan(&userid)
+	// err := db.QueryRow(getIDByEmailQuery, email).Scan(&userid)
 	// if err != nil {
 	// 	logger.Printf("%+v", err)
 	// 	return err

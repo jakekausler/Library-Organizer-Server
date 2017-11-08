@@ -14,9 +14,9 @@ import (
 	"strconv"
 	"strings"
 
-	"../information"
-	"../users"
 	"github.com/go-sql-driver/mysql"
+	"github.com/jakekausler/Library-Organizer-2.0/server/information"
+	"github.com/jakekausler/Library-Organizer-2.0/server/users"
 	"github.com/jakekausler/prominentcolor"
 )
 
@@ -49,9 +49,16 @@ const (
 	getGuessedMatchesQuery = "SELECT BookId FROM books WHERE isbn=? || (title=? && subtitle=? && series=? && volume=?)"
 	addReviewQuery         = "REPLACE INTO reviews (userid, bookid, review) VALUES (?,?,?)"
 	addRatingQuery         = "REPLACE INTO ratings (userid, bookid, rating) VALUES (?,?,?)"
+
+	//ResEnv Env Variable
+	ResEnv = "LIBRARY_RESOURCE_ROOT"
 )
 
-var logger = log.New(os.Stderr, "log: ", log.LstdFlags|log.Lshortfile)
+var (
+	logger = log.New(os.Stderr, "log: ", log.LstdFlags|log.Lshortfile)
+
+	resRoot = os.Getenv(ResEnv)
+)
 
 //BookIds is a list of book ids
 type BookIds struct {
@@ -145,7 +152,7 @@ func SaveBook(db *sql.DB, book Book) error {
 	if book.ID != "" {
 		imageType := filepath.Ext(book.ImageURL)
 		if book.ImageURL != "" && !strings.HasPrefix(book.ImageURL, "res/bookimages/") {
-			err := downloadImage(book.ImageURL, "../web/res/bookimages/"+book.ID+imageType)
+			err := downloadImage(book.ImageURL, fmt.Sprintf("%v/bookimages/%v%v", resRoot, book.ID, imageType))
 			if err != nil {
 				logger.Printf("Error while saving image: %v", err)
 				return err
@@ -161,7 +168,7 @@ func SaveBook(db *sql.DB, book Book) error {
 		spinecolor := book.SpineColor
 		if !book.SpineColorOverridden {
 			var err error
-			spinecolor, err = getSpineColor("../web/res/bookimages/" + book.ID + imageType)
+			spinecolor, err = getSpineColor(fmt.Sprintf("%v/bookimages/%v%v", resRoot, book.ID, imageType))
 			if err != nil {
 				spinecolor = "#000000"
 			}
@@ -410,7 +417,7 @@ func SaveBook(db *sql.DB, book Book) error {
 		bookid := strconv.FormatInt(id, 10)
 		imageType := filepath.Ext(book.ImageURL)
 		if book.ImageURL != "" {
-			err = downloadImage(book.ImageURL, "../web/res/bookimages/"+bookid+imageType)
+			err = downloadImage(book.ImageURL, fmt.Sprintf("%v/bookimages/%v%v", resRoot, bookid, imageType))
 		}
 		if err != nil {
 			logger.Printf("Error while saving image: %v", err)
@@ -419,7 +426,7 @@ func SaveBook(db *sql.DB, book Book) error {
 		spinecolor := book.SpineColor
 		if !book.SpineColorOverridden {
 			var err error
-			spinecolor, err = getSpineColor("../web/res/bookimages/" + bookid + imageType)
+			spinecolor, err = getSpineColor(fmt.Sprintf("%v/bookimages/%v%v", resRoot, bookid, imageType))
 			if err != nil {
 				spinecolor = "#000000"
 			}
@@ -696,7 +703,7 @@ func loadImage(fileInput string) (image.Image, error) {
 }
 
 func removeImage(bookid string) error {
-	fs, err := filepath.Glob("../web/res/bookimages/" + bookid + "*")
+	fs, err := filepath.Glob(fmt.Sprintf("%v/bookimages/%v*", resRoot, bookid))
 	if err != nil {
 		logger.Printf("Error removing image: %v", err)
 		return err

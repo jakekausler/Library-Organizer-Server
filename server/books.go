@@ -11,8 +11,8 @@ import (
 	"os"
 	"strconv"
 
-	"./books"
 	"github.com/gorilla/mux"
+	"github.com/jakekausler/Library-Organizer-2.0/server/books"
 )
 
 //GetBooksHandler gets books from a filter query

@@ -13,10 +13,21 @@ import (
 	"github.com/gorilla/sessions"
 )
 
+//Env Variables
+const (
+	LogEnv = "LIBRARY_LOG_ROOT"
+	ResEnv = "LIBRARY_RESOURCE_ROOT"
+	AppEnv = "LIBRARY_APP_ROOT"
+)
+
 var (
 	db     *sql.DB
 	logger = log.New(os.Stderr, "log: ", log.LstdFlags|log.Lshortfile)
 	store  = sessions.NewCookieStore([]byte("Session"))
+
+	logRoot = os.Getenv(LogEnv)
+	resRoot = os.Getenv(ResEnv)
+	appRoot = os.Getenv(AppEnv)
 )
 
 //RunServer runs the library server
@@ -36,7 +47,7 @@ func RunServer(username, password, database string, port int) {
 		panic(err.Error())
 	}
 	logger.Printf("Opening the log")
-	logFile, err := os.OpenFile("../logs/server.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+	logFile, err := os.OpenFile(fmt.Sprintf("%v/server.log", logRoot), os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		panic(err)
 	}
@@ -112,10 +123,10 @@ func RouteByAuthenticate(w http.ResponseWriter, r *http.Request) {
 
 //GetHomePageHandler gets the home page
 func GetHomePageHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "../web/app/main/index.html")
+	http.ServeFile(w, r, fmt.Sprintf("%v/main/index.html", appRoot))
 }
 
 //GetUnregisteredPageHandler gets the home page
 func GetUnregisteredPageHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "../web/app/unregistered/unregistered.html")
+	http.ServeFile(w, r, fmt.Sprintf("%v/unregistered/unregistered.html", appRoot))
 }

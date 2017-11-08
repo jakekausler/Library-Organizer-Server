@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"./libraries"
 	"github.com/gorilla/mux"
+	"github.com/jakekausler/Library-Organizer-2.0/server/libraries"
 )
 
 //GetLibrariesHandler gets libraries

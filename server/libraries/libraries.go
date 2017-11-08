@@ -7,9 +7,9 @@ import (
 	"strconv"
 	"strings"
 
-	"./../books"
-	"./../information"
-	"./../users"
+	"github.com/jakekausler/Library-Organizer-2.0/server/books"
+	"github.com/jakekausler/Library-Organizer-2.0/server/information"
+	"github.com/jakekausler/Library-Organizer-2.0/server/users"
 )
 
 const (
@@ -311,7 +311,7 @@ func SaveCases(db *sql.DB, libraryid string, cases EditedCases) error {
 	return nil
 }
 
-//AddBreak adds a shelf break
+//UpdateBreaks updates shelf breaks
 func UpdateBreaks(db *sql.DB, libraryid string, breaks []Break) error {
 	_, err := db.Exec(deleteBreaksQuery, libraryid)
 	if err != nil {
