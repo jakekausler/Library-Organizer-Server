@@ -55,6 +55,7 @@ angular.module('libraryOrganizer')
                 },
                 "isread": false,
                 "isreference": false,
+                "isanthology": false,
                 "isowned": true,
                 "isbn": $scope.isbn,
                 "dewey": {
@@ -181,6 +182,7 @@ angular.module('libraryOrganizer')
                     text: $scope.vm.filter,
                     isread: $scope.vm.read,
                     isreference: $scope.vm.reference,
+                    isanthology: $scope.vm.anthology,
                     isowned: $scope.vm.owned,
                     isloaned: $scope.vm.loaned,
                     isshipping: $scope.vm.shipping,

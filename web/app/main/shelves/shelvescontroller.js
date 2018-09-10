@@ -54,7 +54,16 @@ angular.module('libraryOrganizer')
         }
         //todo
         $scope.findBook = function() {
+            var loadingName = $scope.guid();
+            $scope.addToLoading(loadingName);
+            $http({
+                url: '/libraries/' + $scope.currentLibraryId + '/search',
+                method: 'GET'
+            }).then(function(response) {
 
+            }, function(response) {
+
+            });
         }
         $scope.updateLibraries = function() {
             var loadingName = $scope.guid();

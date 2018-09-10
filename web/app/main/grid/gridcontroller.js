@@ -35,6 +35,7 @@ angular.module('libraryOrganizer')
         $scope.filter = $scope.getParameterByName("filter", "");
         $scope.read = $scope.getParameterByName("read", "both");
         $scope.reference = $scope.getParameterByName("reference", "both");
+        $scope.anthology = $scope.getParameterByName("anthology", "both");
         $scope.owned = $scope.getParameterByName("owned", "yes");
         $scope.loaned = $scope.getParameterByName("loaned", "no");
         $scope.shipping = $scope.getParameterByName("shipping", "no");
@@ -99,6 +100,7 @@ angular.module('libraryOrganizer')
                     filter: $scope.filter,
                     read: $scope.read,
                     reference: $scope.reference,
+                    anthology: $scope.anthology,
                     owned: $scope.owned,
                     loaned: $scope.loaned,
                     shipping: $scope.shipping,
@@ -141,6 +143,7 @@ angular.module('libraryOrganizer')
                         text: $scope.filter,
                         isread: $scope.read,
                         isreference: $scope.reference,
+                        isanthology: $scope.anthology,
                         isowned: $scope.owned,
                         isloaned: $scope.loaned,
                         isshipping: $scope.shipping,
@@ -196,6 +199,7 @@ angular.module('libraryOrganizer')
                 },
                 "isread": false,
                 "isreference": false,
+                "isanthology": false,
                 "isowned": false,
                 "isbn": "",
                 "dewey": {

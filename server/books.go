@@ -1,4 +1,4 @@
-package main
+package libraryserver
 
 import (
 	"bytes"
@@ -31,6 +31,7 @@ func GetBooksHandler(w http.ResponseWriter, r *http.Request) {
 	isloaned := params.Get("isloaned")
 	isreading := params.Get("isreading")
 	isshipping := params.Get("isshipping")
+	isanthology := params.Get("isanthology")
 	text := params.Get("text")
 	page := params.Get("page")
 	numberToGet := params.Get("numbertoget")
@@ -60,7 +61,7 @@ func GetBooksHandler(w http.ResponseWriter, r *http.Request) {
 	toPMReaders := params.Get("topmreaders")
 	isbn := params.Get("isbn")
 	libraryids := params.Get("libraryids")
-	bs, numberOfBooks, err := books.GetBooks(db, sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, fromLexile, toLexile, fromInterestLevel, toInterestLevel, fromAR, toAR, fromLearningAZ, toLearningAZ, fromGuidedReading, toGuidedReading, fromDRA, toDRA, fromGrade, toGrade, fromFountasPinnell, toFountasPinnell, fromAge, toAge, fromReadingRecovery, toReadingRecovery, fromPMReaders, toPMReaders, libraryids, isbn, session, nil, false)
+	bs, numberOfBooks, err := books.GetBooks(db, sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, fromLexile, toLexile, fromInterestLevel, toInterestLevel, fromAR, toAR, fromLearningAZ, toLearningAZ, fromGuidedReading, toGuidedReading, fromDRA, toDRA, fromGrade, toGrade, fromFountasPinnell, toFountasPinnell, fromAge, toAge, fromReadingRecovery, toReadingRecovery, fromPMReaders, toPMReaders, libraryids, isbn, isanthology, session, nil, false)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)

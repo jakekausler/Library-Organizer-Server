@@ -28,11 +28,13 @@ const (
 	getAwardsQuery       = "SELECT DISTINCT(Award) from awards"
 	genreQuery           = "SELECT genre FROM dewey_numbers WHERE number=?"
 
+	//SORTMETHOD comment
 	SORTMETHOD = "Dewey:ASC--Series:ASC--Volume:ASC--Author:ASC--Title:ASC--Subtitle:ASC--Edition:ASC--Lexile:ASC--InterestLevel:ASC--AR:ASC--LearningAZ:ASC--GuidedReading:ASC--DRA:ASC--FountasPinnell:ASC--ReadingRecovery:ASC--PMReaders:ASC--Grade:ASC--Age:ASC||Dewey:ASC--Series:ASC--Volume:ASC--Author:ASC--Title:ASC--Subtitle:ASC--Edition:ASC--Lexile:ASC--InterestLevel:ASC--AR:ASC--LearningAZ:ASC--GuidedReading:ASC--DRA:ASC--FountasPinnell:ASC--ReadingRecovery:ASC--PMReaders:ASC--Grade:ASC--Age:ASC"
 )
 
 var logger = log.New(os.Stderr, "log: ", log.LstdFlags|log.Lshortfile)
 
+//ChartInfo chart info
 type ChartInfo struct {
 	Total int        `json:"total"`
 	Data  []StatData `json:"data"`
@@ -90,18 +92,22 @@ func GetStats(db *sql.DB, t, libraryids string) (ChartInfo, error) {
 		var read int64
 		var reading int64
 		var reference int64
+		var anthology int64
 		var loaned int64
 		var shipping int64
 		var toread int64
+		var notowned int64
 		query = `SELECT * FROM (
 				(SELECT count(*) as total from books WHERE isowned=1 ` + inlibrary + `) AS t,
 				(SELECT count(*) as rea from books WHERE isread=1 and isowned=1 ` + inlibrary + `) AS red,
 				(SELECT count(*) as reading from books WHERE isreading=1 and isowned=1 ` + inlibrary + `) AS rng,
-				(SELECT count(*) as toread from books WHERE isread=0 and isreference=0 and isreading=0 and isowned=1 ` + inlibrary + `) AS trd,
+				(SELECT count(*) as toread from books WHERE isread=0 and isreference=0 and isreading=0 and isanthology=0 and isowned=1 ` + inlibrary + `) AS trd,
 				(SELECT count(*) as reference from books WHERE isreference=1 and isowned=1 ` + inlibrary + `) AS ref,
+				(SELECT count(*) as anthology from books WHERE isanthology=1 and isowned=1 ` + inlibrary + `) AS ant,
 				(SELECT count(*) as loaned from books WHERE loaneeid!=-1 and isowned=1 ` + inlibrary + `) AS loa,
-				(SELECT count(*) as shipping from books WHERE isshipping=1 and isowned=1 ` + inlibrary + `) AS shi)`
-		err := db.QueryRow(query).Scan(&total, &read, &reading, &toread, &reference, &loaned, &shipping)
+				(SELECT count(*) as shipping from books WHERE isshipping=1 and isowned=1 ` + inlibrary + `) AS shi,
+				(SELECT count(*) as notowned from books WHERE isowned=0 ` + inlibrary + `) AS nown)`
+		err := db.QueryRow(query).Scan(&total, &read, &reading, &toread, &reference, &anthology, &loaned, &shipping, &notowned)
 		if err != nil {
 			logger.Printf("Error: %+v", err)
 			return ChartInfo{}, err
@@ -123,6 +129,11 @@ func GetStats(db *sql.DB, t, libraryids string) (ChartInfo, error) {
 			ToolText: fmt.Sprintf("%.2f%%", float64(reference)/float64(total)*100),
 		})
 		data = append(data, StatData{
+			Label:    "Anthology",
+			Value:    strconv.FormatInt(anthology, 10),
+			ToolText: fmt.Sprintf("%.2f%%", float64(anthology)/float64(total)*100),
+		})
+		data = append(data, StatData{
 			Label:    "To Read",
 			Value:    strconv.FormatInt(toread, 10),
 			ToolText: fmt.Sprintf("%.2f%%", float64(toread)/float64(total)*100),
@@ -137,11 +148,16 @@ func GetStats(db *sql.DB, t, libraryids string) (ChartInfo, error) {
 			Value:    strconv.FormatInt(loaned, 10),
 			ToolText: fmt.Sprintf("%.2f%%", float64(loaned)/float64(total)*100),
 		})
+		data = append(data, StatData{
+			Label: "Wishlist",
+			Value: strconv.FormatInt(notowned, 10),
+		})
 	case "generalbysize":
 		var total sql.NullInt64
 		var read sql.NullInt64
 		var reading sql.NullInt64
 		var reference sql.NullInt64
+		var anthology sql.NullInt64
 		var loaned sql.NullInt64
 		var shipping sql.NullInt64
 		var toread sql.NullInt64
@@ -149,11 +165,12 @@ func GetStats(db *sql.DB, t, libraryids string) (ChartInfo, error) {
 				(SELECT SUM(width*height*depth) as total from books WHERE isowned=1 ` + inlibrary + `) AS t,
 				(SELECT SUM(width*height*depth) as rea from books WHERE isread=1 and isowned=1 ` + inlibrary + `) AS red,
 				(SELECT SUM(width*height*depth) as reading from books WHERE isreading=1 and isowned=1 ` + inlibrary + `) AS rng,
-				(SELECT SUM(width*height*depth) as toread from books WHERE isread=0 and isreference=0 and isreading=0 and isowned=1 ` + inlibrary + `) AS trd,
+				(SELECT SUM(width*height*depth) as toread from books WHERE isread=0 and isreference=0 and isreading=0 and isanthology=0 and isowned=1 ` + inlibrary + `) AS trd,
 				(SELECT SUM(width*height*depth) as reference from books WHERE isreference=1 and isowned=1 ` + inlibrary + `) AS ref,
+				(SELECT SUM(width*height*depth) as anthology from books WHERE isanthology=1 and isowned=1 ` + inlibrary + `) AS ant,
 				(SELECT SUM(width*height*depth) as loaned from books WHERE loaneeid!=-1 and isowned=1 ` + inlibrary + `) AS loa,
 				(SELECT SUM(width*height*depth) as shipping from books WHERE isshipping=1 and isowned=1 ` + inlibrary + `) AS shi)`
-		err := db.QueryRow(query).Scan(&total, &read, &reading, &toread, &reference, &loaned, &shipping)
+		err := db.QueryRow(query).Scan(&total, &read, &reading, &toread, &reference, &anthology, &loaned, &shipping)
 		if err != nil {
 			logger.Printf("Error: %+v", err)
 			return ChartInfo{}, err
@@ -172,6 +189,11 @@ func GetStats(db *sql.DB, t, libraryids string) (ChartInfo, error) {
 			Label:    "Reference",
 			Value:    fmt.Sprintf("%.2f", float64(reference.Int64)),
 			ToolText: fmt.Sprintf("%.2f%%", float64(reference.Int64)/float64(total.Int64)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Anthology",
+			Value:    fmt.Sprintf("%.2f", float64(anthology.Int64)),
+			ToolText: fmt.Sprintf("%.2f%%", float64(anthology.Int64)/float64(total.Int64)*100),
 		})
 		data = append(data, StatData{
 			Label:    "To Read",
@@ -193,6 +215,7 @@ func GetStats(db *sql.DB, t, libraryids string) (ChartInfo, error) {
 		var read sql.NullInt64
 		var reading sql.NullInt64
 		var reference sql.NullInt64
+		var anthology sql.NullInt64
 		var loaned sql.NullInt64
 		var shipping sql.NullInt64
 		var toread sql.NullInt64
@@ -200,11 +223,12 @@ func GetStats(db *sql.DB, t, libraryids string) (ChartInfo, error) {
 				(SELECT SUM(pages) as total from books WHERE isowned=1 ` + inlibrary + `) AS t,
 				(SELECT SUM(pages) as rea from books WHERE isread=1 and isowned=1 ` + inlibrary + `) AS red,
 				(SELECT SUM(pages) as reading from books WHERE isreading=1 and isowned=1 ` + inlibrary + `) AS rng,
-				(SELECT SUM(pages) as toread from books WHERE isread=0 and isreference=0 and isreading=0 and isowned=1 ` + inlibrary + `) AS trd,
+				(SELECT SUM(pages) as toread from books WHERE isread=0 and isreference=0 and isreading=0 and isanthology=0 and isowned=1 ` + inlibrary + `) AS trd,
 				(SELECT SUM(pages) as reference from books WHERE isreference=1 and isowned=1 ` + inlibrary + `) AS ref,
+				(SELECT SUM(pages) as anthology from books WHERE isanthology=1 and isowned=1 ` + inlibrary + `) AS ant,
 				(SELECT SUM(pages) as loaned from books WHERE loaneeid!=-1 and isowned=1 ` + inlibrary + `) AS loa,
 				(SELECT SUM(pages) as shipping from books WHERE isshipping=1 and isowned=1 ` + inlibrary + `) AS shi)`
-		err := db.QueryRow(query).Scan(&total, &read, &reading, &toread, &reference, &loaned, &shipping)
+		err := db.QueryRow(query).Scan(&total, &read, &reading, &toread, &reference, &anthology, &loaned, &shipping)
 		if err != nil {
 			logger.Printf("Error: %+v", err)
 			return ChartInfo{}, err
@@ -223,6 +247,11 @@ func GetStats(db *sql.DB, t, libraryids string) (ChartInfo, error) {
 			Label:    "Reference",
 			Value:    fmt.Sprintf("%.2f", float64(reference.Int64)),
 			ToolText: fmt.Sprintf("%.2f%%", float64(reference.Int64)/float64(total.Int64)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Anthology",
+			Value:    fmt.Sprintf("%.2f", float64(anthology.Int64)),
+			ToolText: fmt.Sprintf("%.2f%%", float64(anthology.Int64)/float64(total.Int64)*100),
 		})
 		data = append(data, StatData{
 			Label:    "To Read",
@@ -471,6 +500,92 @@ func GetStats(db *sql.DB, t, libraryids string) (ChartInfo, error) {
 				(SELECT count(*) as d8 from books where dewey<900 and dewey >= 800 and dewey != 'fic' and IsOwned=1 ` + inlibrary + `) as dewey8,
 				(SELECT count(*) as d9 from books where dewey<1000 and dewey >= 900 and dewey != 'fic' and IsOwned=1 ` + inlibrary + `) as dewey9,
 				(SELECT count(*) as fic from books where dewey='FIC' and IsOwned=1 ` + inlibrary + `) as deweyfic)`
+		err := db.QueryRow(query).Scan(&total, &d0, &d1, &d2, &d3, &d4, &d5, &d6, &d7, &d8, &d9, &df)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return ChartInfo{}, err
+		}
+		data = append(data, StatData{
+			Label:    "Information Sciences",
+			Value:    fmt.Sprintf("%d", d0),
+			ToolText: fmt.Sprintf("%.2f%%", float64(d0)/float64(total)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Philosophy and Psychology",
+			Value:    fmt.Sprintf("%d", d1),
+			ToolText: fmt.Sprintf("%.2f%%", float64(d1)/float64(total)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Religion",
+			Value:    fmt.Sprintf("%d", d2),
+			ToolText: fmt.Sprintf("%.2f%%", float64(d2)/float64(total)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Social Sciences",
+			Value:    fmt.Sprintf("%d", d3),
+			ToolText: fmt.Sprintf("%.2f%%", float64(d3)/float64(total)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Language",
+			Value:    fmt.Sprintf("%d", d4),
+			ToolText: fmt.Sprintf("%.2f%%", float64(d4)/float64(total)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Mathematics and Science",
+			Value:    fmt.Sprintf("%d", d5),
+			ToolText: fmt.Sprintf("%.2f%%", float64(d5)/float64(total)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Technology",
+			Value:    fmt.Sprintf("%d", d6),
+			ToolText: fmt.Sprintf("%.2f%%", float64(d6)/float64(total)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Arts",
+			Value:    fmt.Sprintf("%d", d7),
+			ToolText: fmt.Sprintf("%.2f%%", float64(d7)/float64(total)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Literature",
+			Value:    fmt.Sprintf("%d", d8),
+			ToolText: fmt.Sprintf("%.2f%%", float64(d8)/float64(total)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Geography and History",
+			Value:    fmt.Sprintf("%d", d9),
+			ToolText: fmt.Sprintf("%.2f%%", float64(d9)/float64(total)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Fiction",
+			Value:    fmt.Sprintf("%d", df),
+			ToolText: fmt.Sprintf("%.2f%%", float64(df)/float64(total)*100),
+		})
+	case "deweyswishlist":
+		var total int64
+		var d0 int64
+		var d1 int64
+		var d2 int64
+		var d3 int64
+		var d4 int64
+		var d5 int64
+		var d6 int64
+		var d7 int64
+		var d8 int64
+		var d9 int64
+		var df int64
+		query = `SELECT * FROM (
+				(SELECT count(*) as total from books WHERE isowned=0 ` + inlibrary + `) AS t,
+				(SELECT count(*) as d0 from books where dewey<100 and dewey >= 0 and dewey != 'fic' and IsOwned=0 ` + inlibrary + `) as dewey0,
+				(SELECT count(*) as d1 from books where dewey<200 and dewey >= 100 and dewey != 'fic' and IsOwned=0 ` + inlibrary + `) as dewey1,
+				(SELECT count(*) as d2 from books where dewey<300 and dewey >= 200 and dewey != 'fic' and IsOwned=0 ` + inlibrary + `) as dewey2,
+				(SELECT count(*) as d3 from books where dewey<400 and dewey >= 300 and dewey != 'fic' and IsOwned=0 ` + inlibrary + `) as dewey3,
+				(SELECT count(*) as d4 from books where dewey<500 and dewey >= 400 and dewey != 'fic' and IsOwned=0 ` + inlibrary + `) as dewey4,
+				(SELECT count(*) as d5 from books where dewey<600 and dewey >= 500 and dewey != 'fic' and IsOwned=0 ` + inlibrary + `) as dewey5,
+				(SELECT count(*) as d6 from books where dewey<700 and dewey >= 600 and dewey != 'fic' and IsOwned=0 ` + inlibrary + `) as dewey6,
+				(SELECT count(*) as d7 from books where dewey<800 and dewey >= 700 and dewey != 'fic' and IsOwned=0 ` + inlibrary + `) as dewey7,
+				(SELECT count(*) as d8 from books where dewey<900 and dewey >= 800 and dewey != 'fic' and IsOwned=0 ` + inlibrary + `) as dewey8,
+				(SELECT count(*) as d9 from books where dewey<1000 and dewey >= 900 and dewey != 'fic' and IsOwned=0 ` + inlibrary + `) as dewey9,
+				(SELECT count(*) as fic from books where dewey='FIC' and IsOwned=0 ` + inlibrary + `) as deweyfic)`
 		err := db.QueryRow(query).Scan(&total, &d0, &d1, &d2, &d3, &d4, &d5, &d6, &d7, &d8, &d9, &df)
 		if err != nil {
 			logger.Printf("Error: %+v", err)

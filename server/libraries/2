@@ -42,8 +42,11 @@ const (
 	deleteCasesLibraryQuery          = "DELETE FROM bookcases WHERE libraryid=?"
 	deleteSeriesLibraryQuery         = "DELETE FROM series_author_sorts WHERE libraryid=?"
 	getAuthorBasedSeriesQuery        = "SELECT series FROM series_author_sorts WHERE libraryid=?"
+	getComicBasedSeriesQuery         = "SELECT series FROM series_comic_sorts WHERE library_id=?"
 	updateAuthorBasedSeriesQuery     = "DELETE FROM series_author_sorts WHERE libraryid=?"
+	updateComicBasedSeriesQuery      = "DELETE FROM series_comic_sorts WHERE library_id=?"
 	addAuthorBasedSeriesQuery        = "INSERT INTO series_author_sorts (libraryid, series) VALUES (?,?)"
+	addComicBasedSeriesQuery         = "INSERT INTO series_comic_sorts (library_id, series) VALUES (?,?)"
 	getSortMethodQuery               = "SELECT sortmethod FROM libraries WHERE id=?"
 	updateSortMethodQuery            = "UPDATE libraries SET sortmethod=? WHERE id=?"
 )
@@ -125,12 +128,17 @@ func GetCases(db *sql.DB, libraryid, session string) ([]Bookcase, error) {
 		logger.Printf("Error: %+v", err)
 		return nil, err
 	}
+	comicseries, err := GetComicBasedSeries(db, libraryid)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return nil, err
+	}
 	sortMethod, err := GetLibrarySort(db, libraryid)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return nil, err
 	}
-	books, _, err := books.GetBooks(db, sortMethod, "both", "both", "yes", "both", "both", "both", "", "1", "-1", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", libraryid, "", "both", session, authorseries, true)
+	books, _, err := books.GetBooks(db, sortMethod, "both", "both", "yes", "both", "both", "both", "", "1", "-1", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", libraryid, "", session, authorseries, comicseries, true)
 	breaks, err := GetLibraryBreaks(db, libraryid)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
@@ -155,7 +163,7 @@ func GetCases(db *sql.DB, libraryid, session string) ([]Bookcase, error) {
 			return nil, err
 		}
 		avgWidth := 1
-		avgHeight := 25
+		avgHeight := 26
 		if dim["averagewidth"] > 0 {
 			avgWidth = int(dim["averagewidth"])
 		}
@@ -630,6 +638,43 @@ func UpdateAuthorBasedSeries(db *sql.DB, libraryid string, series []string) erro
 	}
 	for _, s := range series {
 		_, err = db.Exec(addAuthorBasedSeriesQuery, libraryid, s)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return err
+		}
+	}
+	return nil
+}
+
+//GetComicBasedSeries gets series that are sorted by author then title, instead of volume
+func GetComicBasedSeries(db *sql.DB, libraryid string) ([]string, error) {
+	var series []string
+	rows, err := db.Query(getComicBasedSeriesQuery, libraryid)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return nil, err
+	}
+	for rows.Next() {
+		var s string
+		err = rows.Scan(&s)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return nil, err
+		}
+		series = append(series, s)
+	}
+	return series, nil
+}
+
+//UpdateComicBasedSeries updates series that are sorted by author then title, instead of volume
+func UpdateComicBasedSeries(db *sql.DB, libraryid string, series []string) error {
+	_, err := db.Exec(updateComicBasedSeriesQuery, libraryid)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return err
+	}
+	for _, s := range series {
+		_, err = db.Exec(addComicBasedSeriesQuery, libraryid, s)
 		if err != nil {
 			logger.Printf("Error: %+v", err)
 			return err

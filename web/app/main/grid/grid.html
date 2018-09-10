@@ -61,6 +61,19 @@
                             </md-radio-group>
                         </md-input-container>
                     </div>
+                    <div id="anthology-buttons" class="filter-radio-group" flex="33">
+                        <md-tooltip md-delay="500">
+                            <div class="tooltip-inner"><span class="span-white-space">Whether or not the <em>owner</em> consideres the book an anthology. Anthology books are not counted toward the "To Read" statistic.</span></div>
+                        </md-tooltip>
+                        <md-input-container class="md-input-has-value">
+                            <label id="anthology-buttons-label">Anthology</label>
+                            <md-radio-group ng-change="updateRecieved()" ng-model="$parent.anthology" layout="row">
+                                <md-radio-button value="yes">Yes</md-radio-button>
+                                <md-radio-button value="no">No</md-radio-button>
+                                <md-radio-button value="both" checked>Both</md-radio-button>
+                            </md-radio-group>
+                        </md-input-container>
+                    </div>
                     <div id="owned-buttons" class="filter-radio-group" flex="33">
                         <md-tooltip md-delay="500">
                             <div class="tooltip-inner"><span class="span-white-space">Whether or not the corresponding <em>library owner</em> owns the book. If it is marked as not owned, it is considered on a wish list. If no, the book is unavailable for checkout.</span></div>

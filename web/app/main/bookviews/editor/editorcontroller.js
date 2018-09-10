@@ -111,6 +111,9 @@ angular.module('libraryOrganizer')
             $vm.getSettingByName('Reference', function(value) {
                 $scope.book.isreference = (value == "True");
             });
+            $vm.getSettingByName('Anthology', function(value) {
+                $scope.book.isanthology = (value == "True");
+            });
             $vm.getSettingByName('Shipping', function(value) {
                 $scope.book.isshipping = (value == "True");
             });

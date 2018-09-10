@@ -69,6 +69,10 @@
     background: rgba(255, 255, 255, 0.5);
 }
 
+.search-container {
+    color: black;
+}
+
 #settings-view .settings-content {
     position: relative;
     height: 60vh;

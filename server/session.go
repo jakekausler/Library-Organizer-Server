@@ -1,16 +1,15 @@
-package main
+package libraryserver
 
 import (
 	"database/sql"
 	"fmt"
-	"log"
-	"net/http"
-	"os"
-
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
+	"log"
+	"net/http"
+	"os"
 )
 
 //Env Variables
@@ -104,7 +103,7 @@ func RunServer(username, password, database string, port int) {
 	r.HandleFunc("/users/reset", ResetPasswordHandler).Methods("PUT")
 	r.HandleFunc("/users/reset/{token}", FinishResetPasswordHandler).Methods("GET")
 	r.HandleFunc("/users/username", GetUsernameHandler).Methods("GET")
-	r.PathPrefix("/web/").Handler(http.StripPrefix("/web/", http.FileServer(http.Dir("./../web/"))))
+	r.PathPrefix("/web/").Handler(http.StripPrefix("/web/", http.FileServer(http.Dir(appRoot+"/../"))))
 	logger.Printf("Listening on port %v", port)
 	loggedRouter := handlers.CombinedLoggingHandler(logFile, r)
 	http.ListenAndServe(fmt.Sprintf(":%v", port), handlers.CompressHandler(loggedRouter))
