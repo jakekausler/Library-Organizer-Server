@@ -288,3 +288,30 @@ func UpdateLibrarySortHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	return
 }
+
+//GetLibrarySearchHandler gets titles by search
+func GetLibrarySearchHandler(w http.ResponseWriter, r *http.Request) {
+	registered, session := Registered(r)
+	if !registered {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
+		return
+	}
+	libraryid := mux.Vars(r)["libraryid"]
+	params := r.URL.Query()
+	text := params.Get("text")
+	d, err := libraries.SearchShelves(db, libraryid, session, text)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	data, err := json.Marshal(d)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+}

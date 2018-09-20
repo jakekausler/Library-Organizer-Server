@@ -52,18 +52,57 @@ angular.module('libraryOrganizer')
                 }
             });
         };
-        //todo
-        $scope.findBook = function() {
+        $scope.findBook = function(ev) {
+            if (ev.key !== "Enter") {
+                return;
+            }
+            if (ev.target.value == "" || !ev.target.value) {
+                UnhighlightMatches();
+                return;
+            }
             var loadingName = $scope.guid();
             $scope.addToLoading(loadingName);
             $http({
                 url: '/libraries/' + $scope.currentLibraryId + '/search',
-                method: 'GET'
+                method: 'GET',
+                params: {
+                    text: ev.target.value
+                }
             }).then(function(response) {
-
+                console.log(response);
+                HighlightMatches(response.data);
+                $scope.removeFromLoading(loadingName);
             }, function(response) {
-
+                $mdToast.showSimple("Failed to search");
+                $scope.removeFromLoading(loadingName);
             });
+        };
+        HighlightMatches = function(matches) {
+            var currentMatch = 0;
+            console.log($scope.bookcases);
+            for (var i = 0; i < $scope.bookcases.length; i++) {
+                for (var j = 0; j < $scope.bookcases[i].shelves.length; j++) {
+                    if ($scope.bookcases[i].shelves[j].books) {
+                    for (var k = 0; k < $scope.bookcases[i].shelves[j].books.length; k++) {
+                        if (currentMatch < matches.length && matches[currentMatch].case == i && matches[currentMatch].shelf == j && matches[currentMatch].book == k) {
+                            $scope.bookcases[i].shelves[j].books[k].highlight = true;
+                            currentMatch++;
+                        } else {
+                            $scope.bookcases[i].shelves[j].books[k].highlight = false;
+                        }
+                    }
+                    }
+                }
+            }
+        };
+        UnHighlightMatches = function() {
+            for (var i = 0; i < $scope.bookcases.length; i++) {
+                for (var j = 0; j < $scope.bookcases[i].shelves.length; j++) {
+                    for (var k = 0; k < $scope.bookcases[i].shelves[j].books.length; k++) {
+                        $scope.bookcases[i].shelves[j].books[k].highlight = undefined;
+                    }
+                }
+            }
         };
         $scope.updateLibraries = function() {
             var loadingName = $scope.guid();

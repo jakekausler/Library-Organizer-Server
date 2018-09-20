@@ -638,6 +638,14 @@ func UpdateAuthorBasedSeries(db *sql.DB, libraryid string, series []string) erro
 	return nil
 }
 
+//SearchLocation is a location in a library
+type SearchLocation struct {
+	Case  int    `json:"case"`
+	Shelf int    `json:"shelf"`
+	Book  int    `json:"book"`
+	Title string `json:"title"`
+}
+
 //GetLibrarySort gets the sort method of a library
 func GetLibrarySort(db *sql.DB, libraryid string) (string, error) {
 	var method string
@@ -649,4 +657,39 @@ func GetLibrarySort(db *sql.DB, libraryid string) (string, error) {
 func UpdateLibrarySort(db *sql.DB, libraryid string, method string) error {
 	_, err := db.Exec(updateSortMethodQuery, method, libraryid)
 	return err
+}
+
+//SearchShelves gets the locations of books on shelves by a search
+func SearchShelves(db *sql.DB, libraryid string, session string, text string) ([]SearchLocation, error) {
+	var locations []SearchLocation
+	cases, err := GetCases(db, libraryid, session)
+	if err != nil {
+		return locations, err
+	}
+	queries := strings.Split(strings.ToLower(text), " ")
+	for cidx, c := range cases {
+		for sidx, s := range c.Shelves {
+			for bidx, b := range s.Books {
+				if IsMatch(b, queries) {
+					locations = append(locations, SearchLocation{
+						Case:  cidx,
+						Shelf: sidx,
+						Book:  bidx,
+						Title: b.Title,
+					})
+				}
+			}
+		}
+	}
+	return locations, nil
+}
+
+//IsMatch determines if a book matches a search string
+func IsMatch(book books.Book, queries []string) bool {
+	for _, word := range queries {
+		if !strings.Contains(strings.ToLower(book.Title), word) && !strings.Contains(strings.ToLower(book.Subtitle), word) && !strings.Contains(strings.ToLower(book.Series), word) {
+			return false
+		}
+	}
+	return true
 }

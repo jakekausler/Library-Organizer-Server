@@ -93,6 +93,7 @@ func RunServer(username, password, database string, port int) {
 	r.HandleFunc("/libraries/{libraryid}/series", UpdateAuthorBasedSeriesHandler).Methods("PUT")
 	r.HandleFunc("/libraries/{libraryid}/sort", GetLibrarySortHandler).Methods("GET")
 	r.HandleFunc("/libraries/{libraryid}/sort", UpdateLibrarySortHandler).Methods("PUT")
+	r.HandleFunc("/libraries/{libraryid}/search", GetLibrarySearchHandler).Methods("GET")
 	r.HandleFunc("/settings", GetSettingsHandler).Methods("GET")
 	r.HandleFunc("/settings", SaveSettingsHandler).Methods("PUT")
 	r.HandleFunc("/settings/{setting}", GetSettingHandler).Methods("GET")
