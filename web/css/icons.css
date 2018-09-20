@@ -97,6 +97,10 @@
     content: '\f1fb';
 }
 
+.list-icon:before {
+    content: '\f039';
+}
+
 figcaption {
     margin: auto;
 }

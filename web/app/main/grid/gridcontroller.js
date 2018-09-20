@@ -41,6 +41,7 @@ angular.module('libraryOrganizer')
         $scope.shipping = $scope.getParameterByName("shipping", "no");
         $scope.reading = $scope.getParameterByName("reading", "no");
         $scope.gridSelectedLibraries = $scope.getParameterByName("gridselectedlibraries", "").split(',');
+        $scope.layout = $scope.getParameterByName("layout", "grid");
         $scope.libraries = [];
         $scope.output = [];
         $scope.isFiltersOpen = false;
@@ -63,6 +64,7 @@ angular.module('libraryOrganizer')
             }
             return retval;
         };
+        $scope.anySeries = false;
         $scope.updateRecieved = function() {
             if (!$scope.forms.sortAndFilter || $scope.forms.sortAndFilter.$valid) {
                 var loadingName = $scope.guid();
@@ -105,7 +107,7 @@ angular.module('libraryOrganizer')
                     loaned: $scope.loaned,
                     shipping: $scope.shipping,
                     reading: $scope.reading,
-                    gridselectedlibraries: $scope.gridSelectedLibraries
+                    gridselectedlibraries: $scope.gridSelectedLibraries,
                 };
                 $scope.setParameters(params);
                 $http({
@@ -153,7 +155,11 @@ angular.module('libraryOrganizer')
                     }
                 }).then(function(response) {
                     $scope.books = response.data.books;
+                    $scope.anySeries = false;
                     for (var b in $scope.books) {
+                        if ($scope.books[b].series != "") {
+                            $scope.anySeries = true;
+                        }
                         for (var c in $scope.books[b].contributors) {
                             $scope.books[b].contributors[c].editing = false;
                         }
@@ -589,4 +595,11 @@ angular.module('libraryOrganizer')
             name: "12",
             value: 13
         }];
+        $scope.toggleLayout = function(layout) {
+            $scope.layout = layout;
+            $scope.setParameters({
+                layout: $scope.layout
+            });
+        };
+
     });

@@ -3,16 +3,27 @@
         <md-button aria-label="Toggle Filters" class="icon filter-icon" ng-click="toggleFilters()">
             <md-tooltip md-delay="500">Open Filters</md-tooltip>
         </md-button>
-        <md-button aria-label="Previous Page" class="icon previous-icon" ng-disabled="page<=1" ng-click="previousPage()">
+        <md-button aria-label="Toggle List View" class="icon list-icon" ng-click="toggleLayout('list')"
+            ng-hide="layout=='list'">
+            <md-tooltip md-delay="500">Toggle List View</md-tooltip>
+        </md-button>
+        <md-button aria-label="Toggle Grid View" class="icon grid-icon" ng-click="toggleLayout('grid')"
+            ng-hide="layout=='grid'">
+            <md-tooltip md-delay="500">Toggle Grid View</md-tooltip>
+        </md-button>
+        <md-button aria-label="Previous Page" class="icon previous-icon" ng-disabled="page<=1"
+            ng-click="previousPage()">
             <md-tooltip md-delay="500">Previous Page</md-tooltip>
         </md-button>
-        <md-button aria-label="Next Page" class="icon next-icon" ng-disabled="page>=numberOfBooks" ng-click="nextPage()">
+        <md-button aria-label="Next Page" class="icon next-icon" ng-disabled="page>=numberOfBooks"
+            ng-click="nextPage()">
             <md-tooltip md-delay="500">Next Page</md-tooltip>
         </md-button>
         <md-button aria-label="Add Book" class="icon add-icon" ng-click="addBook($event)">
             <md-tooltip md-delay="500">Add Book</md-tooltip>
         </md-button>
-        <md-button aria-label="Import Books" ng-disabled="true" class="icon import-icon" ng-click="import($event)">
+        <md-button aria-label="Import Books" ng-disabled="true" class="icon import-icon"
+            ng-click="import($event)">
             <md-tooltip md-delay="500">Import Books</md-tooltip md-delay="500">
         </md-button>
         <md-button aria-label="Export Books" class="icon export-icon" ng-click="export($event)">
@@ -24,7 +35,8 @@
     </div>
 </md-toolbar>
 <div flex layout="row" class="grid-view-container">
-    <md-sidenav md-is-locked-open="isFiltersOpen" class="md-sidenav-left" md-component-id="filterSideNav" md-whiteframe=4 layout-padding="5" flex>
+    <md-sidenav md-is-locked-open="isFiltersOpen" class="md-sidenav-left" md-component-id="filterSideNav"
+        md-whiteframe=4 layout-padding="5" flex>
         <md-content>
             <form name="forms.sortAndFilter" layout="column">
                 <md-button aria-label="Choose Libraries" ng-click="chooseLibrary($event)">Choose Libraries</md-button>
@@ -32,7 +44,8 @@
                     <div id="filter-text">
                         <md-input-container class="md-block">
                             <label id="filter-text-label">Search for</label>
-                            <input type="text" ng-change="updateRecieved()" ng-model="$parent.filter" name="filter" value="" />
+                            <input type="text" ng-change="updateRecieved()" ng-model="$parent.filter" name="filter"
+                                value="" />
                         </md-input-container>
                     </div>
                     <div id="read-buttons" class="filter-radio-group" flex="33">
@@ -140,13 +153,18 @@
                         <div id="number-to-get" class="sort-group" flex>
                             <md-input-container>
                                 <label id="number-to-get-label">Limit</label>
-                                <input id="number-to-get" class="pagination-input" type="number" ng-change="updateRecieved()" ng-model="$parent.numberToGet" name="number-to-get" min="1" step="1" value="50" required positive-integer-input />
+                                <input id="number-to-get" class="pagination-input" type="number" ng-change="updateRecieved()"
+                                    ng-model="$parent.numberToGet" name="number-to-get"
+                                    min="1" step="1" value="50" required positive-integer-input
+                                />
                             </md-input-container>
                         </div>
                         <div id="page-group" class="sort-group" flex>
                             <md-input-container>
                                 <label id="page-label">Page</label>
-                                <input id="page" class="pagination-input" type="number" ng-change="updateRecieved()" ng-model="$parent.page" name="page" min="1" max="{{countPages()?countPages():1}}" step="1" required pages-input> of {{countPages()?countPages():1}}
+                                <input id="page" class="pagination-input" type="number" ng-change="updateRecieved()"
+                                    ng-model="$parent.page" name="page" min="1" max="{{countPages()?countPages():1}}"
+                                    step="1" required pages-input>                                of {{countPages()?countPages():1}}
                             </md-input-container>
                         </div>
                     </div>
@@ -154,13 +172,17 @@
                         <div id="from-dewey" class="sort-group" flex>
                             <md-input-container>
                                 <label id="from-dewey-label">From Dewey</label>
-                                <input id="from-dewey-input" class="dewey-input" type="text" ng-change="updateRecieved()" ng-model="$parent.fromdewey" name="fromdewey" value="" dewey-input />
+                                <input id="from-dewey-input" class="dewey-input" type="text" ng-change="updateRecieved()"
+                                    ng-model="$parent.fromdewey" name="fromdewey" value=""
+                                    dewey-input />
                             </md-input-container>
                         </div>
                         <div id="to-dewey" class="sort-group" flex>
                             <md-input-container>
                                 <label id="to-dewey-label">To Dewey</label>
-                                <input id="to-dewey-input" class="dewey-input" type="text" ng-change="updateRecieved()" ng-model="$parent.todewey" name="todewey" value="" dewey-input />
+                                <input id="to-dewey-input" class="dewey-input" type="text" ng-change="updateRecieved()"
+                                    ng-model="$parent.todewey" name="todewey" value=""
+                                    dewey-input />
                             </md-input-container>
                         </div>
                     </div>
@@ -168,13 +190,17 @@
                         <div id="from-lexile" class="sort-group" flex>
                             <md-input-container>
                                 <label id="from-lexile-label">From Lexile</label>
-                                <input id="from-lexile-input" class="lexile-input" type="text" ng-change="updateRecieved()" ng-model="$parent.fromlexile" name="fromlexile" value="" lexile-input />
+                                <input id="from-lexile-input" class="lexile-input" type="text" ng-change="updateRecieved()"
+                                    ng-model="$parent.fromlexile" name="fromlexile"
+                                    value="" lexile-input />
                             </md-input-container>
                         </div>
                         <div id="to-lexile" class="sort-group" flex>
                             <md-input-container>
                                 <label id="to-lexile-label">To Lexile</label>
-                                <input id="to-lexile-input" class="lexile-input" type="text" ng-change="updateRecieved()" ng-model="$parent.tolexile" name="tolexile" value="" lexile-input />
+                                <input id="to-lexile-input" class="lexile-input" type="text" ng-change="updateRecieved()"
+                                    ng-model="$parent.tolexile" name="tolexile" value=""
+                                    lexile-input />
                             </md-input-container>
                         </div>
                         <div id="lexile-code" class="sort-group" flex>
@@ -208,13 +234,19 @@
                         <div id="from-ar" class="sort-group" flex>
                             <md-input-container>
                                 <label id="from-ar-label">From AR</label>
-                                <input id="from-ar-input" class="ar-input" type="number" ng-change="updateRecieved()" ng-model="$parent.fromar" name="fromar" value="" min="0.1" max="20.0" step="0.1" non-negative-number-input />
+                                <input id="from-ar-input" class="ar-input" type="number" ng-change="updateRecieved()"
+                                    ng-model="$parent.fromar" name="fromar" value=""
+                                    min="0.1" max="20.0" step="0.1" non-negative-number-input
+                                />
                             </md-input-container>
                         </div>
                         <div id="to-ar" class="sort-group" flex>
                             <md-input-container>
                                 <label id="to-ar-label">To AR</label>
-                                <input id="to-ar-input" class="ar-input" type="number" ng-change="updateRecieved()" ng-model="$parent.toar" name="toar" value="" min="0.1" max="20.0" step="0.1" non-negative-number-input />
+                                <input id="to-ar-input" class="ar-input" type="number" ng-change="updateRecieved()"
+                                    ng-model="$parent.toar" name="toar" value="" min="0.1"
+                                    max="20.0" step="0.1" non-negative-number-input
+                                />
                             </md-input-container>
                         </div>
                     </div>
@@ -258,13 +290,19 @@
                         <div id="from-dra" class="sort-group" flex>
                             <md-input-container>
                                 <label id="from-dra-label">From DRA</label>
-                                <input id="from-dra-input" class="dra-input" type="number" ng-change="updateRecieved()" ng-model="$parent.fromdra" name="fromdra" value="" min="1" max="80" step="1" non-negative-number-input />
+                                <input id="from-dra-input" class="dra-input" type="number" ng-change="updateRecieved()"
+                                    ng-model="$parent.fromdra" name="fromdra" value=""
+                                    min="1" max="80" step="1" non-negative-number-input
+                                />
                             </md-input-container>
                         </div>
                         <div id="to-dra" class="sort-group" flex>
                             <md-input-container>
                                 <label id="to-dra-label">To DRA</label>
-                                <input id="to-dra-input" class="dra-input" type="number" ng-change="updateRecieved()" ng-model="$parent.todra" name="todra" value="" min="1" max="80" step="1" non-negative-number-input />
+                                <input id="to-dra-input" class="dra-input" type="number" ng-change="updateRecieved()"
+                                    ng-model="$parent.todra" name="todra" value=""
+                                    min="1" max="80" step="1" non-negative-number-input
+                                />
                             </md-input-container>
                         </div>
                     </div>
@@ -308,13 +346,19 @@
                         <div id="from-age" class="sort-group" flex>
                             <md-input-container>
                                 <label id="from-age-label">From Age</label>
-                                <input id="from-age-input" class="age-input" type="number" ng-change="updateRecieved()" ng-model="$parent.fromage" name="fromage" value="" min="1" max="99" step="1" non-negative-number-input />
+                                <input id="from-age-input" class="age-input" type="number" ng-change="updateRecieved()"
+                                    ng-model="$parent.fromage" name="fromage" value=""
+                                    min="1" max="99" step="1" non-negative-number-input
+                                />
                             </md-input-container>
                         </div>
                         <div id="to-age" class="sort-group" flex>
                             <md-input-container>
                                 <label id="to-age-label">To Age</label>
-                                <input id="to-age-input" class="age-input" type="number" ng-change="updateRecieved()" ng-model="$parent.toage" name="toage" value="" min="1" max="99" step="1" non-negative-number-input />
+                                <input id="to-age-input" class="age-input" type="number" ng-change="updateRecieved()"
+                                    ng-model="$parent.toage" name="toage" value=""
+                                    min="1" max="99" step="1" non-negative-number-input
+                                />
                             </md-input-container>
                         </div>
                     </div>
@@ -322,13 +366,19 @@
                         <div id="from-readingrecovery" class="sort-group" flex>
                             <md-input-container>
                                 <label id="from-readingrecovery-label">From Reading Recovery</label>
-                                <input id="from-readingrecovery-input" class="readingrecovery-input" type="number" ng-change="updateRecieved()" ng-model="$parent.fromreadingrecovery" name="fromreadingrecovery" value="" min="1" max="40" step="1" non-negative-number-input />
+                                <input id="from-readingrecovery-input" class="readingrecovery-input" type="number"
+                                    ng-change="updateRecieved()" ng-model="$parent.fromreadingrecovery"
+                                    name="fromreadingrecovery" value="" min="1" max="40"
+                                    step="1" non-negative-number-input />
                             </md-input-container>
                         </div>
                         <div id="to-readingrecovery" class="sort-group" flex>
                             <md-input-container>
                                 <label id="to-readingrecovery-label">To Reading Recovery</label>
-                                <input id="to-readingrecovery-input" class="readingrecovery-input" type="number" ng-change="updateRecieved()" ng-model="$parent.toreadingrecovery" name="toreadingrecovery" value="" min="1" max="40" step="1" non-negative-number-input />
+                                <input id="to-readingrecovery-input" class="readingrecovery-input" type="number"
+                                    ng-change="updateRecieved()" ng-model="$parent.toreadingrecovery"
+                                    name="toreadingrecovery" value="" min="1" max="40"
+                                    step="1" non-negative-number-input />
                             </md-input-container>
                         </div>
                     </div>
@@ -336,13 +386,19 @@
                         <div id="from-pmreaders" class="sort-group" flex>
                             <md-input-container>
                                 <label id="from-pmreaders-label">From PM Readers</label>
-                                <input id="from-pmreaders-input" class="pmreaders-input" type="number" ng-change="updateRecieved()" ng-model="$parent.frompmreaders" name="frompmreaders" value="" min="1" max="30" step="1" non-negative-number-input />
+                                <input id="from-pmreaders-input" class="pmreaders-input" type="number" ng-change="updateRecieved()"
+                                    ng-model="$parent.frompmreaders" name="frompmreaders"
+                                    value="" min="1" max="30" step="1" non-negative-number-input
+                                />
                             </md-input-container>
                         </div>
                         <div id="to-pmreaders" class="sort-group" flex>
                             <md-input-container>
                                 <label id="to-pmreaders-label">To PM Readers</label>
-                                <input id="to-pmreaders-input" class="pmreaders-input" type="number" ng-change="updateRecieved()" ng-model="$parent.topmreaders" name="topmreaders" value="" min="1" max="30" step="1" non-negative-number-input />
+                                <input id="to-pmreaders-input" class="pmreaders-input" type="number" ng-change="updateRecieved()"
+                                    ng-model="$parent.topmreaders" name="topmreaders"
+                                    value="" min="1" max="30" step="1" non-negative-number-input
+                                />
                             </md-input-container>
                         </div>
                     </div>
@@ -351,18 +407,44 @@
         </md-content>
     </md-sidenav>
     <md-content flex class="grid-content">
-        <div flex layout="column" class="grid-container">
-            <md-grid-list md-cols-xs="1" md-cols-sm="2" md-cols-md="4" md-cols-gt-md="6" md-row-height-gt-md="1:1" md-row-height="2:2" md-gutter="12px" md-gutter-gt-sm="8px">
-                <md-grid-tile ng-repeat="book in books" ng-click="showBookDialog($event, book, this, 'grid')">
-                    <md-grid-tile-header class="md-accent">
+        <div ng-show="layout=='grid'" flex layout="column " class="grid-container ">
+            <md-grid-list md-cols-xs="1 " md-cols-sm="2 " md-cols-md="4
+            " md-cols-gt-md="6 " md-row-height-gt-md="1:1 " md-row-height="2:2 "
+                md-gutter="12px
+            " md-gutter-gt-sm="8px ">
+                <md-grid-tile ng-repeat="book in books " ng-click="showBookDialog($event,
+            book, this, 'grid') ">
+                    <md-grid-tile-header class="md-accent ">
                         <span>{{book.title}}</span>
                     </md-grid-tile-header>
-                    <img ng-src="web/{{book.imageurl}}{{'?'+getCurrentDateString()}}" alt="Image not found" onerror="this.onerror=null;this.src='web/res/book.jpg';" height="100%">
-                    <md-grid-tile-footer ng-hide="book.subtitle==''">
+                    <img ng-src="web/{{book.imageurl}}{{ '?'+getCurrentDateString()}}
+            " alt="Image not found " onerror="this.onerror=null;this.src='web/res/book.jpg'
+            ; " height="100% ">
+                    <md-grid-tile-footer ng-hide="book.subtitle=='' ">
                         <span>{{book.subtitle}}</span>
                     </md-grid-tile-footer>
                 </md-grid-tile>
             </md-grid-list>
+        </div>
+        <div ng-show="layout=='list'" flex layout="column" class="grid-container">
+            <table fixed-header>
+                <tr>
+                    <th></th>
+                    <th>Title</th>
+                    <th>Subtitle</th>
+                    <th ng-show="anySeries">Series</th>
+                    <th ng-show="anySeries">Volume</th>
+                </tr>
+                <tr ng-repeat="book in books" ng-click="showBookDialog($event, book, this, 'grid')">
+                    <td><img ng-src="web/{{book.imageurl}}{{'?'+getCurrentDateString()}}"
+                            alt="Image not found" onerror="this.onerror=null;this.src='web/res/book.jpg';"
+                            height="50px"></td>
+                    <td>{{book.title}}</td>
+                    <td>{{book.subtitle}}</td>
+                    <td ng-show="anySeries">{{book.series}}</td>
+                    <td ng-show="anySeries">{{book.volume == 0? "" : book.volume}}</td>
+                </tr>
+            </table>
         </div>
     </md-content>
 </div>

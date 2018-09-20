@@ -172,6 +172,10 @@
     text-align: left;
 }
 
+#grid-view .grid-content tr:not(:first-child):hover {
+    background: rgba(48, 63, 159, .75);
+}
+
 #import-dialog {
     text-align: center;
 }
