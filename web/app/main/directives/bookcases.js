@@ -12,7 +12,7 @@ angular.module('libraryOrganizer')
                     }
                     // document.getElementById('bookcase-canvas').removeEventListener('keypress', vm.zoomListener);
                     // document.getElementById('bookcase-canvas').addEventListener('keypress', vm.zoomListener);
-                });
+                }, true);
                 vm.zoomListener = function(e) {
                     // switch (e.key) {
                     // case 'w':
@@ -114,11 +114,29 @@ angular.module('libraryOrganizer')
                             for (var b in vm.cases[c].shelves[s].books) {
                                 newWidth = vm.cases[c].shelves[s].books[b].width * vm.zoom;
                                 newHeight = vm.cases[c].shelves[s].books[b].height * vm.zoom;
+                                var spineColor = vm.cases[c].shelves[s].books[b].highlight === undefined ? vm.cases[c].shelves[s].books[b].spinecolor : (vm.cases[c].shelves[s].books[b].highlight ? "white" : "black");
+                                var textColor;
+                                if (vm.cases[c].shelves[s].books[b].highlight === undefined) {
+                                    var converted = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(vm.cases[c].shelves[s].books[b].spinecolor);
+                                    var rgb = converted ? [
+                                        parseInt(converted[1], 16),
+                                        parseInt(converted[2], 16),
+                                        parseInt(converted[3], 16)
+                                    ] : null;
+                                    if (converted) {
+                                        var o = Math.round(((parseInt(rgb[0], 10) * 299) + (parseInt(rgb[1], 10) * 587) + (parseInt(rgb[2], 10) * 114)) / 1000);
+                                        textColor = (o > 125) ? 'black' : 'white';
+                                    } else {
+                                        textColor = 'white';
+                                    }
+                                } else {
+                                    textColor = vm.cases[c].shelves[s].books[b].highlight ? "black" : "white";
+                                }
                                 ctx.fillStyle = 'black';
                                 var bookwidth = newWidth <= 0 ? vm.cases[c].averagebookwidth * vm.zoom : newWidth;
                                 var bookheight = newHeight <= 25 ? vm.cases[c].averagebookheight * vm.zoom : newHeight;
                                 ctx.fillRect(ix, y - bookheight + vm.cases[c].shelves[s].height + vm.cases[c].spacerheight, bookwidth, bookheight);
-                                ctx.fillStyle = vm.cases[c].shelves[s].books[b].spinecolor;
+                                ctx.fillStyle = spineColor;
                                 ctx.fillRect(ix + 1 * vm.zoom, y - bookheight + vm.cases[c].shelves[s].height + vm.cases[c].spacerheight + 1 * vm.zoom, bookwidth - 2 * vm.zoom, bookheight - 2 * vm.zoom);
                                 ctx.save();
                                 ctx.translate(ix + bookwidth / 2, y + vm.cases[c].shelves[s].height + vm.cases[c].spacerheight - 2 * vm.zoom);
@@ -133,19 +151,7 @@ angular.module('libraryOrganizer')
                                     }
                                     text = text + '...';
                                 }
-                                var converted = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(vm.cases[c].shelves[s].books[b].spinecolor);
-                                var rgb = converted ? [
-                                    parseInt(converted[1], 16),
-                                    parseInt(converted[2], 16),
-                                    parseInt(converted[3], 16)
-                                ] : null;
-                                if (converted) {
-                                    var o = Math.round(((parseInt(rgb[0], 10) * 299) + (parseInt(rgb[1], 10) * 587) + (parseInt(rgb[2], 10) * 114)) / 1000);
-                                    var fore = (o > 125) ? 'black' : 'white';
-                                    ctx.fillStyle = fore;
-                                } else {
-                                    ctx.fillStyle = 'white';
-                                }
+                                ctx.fillStyle = textColor;
                                 ctx.fillText(text, 0, 0);
                                 ctx.restore();
                                 vm.cases[c].shelves[s].books[b].x = ix;
