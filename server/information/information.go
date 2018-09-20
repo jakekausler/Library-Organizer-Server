@@ -646,6 +646,92 @@ func GetStats(db *sql.DB, t, libraryids string) (ChartInfo, error) {
 			Value:    fmt.Sprintf("%d", df),
 			ToolText: fmt.Sprintf("%.2f%%", float64(df)/float64(total)*100),
 		})
+	case "deweystotal":
+		var total int64
+		var d0 int64
+		var d1 int64
+		var d2 int64
+		var d3 int64
+		var d4 int64
+		var d5 int64
+		var d6 int64
+		var d7 int64
+		var d8 int64
+		var d9 int64
+		var df int64
+		query = `SELECT * FROM (
+				(SELECT count(*) as total from books where true ` + inlibrary + `) AS t,
+				(SELECT count(*) as d0 from books where dewey<100 and dewey >= 0 and dewey != 'fic' ` + inlibrary + `) as dewey0,
+				(SELECT count(*) as d1 from books where dewey<200 and dewey >= 100 and dewey != 'fic' ` + inlibrary + `) as dewey1,
+				(SELECT count(*) as d2 from books where dewey<300 and dewey >= 200 and dewey != 'fic' ` + inlibrary + `) as dewey2,
+				(SELECT count(*) as d3 from books where dewey<400 and dewey >= 300 and dewey != 'fic' ` + inlibrary + `) as dewey3,
+				(SELECT count(*) as d4 from books where dewey<500 and dewey >= 400 and dewey != 'fic' ` + inlibrary + `) as dewey4,
+				(SELECT count(*) as d5 from books where dewey<600 and dewey >= 500 and dewey != 'fic' ` + inlibrary + `) as dewey5,
+				(SELECT count(*) as d6 from books where dewey<700 and dewey >= 600 and dewey != 'fic' ` + inlibrary + `) as dewey6,
+				(SELECT count(*) as d7 from books where dewey<800 and dewey >= 700 and dewey != 'fic' ` + inlibrary + `) as dewey7,
+				(SELECT count(*) as d8 from books where dewey<900 and dewey >= 800 and dewey != 'fic' ` + inlibrary + `) as dewey8,
+				(SELECT count(*) as d9 from books where dewey<1000 and dewey >= 900 and dewey != 'fic' ` + inlibrary + `) as dewey9,
+				(SELECT count(*) as fic from books where dewey='FIC' ` + inlibrary + `) as deweyfic)`
+		err := db.QueryRow(query).Scan(&total, &d0, &d1, &d2, &d3, &d4, &d5, &d6, &d7, &d8, &d9, &df)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return ChartInfo{}, err
+		}
+		data = append(data, StatData{
+			Label:    "Information Sciences",
+			Value:    fmt.Sprintf("%d", d0),
+			ToolText: fmt.Sprintf("%.2f%%", float64(d0)/float64(total)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Philosophy and Psychology",
+			Value:    fmt.Sprintf("%d", d1),
+			ToolText: fmt.Sprintf("%.2f%%", float64(d1)/float64(total)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Religion",
+			Value:    fmt.Sprintf("%d", d2),
+			ToolText: fmt.Sprintf("%.2f%%", float64(d2)/float64(total)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Social Sciences",
+			Value:    fmt.Sprintf("%d", d3),
+			ToolText: fmt.Sprintf("%.2f%%", float64(d3)/float64(total)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Language",
+			Value:    fmt.Sprintf("%d", d4),
+			ToolText: fmt.Sprintf("%.2f%%", float64(d4)/float64(total)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Mathematics and Science",
+			Value:    fmt.Sprintf("%d", d5),
+			ToolText: fmt.Sprintf("%.2f%%", float64(d5)/float64(total)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Technology",
+			Value:    fmt.Sprintf("%d", d6),
+			ToolText: fmt.Sprintf("%.2f%%", float64(d6)/float64(total)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Arts",
+			Value:    fmt.Sprintf("%d", d7),
+			ToolText: fmt.Sprintf("%.2f%%", float64(d7)/float64(total)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Literature",
+			Value:    fmt.Sprintf("%d", d8),
+			ToolText: fmt.Sprintf("%.2f%%", float64(d8)/float64(total)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Geography and History",
+			Value:    fmt.Sprintf("%d", d9),
+			ToolText: fmt.Sprintf("%.2f%%", float64(d9)/float64(total)*100),
+		})
+		data = append(data, StatData{
+			Label:    "Fiction",
+			Value:    fmt.Sprintf("%d", df),
+			ToolText: fmt.Sprintf("%.2f%%", float64(df)/float64(total)*100),
+		})
 	case "formats":
 		var total int64
 		totalquery := `SELECT count(*) FROM books WHERE isowned=1 ` + inlibrary

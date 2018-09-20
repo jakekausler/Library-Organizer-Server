@@ -182,6 +182,10 @@ angular.module('libraryOrganizer')
                         formatNumberScale = "0";
                         caption = "Books by Wishlist Deweys";
                         break;
+                    case "deweystotal":
+                        formatNumberScale = "0";
+                        caption = "Books by Total Deweys";
+                        break;
                     case "formats":
                         formatNumberScale = "0";
                         caption = "Books by Binding";
