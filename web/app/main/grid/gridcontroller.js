@@ -1,8 +1,8 @@
 angular.module('libraryOrganizer')
     .controller('gridController', function($scope, $mdToast, $http, $mdSidenav, $mdDialog) {
         $scope.sort = $scope.getParameterByName("sort", "dewey");
-        $scope.numberToGet = parseInt($scope.getParameterByName("numbertoget", "50"));
-        $scope.page = parseInt($scope.getParameterByName("page", "1"));
+        $scope.numberToGet = parseInt($scope.getParameterByName("numbertoget", "50"), 10);
+        $scope.page = parseInt($scope.getParameterByName("page", "1"), 10);
         $scope.numberOfBooks = 0;
         $scope.fromdewey = $scope.getParameterByName("fromdewey", "");
         $scope.todewey = $scope.getParameterByName("todewey", "");
@@ -10,28 +10,28 @@ angular.module('libraryOrganizer')
         $scope.tolexile = $scope.getParameterByName("tolexile", "");
         $scope.withcodes = $scope.getParameterByName("withcodes", "").split(",");
         if ($scope.withcodes.length > 0 && $scope.withcodes[0] == "") {
-            $scope.withcodes.splice(0, 1)
+            $scope.withcodes.splice(0, 1);
         }
-        $scope.frominterestlevel = $scope.getParameterByName("frominterestlevel", "")
-        $scope.tointerestlevel = $scope.getParameterByName("tointerestlevel", "")
-        $scope.fromar = $scope.getParameterByName("fromar", "")
-        $scope.toar = $scope.getParameterByName("toar", "")
-        $scope.fromlearningaz = $scope.getParameterByName("fromlearningaz", "")
-        $scope.tolearningaz = $scope.getParameterByName("tolearningaz", "")
-        $scope.fromguidedreading = $scope.getParameterByName("fromguidedreading", "")
-        $scope.toguidedreading = $scope.getParameterByName("toguidedreading", "")
-        $scope.fromdra = $scope.getParameterByName("fromdra", "")
-        $scope.todra = $scope.getParameterByName("todra", "")
-        $scope.fromgrade = $scope.getParameterByName("fromgrade", "")
-        $scope.tograde = $scope.getParameterByName("tograde", "")
-        $scope.fromfountaspinnell = $scope.getParameterByName("fromfountaspinnell", "")
-        $scope.tofountaspinnell = $scope.getParameterByName("tofountaspinnell", "")
-        $scope.fromage = $scope.getParameterByName("fromage", "")
-        $scope.toage = $scope.getParameterByName("toage", "")
-        $scope.fromreadingrecovery = $scope.getParameterByName("fromreadingrecovery", "")
-        $scope.toreadingrecovery = $scope.getParameterByName("toreadingrecovery", "")
-        $scope.frompmreaders = $scope.getParameterByName("frompmreaders", "")
-        $scope.topmreaders = $scope.getParameterByName("topmreaders", "")
+        $scope.frominterestlevel = $scope.getParameterByName("frominterestlevel", "");
+        $scope.tointerestlevel = $scope.getParameterByName("tointerestlevel", "");
+        $scope.fromar = $scope.getParameterByName("fromar", "");
+        $scope.toar = $scope.getParameterByName("toar", "");
+        $scope.fromlearningaz = $scope.getParameterByName("fromlearningaz", "");
+        $scope.tolearningaz = $scope.getParameterByName("tolearningaz", "");
+        $scope.fromguidedreading = $scope.getParameterByName("fromguidedreading", "");
+        $scope.toguidedreading = $scope.getParameterByName("toguidedreading", "");
+        $scope.fromdra = $scope.getParameterByName("fromdra", "");
+        $scope.todra = $scope.getParameterByName("todra", "");
+        $scope.fromgrade = $scope.getParameterByName("fromgrade", "");
+        $scope.tograde = $scope.getParameterByName("tograde", "");
+        $scope.fromfountaspinnell = $scope.getParameterByName("fromfountaspinnell", "");
+        $scope.tofountaspinnell = $scope.getParameterByName("tofountaspinnell", "");
+        $scope.fromage = $scope.getParameterByName("fromage", "");
+        $scope.toage = $scope.getParameterByName("toage", "");
+        $scope.fromreadingrecovery = $scope.getParameterByName("fromreadingrecovery", "");
+        $scope.toreadingrecovery = $scope.getParameterByName("toreadingrecovery", "");
+        $scope.frompmreaders = $scope.getParameterByName("frompmreaders", "");
+        $scope.topmreaders = $scope.getParameterByName("topmreaders", "");
         $scope.filter = $scope.getParameterByName("filter", "");
         $scope.read = $scope.getParameterByName("read", "both");
         $scope.reference = $scope.getParameterByName("reference", "both");
@@ -40,18 +40,18 @@ angular.module('libraryOrganizer')
         $scope.loaned = $scope.getParameterByName("loaned", "no");
         $scope.shipping = $scope.getParameterByName("shipping", "no");
         $scope.reading = $scope.getParameterByName("reading", "no");
-        $scope.gridSelectedLibraries = $scope.getParameterByName("gridselectedlibraries", "").split(',')
+        $scope.gridSelectedLibraries = $scope.getParameterByName("gridselectedlibraries", "").split(',');
         $scope.libraries = [];
         $scope.output = [];
         $scope.isFiltersOpen = false;
         $scope.forms = {};
         $scope.stringLibraryIds = function() {
             var retval = "";
-            for (o in $scope.output) {
+            for (var o in $scope.output) {
                 if ($scope.output[o].children.length == 0 && $scope.output[o].selected) {
                     retval += $scope.output[o].id + ",";
                 } else {
-                    for (l in $scope.output[o].children) {
+                    for (var l in $scope.output[o].children) {
                         if ($scope.output[o].children[l].selected) {
                             retval += $scope.output[o].children[l].id + ",";
                         }
@@ -59,14 +59,14 @@ angular.module('libraryOrganizer')
                 }
             }
             if (retval.endsWith(",")) {
-                retval = retval.substring(0, retval.length - 1)
+                retval = retval.substring(0, retval.length - 1);
             }
             return retval;
-        }
+        };
         $scope.updateRecieved = function() {
             if (!$scope.forms.sortAndFilter || $scope.forms.sortAndFilter.$valid) {
                 var loadingName = $scope.guid();
-                $scope.addToLoading(loadingName)
+                $scope.addToLoading(loadingName);
                 $scope.gridSelectedLibraries = $scope.stringLibraryIds();
                 var params = {
                     sort: $scope.sort,
@@ -106,8 +106,8 @@ angular.module('libraryOrganizer')
                     shipping: $scope.shipping,
                     reading: $scope.reading,
                     gridselectedlibraries: $scope.gridSelectedLibraries
-                }
-                $scope.setParameters(params)
+                };
+                $scope.setParameters(params);
                 $http({
                     url: '/books',
                     method: 'GET',
@@ -153,8 +153,8 @@ angular.module('libraryOrganizer')
                     }
                 }).then(function(response) {
                     $scope.books = response.data.books;
-                    for (b in $scope.books) {
-                        for (c in $scope.books[b].contributors) {
+                    for (var b in $scope.books) {
+                        for (var c in $scope.books[b].contributors) {
                             $scope.books[b].contributors[c].editing = false;
                         }
                     }
@@ -181,7 +181,7 @@ angular.module('libraryOrganizer')
             return Math.ceil($scope.numberOfBooks / $scope.numberToGet);
         };
         $scope.toggleFilters = function() {
-            $scope.isFiltersOpen = !$scope.isFiltersOpen
+            $scope.isFiltersOpen = !$scope.isFiltersOpen;
         };
         $scope.addBook = function(ev) {
             var book = {
@@ -273,12 +273,12 @@ angular.module('libraryOrganizer')
                     "Valid": false
                 },
                 "notes": ""
-            }
+            };
             $scope.showEditDialog(ev, book, $scope, 'gridadd');
-        }
+        };
         $scope.updateLibraries = function() {
             var loadingName = $scope.guid();
-            $scope.addToLoading(loadingName)
+            $scope.addToLoading(loadingName);
             $http({
                 url: '/libraries',
                 method: 'GET'
@@ -286,7 +286,7 @@ angular.module('libraryOrganizer')
                 $scope.libraries = response.data;
                 var data = [];
                 var libStructure = {};
-                for (l in $scope.libraries) {
+                for (var l in $scope.libraries) {
                     if (!libStructure[$scope.libraries[l].owner]) {
                         libStructure[$scope.libraries[l].owner] = [];
                     }
@@ -297,9 +297,9 @@ angular.module('libraryOrganizer')
                         selected: $.inArray($scope.libraries[l].id + "", $scope.gridSelectedLibraries) != -1
                     });
                 }
-                for (k in libStructure) {
+                for (var k in libStructure) {
                     if ((!$scope.gridSelectedLibraries || !$scope.gridSelectedLibraries[0]) && !$scope.currentLibraryId && k == $scope.username) {
-                        $scope.currentLibraryId = libStructure[k][0].id
+                        $scope.currentLibraryId = libStructure[k][0].id;
                         libStructure[k][0].selected = true;
                     }
                     data.push({
@@ -307,7 +307,7 @@ angular.module('libraryOrganizer')
                         name: k,
                         children: libStructure[k],
                         selected: false
-                    })
+                    });
                 }
                 $scope.libraries = angular.copy(data);
                 $scope.output = angular.copy($scope.libraries);
@@ -315,14 +315,14 @@ angular.module('libraryOrganizer')
             }, function(response) {
                 $mdToast.showSimple("Failed to get list of libraries");
                 $scope.removeFromLoading(loadingName);
-            });;
+            });
         };
         $scope.chooseLibrary = function($ev) {
-            $scope.showLibraryChooserDialog($ev, $scope, true)
-        }
+            $scope.showLibraryChooserDialog($ev, $scope, true);
+        };
         $scope.$watch('output', function() {
             $scope.updateRecieved();
-        })
+        });
         $scope.updateLibraries();
         $scope.getBookIcon = function(book) {
             if (book.library.owner == $scope.username) {
@@ -334,7 +334,7 @@ angular.module('libraryOrganizer')
             } else if ((book.library.permissions & 1) == 1) {
                 return "web/res/view.svg";
             }
-        }
+        };
         $scope.scan = function(ev) {
             $mdDialog.show({
                 controller: 'scanController',
@@ -347,13 +347,13 @@ angular.module('libraryOrganizer')
                     vm: $scope
                 }
             });
-        }
+        };
         $scope.searchByISBN = function(isbn) {
             // 1. Query for isbn in current libraries
             // 2a. If not found, return false and display
             // 2b. If found, close the dialog and navigate to the book
-        }
-        $scope.lexilecodes = ["AD", "NC", "HL", "IG", "GN", "BR", "NP"]
+        };
+        $scope.lexilecodes = ["AD", "NC", "HL", "IG", "GN", "BR", "NP"];
         $scope.interestlevels = [{
             name: "",
             value: ""
@@ -369,7 +369,7 @@ angular.module('libraryOrganizer')
         }, {
             name: "UG",
             value: 3
-        }]
+        }];
         $scope.letters = [{
             name: "",
             value: ""
@@ -451,7 +451,7 @@ angular.module('libraryOrganizer')
         }, {
             name: "Z",
             value: 25
-        }]
+        }];
         $scope.learningazlevels = [{
             name: "",
             value: ""
@@ -542,7 +542,7 @@ angular.module('libraryOrganizer')
         }, {
             name: "Z2",
             value: 27
-        }]
+        }];
         $scope.grades = [{
             name: "",
             value: ""
@@ -588,5 +588,5 @@ angular.module('libraryOrganizer')
         }, {
             name: "12",
             value: 13
-        }]
+        }];
     });

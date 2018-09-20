@@ -61,7 +61,6 @@ angular.module('libraryOrganizer')
             });
             $vm.getSettingByName('Grade', function(value) {
                 $scope.book.grade.Int64 = value;
-                6
             });
             $vm.getSettingByName('Fountas Spinnell', function(value) {
                 $scope.book.fountaspinnell.Int64 = value;
@@ -162,14 +161,14 @@ angular.module('libraryOrganizer')
             return $http({
                 url: '/libraries'
             }).then(function(response) {
-                for (l in response.data) {
+                for (var l in response.data) {
                     if ((response.data[l].permissions & 4) == 4) {
-                        $scope.libraries.push(response.data[l])
+                        $scope.libraries.push(response.data[l]);
                     }
                 }
-                for (l in $scope.libraries) {
+                for (var l in $scope.libraries) {
                     if ($scope.libraries[l].owner != username) {
-                        $scope.libraries[l].display = $scope.libraries[l].name + " (" + $scope.libraries[l].owner + ")"
+                        $scope.libraries[l].display = $scope.libraries[l].name + " (" + $scope.libraries[l].owner + ")";
                     } else {
                         if (!$scope.book.library.id) {
                             $scope.book.library.id = $scope.libraries[l].id;
@@ -177,7 +176,7 @@ angular.module('libraryOrganizer')
                             $scope.book.library.permissions = $scope.libraries[l].permissions;
                             $scope.book.library.owner = $scope.libraries[l].owner;
                         }
-                        $scope.libraries[l].display = $scope.libraries[l].name
+                        $scope.libraries[l].display = $scope.libraries[l].name;
                     }
                 }
             }, function(response) {
@@ -216,38 +215,38 @@ angular.module('libraryOrganizer')
         $scope.pastingurl = false;
         $scope.save = function(book) {
             var loadingName = $vm.guid();
-            $vm.addToLoading(loadingName)
+            $vm.addToLoading(loadingName);
             $scope.convertIsbn();
             book.volume = parseFloat(book.volume);
-            book.edition = parseInt(book.edition);
-            book.pages = parseInt(book.pages);
-            book.width = parseInt(book.width);
-            book.height = parseInt(book.height);
-            book.depth = parseInt(book.depth);
+            book.edition = parseInt(book.edition, 10);
+            book.pages = parseInt(book.pages, 10);
+            book.width = parseInt(book.width, 10);
+            book.height = parseInt(book.height, 10);
+            book.depth = parseInt(book.depth, 10);
             book.weight = parseFloat(book.weight);
-            book.lexile.Valid = isNaN(book.lexile.Int64)
-            book.lexile.Int64 = isNaN(book.lexile.Int64) ? 0 : parseInt(book.lexile.Int64);
+            book.lexile.Valid = isNaN(book.lexile.Int64);
+            book.lexile.Int64 = isNaN(book.lexile.Int64) ? 0 : parseInt(book.lexile.Int64, 10);
             book.lexilecode = book.lexilecode ? book.lexilecode : $scope.lexileSearchText;
-            book.interestlevel.Valid = book.interestlevel.Int64 != ""
-            book.interestlevel.Int64 = book.interestlevel.Int64 == "" ? 0 : parseInt(book.interestlevel.Int64);
-            book.ar.Valid = isNaN(book.ar.Float64)
+            book.interestlevel.Valid = book.interestlevel.Int64 != "";
+            book.interestlevel.Int64 = book.interestlevel.Int64 == "" ? 0 : parseInt(book.interestlevel.Int64, 10);
+            book.ar.Valid = isNaN(book.ar.Float64);
             book.ar.Float64 = isNaN(book.ar.Float64) ? 0 : parseFloat(book.ar.Float64);
-            book.learningaz.Valid = book.learningaz.Int64 != ""
-            book.learningaz.Int64 = book.learningaz.Int64 == "" ? 0 : parseInt(book.learningaz.Int64);
-            book.guidedreading.Valid = book.guidedreading.Int64 != ""
-            book.guidedreading.Int64 = book.guidedreading.Int64 == "" ? 0 : parseInt(book.guidedreading.Int64);
-            book.dra.Valid = isNaN(book.dra.Int64)
-            book.dra.Int64 = isNaN(book.dra.Int64) ? 0 : parseInt(book.dra.Int64);
-            book.grade.Valid = book.grade.Int64 != ""
-            book.grade.Int64 = book.grade.Int64 == "" ? 0 : parseInt(book.grade.Int64);
-            book.fountaspinnell.Valid = book.fountaspinnell.Int64 != ""
-            book.fountaspinnell.Int64 = book.fountaspinnell.Int64 == "" ? 0 : parseInt(book.fountaspinnell.Int64);
-            book.age.Valid = isNaN(book.age.Int64)
-            book.age.Int64 = isNaN(book.age.Int64) ? 0 : parseInt(book.age.Int64);
-            book.readingrecovery.Valid = isNaN(book.readingrecovery.Int64)
-            book.readingrecovery.Int64 = isNaN(book.readingrecovery.Int64) ? 0 : parseInt(book.readingrecovery.Int64);
-            book.pmreaders.Valid = isNaN(book.pmreaders.Int64)
-            book.pmreaders.Int64 = isNaN(book.pmreaders.Int64) ? 0 : parseInt(book.pmreaders.Int64);
+            book.learningaz.Valid = book.learningaz.Int64 != "";
+            book.learningaz.Int64 = book.learningaz.Int64 == "" ? 0 : parseInt(book.learningaz.Int64, 10);
+            book.guidedreading.Valid = book.guidedreading.Int64 != "";
+            book.guidedreading.Int64 = book.guidedreading.Int64 == "" ? 0 : parseInt(book.guidedreading.Int64, 10);
+            book.dra.Valid = isNaN(book.dra.Int64);
+            book.dra.Int64 = isNaN(book.dra.Int64) ? 0 : parseInt(book.dra.Int64, 10);
+            book.grade.Valid = book.grade.Int64 != "";
+            book.grade.Int64 = book.grade.Int64 == "" ? 0 : parseInt(book.grade.Int64, 10);
+            book.fountaspinnell.Valid = book.fountaspinnell.Int64 != "";
+            book.fountaspinnell.Int64 = book.fountaspinnell.Int64 == "" ? 0 : parseInt(book.fountaspinnell.Int64, 10);
+            book.age.Valid = isNaN(book.age.Int64);
+            book.age.Int64 = isNaN(book.age.Int64) ? 0 : parseInt(book.age.Int64, 10);
+            book.readingrecovery.Valid = isNaN(book.readingrecovery.Int64);
+            book.readingrecovery.Int64 = isNaN(book.readingrecovery.Int64) ? 0 : parseInt(book.readingrecovery.Int64, 10);
+            book.pmreaders.Valid = isNaN(book.pmreaders.Int64);
+            book.pmreaders.Int64 = isNaN(book.pmreaders.Int64) ? 0 : parseInt(book.pmreaders.Int64, 10);
             book.originallypublished = book.originallypublished + '-01-01';
             book.editionpublished = book.editionpublished + '-01-01';
             book.series = book.series ? book.series : $scope.seriesSearchText;
@@ -259,12 +258,12 @@ angular.module('libraryOrganizer')
             if (book.dewey.String == "0" || book.dewey.String == "00") {
                 book.dewey.String = "000";
             }
-            book.dewey.Valid = book.dewey.String != "" || book.dewey.String == "000"
+            book.dewey.Valid = book.dewey.String != "" || book.dewey.String == "000";
             book.primarylanguage = book.primarylanguage ? book.primarylanguage : $scope.primaryLanguageSearchText;
             book.secondarylanguage = book.secondarylanguage ? book.secondarylanguage : $scope.secondaryLanguageSearchText;
             book.originallanguage = book.originallanguage ? book.originallanguage : $scope.originalLanguageSearchText;
             var method = book.bookid ? 'PUT' : 'POST';
-            console.log(book)
+            console.log(book);
             $http({
                 url: '/books',
                 method: method,
@@ -280,21 +279,21 @@ angular.module('libraryOrganizer')
                     $vm.updateRecieved();
                 }
                 if (method == "PUT") {
-                    $mdToast.showSimple("Successfully added book")
+                    $mdToast.showSimple("Successfully added book");
                 } else {
-                    $mdToast.showSimple("Successfully saved book")
+                    $mdToast.showSimple("Successfully saved book");
                 }
                 $vm.removeFromLoading(loadingName);
                 $mdDialog.cancel();
             }, function(response) {
                 if (method == "PUT") {
-                    $mdToast.showSimple("Failed to add book")
+                    $mdToast.showSimple("Failed to add book");
                 } else {
-                    $mdToast.showSimple("Failed to save book")
+                    $mdToast.showSimple("Failed to save book");
                 }
                 $vm.removeFromLoading(loadingName);
             });
-        }
+        };
         $scope.remove = function(book) {
             var confirm = $mdDialog.confirm()
                 .title('Really Remove Book?')
@@ -304,7 +303,7 @@ angular.module('libraryOrganizer')
                 .cancel('Cancel');
             $mdDialog.show(confirm).then(function() {
                 var loadingName = $vm.guid();
-                $vm.addToLoading(loadingName)
+                $vm.addToLoading(loadingName);
                 $http({
                     url: '/books',
                     method: 'DELETE',
@@ -317,21 +316,21 @@ angular.module('libraryOrganizer')
                     } else if (viewType == 'grid') {
                         $vm.$parent.$parent.updateRecieved();
                     }
-                    $mdToast.showSimple("Successfully removed book")
+                    $mdToast.showSimple("Successfully removed book");
                     $vm.removeFromLoading(loadingName);
                     $mdDialog.cancel();
                 }, function(response) {
-                    $mdToast.showSimple("Failed to remove book")
+                    $mdToast.showSimple("Failed to remove book");
                     $vm.removeFromLoading(loadingName);
-                })
+                });
             });
-        }
+        };
         $scope.cancel = function() {
             $mdDialog.cancel();
         };
         $scope.removeContributor = function(index) {
             $scope.book.contributors.splice(index, 1);
-        }
+        };
         $scope.addContributor = function() {
             $scope.book.contributors.push(angular.copy($scope.newContributor));
             $scope.newContributor = {
@@ -342,11 +341,11 @@ angular.module('libraryOrganizer')
                     last: 'Last'
                 }
             };
-        }
+        };
         $scope.cancelPastingURL = function() {
             $scope.pastingurl = false;
             $scope.book.imageurl = $scope.oldUrl;
-        }
+        };
         $scope.query = function(f, str) {
             return $http({
                 url: '/information/' + f.toLowerCase(),
@@ -360,15 +359,15 @@ angular.module('libraryOrganizer')
                 $mdToast.showSimple("Failed to retrieve list of " + f);
                 return [];
             });
-        }
+        };
         $scope.log = function(item) {
-            console.log(item)
-        }
+            console.log(item);
+        };
         $scope.convertIsbn = function() {
             if ($scope.book.isbn.length == 10 && $scope.isValidIsbn($scope.book.isbn)) {
                 $scope.book.isbn = $scope.isbn10to13($scope.book.isbn);
             }
-        }
+        };
         $scope.isbn10to13 = function(isbn10) {
             var chars = isbn10.split("");
             chars.unshift("9", "7", "8");
@@ -382,38 +381,40 @@ angular.module('libraryOrganizer')
             chars.push(check_digit);
             var isbn13 = chars.join("");
             return isbn13;
-        }
+        };
         $scope.isValidIsbn = function(isbn) {
             if (isbn.length == 0) {
                 return true;
             }
             valid = false;
             isbn = isbn.replace(/[^\dX]/gi, '');
+            var chars;
+            var sum;
             if (isbn.length == 10) {
-                var chars = isbn.split('');
+                chars = isbn.split('');
                 if (chars[9].toUpperCase() == 'X') {
                     chars[9] = 10;
                 }
-                var sum = 0;
-                for (var i = 0; i < chars.length; i++) {
-                    sum += ((10 - i) * parseInt(chars[i]));
+                sum = 0;
+                for (var i = 0; i < chars.length; i += 1) {
+                    sum += ((10 - i) * parseInt(chars[i], 10));
                 }
                 valid = (sum % 11 == 0);
             } else if (isbn.length == 13) {
-                var chars = isbn.split('');
-                var sum = 0;
-                for (var i = 0; i < chars.length; i++) {
+                chars = isbn.split('');
+                sum = 0;
+                for (var j = 0; j < chars.length; j += 1) {
                     if (i % 2 == 0) {
-                        sum += parseInt(chars[i]);
+                        sum += parseInt(chars[j], 10);
                     } else {
-                        sum += parseInt(chars[i]) * 3;
+                        sum += parseInt(chars[j], 10) * 3;
                     }
                 }
                 valid = (sum % 10 == 0);
             }
             return valid;
-        }
-        $scope.lexilecodes = ["", "AD", "NC", "HL", "IG", "GN", "BR", "NP"]
+        };
+        $scope.lexilecodes = ["", "AD", "NC", "HL", "IG", "GN", "BR", "NP"];
         $scope.interestlevels = [{
             name: "",
             value: ""
@@ -429,7 +430,7 @@ angular.module('libraryOrganizer')
         }, {
             name: "UG",
             value: 3
-        }]
+        }];
         $scope.letters = [{
             name: "",
             value: ""
@@ -511,7 +512,7 @@ angular.module('libraryOrganizer')
         }, {
             name: "Z",
             value: 25
-        }]
+        }];
         $scope.learningazlevels = [{
             name: "",
             value: ""
@@ -602,7 +603,7 @@ angular.module('libraryOrganizer')
         }, {
             name: "Z2",
             value: 27
-        }]
+        }];
         $scope.grades = [{
             name: "",
             value: ""
@@ -648,5 +649,5 @@ angular.module('libraryOrganizer')
         }, {
             name: "12",
             value: 13
-        }]
+        }];
     });

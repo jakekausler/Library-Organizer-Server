@@ -1,15 +1,15 @@
 angular.module('libraryOrganizer')
     .controller('statisticsController', function($scope, $mdToast, $http) {
-        $scope.statSelectedLibraries = $scope.getParameterByName("statsselectedlibraries", "").split(',')
+        $scope.statSelectedLibraries = $scope.getParameterByName("statsselectedlibraries", "").split(',');
         $scope.libraries = [];
         $scope.output = [];
         $scope.stringLibraryIds = function() {
             var retval = "";
-            for (o in $scope.output) {
+            for (var o in $scope.output) {
                 if ($scope.output[o].children.length == 0 && $scope.output[o].selected) {
                     retval += $scope.output[o].id + ",";
                 } else {
-                    for (l in $scope.output[o].children) {
+                    for (var l in $scope.output[o].children) {
                         if ($scope.output[o].children[l].selected) {
                             retval += $scope.output[o].children[l].id + ",";
                         }
@@ -17,18 +17,18 @@ angular.module('libraryOrganizer')
                 }
             }
             if (retval.endsWith(",")) {
-                retval = retval.substring(0, retval.length - 1)
+                retval = retval.substring(0, retval.length - 1);
             }
             return retval;
-        }
+        };
         $scope.dimensions = {};
         $scope.updateDimensions = function() {
             var loadingName = $scope.guid();
-            $scope.addToLoading(loadingName)
+            $scope.addToLoading(loadingName);
             $scope.statSelectedLibraries = $scope.stringLibraryIds();
             $scope.setParameters({
                 statsselectedlibraries: $scope.statSelectedLibraries
-            })
+            });
             $http({
                 url: '/information/dimensions',
                 method: 'GET',
@@ -37,12 +37,12 @@ angular.module('libraryOrganizer')
                 }
             }).then(function(response) {
                 $scope.dimensions = response.data;
-                $scope.removeFromLoading(loadingName)
+                $scope.removeFromLoading(loadingName);
             }, function(response) {
                 $mdToast.showSimple("Failed to get dimension data");
                 $scope.removeFromLoading(loadingName);
             });
-        }
+        };
         $scope.chartData = {};
         $scope.getChartData = function(chartType, caption, subcaption, labelDisplay, formatNumberScale, numberSuffix, decimals) {
             var loadingName = $scope.guid();
@@ -62,23 +62,23 @@ angular.module('libraryOrganizer')
                     formatNumberScale: formatNumberScale ? formatNumberScale : undefined,
                     numberSuffix: numberSuffix ? numberSuffix : undefined,
                     decimals: decimals ? decimals : undefined
-                }
+                };
                 if (response.data.total) {
-                    $scope.chartData.chart.caption += " (Total: " + response.data.total + ")"
+                    $scope.chartData.chart.caption += " (Total: " + response.data.total + ")";
                 }
                 $scope.chartData.data = response.data.data;
                 $scope.removeFromLoading(loadingName);
             }, function(response) {
-                chartData = {}
+                chartData = {};
                 $mdToast.showSimple("Failed to update chart");
                 $scope.removeFromLoading(loadingName);
-            })
-        }
+            });
+        };
         $scope.setStatView = function(view) {
             $scope.statView = view;
             $scope.setParameters({
                 'statview': view
-            })
+            });
             switch (view) {
                 case 'general':
                     $scope.setStatSubView('generalbycounts');
@@ -118,13 +118,13 @@ angular.module('libraryOrganizer')
                     $scope.setStatSubView('award');
                     break;
             }
-        }
+        };
         $scope.setStatSubView = function(view) {
             if (view) {
                 $scope.statSubView = view;
                 $scope.setParameters({
                     'statsubview': view
-                })
+                });
                 var caption = "";
                 var subcaption = "";
                 var labelDisplay = "rotate";
@@ -207,7 +207,6 @@ angular.module('libraryOrganizer')
                         caption = "Books by Lexile Grade Level";
                         subcaption = "Taken from Common Core State Standards for English, Language Arts, Appendix A (Additional Information), NGA and CCSSO, 2012";
                         break;
-                        break;
                     case "tag":
                         formatNumberScale = "0";
                         caption = "Books by Tag";
@@ -219,33 +218,33 @@ angular.module('libraryOrganizer')
                 }
                 $scope.getChartData(view, caption, subcaption, labelDisplay, formatNumberScale, numberSuffix, decimals);
             }
-        }
+        };
         $scope.setSelected = function(data) {
-            for (d in data) {
+            for (var d in data) {
                 if (data[d].selected) {
-                    $scope.setMatchedId(data[d].id, $scope.libraries)
+                    $scope.setMatchedId(data[d].id, $scope.libraries);
                 }
-                $scope.setSelected(data[d].children)
+                $scope.setSelected(data[d].children);
             }
         };
         $scope.setMatchedId = function(id, data) {
-            for (d in data) {
+            for (var d in data) {
                 if (data[d].id == id) {
                     data[d].selected = true;
                 }
             }
-        }
+        };
         $scope.updateLibraries = function() {
             var loadingName = $scope.guid();
-            $scope.addToLoading(loadingName)
+            $scope.addToLoading(loadingName);
             $http({
                 url: '/libraries',
                 method: 'GET'
             }).then(function(response) {
                 $scope.libraries = response.data;
                 var data = [];
-                var libStructure = {}
-                for (l in $scope.libraries) {
+                var libStructure = {};
+                for (var l in $scope.libraries) {
                     if (!libStructure[$scope.libraries[l].owner]) {
                         libStructure[$scope.libraries[l].owner] = [];
                     }
@@ -256,9 +255,9 @@ angular.module('libraryOrganizer')
                         selected: $.inArray($scope.libraries[l].id + "", $scope.statSelectedLibraries) != -1
                     });
                 }
-                for (k in libStructure) {
+                for (var k in libStructure) {
                     if ((!$scope.statSelectedLibraries || !$scope.statSelectedLibraries[0]) && !$scope.currentLibraryId && k == $scope.username) {
-                        $scope.currentLibraryId = libStructure[k][0].id
+                        $scope.currentLibraryId = libStructure[k][0].id;
                         libStructure[k][0].selected = true;
                     }
                     data.push({
@@ -266,14 +265,14 @@ angular.module('libraryOrganizer')
                         name: k,
                         children: libStructure[k],
                         selected: false
-                    })
+                    });
                 }
                 $scope.libraries = angular.copy(data);
                 $scope.output = angular.copy($scope.libraries);
                 $scope.updateDimensions();
                 $scope.setStatView($scope.getParameterByName("statview", "general"));
                 $scope.setStatSubView($scope.getParameterByName("statsubview", ""));
-                $scope.removeFromLoading(loadingName)
+                $scope.removeFromLoading(loadingName);
             }, function(response) {
                 $mdToast.showSimple("Failed to get list of libraries");
                 $scope.removeFromLoading(loadingName);
@@ -281,8 +280,8 @@ angular.module('libraryOrganizer')
         };
         $scope.updateLibraries();
         $scope.chooseLibrary = function($ev) {
-            $scope.showLibraryChooserDialog($ev, $scope, true)
-        }
+            $scope.showLibraryChooserDialog($ev, $scope, true);
+        };
         $scope.$watch('output', function() {
             $scope.updateDimensions();
         });

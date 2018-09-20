@@ -2,11 +2,11 @@ angular.module('libraryOrganizer')
     .controller('exportController', function($scope, $mdDialog, $http, vm) {
         $scope.vm = vm;
         $scope.cancel = function() {
-            $mdDialog.cancel()
+            $mdDialog.cancel();
         };
         $scope.export = function() {
             var booksloadingname = $scope.vm.guid();
-            $scope.vm.addToLoading(booksloadingname)
+            $scope.vm.addToLoading(booksloadingname);
             $http({
                 url: '/books/books',
                 method: 'GET'
@@ -23,7 +23,7 @@ angular.module('libraryOrganizer')
                 $vm.removeFromLoading(loadingName);
             });
             var authorsloadingname = $scope.vm.guid();
-            $scope.vm.addToLoading(authorsloadingname)
+            $scope.vm.addToLoading(authorsloadingname);
             $http({
                 url: '/books/contributors',
                 method: 'GET'
@@ -39,6 +39,6 @@ angular.module('libraryOrganizer')
                 $mdToast.showSimple("Failed to export authors");
                 $vm.removeFromLoading(loadingName);
             });
-            $mdDialog.cancel()
+            $mdDialog.cancel();
         };
     });

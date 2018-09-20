@@ -7,7 +7,7 @@ angular.module('libraryOrganizer')
         $scope.updateBook = function() {
             if ($scope.book.bookid) {
                 var loadingName = $scope.vm.guid();
-                $scope.vm.addToLoading(loadingName)
+                $scope.vm.addToLoading(loadingName);
                 $http({
                     url: 'books/' + $scope.book.bookid,
                     method: 'GET'
@@ -20,11 +20,11 @@ angular.module('libraryOrganizer')
                 }, function(response) {
                     $mdToast.showSimple("Failed to retrieve book information");
                     $vm.removeFromLoading(loadingName);
-                    $scope.cancel()
-                })
+                    $scope.cancel();
+                });
             }
-        }
-        $scope.updateBook()
+        };
+        $scope.updateBook();
         $scope.checkout = function(ev) {
             var d = $mdDialog.confirm()
                 .title("Are you sure you would like to checkout this book?")
@@ -35,7 +35,7 @@ angular.module('libraryOrganizer')
                 .cancel("Cancel");
             $mdDialog.show(d).then(function() {
                 var loadingName = $scope.vm.guid();
-                $scope.vm.addToLoading(loadingName)
+                $scope.vm.addToLoading(loadingName);
                 $http({
                     url: 'books/checkout',
                     method: 'PUT',
@@ -50,18 +50,18 @@ angular.module('libraryOrganizer')
                     } else if ($scope.viewType == 'scanadd') {
                         $scope.vm.$parent.$parent.updateRecieved();
                     }
-                    $mdToast.showSimple("Successfully checked out book")
+                    $mdToast.showSimple("Successfully checked out book");
                     $scope.vm.removeFromLoading(loadingName);
-                    $scope.cancel()
+                    $scope.cancel();
                 }, function(response) {
                     $mdToast.showSimple("Failed to check out book");
                     $vm.removeFromLoading(loadingName);
-                    $scope.cancel()
-                })
+                    $scope.cancel();
+                });
             }, function() {
-                $scope.cancel()
+                $scope.cancel();
             });
-        }
+        };
         $scope.checkin = function(ev) {
             var d = $mdDialog.confirm()
                 .title("Are you sure you would like to return this book?")
@@ -72,7 +72,7 @@ angular.module('libraryOrganizer')
                 .cancel("Cancel");
             $mdDialog.show(d).then(function() {
                 var loadingName = $scope.vm.guid();
-                $scope.vm.addToLoading(loadingName)
+                $scope.vm.addToLoading(loadingName);
                 $http({
                     url: 'books/checkin',
                     method: 'PUT',
@@ -87,33 +87,33 @@ angular.module('libraryOrganizer')
                     } else if ($scope.viewType == 'scanadd') {
                         $scope.vm.$parent.$parent.updateRecieved();
                     }
-                    $mdToast.showSimple("Returned book")
+                    $mdToast.showSimple("Returned book");
                     $scope.vm.removeFromLoading(loadingName);
-                    $scope.cancel()
+                    $scope.cancel();
                 }, function(response) {
                     $mdToast.showSimple("Failed to return book");
                     $vm.removeFromLoading(loadingName);
-                    $scope.cancel()
-                })
+                    $scope.cancel();
+                });
             }, function() {
-                $scope.cancel()
+                $scope.cancel();
             });
-        }
+        };
         $scope.edit = function(ev) {
             $scope.vm.showEditDialog(ev, $scope.book, $scope.vm, $scope.viewType);
-        }
+        };
         $scope.cancel = function() {
             $mdDialog.cancel();
         };
         $scope.contributors = '';
         $scope.getContributors = function() {
-            var contrib = []
-            for (c in $scope.book.contributors) {
+            var contrib = [];
+            for (var c in $scope.book.contributors) {
                 c = $scope.book.contributors[c];
-                contrib.push(c.name.first + " " + c.name.middles.replace(";", " ") + " " + c.name.last + " (" + c.role + ")")
+                contrib.push(c.name.first + " " + c.name.middles.replace(";", " ") + " " + c.name.last + " (" + c.role + ")");
             }
             $scope.contributors = contrib.join(', ');
-        }
+        };
         $scope.originallypublished = $scope.book.originallypublished;
         if ($scope.book.editionpublished == $scope.originallypublished || !$scope.book.editionpublished) {
             $scope.editionpublished = $scope.originallypublished;
@@ -132,13 +132,13 @@ angular.module('libraryOrganizer')
             book.library.id = '';
             book.bookid = '';
             $scope.vm.showEditDialog(ev, book, $scope.vm, $scope.viewType);
-        }
+        };
         $scope.averageRating = -1;
         $scope.userRating = 0;
         $scope.numRatings = 0;
         $scope.updateRating = function() {
             var loadingName = $scope.vm.guid();
-            $scope.vm.addToLoading(loadingName)
+            $scope.vm.addToLoading(loadingName);
             $http({
                 url: 'books/' + $scope.book.bookid + "/ratings",
                 method: 'GET'
@@ -146,11 +146,11 @@ angular.module('libraryOrganizer')
                 if (response.data) {
                     $scope.numRatings = response.data.length;
                     $scope.averageRating = 0.0;
-                    for (i in response.data) {
+                    for (var i in response.data) {
                         if ($scope.username == response.data[i].username) {
                             $scope.userRating = response.data[i].rating;
                         }
-                        $scope.averageRating += response.data[i].rating
+                        $scope.averageRating += response.data[i].rating;
                     }
                     $scope.averageRating /= response.data.length;
                 } else {
@@ -160,25 +160,25 @@ angular.module('libraryOrganizer')
             }, function(response) {
                 $mdToast.showSimple("Failed to get ratings");
                 $vm.removeFromLoading(loadingName);
-            })
-        }
-        $scope.updateRating()
+            });
+        };
+        $scope.updateRating();
         $scope.rate = function() {
             var loadingName = $scope.vm.guid();
-            $scope.vm.addToLoading(loadingName)
+            $scope.vm.addToLoading(loadingName);
             $http({
                 url: 'books/' + $scope.book.bookid + "/ratings",
                 method: 'PUT',
                 data: JSON.stringify($scope.userRating)
             }).then(function(response) {
-                $mdToast.showSimple("Successfully rated book")
+                $mdToast.showSimple("Successfully rated book");
                 $scope.updateRating();
                 $scope.vm.removeFromLoading(loadingName);
             }, function(response) {
                 $mdToast.showSimple("Failed to rate book");
                 $vm.removeFromLoading(loadingName);
-            })
-        }
+            });
+        };
         $scope.reviews = [{
             username: $scope.username,
             review: '',
@@ -186,17 +186,17 @@ angular.module('libraryOrganizer')
         }];
         $scope.updateReviews = function() {
             var loadingName = $scope.vm.guid();
-            $scope.vm.addToLoading(loadingName)
+            $scope.vm.addToLoading(loadingName);
             $http({
                 url: 'books/' + $scope.book.bookid + "/reviews",
                 method: 'GET'
             }).then(function(response) {
                 if (response.data) {
-                    for (i in response.data) {
+                    for (var i in response.data) {
                         if (response.data[i].username == $scope.username) {
                             $scope.reviews[0] = response.data[i];
                         } else {
-                            $scope.reviews.push(response.data[i])
+                            $scope.reviews.push(response.data[i]);
                         }
                     }
                 } else {
@@ -210,22 +210,22 @@ angular.module('libraryOrganizer')
             }, function(response) {
                 $mdToast.showSimple("Failed to get reviews");
                 $vm.removeFromLoading(loadingName);
-            })
-        }
+            });
+        };
         $scope.saveReview = function() {
             var loadingName = $scope.vm.guid();
-            $scope.vm.addToLoading(loadingName)
+            $scope.vm.addToLoading(loadingName);
             $http({
                 url: 'books/' + $scope.book.bookid + "/reviews",
                 method: 'PUT',
                 data: JSON.stringify($scope.reviews[0].review)
             }).then(function(response) {
-                $mdToast.showSimple("Successfully reviewed book")
+                $mdToast.showSimple("Successfully reviewed book");
                 $scope.updateRating();
                 $scope.vm.removeFromLoading(loadingName);
             }, function(response) {
                 $mdToast.showSimple("Failed to review book");
                 $vm.removeFromLoading(loadingName);
-            })
-        }
-    })
+            });
+        };
+    });

@@ -14,19 +14,19 @@ angular.module('libraryOrganizer')
                 }
                 mCtrl.$parsers.push(validation);
             }
-        }
+        };
     })
     .directive('positiveIntegerInput', function() {
         return {
             require: 'ngModel',
             link: function(scope, element, attr, mCtrl) {
                 function validation(value) {
-                    mCtrl.$setValidity('positiveIntegerInput', !isNaN(value) && value > 0 && parseInt(value) == value);
+                    mCtrl.$setValidity('positiveIntegerInput', !isNaN(value) && value > 0 && parseInt(value, 10) == value);
                     return value;
                 }
                 mCtrl.$parsers.push(validation);
             }
-        }
+        };
     })
     .directive('deweyInput', function() {
         return {
@@ -42,19 +42,19 @@ angular.module('libraryOrganizer')
                 }
                 mCtrl.$parsers.push(validation);
             }
-        }
+        };
     })
     .directive('nonNegativeIntegerInput', function() {
         return {
             require: 'ngModel',
             link: function(scope, element, attr, mCtrl) {
                 function validation(value) {
-                    mCtrl.$setValidity('nonNegativeIntegerInput', !isNaN(value) && value >= 0 && parseInt(value) == value);
+                    mCtrl.$setValidity('nonNegativeIntegerInput', !isNaN(value) && value >= 0 && parseInt(value, 10) == value);
                     return value;
                 }
                 mCtrl.$parsers.push(validation);
             }
-        }
+        };
     })
     .directive('nonNegativeNumberInput', function() {
         return {
@@ -66,19 +66,19 @@ angular.module('libraryOrganizer')
                 }
                 mCtrl.$parsers.push(validation);
             }
-        }
+        };
     })
     .directive('yearInput', function() {
         return {
             require: 'ngModel',
             link: function(scope, element, attr, mCtrl) {
                 function validation(value) {
-                    mCtrl.$setValidity('yearInput', !isNaN(value) && value.length == 4 && value >= 0 && parseInt(value) == value);
+                    mCtrl.$setValidity('yearInput', !isNaN(value) && value.length == 4 && value >= 0 && parseInt(value, 10) == value);
                     return value;
                 }
                 mCtrl.$parsers.push(validation);
             }
-        }
+        };
     })
     .directive('isbnInput', function() {
         return {
@@ -90,24 +90,26 @@ angular.module('libraryOrganizer')
                     }
                     valid = false;
                     value = value.replace(/[^\dX]/gi, '');
+                    var chars;
+                    var sum;
                     if (value.length == 10) {
-                        var chars = value.split('');
+                        chars = value.split('');
                         if (chars[9].toUpperCase() == 'X') {
                             chars[9] = 10;
                         }
-                        var sum = 0;
-                        for (var i = 0; i < chars.length; i++) {
-                            sum += ((10 - i) * parseInt(chars[i]));
+                        sum = 0;
+                        for (var i = 0; i < chars.length; i += 1) {
+                            sum += ((10 - i) * parseInt(chars[i], 10));
                         }
                         valid = (sum % 11 == 0);
                     } else if (value.length == 13) {
-                        var chars = value.split('');
-                        var sum = 0;
-                        for (var i = 0; i < chars.length; i++) {
-                            if (i % 2 == 0) {
-                                sum += parseInt(chars[i]);
+                        chars = value.split('');
+                        sum = 0;
+                        for (var j = 0; j < chars.length; j += 1) {
+                            if (j % 2 == 0) {
+                                sum += parseInt(chars[j], 10);
                             } else {
-                                sum += parseInt(chars[i]) * 3;
+                                sum += parseInt(chars[j], 10) * 3;
                             }
                         }
                         valid = (sum % 10 == 0);
@@ -117,7 +119,7 @@ angular.module('libraryOrganizer')
                 }
                 mCtrl.$parsers.push(validation);
             }
-        }
+        };
     })
     .directive('appUploadFile', function() {
         var directive = {
@@ -145,4 +147,4 @@ angular.module('libraryOrganizer')
             }
         };
         return directive;
-    })
+    });

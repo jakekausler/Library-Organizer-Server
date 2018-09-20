@@ -2,11 +2,11 @@ angular.module('libraryOrganizer')
     .controller('importController', function($scope, $mdDialog, vm) {
         $scope.vm = vm;
         $scope.cancel = function() {
-            $mdDialog.cancel()
+            $mdDialog.cancel();
         };
         $scope.upload = function(file) {
             var loadingName = $scope.vm.guid();
-            $scope.vm.addToLoading(loadingName)
+            $scope.vm.addToLoading(loadingName);
             var formData = new FormData();
             formData.append('file', file);
             $.ajax({
@@ -16,11 +16,11 @@ angular.module('libraryOrganizer')
                 contentType: false,
                 processData: false,
                 success: function(response) {
-                    $mdToast.showSimple("Successfully imported books")
+                    $mdToast.showSimple("Successfully imported books");
                     $scope.vm.removeFromLoading(loadingName);
                 },
                 error: function(xhr, status, error) {
-                    $mdToast.showSimple("Failed to import books")
+                    $mdToast.showSimple("Failed to import books");
                     $scope.vm.removeFromLoading(loadingName);
                 }
             });

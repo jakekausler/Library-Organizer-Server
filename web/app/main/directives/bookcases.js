@@ -4,11 +4,11 @@ angular.module('libraryOrganizer')
             require: 'ngModel',
             template: '<div id="bookcases"></div>',
             link: function(vm, element, attrs) {
-                vm.$watch(attrs['ngModel'], function(cases) {
+                vm.$watch(attrs.ngModel, function(cases) {
                     vm.cases = cases;
                     vm.container = document.getElementById('bookcases');
                     if (vm.cases) {
-                        vm.drawShelf()
+                        vm.drawShelf();
                     }
                     // document.getElementById('bookcase-canvas').removeEventListener('keypress', vm.zoomListener);
                     // document.getElementById('bookcase-canvas').addEventListener('keypress', vm.zoomListener);
@@ -30,7 +30,7 @@ angular.module('libraryOrganizer')
                     // 	vm.drawShelf();
                     // 	break;
                     // }
-                }
+                };
                 vm.mouseclick = function(e, canvas, num) {
                     var rect = canvas.getBoundingClientRect();
                     var x = e.clientX - rect.left;
@@ -38,34 +38,34 @@ angular.module('libraryOrganizer')
                     var i = Math.floor(x / 100);
                     var j = Math.floor(y / 100);
                     if (vm.hashes[num]) {
-                        for (b in vm.hashes[num][i][j]) {
+                        for (var b in vm.hashes[num][i][j]) {
                             if (x < vm.hashes[num][i][j][b].x + vm.hashes[num][i][j][b].newwidth && x > vm.hashes[num][i][j][b].x && y < vm.hashes[num][i][j][b].y + vm.hashes[num][i][j][b].newheight && y > vm.hashes[num][i][j][b].y) {
                                 vm.$parent.showBookDialog(e, vm.hashes[num][i][j][b], vm, 'shelves');
                             }
                         }
                     }
-                }
+                };
                 vm.cases = [];
                 vm.hashes = [];
                 vm.canvas = null;
                 vm.zoom = 1;
                 vm.doBoxesIntersect = function(a, b) {
-                    return !(a.x > b.x + b.width || a.x + a.width < b.x || a.y > b.y + b.height || a.y + a.height < b.y)
-                }
+                    return !(a.x > b.x + b.width || a.x + a.width < b.x || a.y > b.y + b.height || a.y + a.height < b.y);
+                };
                 vm.drawShelf = function() {
                     vm.container.innerHTML = "";
                     var margin = 50;
                     var x = margin;
                     var y = margin;
                     var width = margin;
-                    var height = margin
+                    var height = margin;
                     caseHeights = [];
-                    for (c in vm.cases) {
+                    for (var c in vm.cases) {
                         vm.cases[c].spacerheight *= vm.zoom;
                         vm.cases[c].width *= vm.zoom;
                         vm.cases[c].bookmargin *= vm.zoom;
                         var h = vm.cases[c].spacerheight;
-                        for (s in vm.cases[c].shelves) {
+                        for (var s in vm.cases[c].shelves) {
                             vm.cases[c].shelves[s].height *= vm.zoom;
                             h += vm.cases[c].spacerheight + vm.cases[c].shelves[s].height;
                         }
@@ -73,8 +73,8 @@ angular.module('libraryOrganizer')
                             height = h;
                         }
                         caseHeights.push(h);
-                        x += vm.cases[c].spacerheight + vm.cases[c].width + vm.cases[c].spacerheight + margin
-                        width = x
+                        x += vm.cases[c].spacerheight + vm.cases[c].width + vm.cases[c].spacerheight + margin;
+                        width = x;
                     }
                     vm.container.style.width = (width + margin) + "px";
                     vm.container.style.height = (height + margin) + "px";
@@ -90,46 +90,46 @@ angular.module('libraryOrganizer')
                             vm.mouseclick(e, canvas, c);
                         });
                         hashes = [];
-                        for (i = 0; i < canvas.width / 100; i++) {
+                        for (var i = 0; i < canvas.width / 100; i += 1) {
                             hashes.push([]);
-                            for (j = 0; j < canvas.height / 100; j++) {
+                            for (var j = 0; j < canvas.height / 100; j += 1) {
                                 hashes[i].push([]);
-                                hashes[i][j] = []
+                                hashes[i][j] = [];
                             }
                         }
                         vm.hashes.push(hashes);
                         x = 0;
                         var ctx = canvas.getContext("2d");
-                        ctx.font = (vm.zoom * 10) + "px Arial"
+                        ctx.font = (vm.zoom * 10) + "px Arial";
                         y = height - caseHeights[c];
                         var wood = document.getElementById('wood');
                         if (wood) {
                             ctx.drawImage(wood, x, y, vm.cases[c].width, caseHeights[c]);
                         }
-                        for (s in vm.cases[c].shelves) {
-                            var ix = vm.cases[c].paddingleft + x + vm.cases[c].spacerheight
-                            ctx.fillRect(x, y, vm.cases[c].spacerheight, vm.cases[c].spacerheight + vm.cases[c].shelves[s].height)
-                            ctx.fillRect(x + vm.cases[c].width, y, vm.cases[c].spacerheight, vm.cases[c].spacerheight + vm.cases[c].shelves[s].height)
-                            ctx.fillRect(x + vm.cases[c].spacerheight, y, vm.cases[c].width, vm.cases[c].spacerheight)
-                            for (b in vm.cases[c].shelves[s].books) {
+                        for (var s in vm.cases[c].shelves) {
+                            var ix = vm.cases[c].paddingleft + x + vm.cases[c].spacerheight;
+                            ctx.fillRect(x, y, vm.cases[c].spacerheight, vm.cases[c].spacerheight + vm.cases[c].shelves[s].height);
+                            ctx.fillRect(x + vm.cases[c].width, y, vm.cases[c].spacerheight, vm.cases[c].spacerheight + vm.cases[c].shelves[s].height);
+                            ctx.fillRect(x + vm.cases[c].spacerheight, y, vm.cases[c].width, vm.cases[c].spacerheight);
+                            for (var b in vm.cases[c].shelves[s].books) {
                                 newWidth = vm.cases[c].shelves[s].books[b].width * vm.zoom;
                                 newHeight = vm.cases[c].shelves[s].books[b].height * vm.zoom;
-                                ctx.fillStyle = 'black'
+                                ctx.fillStyle = 'black';
                                 var bookwidth = newWidth <= 0 ? vm.cases[c].averagebookwidth * vm.zoom : newWidth;
                                 var bookheight = newHeight <= 25 ? vm.cases[c].averagebookheight * vm.zoom : newHeight;
-                                ctx.fillRect(ix, y - bookheight + vm.cases[c].shelves[s].height + vm.cases[c].spacerheight, bookwidth, bookheight)
+                                ctx.fillRect(ix, y - bookheight + vm.cases[c].shelves[s].height + vm.cases[c].spacerheight, bookwidth, bookheight);
                                 ctx.fillStyle = vm.cases[c].shelves[s].books[b].spinecolor;
-                                ctx.fillRect(ix + 1 * vm.zoom, y - bookheight + vm.cases[c].shelves[s].height + vm.cases[c].spacerheight + 1 * vm.zoom, bookwidth - 2 * vm.zoom, bookheight - 2 * vm.zoom)
+                                ctx.fillRect(ix + 1 * vm.zoom, y - bookheight + vm.cases[c].shelves[s].height + vm.cases[c].spacerheight + 1 * vm.zoom, bookwidth - 2 * vm.zoom, bookheight - 2 * vm.zoom);
                                 ctx.save();
                                 ctx.translate(ix + bookwidth / 2, y + vm.cases[c].shelves[s].height + vm.cases[c].spacerheight - 2 * vm.zoom);
                                 ctx.rotate(-Math.PI / 2);
                                 ctx.textAlign = "left";
                                 ctx.textBaseline = "middle";
-                                ctx.fillStyle = 'black'
+                                ctx.fillStyle = 'black';
                                 var text = vm.cases[c].shelves[s].books[b].title;
                                 if (ctx.measureText(text).width > bookheight - 4 * vm.zoom) {
                                     while (ctx.measureText(text + '...').width > bookheight - 4 * vm.zoom) {
-                                        text = text.substring(0, text.length - 2)
+                                        text = text.substring(0, text.length - 2);
                                     }
                                     text = text + '...';
                                 }
@@ -140,7 +140,7 @@ angular.module('libraryOrganizer')
                                     parseInt(converted[3], 16)
                                 ] : null;
                                 if (converted) {
-                                    var o = Math.round(((parseInt(rgb[0]) * 299) + (parseInt(rgb[1]) * 587) + (parseInt(rgb[2]) * 114)) / 1000);
+                                    var o = Math.round(((parseInt(rgb[0], 10) * 299) + (parseInt(rgb[1], 10) * 587) + (parseInt(rgb[2], 10) * 114)) / 1000);
                                     var fore = (o > 125) ? 'black' : 'white';
                                     ctx.fillStyle = fore;
                                 } else {
@@ -149,11 +149,11 @@ angular.module('libraryOrganizer')
                                 ctx.fillText(text, 0, 0);
                                 ctx.restore();
                                 vm.cases[c].shelves[s].books[b].x = ix;
-                                vm.cases[c].shelves[s].books[b].y = y - bookheight + vm.cases[c].shelves[s].height + vm.cases[c].spacerheight
+                                vm.cases[c].shelves[s].books[b].y = y - bookheight + vm.cases[c].shelves[s].height + vm.cases[c].spacerheight;
                                 vm.cases[c].shelves[s].books[b].newwidth = bookwidth;
                                 vm.cases[c].shelves[s].books[b].newheight = bookheight;
-                                for (i = Math.floor((ix - 1) / 100); i < Math.floor(((ix - 1) + (bookwidth + 2)) / 100) + 1; i++) {
-                                    for (j = Math.floor((y - bookheight + vm.cases[c].shelves[s].height + vm.cases[c].spacerheight - 1) / 100); j < Math.floor(((y - bookheight + vm.cases[c].shelves[s].height + vm.cases[c].spacerheight - 1) + (bookheight + 2)) / 100) + 1; j++) {
+                                for (var i = Math.floor((ix - 1) / 100); i < Math.floor(((ix - 1) + (bookwidth + 2)) / 100) + 1; i += 1) {
+                                    for (var j = Math.floor((y - bookheight + vm.cases[c].shelves[s].height + vm.cases[c].spacerheight - 1) / 100); j < Math.floor(((y - bookheight + vm.cases[c].shelves[s].height + vm.cases[c].spacerheight - 1) + (bookheight + 2)) / 100) + 1; j += 1) {
                                         if (i >= 0 && j >= 0 && vm.doBoxesIntersect({
                                                 x: i * 100,
                                                 y: j * 100,
@@ -169,17 +169,17 @@ angular.module('libraryOrganizer')
                                         }
                                     }
                                 }
-                                ix += bookwidth
+                                ix += bookwidth;
                             }
                             ctx.fillStyle = 'black';
-                            y += vm.cases[c].spacerheight + vm.cases[c].shelves[s].height
+                            y += vm.cases[c].spacerheight + vm.cases[c].shelves[s].height;
                         }
-                        ctx.fillRect(x, y, vm.cases[c].width + vm.cases[c].spacerheight, vm.cases[c].spacerheight)
+                        ctx.fillRect(x, y, vm.cases[c].width + vm.cases[c].spacerheight, vm.cases[c].spacerheight);
                         y = 0;
                         x += vm.cases[c].spacerheight + vm.cases[c].width + vm.cases[c].spacerheight;
-                    })
-                }
+                    });
+                };
             }
-        }
+        };
         return directive;
-    })
+    });

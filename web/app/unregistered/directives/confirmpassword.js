@@ -13,5 +13,5 @@ angular.module('unregistered')
                     ngModel.$validate();
                 });
             }
-        }
-    })
+        };
+    });

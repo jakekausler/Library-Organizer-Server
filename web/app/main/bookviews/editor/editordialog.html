@@ -17,7 +17,7 @@
                                     </md-input-container>
                                     <md-input-container>
                                         <label>Title</label>
-                                        <input type="text" ng-model="book.title" name="title" value="{{book.title}}" required/>
+                                        <input type="text" ng-model="book.title" name="title" value="{{book.title}}" required />
                                     </md-input-container>
                                     <md-input-container>
                                         <label>Subtitle</label>
@@ -66,7 +66,7 @@
                                 </md-autocomplete>
                                 <md-input-container flex>
                                     <label>Volume</label>
-                                    <input type="text" ng-model="book.volume" name="volume" value="{{book.volume}}" required non-negative-number-input/>
+                                    <input type="text" ng-model="book.volume" name="volume" value="{{book.volume}}" required non-negative-number-input />
                                 </md-input-container>
                             </div>
                             <md-toolbar class="md-toolbar-tools">
@@ -90,7 +90,7 @@
                                                 </md-input-container>
                                                 <md-input-container flex>
                                                     <label>Last</label>
-                                                    <input type="text" ng-disabled="!contributor.editing" ng-model="contributor.name.last" name="last" value="{{contributor.name.last}}" required/>
+                                                    <input type="text" ng-disabled="!contributor.editing" ng-model="contributor.name.last" name="last" value="{{contributor.name.last}}" required />
                                                 </md-input-container>
                                                 <md-autocomplete flex ng-disabled="!contributor.editing" md-input-name="role" md-search-text="roleSearchText" md-selected-item="contributor.role" md-items="s in query('Roles', roleSearchText)" md-item-text="s" md-floating-label="Role" required>
                                                     <md-item-template>
@@ -113,7 +113,7 @@
                                                 </md-input-container>
                                                 <md-input-container flex>
                                                     <label>Last</label>
-                                                    <input type="text" ng-model="newContributor.name.last" name="newLast" value="{{newContributor.name.last}}" required/>
+                                                    <input type="text" ng-model="newContributor.name.last" name="newLast" value="{{newContributor.name.last}}" required />
                                                 </md-input-container>
                                                 <md-autocomplete flex md-input-name="role" md-select-on-match="true" md-autoselect="true" md-search-text="newRoleSearchText" md-selected-item="newContributor.role" md-items="s in query('Roles', newRoleSearchText)" md-item-text="s" md-floating-label="Role" required>
                                                     <md-item-template>
@@ -157,23 +157,23 @@
                         <div flex layout="row">
                             <md-input-container flex="15">
                                 <label>Originally Published</label>
-                                <input type="text" ng-model="book.originallypublished" name="originallypublished" value="{{book.originallypublished}}" year-input/>
+                                <input type="text" ng-model="book.originallypublished" name="originallypublished" value="{{book.originallypublished}}" year-input />
                             </md-input-container>
                             <md-input-container flex="15">
                                 <label>Edition Published</label>
-                                <input type="text" ng-model="book.editionpublished" name="editionpublished" value="{{book.editionpublished}}" year-input/>
+                                <input type="text" ng-model="book.editionpublished" name="editionpublished" value="{{book.editionpublished}}" year-input />
                             </md-input-container>
                             <md-input-container flex="20">
                                 <label>ISBN</label>
-                                <input type="text" ng-blur="convertIsbn()" ng-model="book.isbn" name="isbn" value="{{book.isbn}}" isbn-input/>
+                                <input type="text" ng-blur="convertIsbn()" ng-model="book.isbn" name="isbn" value="{{book.isbn}}" isbn-input />
                             </md-input-container>
                             <md-input-container flex="10">
                                 <label>Edition</label>
-                                <input type="text" ng-model="book.edition" name="edition" value="{{book.edition}}" required non-negative-integer-input/>
+                                <input type="text" ng-model="book.edition" name="edition" value="{{book.edition}}" required non-negative-integer-input />
                             </md-input-container>
                             <md-input-container flex="10">
                                 <label>Dewey</label>
-                                <input type="text" ng-model="book.dewey.String" name="dewey" value="{{book.dewey.String}}" required dewey-input/>
+                                <input type="text" ng-model="book.dewey.String" name="dewey" value="{{book.dewey.String}}" required dewey-input />
                             </md-input-container>
                             <p flex="25">
                                 {{genre}}
@@ -198,7 +198,7 @@
                             </md-input-container>
                             <md-input-container flex>
                                 <label>AR</label>
-                                <input type="number" ng-model="book.ar.Float64" name="ar" value="" min="0.1" max="20.0" step="0.1" non-negative-number-input/>
+                                <input type="number" ng-model="book.ar.Float64" name="ar" value="" min="0.1" max="20.0" step="0.1" non-negative-number-input />
                             </md-input-container>
                             <md-input-container flex>
                                 <label>Learning AZ</label>
@@ -214,7 +214,7 @@
                             </md-input-container>
                             <md-input-container flex>
                                 <label>DRA</label>
-                                <input type="number" ng-model="book.dra.Int64" name="dra" value="" min="1" max="80" step="1" non-negative-number-input/>
+                                <input type="number" ng-model="book.dra.Int64" name="dra" value="" min="1" max="80" step="1" non-negative-number-input />
                             </md-input-container>
                             <md-input-container flex>
                                 <label>Grade</label>
@@ -230,15 +230,15 @@
                             </md-input-container>
                             <md-input-container flex>
                                 <label>Age</label>
-                                <input type="number" ng-model="book.age.Int64" name="age" value="" min="1" max="99" step="1" non-negative-number-input/>
+                                <input type="number" ng-model="book.age.Int64" name="age" value="" min="1" max="99" step="1" non-negative-number-input />
                             </md-input-container>
                             <md-input-container flex>
                                 <label>Reading Recovery</label>
-                                <input type="number" ng-model="book.readingrecovery.Int64" name="readingrecovery" value="" min="1" max="40" step="1" non-negative-number-input/>
+                                <input type="number" ng-model="book.readingrecovery.Int64" name="readingrecovery" value="" min="1" max="40" step="1" non-negative-number-input />
                             </md-input-container>
                             <md-input-container flex>
                                 <label>PM Readers</label>
-                                <input type="number" ng-model="book.pmreaders.Int64" name="pmreaders" value="" min="1" max="30" step="1" non-negative-number-input/>
+                                <input type="number" ng-model="book.pmreaders.Int64" name="pmreaders" value="" min="1" max="30" step="1" non-negative-number-input />
                             </md-input-container>
                         </div>
                         <div flex layout="row">

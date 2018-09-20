@@ -10,48 +10,40 @@
                         <div>Written by <span ng-repeat="contrib in book.contributors">{{contrib.name.first}} {{contrib.name.middles}} {{contrib.name.last}}: {{contrib.role}}, </span></div>
                         <div ng-hide="!book.publisher.publisher && !book.publisher.city && !book.publisher.state && !book.publisher.country && !originallypublisher && !editionpublished">Published<span ng-hide="!book.publisher.publisher"> by {{book.publisher.publisher}}</span>
                             <span ng-hide="!book.publisher.city && !book.publisher.state && !book.publisher.country">
-                            in</span><span ng-hide="!book.publisher.city"> {{book.publisher.city}}</span>
+                                in</span><span ng-hide="!book.publisher.city"> {{book.publisher.city}}</span>
                             <span ng-hide="!book.publisher.city || (!book.publisher.state && !book.publisher.country)">, </span>
-                            <span
-                                ng-hide="!book.publisher.state">{{book.publisher.state}}</span>
-                                <span ng-hide="!book.publisher.state || !book.publisher.country">, </span>
-                                <span
-                                    ng-hide="!book.publisher.country">{{book.publisher.country}}</span>
-                                    </span>
-                                    <span ng-hide="!editionpublished"> in {{editionpublished}}</span>
-                                    <span
-                                        ng-hide="!originallypublished">, Originally in {{originallypublished}}</span>
+                            <span ng-hide="!book.publisher.state">{{book.publisher.state}}</span>
+                            <span ng-hide="!book.publisher.state || !book.publisher.country">, </span>
+                            <span ng-hide="!book.publisher.country">{{book.publisher.country}}</span>
+                            </span>
+                            <span ng-hide="!editionpublished"> in {{editionpublished}}</span>
+                            <span ng-hide="!originallypublished">, Originally in {{originallypublished}}</span>
                         </div>
                         <div ng-hide="!book.primarylanguage && !book.secondarylanguage && !book.originallanguage"><span ng-hide="book.primarylanguage || book.secondarylanguage">Originally </span>
                             <span ng-hide="!book.originallanguage && !book.primarylanguage && !book.secondarylanguage">Written in </span><span>{{book.primarylanguage}}</span>
                             <span ng-hide="!book.secondarylanguage"> and </span>
-                            <span
-                                ng-hide="!book.secondarylanguage">{{book.secondarylanguage}}</span>
-                                <span ng-hide="!book.originallanguage">, Orginally in </span>
-                                <span
-                                    ng-hide="!book.originallanguage">{{book.originallanguage}}</span>
+                            <span ng-hide="!book.secondarylanguage">{{book.secondarylanguage}}</span>
+                            <span ng-hide="!book.originallanguage">, Orginally in </span>
+                            <span ng-hide="!book.originallanguage">{{book.originallanguage}}</span>
                         </div>
                         <div ng-hide="!book.pages && !book.width && !book.height && !book.depth && !book.weight"><span ng-hide="!book.pages">{{book.pages}} pages</span>
                             <span ng-hide="!book.pages || (!book.width && !book.height && !book.depth && !book.weight)">, </span>
-                            <span
-                                ng-hide="!book.width">{{book.width}}mm</span>
-                                <span ng-hide="!book.width || (!book.height && !book.depth)">
+                            <span ng-hide="!book.width">{{book.width}}mm</span>
+                            <span ng-hide="!book.width || (!book.height && !book.depth)">
                                 x </span>
-                                <span
-                                    ng-hide="!book.height">{{book.height}}mm</span>
-                                    <span ng-hide="(!book.width && !book.height) ||!book.depth">
-                                    x </span>
-                                    <span
-                                        ng-hide="!book.depth">{{book.depth}}mm</span>
-                                        <span ng-hide="!book.weight">, </span>
-                                        <span
-                                            ng-hide="!book.weight">{{book.weight}}oz</span>
+                            <span ng-hide="!book.height">{{book.height}}mm</span>
+                            <span ng-hide="(!book.width && !book.height) ||!book.depth">
+                                x </span>
+                            <span ng-hide="!book.depth">{{book.depth}}mm</span>
+                            <span ng-hide="!book.weight">, </span>
+                            <span ng-hide="!book.weight">{{book.weight}}oz</span>
                         </div>
                         <div ng-hide="!book.isbn">ISBN: {{book.isbn}}</div>
                         <div>Dewey: {{book.dewey.String}}</div>
                         <div ng-hide="book.loanee.id==-1">On Loan to {{book.loanee.first}} {{book.loanee.last}}</div>
                         <div ng-hide="averageRating < 0"><span class="rating-holder">Average Rating</span>
-                            <ng-rate-it ng-model="averageRating" step="0.1" read-only="true"></ng-rate-it> ({{numRatings}})</div>
+                            <ng-rate-it ng-model="averageRating" step="0.1" read-only="true"></ng-rate-it> ({{numRatings}})
+                        </div>
                         <div><span class="rating-holder">Your Rating</span>
                             <ng-rate-it ng-model="userRating" step="1" resetable="false" rated="rate"></ng-rate-it>
                         </div>
@@ -75,18 +67,14 @@
                 </md-tabs>
             </div>
             <div flex>
-                <img width="100%" ng-src="web/{{book.imageurl}}{{'?'+getCurrentDateString()}}"
-                    alt="Image not found" onerror="this.onerror=null;this.src='web/res/book.jpg';">
+                <img width="100%" ng-src="web/{{book.imageurl}}{{'?'+getCurrentDateString()}}" alt="Image not found" onerror="this.onerror=null;this.src='web/res/book.jpg';">
             </div>
         </div>
         <div layout="row">
-            <md-button aria-label="Open Editor" ng-disabled="!canEdit" ng-click="edit()" flex
-                class="icon edit-icon"></md-button>
+            <md-button aria-label="Open Editor" ng-disabled="!canEdit" ng-click="edit()" flex class="icon edit-icon"></md-button>
             <md-button aria-label="Copy Book" ng-click="copy()" flex class="icon copy-icon"></md-button>
-            <md-button aria-label="Open Checkout Menu" ng-hide="!canCheckout" ng-click="checkout()"
-                flex class="icon checkout-icon"></md-button>
-            <md-button aria-label="Open Checkin Menu" ng-hide="!canCheckin" ng-click="checkin()"
-                flex class="icon checkin-icon"></md-button>
+            <md-button aria-label="Open Checkout Menu" ng-hide="!canCheckout" ng-click="checkout()" flex class="icon checkout-icon"></md-button>
+            <md-button aria-label="Open Checkin Menu" ng-hide="!canCheckin" ng-click="checkin()" flex class="icon checkin-icon"></md-button>
             <md-button aria-label="Close" ng-click="cancel()" flex class="icon cancel-icon"></md-button>
         </div>
     </div>

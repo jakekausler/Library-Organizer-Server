@@ -11,12 +11,12 @@ angular.module('libraryOrganizer')
             inlibrary: []
         };
         $scope.cancel = function() {
-            $mdDialog.cancel()
+            $mdDialog.cancel();
         };
         $scope.scan = function() {
             if ($scope.isbn) {
                 var loadingName = $scope.vm.guid();
-                $scope.vm.addToLoading(loadingName)
+                $scope.vm.addToLoading(loadingName);
                 var parts = $scope.isbn.split(' ');
                 if (parts.length == 1) {
                     $scope.isbn = parts[0];
@@ -30,8 +30,8 @@ angular.module('libraryOrganizer')
                     url: $scope.GOOGLE_BOOKS_API_BASE + $scope.GOOGLE_BOOKS_API_BOOK + '?q=' + $scope.isbn
                 }).then(function(response) {
                     response.data.items.forEach(function(v, i) {
-                        $scope.results.online.push(v)
-                    })
+                        $scope.results.online.push(v);
+                    });
                     $scope.vm.removeFromLoading(loadingName);
                 }, function(response) {
                     $mdToast.showSimple("Failed to retrieve books");
@@ -129,12 +129,12 @@ angular.module('libraryOrganizer')
                     "Valid": false
                 },
                 "notes": ""
-            }
+            };
             $scope.vm.showEditDialog(ev, book, $scope.vm, 'scanadd');
         };
         $scope.selectInLibrary = function(ev, result) {
-            $scope.vm.showBookDialog(ev, result, $scope.vm, 'grid')
-        }
+            $scope.vm.showBookDialog(ev, result, $scope.vm, 'grid');
+        };
         $scope.getAuthors = function(authors) {
             var contributors = [];
             if (authors) {
@@ -166,7 +166,7 @@ angular.module('libraryOrganizer')
         };
         $scope.searchByISBN = function(isbn) {
             var loadingName = $scope.vm.guid();
-            $scope.vm.addToLoading(loadingName)
+            $scope.vm.addToLoading(loadingName);
             $http({
                 url: '/books',
                 method: 'GET',
@@ -383,5 +383,5 @@ angular.module('libraryOrganizer')
             'yo': 'Yoruba',
             'za': 'Zhuang, Chuang',
             'zu': 'Zulu'
-        }
+        };
     });
