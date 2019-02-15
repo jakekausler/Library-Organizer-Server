@@ -276,7 +276,7 @@ func GetStats(db *sql.DB, t, libraryids string) (ChartInfo, error) {
 			logger.Printf("Error: %+v", err)
 			return ChartInfo{}, err
 		}
-		query := `SELECT COUNT(parentcompany) AS number, ParentCompany FROM publishers JOIN books ON publishers.PublisherID = books.PublisherID WHERE isowned = 1 and parentcompany != "" ` + inlibrary + ` GROUP BY parentcompany ORDER BY number DESC`
+		query := `SELECT COUNT(parentcompany) AS number, ParentCompany FROM publishers JOIN books ON publishers.PublisherID = books.PublisherID WHERE isowned = 1 and parentcompany != "" ` + inlibrary + ` GROUP BY parentcompany ORDER BY number DESC limit 30`
 		rows, err := db.Query(query)
 		if err != nil {
 			logger.Printf("Error: %+v", err)

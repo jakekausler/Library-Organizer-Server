@@ -15,7 +15,7 @@
             ng-click="previousPage()">
             <md-tooltip md-delay="500">Previous Page</md-tooltip>
         </md-button>
-        <md-button aria-label="Next Page" class="icon next-icon" ng-disabled="page>=numberOfBooks"
+        <md-button aria-label="Next Page" class="icon next-icon" ng-disabled="page>=countPages()"
             ng-click="nextPage()">
             <md-tooltip md-delay="500">Next Page</md-tooltip>
         </md-button>
@@ -406,7 +406,7 @@
             </form>
         </md-content>
     </md-sidenav>
-    <md-content flex class="grid-content">
+    <md-content flex class="grid-content" md-swipe-left="nextPage()" md-swipe-right="previousPage()">
         <div ng-show="layout=='grid'" flex layout="column " class="grid-container ">
             <md-grid-list md-cols-xs="1 " md-cols-sm="2 " md-cols-md="4
             " md-cols-gt-md="6 " md-row-height-gt-md="1:1 " md-row-height="2:2 "
@@ -417,8 +417,7 @@
                     <md-grid-tile-header class="md-accent ">
                         <span>{{book.title}}</span>
                     </md-grid-tile-header>
-                    <img ng-src="web/{{book.imageurl}}{{ '?'+getCurrentDateString()}}
-            " alt="Image not found " onerror="this.onerror=null;this.src='web/res/book.jpg'
+                    <img ng-src="web/{{book.imageurl}}" onerror="this.onerror=null;this.src='web/res/book.jpg'
             ; " height="100% ">
                     <md-grid-tile-footer ng-hide="book.subtitle=='' ">
                         <span>{{book.subtitle}}</span>
@@ -436,8 +435,7 @@
                     <th ng-show="anySeries">Volume</th>
                 </tr>
                 <tr ng-repeat="book in books" ng-click="showBookDialog($event, book, this, 'grid')">
-                    <td><img ng-src="web/{{book.imageurl}}{{'?'+getCurrentDateString()}}"
-                            alt="Image not found" onerror="this.onerror=null;this.src='web/res/book.jpg';"
+                    <td><img ng-src="web/{{book.imageurl}}" onerror="this.onerror=null;this.src='web/res/book.jpg';"
                             height="50px"></td>
                     <td>{{book.title}}</td>
                     <td>{{book.subtitle}}</td>

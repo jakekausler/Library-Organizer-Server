@@ -173,10 +173,16 @@ angular.module('libraryOrganizer')
             }
         };
         $scope.previousPage = function() {
+            if ($scope.page <= 1) {
+                return;
+            }
             $scope.page -= 1;
             $scope.updateRecieved();
         };
         $scope.nextPage = function() {
+            if ($scope.page >= $scope.countPages()) {
+                return;
+            }
             $scope.page += 1;
             $scope.updateRecieved();
         };
