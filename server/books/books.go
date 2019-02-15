@@ -727,6 +727,11 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 		return nil, 0, nil
 	}
 	var order string
+	if authorseries != nil {
+		for idx := range authorseries {
+			authorseries[idx] = strings.Replace(authorseries[idx], "'", "\\'", -1)
+		}
+	}
 	if strings.Contains(sortMethod, "||") {
 		order = ""
 		sortMethod = strings.ToLower(sortMethod)
@@ -746,7 +751,7 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 			for _, o := range specialOrders {
 				special = append(special, strings.Split(o, ":"))
 			}
-			caseWhenThen := "(CASE WHEN Series IN('" + strings.Join(authorseries, "','") + "') THEN "
+			caseWhenThen := "(CASE WHEN Series IN('" + strings.Join(authorseries, "','") + "') OR dewey='741.5' THEN "
 			var splitOrders []string
 			for i := range normalOrders {
 				splitOrders = append(splitOrders, caseWhenThen+special[i][0]+" ELSE "+normal[i][0]+" END) ")
@@ -1141,7 +1146,7 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 	if caseQuery {
 		fields += ", SpineColor, width, height, dewey, series"
 	}
-	query := "SELECT " + fields + " FROM (select books.*, books.libraryid as blid, " + titlechange + ", " + subtitlechange + ", " + serieschange + ", min(name) as minname FROM books LEFT JOIN " + authors + " ON books.BookID = Authors.BookID " + filter + " GROUP BY books.BookID) i LEFT JOIN libraries ON blid=libraries.id JOIN library_members on libraries.ownerid=library_members.id JOIN permissions on permissions.userid=? and libraries.id=permissions.libraryid ORDER BY " + order
+	query := "SELECT " + fields + " FROM (select books.*, publisher, city, state, country, parentcompany, books.libraryid as blid, " + titlechange + ", " + subtitlechange + ", " + serieschange + ", min(name) as minname FROM books LEFT JOIN " + authors + " ON books.BookID = Authors.BookID LEFT JOIN publishers ON books.PublisherID = publishers.PublisherID " + filter + " GROUP BY books.BookID) i LEFT JOIN libraries ON blid=libraries.id JOIN library_members on libraries.ownerid=library_members.id JOIN permissions on permissions.userid=? and libraries.id=permissions.libraryid ORDER BY " + order
 	if numberToGet != "-1" {
 		query += " LIMIT " + numberToGet + " OFFSET " + strconv.FormatInt(((pag-1)*ntg), 10)
 	}

@@ -276,7 +276,7 @@ angular.module('libraryOrganizer')
                 var normalOrders = orders[0].split("--");
                 var order;
                 for (var o in normalOrders) {
-                    normalOrders[o].split(":");
+                    order = normalOrders[o].split(":");
                     $scope.sortOrder.push({
                         label: order[0],
                         method: order[1]
