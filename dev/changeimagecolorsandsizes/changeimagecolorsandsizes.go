@@ -1,19 +1,19 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"fmt"
-	"log"
-	"database/sql"
-	"os"
 	"image"
-	"image/jpeg"
 	"image/gif"
+	"image/jpeg"
 	"image/png"
+	"log"
+	"os"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/jakekausler/prominentcolor"
 	"github.com/nfnt/resize"
-	_ "github.com/go-sql-driver/mysql"
 )
 
 var (
@@ -31,11 +31,11 @@ func main() {
 		panic("database cannot be empty!")
 	}
 	RunServer(*username, *password, *database)
-}	
+}
 
 var (
-	db *sql.DB
-	logger = log.New(os.Stderr, "log: ", log.LstdFlags | log.Lshortfile)
+	db     *sql.DB
+	logger = log.New(os.Stderr, "log: ", log.LstdFlags|log.Lshortfile)
 )
 
 //RunServer runs the library server
@@ -43,8 +43,7 @@ func RunServer(username, password, database string) {
 	logger.Printf("Creating the database")
 	var err error
 	// Create sql.DB
-	db, err = sql.Open("mysql", "root:@/library?parseTime=true")
-	// db, _ = sql.Open("mysql", "root:@/library?parseTime=true")
+	db, err = sql.Open("mysql", fmt.Sprintf("%v:%v@/%v", username, password, database))
 	if err != nil {
 		panic(err.Error())
 	}
@@ -55,26 +54,24 @@ func RunServer(username, password, database string) {
 	if err != nil {
 		panic(err.Error())
 	}
-	query := "SELECT bookid, ImageURL from books"
+	query := "SELECT bookid from books"
 	rows, err := db.Query(query)
 	if err != nil {
 		panic(err.Error())
 	}
 	for rows.Next() {
 		var id int64
-		var url string
-		err = rows.Scan(&id, &url)
+		err = rows.Scan(&id)
 		if err != nil {
 			panic(err.Error())
 		}
-		// err = resizeImage("../../web/"+url)
-		// if err != nil && err.Error() == "The system cannot find the file specified." {
-		// 	logger.Printf("Skipping %v. File does not exist", id)
-		// 	continue
-		// } else if err != nil {
-		// 	panic(err.Error())
-		// }
-		spinecolor, err := getSpineColor("../../web/"+url)
+		/*url := fmt.Sprintf("res/bookimages/%v.jpg", id)
+		err = resizeImage("../../web/" + url)
+		if err != nil {
+			logger.Printf("Skipping %v", id)
+			continue
+		}*/
+		spinecolor, err := getSpineColor("../../web/" + url)
 		if err != nil {
 			logger.Printf("Skipping %v", id)
 			continue
@@ -126,7 +123,6 @@ func resizeImage(fileLocation string) error {
 }
 
 func getSpineColor(imageLocation string) (string, error) {
-	logger.Printf(imageLocation)
 	img, _, err := loadImage(imageLocation)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
@@ -140,6 +136,7 @@ func getSpineColor(imageLocation string) (string, error) {
 		col := cols[0].Color
 		spinecolor = fmt.Sprintf("#%X%X%X", col.R, col.G, col.B)
 	}
+	logger.Printf("%v (%v)", imageLocation, spinecolor)
 	return spinecolor, nil
 }
 

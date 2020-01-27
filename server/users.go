@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/sessions"
-	"github.com/jakekausler/Library-Organizer-2.0/server/users"
+	"github.com/jakekausler/Library-Organizer-3.0/server/users"
 )
 
 //LoginHandler logs in a user

@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/jakekausler/Library-Organizer-2.0/server/information"
+	"github.com/jakekausler/Library-Organizer-3.0/server/information"
 )
 
 //GetStatsHandler gets statistics
@@ -18,6 +18,30 @@ func GetStatsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	params := r.URL.Query()
 	d, err := information.GetStats(db, params.Get("type"), params.Get("libraryids"))
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	data, err := json.Marshal(d)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+}
+
+//GetStatsHandler2 gets statistics
+func GetStatsHandler2(w http.ResponseWriter, r *http.Request) {
+	if ok, _ := Registered(r); !ok {
+		logger.Printf("Unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
+		return
+	}
+	params := r.URL.Query()
+	d, err := information.GetStats2(db, params.Get("type"), params.Get("libraryids"))
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -342,6 +366,52 @@ func GetAwardsHandler(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
 	str := params.Get("str")
 	d, err := information.GetAwards(db, str)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	data, err := json.Marshal(d)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+}
+
+//GetImages gets tags
+func GetImages(w http.ResponseWriter, r *http.Request) {
+	if ok, _ := Registered(r); !ok {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
+		return
+	}
+	d, err := information.GetBlankImages(db)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	data, err := json.Marshal(d)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+}
+
+//GetPublisherLocationCounts gets counts of books published by location
+func GetPublisherLocationCounts(w http.ResponseWriter, r *http.Request) {
+	if ok, _ := Registered(r); !ok {
+		logger.Printf("unauthoried")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
+		return
+	}
+	d, err := information.GetPublisherLocationCounts(db)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)

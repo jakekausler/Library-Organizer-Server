@@ -4,10 +4,10 @@ import (
 	"database/sql"
 	"fmt"
 	"image"
-	"image/gif"
 	"image/jpeg"
-	"image/png"
 	"log"
+	"math"
+	"math/rand"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -15,9 +15,10 @@ import (
 	"strings"
 
 	"github.com/go-sql-driver/mysql"
-	"github.com/jakekausler/Library-Organizer-2.0/server/information"
-	"github.com/jakekausler/Library-Organizer-2.0/server/users"
+	"github.com/jakekausler/Library-Organizer-3.0/server/information"
+	"github.com/jakekausler/Library-Organizer-3.0/server/users"
 	"github.com/jakekausler/prominentcolor"
+	"github.com/nfnt/resize"
 )
 
 const (
@@ -67,8 +68,15 @@ type BookIds struct {
 
 //BookSet is a collection of books, along with the number of pages of data there are without a limit imposed
 type BookSet struct {
-	Books         []Book `json:"books"`
-	NumberOfBooks int64  `json:"numbooks"`
+	Books         []SmallBook `json:"books"`
+	NumberOfBooks int64       `json:"numbooks"`
+}
+
+//SmallBook is a book that gets returned in a set
+type SmallBook struct {
+	ID       string `json:"bookid"`
+	Title    string `json:"title"`
+	ImageURL string `json:"imageurl"`
 }
 
 //Book is a book
@@ -83,7 +91,7 @@ type Book struct {
 	IsOwned              bool                      `json:"isowned"`
 	ISBN                 string                    `json:"isbn"`
 	Loanee               users.User                `json:"loanee"`
-	Dewey                sql.NullString            `json:"dewey"`
+	Dewey                string                    `json:"dewey"`
 	Pages                int64                     `json:"pages"`
 	Width                int64                     `json:"width"`
 	Height               int64                     `json:"height"`
@@ -153,10 +161,9 @@ func SaveBook(db *sql.DB, book Book) error {
 	if book.ID != "" {
 		imageType := filepath.Ext(book.ImageURL)
 		if book.ImageURL != "" && !strings.HasPrefix(book.ImageURL, "res/bookimages/") {
-			err := downloadImage(book.ImageURL, fmt.Sprintf("%v/bookimages/%v%v", resRoot, book.ID, imageType))
+			err := downloadImage(book.ImageURL, book.ID)
 			if err != nil {
 				logger.Printf("Error while saving image: %v", err)
-				return err
 			}
 		} else if book.ImageURL == "" {
 			err := removeImage(book.ID)
@@ -180,12 +187,12 @@ func SaveBook(db *sql.DB, book Book) error {
 			logger.Printf("Error when saving publisher: %v", err)
 			return err
 		}
-		Dewey, err := book.Dewey.Value()
+		Dewey := book.Dewey
 		if err != nil {
 			logger.Printf("Error: %v")
 			return err
 		}
-		err = addDewey(db, book.Dewey.String)
+		err = addDewey(db, book.Dewey)
 		if err != nil {
 			logger.Printf("Error when saving dewey: %v", err)
 			return err
@@ -318,12 +325,12 @@ func SaveBook(db *sql.DB, book Book) error {
 			logger.Printf("Error when saving publisher: %v", err)
 			return err
 		}
-		Dewey, err := book.Dewey.Value()
+		Dewey := book.Dewey
 		if err != nil {
 			logger.Printf("Error: %v")
 			return err
 		}
-		err = addDewey(db, book.Dewey.String)
+		err = addDewey(db, book.Dewey)
 		if err != nil {
 			logger.Printf("Error when saving dewey: %v", err)
 			return err
@@ -418,11 +425,10 @@ func SaveBook(db *sql.DB, book Book) error {
 		bookid := strconv.FormatInt(id, 10)
 		imageType := filepath.Ext(book.ImageURL)
 		if book.ImageURL != "" {
-			err = downloadImage(book.ImageURL, fmt.Sprintf("%v/bookimages/%v%v", resRoot, bookid, imageType))
+			err = downloadImage(book.ImageURL, bookid)
 		}
 		if err != nil {
 			logger.Printf("Error while saving image: %v", err)
-			return err
 		}
 		spinecolor := book.SpineColor
 		if !book.SpineColorOverridden {
@@ -630,43 +636,39 @@ func addLanguage(db *sql.DB, v string) error {
 	return nil
 }
 
-func downloadImage(url, fileLocation string) error {
+func downloadImage(url, bookid string) error {
 	response, err := http.Get(url)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return err
 	}
 	defer response.Body.Close()
-	img, extension, err := image.Decode(response.Body)
+	img, _, err := image.Decode(response.Body)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return err
 	}
-	file, err := os.Create(fileLocation)
+	file, err := os.Create(fmt.Sprintf("%v/bookimages/%v.%v", resRoot, bookid, "jpg"))
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return err
 	}
 	defer file.Close()
-	switch extension {
-	case "jpg", "jpeg":
-		err = jpeg.Encode(file, img, &jpeg.Options{})
-		if err != nil {
-			logger.Printf("Error: %+v", err)
-			return err
-		}
-	case "gif":
-		err = gif.Encode(file, img, &gif.Options{})
-		if err != nil {
-			logger.Printf("Error: %+v", err)
-			return err
-		}
-	case "png":
-		err = png.Encode(file, img)
-		if err != nil {
-			logger.Printf("Error: %+v", err)
-			return err
-		}
+	err = jpeg.Encode(file, img, &jpeg.Options{Quality: 100})
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return err
+	}
+	newImage := resize.Resize(256, 0, img, resize.Lanczos3)
+	file2, err := os.Create(fmt.Sprintf("%v/bookimages/small/%v.%v", resRoot, bookid, "jpg"))
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return err
+	}
+	err = jpeg.Encode(file2, newImage, &jpeg.Options{Quality: 100})
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return err
 	}
 	return nil
 }
@@ -721,7 +723,476 @@ func removeImage(bookid string) error {
 
 //GetBooks gets all books
 //todo include authors in filter
-func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, fromLexile, toLexile, fromInterestLevel, toInterestLevel, fromAR, toAR, fromLearningAZ, toLearningAZ, fromGuidedReading, toGuidedReading, fromDRA, toDRA, fromGrade, toGrade, fromFountasPinnell, toFountasPinnell, fromAge, toAge, fromReadingRecovery, toReadingRecovery, fromPMReaders, toPMReaders, libraryids, isbn, isanthology, session string, authorseries []string, caseQuery bool) ([]Book, int64, error) {
+func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, fromLexile, toLexile, fromInterestLevel, toInterestLevel, fromAR, toAR, fromLearningAZ, toLearningAZ, fromGuidedReading, toGuidedReading, fromDRA, toDRA, fromGrade, toGrade, fromFountasPinnell, toFountasPinnell, fromAge, toAge, fromReadingRecovery, toReadingRecovery, fromPMReaders, toPMReaders, libraryids, isbn, isanthology, session string, authorseries []string) ([]SmallBook, int64, error) {
+	text = strings.Replace(text, "'", "\\'", -1)
+	if libraryids == "" {
+		return nil, 0, nil
+	}
+	var order string
+	for idx := range authorseries {
+		authorseries[idx] = strings.Replace(authorseries[idx], "'", "\\'", -1)
+	}
+	if strings.Contains(sortMethod, "||") {
+		order = ""
+		sortMethod = strings.ToLower(sortMethod)
+		sortMethod = strings.Replace(sortMethod, "author", "minname", -1)
+		sortMethod = strings.Replace(sortMethod, "title", "title2", -1)
+		sortMethod = strings.Replace(sortMethod, "series", "series2", -1)
+		sortMethod = strings.Replace(sortMethod, "volume", "LPAD(Volume, 8, '0')", -1)
+		orders := strings.Split(sortMethod, "||")
+		normalOrders := strings.Split(orders[0], "--")
+		specialOrders := strings.Split(orders[1], "--")
+		var normal [][]string
+		var special [][]string
+		for _, o := range normalOrders {
+			normal = append(normal, strings.Split(o, ":"))
+		}
+		for _, o := range specialOrders {
+			special = append(special, strings.Split(o, ":"))
+		}
+		caseWhenThen := "(CASE WHEN Series IN('" + strings.Join(authorseries, "','") + "') OR dewey='bCOM' THEN "
+		var splitOrders []string
+		for i := range normalOrders {
+			splitOrders = append(splitOrders, caseWhenThen+special[i][0]+" ELSE "+normal[i][0]+" END) ")
+		}
+		order = strings.Join(splitOrders, ",")
+	} else {
+		if sortMethod == "title" {
+			order = "Title2, minname"
+		} else if sortMethod == "series" {
+			order = "if(Series2='' or Series2 is null,1,0), Series2, Volume, minname, Title2"
+		} else {
+			if authorseries != nil {
+				order = "Dewey, CASE WHEN Series IN('" + strings.Join(authorseries, "','") + "') THEN Series2 ELSE minname END, CASE WHEN Series IN('" + strings.Join(authorseries, "','") + "') THEN LPAD(Volume, 8, '0') ELSE series2 END, CASE WHEN Series IN('" + strings.Join(authorseries, "','") + "') THEN minname ELSE LPAD(Volume, 8, '0') END, Title2, Subtitle2, Edition"
+			} else {
+				order = "Dewey, minname, Series2, Volume, title2, Subtitle2, edition"
+			}
+		}
+	}
+	titlechange := "CASE WHEN Title LIKE 'The %%' THEN TRIM(SUBSTR(Title from 4)) ELSE CASE WHEN Title LIKE 'An %%' THEN TRIM(SUBSTR(Title from 3)) ELSE CASE WHEN Title LIKE 'A %%' THEN TRIM(SUBSTR(Title from 2)) ELSE Title END END END AS Title2"
+	subtitlechange := "CASE WHEN Subtitle LIKE 'The %%' THEN TRIM(SUBSTR(Subtitle from 4)) ELSE CASE WHEN Title LIKE 'An %%' THEN TRIM(SUBSTR(Subtitle from 3)) ELSE CASE WHEN Title LIKE 'A %%' THEN TRIM(SUBSTR(Subtitle from 2)) ELSE Subtitle END END END AS Subtitle2"
+	serieschange := "CASE WHEN Series LIKE 'The %%' THEN TRIM(SUBSTR(Series from 4)) ELSE CASE WHEN Series LIKE 'An %%' THEN TRIM(SUBSTR(Series from 3)) ELSE CASE WHEN Series LIKE 'A %%' THEN TRIM(SUBSTR(Series from 2)) ELSE Series END END END AS Series2"
+	authors := "(SELECT  PersonID, AuthorRoles.BookID, concat(COALESCE(lastname,''),COALESCE(firstname,''),COALESCE(middlenames,'')) as name FROM persons JOIN (SELECT written_by.BookID, AuthorID FROM written_by WHERE Role='Author') AS AuthorRoles ON AuthorRoles.AuthorID = persons.PersonID ORDER BY name ) AS Authors"
+	read := ""
+	if isread == "yes" {
+		read = "isread=1"
+	} else if isread == "no" {
+		read = "isread=0"
+	}
+	reference := ""
+	if isreference == "yes" {
+		reference = "isreference=1"
+	} else if isreference == "no" {
+		reference = "isreference=0"
+	}
+	anthology := ""
+	if isanthology == "yes" {
+		anthology = "isanthology=1"
+	} else if isanthology == "no" {
+		anthology = "isanthology=0"
+	}
+	owned := ""
+	if isowned == "yes" {
+		owned = "isowned=1"
+	} else if isowned == "no" {
+		owned = "isowned=0"
+	}
+	loaned := ""
+	if isloaned == "yes" {
+		loaned = "LoaneeID!=-1"
+	} else if isloaned == "no" {
+		loaned = "LoaneeID=-1"
+	}
+	reading := ""
+	if isreading == "yes" {
+		reading = "isreading=1"
+	} else if isreading == "no" {
+		reading = "isreading=0"
+	}
+	shipping := ""
+	if isshipping == "yes" {
+		shipping = "isshipping=1"
+	} else if isshipping == "no" {
+		shipping = "isshipping=0"
+	}
+	startDewey := ""
+	if fromDewey != "" {
+		startDewey = "Dewey >= '" + formatDewey(fromDewey) + "'"
+	}
+	endDewey := ""
+	if toDewey != "" {
+		endDewey = "Dewey <= '" + formatDewey(toDewey) + "'"
+	}
+	startLexile := ""
+	if fromLexile != "" {
+		startLexile = "Lexile >= '" + fromLexile + "'"
+	}
+	endLexile := ""
+	if toLexile != "" {
+		endLexile = "Lexile <= '" + toLexile + "'"
+	}
+	startInterestLevel := ""
+	if fromInterestLevel != "" {
+		startInterestLevel = "InterestLevel >= '" + fromInterestLevel + "'"
+	}
+	endInterestLevel := ""
+	if toInterestLevel != "" {
+		endInterestLevel = "InterestLevel <= '" + toInterestLevel + "'"
+	}
+	startAR := ""
+	if fromAR != "" {
+		startAR = "AR >= '" + fromAR + "'"
+	}
+	endAR := ""
+	if toAR != "" {
+		endAR = "AR <= '" + toAR + "'"
+	}
+	startLearningAZ := ""
+	if fromLearningAZ != "" {
+		startLearningAZ = "LearningAZ >= '" + fromLearningAZ + "'"
+	}
+	endLearningAZ := ""
+	if toLearningAZ != "" {
+		endLearningAZ = "LearningAZ <= '" + toLearningAZ + "'"
+	}
+	startGuidedReading := ""
+	if fromGuidedReading != "" {
+		startGuidedReading = "GuidedReading >= '" + fromGuidedReading + "'"
+	}
+	endGuidedReading := ""
+	if toGuidedReading != "" {
+		endGuidedReading = "GuidedReading <= '" + toGuidedReading + "'"
+	}
+	startDRA := ""
+	if fromDRA != "" {
+		startDRA = "DRA >= '" + fromDRA + "'"
+	}
+	endDRA := ""
+	if toDRA != "" {
+		endDRA = "DRA <= '" + toDRA + "'"
+	}
+	startGrade := ""
+	if fromGrade != "" {
+		startGrade = "Grade >= '" + fromGrade + "'"
+	}
+	endGrade := ""
+	if toGrade != "" {
+		endGrade = "Grade <= '" + toGrade + "'"
+	}
+	startFountasPinnell := ""
+	if fromFountasPinnell != "" {
+		startFountasPinnell = "FountasPinnell >= '" + fromFountasPinnell + "'"
+	}
+	endFountasPinnell := ""
+	if toFountasPinnell != "" {
+		endFountasPinnell = "FountasPinnell <= '" + toFountasPinnell + "'"
+	}
+	startAge := ""
+	if fromAge != "" {
+		startAge = "Age >= '" + fromAge + "'"
+	}
+	endAge := ""
+	if toAge != "" {
+		endAge = "Age <= '" + toAge + "'"
+	}
+	startReadingRecovery := ""
+	if fromReadingRecovery != "" {
+		startReadingRecovery = "ReadingRecovery >= '" + fromReadingRecovery + "'"
+	}
+	endReadingRecovery := ""
+	if toReadingRecovery != "" {
+		endReadingRecovery = "ReadingRecovery <= '" + toReadingRecovery + "'"
+	}
+	startPMReaders := ""
+	if fromPMReaders != "" {
+		startPMReaders = "Lexile >= '" + fromPMReaders + "'"
+	}
+	endPMReaders := ""
+	if toPMReaders != "" {
+		endPMReaders = "PMReaders <= '" + toPMReaders + "'"
+	}
+	filter := "WHERE "
+	if read != "" {
+		filter = filter + read
+	}
+	if reference != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + reference
+	}
+	if anthology != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + anthology
+	}
+	if owned != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + owned
+	}
+	if loaned != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + loaned
+	}
+	if reading != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + reading
+	}
+	if shipping != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + shipping
+	}
+
+	if startDewey != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + startDewey
+	}
+	if endDewey != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + endDewey
+	}
+
+	if startLexile != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + startLexile
+	}
+	if endLexile != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + endLexile
+	}
+
+	if startInterestLevel != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + startInterestLevel
+	}
+	if endInterestLevel != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + endInterestLevel
+	}
+
+	if startAR != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + startAR
+	}
+	if endAR != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + endAR
+	}
+
+	if startLearningAZ != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + startLearningAZ
+	}
+	if endLearningAZ != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + endLearningAZ
+	}
+
+	if startGuidedReading != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + startGuidedReading
+	}
+	if endGuidedReading != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + endGuidedReading
+	}
+
+	if startDRA != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + startDRA
+	}
+	if endDRA != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + endDRA
+	}
+
+	if startGrade != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + startGrade
+	}
+	if endGrade != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + endGrade
+	}
+
+	if startFountasPinnell != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + startFountasPinnell
+	}
+	if endFountasPinnell != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + endFountasPinnell
+	}
+
+	if startAge != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + startAge
+	}
+	if endAge != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + endAge
+	}
+
+	if startReadingRecovery != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + startReadingRecovery
+	}
+	if endReadingRecovery != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + endReadingRecovery
+	}
+	if startPMReaders != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + startPMReaders
+	}
+	if endPMReaders != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + endPMReaders
+	}
+
+	if isbn != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + "ISBN=" + isbn
+	}
+	filterText := formFilterText(text)
+	if filterText != "" {
+		if filter != "WHERE " {
+			filter = filter + " AND "
+		}
+		filter = filter + filterText
+	}
+	if filter != "WHERE " {
+		filter = filter + " AND "
+	}
+	filter = filter + "libraryid IN (" + libraryids + ")"
+	if filter == "WHERE " || filter == "WHERE" {
+		filter = ""
+	}
+	pag, err := strconv.ParseInt(page, 10, 64)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return nil, 0, err
+	}
+	ntg, err := strconv.ParseInt(numberToGet, 10, 64)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return nil, 0, err
+	}
+	fields := "bookid, Title, ImageURL"
+	query := "SELECT " + fields + " FROM (select books.*, publisher, city, state, country, parentcompany, books.libraryid as blid, " + titlechange + ", " + subtitlechange + ", " + serieschange + ", min(name) as minname FROM books LEFT JOIN " + authors + " ON books.BookID = Authors.BookID LEFT JOIN publishers ON books.PublisherID = publishers.PublisherID " + filter + " GROUP BY books.BookID) i LEFT JOIN libraries ON blid=libraries.id JOIN library_members on libraries.ownerid=library_members.id JOIN permissions on permissions.userid=? and libraries.id=permissions.libraryid ORDER BY " + order
+	if numberToGet != "-1" {
+		query += " LIMIT " + numberToGet + " OFFSET " + strconv.FormatInt(((pag-1)*ntg), 10)
+	}
+	pageQuery := "SELECT count(bookid) FROM (select books.bookid, " + titlechange + ", " + subtitlechange + ", " + serieschange + ", min(name) as minname FROM books LEFT JOIN " + authors + " ON books.BookID = Authors.BookID " + filter + " GROUP BY books.BookID) i"
+
+	sb := SmallBook{}
+	var books = make([]SmallBook, 0)
+
+	var Title sql.NullString
+	var ImageURL sql.NullString
+
+	userid, err := users.GetUserID(db, session)
+	if err != nil {
+		logger.Printf("Error getting username: %v", err)
+		return nil, 0, err
+	}
+	rows, err := db.Query(query, userid)
+	if err != nil {
+		logger.Printf("Error querying books: %v", err)
+		return nil, 0, err
+	}
+	for rows.Next() {
+		if err := rows.Scan(&sb.ID, &Title, &ImageURL); err != nil {
+			logger.Printf("Error scanning books: %v", err)
+			return nil, 0, err
+		}
+		sb.Title = ""
+		if Title.Valid {
+			sb.Title = Title.String
+		}
+		sb.ImageURL = ""
+		if ImageURL.Valid {
+			sb.ImageURL = ImageURL.String
+		}
+		books = append(books, sb)
+	}
+	err = rows.Err()
+	if err != nil {
+		logger.Printf("Error in rows: %v", err)
+		return nil, 0, err
+	}
+
+	var numberOfBooks int64
+	err = db.QueryRow(pageQuery).Scan(&numberOfBooks)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return nil, 0, err
+	}
+
+	return books, numberOfBooks, rows.Close()
+}
+
+//GetBooksCases returns books for cases
+func GetBooksCases(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, fromLexile, toLexile, fromInterestLevel, toInterestLevel, fromAR, toAR, fromLearningAZ, toLearningAZ, fromGuidedReading, toGuidedReading, fromDRA, toDRA, fromGrade, toGrade, fromFountasPinnell, toFountasPinnell, fromAge, toAge, fromReadingRecovery, toReadingRecovery, fromPMReaders, toPMReaders, libraryids, isbn, isanthology, session string, authorseries []string) ([]Book, int64, error) {
 	text = strings.Replace(text, "'", "\\'", -1)
 	if libraryids == "" {
 		return nil, 0, nil
@@ -751,7 +1222,7 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 			for _, o := range specialOrders {
 				special = append(special, strings.Split(o, ":"))
 			}
-			caseWhenThen := "(CASE WHEN Series IN('" + strings.Join(authorseries, "','") + "') OR dewey='741.5' THEN "
+			caseWhenThen := "(CASE WHEN Series IN('" + strings.Join(authorseries, "','") + "') OR dewey='bCOM' THEN "
 			var splitOrders []string
 			for i := range normalOrders {
 				splitOrders = append(splitOrders, caseWhenThen+special[i][0]+" ELSE "+normal[i][0]+" END) ")
@@ -1098,7 +1569,6 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 		}
 		filter = filter + endReadingRecovery
 	}
-
 	if startPMReaders != "" {
 		if filter != "WHERE " {
 			filter = filter + " AND "
@@ -1143,9 +1613,7 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 		return nil, 0, err
 	}
 	fields := "bookid, title, subtitle, ImageURL, blid, libraries.Name, library_members.usr, permissions.Permission"
-	if caseQuery {
-		fields += ", SpineColor, width, height, dewey, series"
-	}
+	fields += ", SpineColor, width, height, dewey, series"
 	query := "SELECT " + fields + " FROM (select books.*, publisher, city, state, country, parentcompany, books.libraryid as blid, " + titlechange + ", " + subtitlechange + ", " + serieschange + ", min(name) as minname FROM books LEFT JOIN " + authors + " ON books.BookID = Authors.BookID LEFT JOIN publishers ON books.PublisherID = publishers.PublisherID " + filter + " GROUP BY books.BookID) i LEFT JOIN libraries ON blid=libraries.id JOIN library_members on libraries.ownerid=library_members.id JOIN permissions on permissions.userid=? and libraries.id=permissions.libraryid ORDER BY " + order
 	if numberToGet != "-1" {
 		query += " LIMIT " + numberToGet + " OFFSET " + strconv.FormatInt(((pag-1)*ntg), 10)
@@ -1159,7 +1627,6 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 	var Subtitle sql.NullString
 	var ImageURL sql.NullString
 	var SpineColor sql.NullString
-	var Dewey sql.NullString
 	var Series sql.NullString
 
 	userid, err := users.GetUserID(db, session)
@@ -1173,16 +1640,9 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 		return nil, 0, err
 	}
 	for rows.Next() {
-		if caseQuery {
-			if err := rows.Scan(&b.ID, &Title, &Subtitle, &ImageURL, &b.Library.ID, &b.Library.Name, &b.Library.Owner, &b.Library.Permissions, &SpineColor, &b.Width, &b.Height, &Dewey, &Series); err != nil {
-				logger.Printf("Error scanning books: %v", err)
-				return nil, 0, err
-			}
-		} else {
-			if err := rows.Scan(&b.ID, &Title, &Subtitle, &ImageURL, &b.Library.ID, &b.Library.Name, &b.Library.Owner, &b.Library.Permissions); err != nil {
-				logger.Printf("Error scanning books: %v", err)
-				return nil, 0, err
-			}
+		if err := rows.Scan(&b.ID, &Title, &Subtitle, &ImageURL, &b.Library.ID, &b.Library.Name, &b.Library.Owner, &b.Library.Permissions, &SpineColor, &b.Width, &b.Height, &b.Dewey, &Series); err != nil {
+			logger.Printf("Error scanning books: %v", err)
+			return nil, 0, err
 		}
 		b.Title = ""
 		if Title.Valid {
@@ -1196,16 +1656,16 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 		if ImageURL.Valid {
 			b.ImageURL = ImageURL.String
 		}
-		if caseQuery {
-			b.SpineColor = ""
-			if SpineColor.Valid {
-				b.SpineColor = SpineColor.String
-			}
-			b.Dewey = Dewey
-			b.Series = ""
-			if Series.Valid {
-				b.Series = Series.String
-			}
+		b.SpineColor = ""
+		if SpineColor.Valid {
+			b.SpineColor = SpineColor.String
+		}
+		b.Series = ""
+		if Series.Valid {
+			b.Series = Series.String
+		}
+		if b.SpineColor == "" || b.SpineColor == "#000000" {
+			b.SpineColor = getRandomColor()
 		}
 		books = append(books, b)
 	}
@@ -1225,11 +1685,80 @@ func GetBooks(db *sql.DB, sortMethod, isread, isreference, isowned, isloaned, is
 	return books, numberOfBooks, rows.Close()
 }
 
+type hsl struct {
+	h float64
+	s float64
+	l float64
+}
+
+type rgb struct {
+	r int
+	g int
+	b int
+}
+
+func getRandomColor() string {
+	randColor := hsl{
+		h: float64(rand.Intn(360)) / float64(360),
+		s: (float64(rand.Intn(50)) + 15) / float64(100),
+		l: (float64(rand.Intn(20)) + 30) / float64(100),
+	}
+	return randColor.toRGB().toHex()
+}
+
+func (h hsl) toRGB() rgb {
+	if h.s == float64(0) {
+		return rgb{
+			r: 0,
+			g: 0,
+			b: 0,
+		}
+	}
+	q := h.l * (1 + h.s)
+	if h.l < 0.5 {
+		q = h.l + h.s - h.l*h.s
+	}
+	p := 2*h.l - q
+	return rgb{
+		r: to255(hueToRgb(p, q, h.h+float64(1)/float64(3))),
+		g: to255(hueToRgb(p, q, h.h)),
+		b: to255(hueToRgb(p, q, h.h-float64(1)/float64(3))),
+	}
+}
+
+func (r rgb) toHex() string {
+	retVal := fmt.Sprintf("#%X%X%X", r.r, r.g, r.b)
+	return retVal
+}
+
+func to255(v float64) int {
+	return int(math.Min(255, 256*v))
+}
+
+func hueToRgb(p float64, q float64, t float64) float64 {
+	if t <= float64(0) {
+		t += float64(1)
+	}
+	if t > float64(1) {
+		t -= float64(1)
+	}
+	if t < float64(1)/float64(6) {
+		return p + (q-p)*float64(6)*t
+	}
+	if t < float64(1)/float64(2) {
+		return q
+	}
+	if t < float64(2)/float64(3) {
+		return p + (q-p)*(float64(2)/float64(3)-t)*float64(6)
+	}
+	return p
+}
+
 func formatDewey(dewey string) string {
 	retval := ""
 	i, err := strconv.ParseFloat(dewey, 64)
 	if err != nil {
-		if dewey == "FIC" {
+		if dewey == "aFIC" || dewey == "cDND" || dewey == "bCOM" {
 			retval = dewey
 		}
 	} else {
@@ -1588,7 +2117,6 @@ func GetBook(db *sql.DB, session, bookid string) (Book, error) {
 	var Title sql.NullString
 	var Subtitle sql.NullString
 	var OriginallyPublished mysql.NullTime
-	var Dewey sql.NullString
 	var ISBN sql.NullString
 	var PrimaryLanguage sql.NullString
 	var SecondaryLanguage sql.NullString
@@ -1608,7 +2136,7 @@ func GetBook(db *sql.DB, session, bookid string) (Book, error) {
 		logger.Printf("Error getting username: %v", err)
 		return b, err
 	}
-	err = db.QueryRow(getBookQuery, userid, bookid).Scan(&b.ID, &Title, &Subtitle, &OriginallyPublished, &PublisherID, &IsRead, &IsReference, &IsOwned, &ISBN, &LoaneeID, &Dewey, &b.Pages, &b.Width, &b.Height, &b.Depth, &b.Weight, &PrimaryLanguage, &SecondaryLanguage, &OriginalLanguage, &Series, &b.Volume, &Format, &b.Edition, &ImageURL, &IsReading, &IsShipping, &SpineColor, &b.CheapestNew, &b.CheapestUsed, &EditionPublished, &spinecoloroverridden, &b.Lexile, &b.LexileCode, &b.InterestLevel, &b.AR, &b.LearningAZ, &b.GuidedReading, &b.DRA, &b.Grade, &b.FountasPinnell, &b.Age, &b.ReadingRecovery, &b.PMReaders, &b.Notes, &b.IsAnthology, &b.Library.ID, &b.Library.Name, &b.Library.Owner, &b.Library.Permissions)
+	err = db.QueryRow(getBookQuery, userid, bookid).Scan(&b.ID, &Title, &Subtitle, &OriginallyPublished, &PublisherID, &IsRead, &IsReference, &IsOwned, &ISBN, &LoaneeID, &b.Dewey, &b.Pages, &b.Width, &b.Height, &b.Depth, &b.Weight, &PrimaryLanguage, &SecondaryLanguage, &OriginalLanguage, &Series, &b.Volume, &Format, &b.Edition, &ImageURL, &IsReading, &IsShipping, &SpineColor, &b.CheapestNew, &b.CheapestUsed, &EditionPublished, &spinecoloroverridden, &b.Lexile, &b.LexileCode, &b.InterestLevel, &b.AR, &b.LearningAZ, &b.GuidedReading, &b.DRA, &b.Grade, &b.FountasPinnell, &b.Age, &b.ReadingRecovery, &b.PMReaders, &b.Notes, &b.IsAnthology, &b.Library.ID, &b.Library.Name, &b.Library.Owner, &b.Library.Permissions)
 	if err != nil {
 		logger.Printf("Error getting username: %v", err)
 		return b, err
@@ -1656,7 +2184,6 @@ func GetBook(db *sql.DB, session, bookid string) (Book, error) {
 	if OriginallyPublished.Valid {
 		b.OriginallyPublished = strconv.Itoa(OriginallyPublished.Time.Year())
 	}
-	b.Dewey = Dewey
 	b.ISBN = ""
 	if ISBN.Valid {
 		b.ISBN = ISBN.String

@@ -52,17 +52,17 @@ func RunServer(username, password, database string, port int) {
 	}
 	r := mux.NewRouter()
 	r.HandleFunc("/", RouteByAuthenticate)
-	r.HandleFunc("/home", GetHomePageHandler)
+	r.HandleFunc("/home", RouteByAuthenticate)
 	r.HandleFunc("/unregistered", GetUnregisteredPageHandler)
 	r.HandleFunc("/books", GetBooksHandler).Methods("GET")
 	r.HandleFunc("/books", AddBookHandler).Methods("POST")
 	r.HandleFunc("/books", SaveBookHandler).Methods("PUT")
-	r.HandleFunc("/books", DeleteBookHandler).Methods("DELETE")
 	r.HandleFunc("/books/checkout", CheckoutBookHandler).Methods("PUT")
 	r.HandleFunc("/books/checkin", CheckinBookHandler).Methods("PUT")
 	r.HandleFunc("/books/books", ExportBooksHandler).Methods("GET")
 	r.HandleFunc("/books/contributors", ExportAuthorsHandler).Methods("GET")
 	r.HandleFunc("/books/books", ImportBooksHandler).Methods("POST")
+	r.HandleFunc("/books/{bookid}", DeleteBookHandler).Methods("DELETE")
 	r.HandleFunc("/books/{bookid}", GetBookHandler).Methods("GET")
 	r.HandleFunc("/books/{bookid}/ratings", GetRatingsHandler).Methods("GET")
 	r.HandleFunc("/books/{bookid}/ratings", AddRatingHandler).Methods("PUT")
@@ -82,6 +82,7 @@ func RunServer(username, password, database string, port int) {
 	r.HandleFunc("/information/deweys/{{dewey}}", GetGenreHandler).Methods("GET")
 	r.HandleFunc("/information/tags", GetTagsHandler).Methods("GET")
 	r.HandleFunc("/information/awards", GetAwardsHandler).Methods("GET")
+	r.HandleFunc("/info/stats", GetStatsHandler2).Methods("GET")
 	r.HandleFunc("/libraries", GetLibrariesHandler).Methods("GET")
 	r.HandleFunc("/libraries/owned", GetOwnedLibrariesHandler).Methods("GET")
 	r.HandleFunc("/libraries/owned", SaveOwnedLibrariesHandler).Methods("PUT")
@@ -104,12 +105,14 @@ func RunServer(username, password, database string, port int) {
 	r.HandleFunc("/users/reset", ResetPasswordHandler).Methods("PUT")
 	r.HandleFunc("/users/reset/{token}", FinishResetPasswordHandler).Methods("GET")
 	r.HandleFunc("/users/username", GetUsernameHandler).Methods("GET")
-	r.PathPrefix("/web/").Handler(http.StripPrefix("/web/", http.FileServer(http.Dir(appRoot+"/../"))))
+	r.HandleFunc("/imagelist", GetImages).Methods("GET")
+	r.HandleFunc("/information/locationcounts", GetPublisherLocationCounts).Methods("GET")
+	r.HandleFunc("/bookimages/{imageid}", GetImage).Methods("GET")
+	r.PathPrefix("/web/").Handler(http.StripPrefix("/web/", http.FileServer(http.Dir(appRoot)))) //+"/../"))))
 	logger.Printf("Listening on port %v", port)
 	loggedRouter := handlers.CombinedLoggingHandler(logFile, r)
-	http.ListenAndServe(fmt.Sprintf(":%v", port), handlers.CompressHandler(loggedRouter))
+	logger.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", port), handlers.CompressHandler(loggedRouter)))
 	// http.ListenAndServe(":8181", nil)
-	logger.Printf("Closing")
 }
 
 //RouteByAuthenticate determines which page to load
@@ -117,16 +120,19 @@ func RouteByAuthenticate(w http.ResponseWriter, r *http.Request) {
 	if ok, _ := Registered(r); !ok {
 		http.Redirect(w, r, "/unregistered", 301)
 	} else {
-		http.Redirect(w, r, "/home", 301)
+		http.ServeFile(w, r, fmt.Sprintf("%v/index.html", appRoot))
 	}
-}
-
-//GetHomePageHandler gets the home page
-func GetHomePageHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, fmt.Sprintf("%v/main/index.html", appRoot))
 }
 
 //GetUnregisteredPageHandler gets the home page
 func GetUnregisteredPageHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, fmt.Sprintf("%v/unregistered/unregistered.html", appRoot))
+	http.ServeFile(w, r, fmt.Sprintf("%v/index.html", appRoot))
+}
+
+//GetImage gets an image
+func GetImage(w http.ResponseWriter, r *http.Request) {
+	imageid := mux.Vars(r)["imageid"]
+	params := r.URL.Query()
+	size := params.Get("size")
+	http.ServeFile(w, r, fmt.Sprintf("%v/bookimages/%v/%v.jpg", resRoot, size, imageid))
 }

@@ -10,9 +10,11 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/gorilla/mux"
-	"github.com/jakekausler/Library-Organizer-2.0/server/books"
+	"github.com/jakekausler/Library-Organizer-3.0/server/books"
+	"github.com/jakekausler/Library-Organizer-3.0/server/libraries"
 )
 
 //GetBooksHandler gets books from a filter query
@@ -61,7 +63,13 @@ func GetBooksHandler(w http.ResponseWriter, r *http.Request) {
 	toPMReaders := params.Get("topmreaders")
 	isbn := params.Get("isbn")
 	libraryids := params.Get("libraryids")
-	bs, numberOfBooks, err := books.GetBooks(db, sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, fromLexile, toLexile, fromInterestLevel, toInterestLevel, fromAR, toAR, fromLearningAZ, toLearningAZ, fromGuidedReading, toGuidedReading, fromDRA, toDRA, fromGrade, toGrade, fromFountasPinnell, toFountasPinnell, fromAge, toAge, fromReadingRecovery, toReadingRecovery, fromPMReaders, toPMReaders, libraryids, isbn, isanthology, session, nil, false)
+	authorseries, err := libraries.GetAuthorBasedSeries(db, strings.Split(libraryids, ",")[0])
+	if err != nil {
+		logger.Printf("Error: %v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	bs, numberOfBooks, err := books.GetBooks(db, sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, fromLexile, toLexile, fromInterestLevel, toInterestLevel, fromAR, toAR, fromLearningAZ, toLearningAZ, fromGuidedReading, toGuidedReading, fromDRA, toDRA, fromGrade, toGrade, fromFountasPinnell, toFountasPinnell, fromAge, toAge, fromReadingRecovery, toReadingRecovery, fromPMReaders, toPMReaders, libraryids, isbn, isanthology, session, authorseries)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -137,17 +145,8 @@ func DeleteBookHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
-	var i int
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&i)
-	if err != nil {
-		logger.Printf("%+v", err)
-		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
-		return
-	}
-	defer r.Body.Close()
-	id := strconv.Itoa(i)
-	err = books.DeleteBook(db, id)
+	bookid := mux.Vars(r)["bookid"]
+	err := books.DeleteBook(db, bookid)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)

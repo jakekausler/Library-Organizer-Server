@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/jakekausler/Library-Organizer-2.0/server/settings"
+	"github.com/jakekausler/Library-Organizer-3.0/server/settings"
 )
 
 //GetSettingsHandler gets settings

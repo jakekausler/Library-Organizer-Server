@@ -7,15 +7,17 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/jakekausler/Library-Organizer-2.0/server/books"
-	"github.com/jakekausler/Library-Organizer-2.0/server/information"
-	"github.com/jakekausler/Library-Organizer-2.0/server/users"
+	"github.com/jakekausler/Library-Organizer-3.0/server/books"
+	"github.com/jakekausler/Library-Organizer-3.0/server/information"
+	"github.com/jakekausler/Library-Organizer-3.0/server/users"
 )
 
 const (
-	getLibrariesQuery                = "SELECT libraries.id, name, permission, usr FROM libraries JOIN permissions ON libraries.id=permissions.libraryid join library_members on libraries.ownerid=library_members.id WHERE permissions.permission & 1 and permissions.userid=(SELECT id from library_members join usersession on library_members.id=usersession.userid WHERE sessionkey=?)"
-	getBreaksQuery                   = "SELECT breaktype, valuetype, value FROM breaks WHERE libraryid=?"
-	getCasesQuery                    = "SELECT CaseId, Width, SpacerHeight, PaddingLeft, PaddingRight, BookMargin, CaseNumber, NumberOfShelves, ShelfHeight FROM bookcases WHERE libraryid=? ORDER BY CaseNumber"
+	getLibrariesQuery = "SELECT libraries.id, name, permission, usr FROM libraries JOIN permissions ON libraries.id=permissions.libraryid join library_members on libraries.ownerid=library_members.id WHERE permissions.permission & 1 and permissions.userid=(SELECT id from library_members join usersession on library_members.id=usersession.userid WHERE sessionkey=?)"
+	getBreaksQuery    = "SELECT breaktype, valuetype, value FROM breaks WHERE libraryid=?"
+	//getCasesQuery                    = "SELECT CaseId, Width, SpacerHeight, PaddingLeft, PaddingRight, BookMargin, CaseNumber, NumberOfShelves, ShelfHeight FROM bookcases WHERE libraryid=? ORDER BY CaseNumber"
+	getCasesQuery                    = "SELECT caseid, casenumber, paddingleft, paddingright, bookmargin, spacerheight FROM bookcases WHERE libraryid=? ORDER BY casenumber"
+	getShelvesQuery                  = "SELECT id, shelfnumber, caseid, width, height, alignment FROM shelves WHERE shelves.caseid=? ORDER BY shelfnumber"
 	addCaseQuery                     = "INSERT INTO bookcases (casenumber, width, spacerheight, paddingleft, paddingright, libraryid, numberofshelves, shelfheight) VALUES (?,?,?,?,?,?,?,?)"
 	updateCaseQuery                  = "UPDATE bookcases SET casenumber=?, width=?, spacerheight=?, paddingleft=?, paddingright=?, libraryid=?, numberOfShelves=?, shelfheight=? WHERE caseid=?"
 	deleteBreaksQuery                = "DELETE FROM breaks WHERE libraryid=?"
@@ -94,9 +96,13 @@ type Bookcase struct {
 
 //Bookshelf is a shelf on a bookcase
 type Bookshelf struct {
-	ID     int64        `json:"id"`
-	Height int64        `json:"height"`
-	Books  []books.Book `json:"books"`
+	ID          int64        `json:"id"`
+	CaseID      int64        `json:"caseid"`
+	ShelfNumber int64        `json:"shelfnumber"`
+	Width       int64        `json:"width"`
+	Height      int64        `json:"height"`
+	Alignment   string       `json:"alignment"`
+	Books       []books.Book `json:"books"`
 }
 
 //OwnedLibrary is a library owned by the user and the users that have permission to view them
@@ -118,6 +124,7 @@ type UserWithPermission struct {
 	Permission int64  `json:"permission"`
 }
 
+/*
 //GetCases gets cases
 func GetCases(db *sql.DB, libraryid, session string) ([]Bookcase, error) {
 	authorseries, err := GetAuthorBasedSeries(db, libraryid)
@@ -224,7 +231,7 @@ func GetCases(db *sql.DB, libraryid, session string) ([]Bookcase, error) {
 							break
 						}
 					case "DEWEY":
-						if index != 0 && books[index-1].Dewey.Valid && books[index-1].Dewey.String < b.Value && books[index].Dewey.Valid && books[index].Dewey.String >= b.Value {
+                        if index != 0 && books[index-1].Dewey < b.Value && books[index].Dewey >= b.Value {
 							breakInner = true
 							if b.BreakType == "CASE" {
 								breakcase = true
@@ -235,6 +242,155 @@ func GetCases(db *sql.DB, libraryid, session string) ([]Bookcase, error) {
 						}
 					case "SERIES":
 						if index != 0 && books[index-1].Series < b.Value && books[index].Series >= b.Value {
+							breakInner = true
+							if b.BreakType == "CASE" {
+								breakcase = true
+							} else {
+								breakshelf = true
+							}
+							break
+						}
+					}
+				}
+			}
+		}
+	}
+	return cases, nil
+}
+*/
+
+//GetCases gets cases
+func GetCases(db *sql.DB, libraryid, session string) ([]Bookcase, error) {
+	authorseries, err := GetAuthorBasedSeries(db, libraryid)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return nil, err
+	}
+	sortMethod, err := GetLibrarySort(db, libraryid)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return nil, err
+	}
+	books, _, err := books.GetBooksCases(db, sortMethod, "both", "both", "yes", "both", "both", "both", "", "1", "-1", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", libraryid, "", "both", session, authorseries)
+	breaks, err := GetLibraryBreaks(db, libraryid)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return nil, err
+	}
+	rows, err := db.Query(getCasesQuery, libraryid)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return nil, err
+	}
+	dim, err := information.GetDimensions(db, libraryid)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return nil, err
+	}
+	var cases []Bookcase
+	for rows.Next() {
+		var id, caseNumber, paddingLeft, paddingRight, bookMargin, spacerHeight int64
+		err = rows.Scan(&id, &caseNumber, &paddingLeft, &paddingRight, &bookMargin, &spacerHeight)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return nil, err
+		}
+		avgWidth := 1
+		avgHeight := 25
+		if dim["averagewidth"] > 0 {
+			avgWidth = int(dim["averagewidth"])
+		}
+		//Leave Room for Text
+		if dim["averageheight"] > 25 {
+			avgHeight = int(dim["averageheight"])
+		}
+		bookcase := Bookcase{
+			ID:                id,
+			SpacerHeight:      spacerHeight,
+			PaddingLeft:       paddingLeft,
+			PaddingRight:      paddingRight,
+			BookMargin:        bookMargin,
+			AverageBookWidth:  float64(avgWidth),
+			AverageBookHeight: float64(avgHeight),
+			CaseNumber:        caseNumber,
+		}
+		shelfRows, err := db.Query(getShelvesQuery, id)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return nil, err
+		}
+		for shelfRows.Next() {
+			var shelfid, caseid, shelfnumber, width, height int64
+			var alignment string
+			err = shelfRows.Scan(&shelfid, &caseid, &shelfnumber, &width, &height, &alignment)
+			if err != nil {
+				logger.Printf("Error: %+v", err)
+				return nil, err
+			}
+			bookcase.Shelves = append(bookcase.Shelves, Bookshelf{
+				ID:          shelfid,
+				CaseID:      caseid,
+				ShelfNumber: shelfnumber,
+				Width:       width,
+				Height:      height,
+				Alignment:   alignment,
+			})
+		}
+		cases = append(cases, bookcase)
+	}
+	index := 0
+	x := 0
+	for c, bookcase := range cases {
+		breakcase := false
+		for s := range bookcase.Shelves {
+			if breakcase {
+				break
+			}
+			x = int(bookcase.PaddingLeft)
+			useWidth := int(bookcase.AverageBookWidth)
+			if index < len(books) && books[index].Width > 0 {
+				useWidth = int(books[index].Width)
+			}
+			breakshelf := false
+			for index < len(books) && useWidth+x <= int(cases[c].Shelves[s].Width)-int(bookcase.PaddingRight) {
+				if breakshelf || breakcase {
+					break
+				}
+				cases[c].Shelves[s].Books = append(cases[c].Shelves[s].Books, books[index])
+				x += useWidth
+				index++
+				useWidth = int(bookcase.AverageBookWidth)
+				if index < len(books) && books[index].Width != 0 {
+					useWidth = int(books[index].Width)
+				}
+				breakInner := false
+				for _, b := range breaks {
+					if breakInner {
+						break
+					}
+					switch b.ValueType {
+					case "ID":
+						if b.Value == books[index].ID {
+							breakInner = true
+							if b.BreakType == "CASE" {
+								breakcase = true
+							} else {
+								breakshelf = true
+							}
+							break
+						}
+					case "DEWEY":
+						if index < len(books)-1 && books[index-1].Dewey < b.Value && books[index].Dewey >= b.Value {
+							breakInner = true
+							if b.BreakType == "CASE" {
+								breakcase = true
+							} else {
+								breakshelf = true
+							}
+							break
+						}
+					case "SERIES":
+						if index != len(books)-2 && books[index-1].Series < b.Value && books[index].Series >= b.Value {
 							breakInner = true
 							if b.BreakType == "CASE" {
 								breakcase = true
