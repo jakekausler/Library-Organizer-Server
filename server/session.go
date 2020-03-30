@@ -30,11 +30,11 @@ var (
 )
 
 //RunServer runs the library server
-func RunServer(username, password, database string, port int) {
+func RunServer(host, username, password, database string, appport, mysqlport int) {
 	logger.Printf("Creating the database")
 	var err error
 	// Create sql.DB
-	db, err = sql.Open("mysql", fmt.Sprintf("%v:%v@/%v?parseTime=true", username, password, database))
+	db, err = sql.Open("mysql", fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?parseTime=true", username, password, host, mysqlport, database))
 	if err != nil {
 		panic(err.Error())
 	}
@@ -109,9 +109,9 @@ func RunServer(username, password, database string, port int) {
 	r.HandleFunc("/information/locationcounts", GetPublisherLocationCounts).Methods("GET")
 	r.HandleFunc("/bookimages/{imageid}", GetImage).Methods("GET")
 	r.PathPrefix("/web/").Handler(http.StripPrefix("/web/", http.FileServer(http.Dir(appRoot)))) //+"/../"))))
-	logger.Printf("Listening on port %v", port)
+	logger.Printf("Listening on port %v", appport)
 	loggedRouter := handlers.CombinedLoggingHandler(logFile, r)
-	logger.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", port), handlers.CompressHandler(loggedRouter)))
+	logger.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", appport), handlers.CompressHandler(loggedRouter)))
 	// http.ListenAndServe(":8181", nil)
 }
 
