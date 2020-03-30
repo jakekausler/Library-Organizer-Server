@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/jakekausler/Library-Organizer-3.0/server/information"
+	"github.com/jakekausler/Library-Organizer-2.0/server/information"
 )
 
 //GetStatsHandler gets statistics

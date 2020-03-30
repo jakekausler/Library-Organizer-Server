@@ -13,8 +13,8 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
-	"github.com/jakekausler/Library-Organizer-3.0/server/books"
-	"github.com/jakekausler/Library-Organizer-3.0/server/libraries"
+	"github.com/jakekausler/Library-Organizer-2.0/server/books"
+	"github.com/jakekausler/Library-Organizer-2.0/server/libraries"
 )
 
 //GetBooksHandler gets books from a filter query

@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/jakekausler/Library-Organizer-3.0/server/information"
+	"github.com/jakekausler/Library-Organizer-2.0/server/information"
 	"golang.org/x/crypto/bcrypt"
 )
 

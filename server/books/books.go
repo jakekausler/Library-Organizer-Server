@@ -15,8 +15,8 @@ import (
 	"strings"
 
 	"github.com/go-sql-driver/mysql"
-	"github.com/jakekausler/Library-Organizer-3.0/server/information"
-	"github.com/jakekausler/Library-Organizer-3.0/server/users"
+	"github.com/jakekausler/Library-Organizer-2.0/server/information"
+	"github.com/jakekausler/Library-Organizer-2.0/server/users"
 	"github.com/jakekausler/prominentcolor"
 	"github.com/nfnt/resize"
 )

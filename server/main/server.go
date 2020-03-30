@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	libraryserver "github.com/jakekausler/Library-Organizer-3.0/server"
+	libraryserver "github.com/jakekausler/Library-Organizer-2.0/server"
 )
 
 var (
