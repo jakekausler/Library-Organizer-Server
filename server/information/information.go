@@ -39,6 +39,8 @@ var logger = log.New(os.Stderr, "log: ", log.LstdFlags|log.Lshortfile)
 type ChartInfo struct {
 	Total int        `json:"total"`
 	Data  []StatData `json:"data"`
+	Prefix string `json:"prefix"`
+	Postfix string `json:"postfix"`
 }
 
 //StatData is chart data
@@ -143,6 +145,8 @@ func GetStats2(db *sql.DB, t string, libraryids string) (ChartInfo, error) {
 		Value: strconv.FormatInt(notowned, 10),
 	})
 	return ChartInfo{
+		Prefix: "",
+		Postfix: "",
 		Data:  data,
 		Total: int(total),
 	}, nil
@@ -152,6 +156,8 @@ func GetStats2(db *sql.DB, t string, libraryids string) (ChartInfo, error) {
 func GetStats(db *sql.DB, t, libraryids string) (ChartInfo, error) {
 	var data []StatData
 	total := 0
+	prefix := ""
+	postfix := ""
 	if libraryids == "" {
 		return ChartInfo{}, nil
 	}
@@ -215,6 +221,7 @@ func GetStats(db *sql.DB, t, libraryids string) (ChartInfo, error) {
 			Value: strconv.FormatInt(notowned, 10),
 		})
 	case "generalbysize":
+		postfix = " mm\u00B3"
 		var read sql.NullInt64
 		var reading sql.NullInt64
 		var reference sql.NullInt64
@@ -265,6 +272,7 @@ func GetStats(db *sql.DB, t, libraryids string) (ChartInfo, error) {
 			Value: fmt.Sprintf("%.2f", float64(loaned.Int64)),
 		})
 	case "generalbypages":
+		postfix = " pages"
 		var read sql.NullInt64
 		var reading sql.NullInt64
 		var reference sql.NullInt64
@@ -1104,6 +1112,8 @@ func GetStats(db *sql.DB, t, libraryids string) (ChartInfo, error) {
 		}
 	}
 	return ChartInfo{
+		Prefix: prefix,
+		Postfix: postfix,
 		Total: total,
 		Data:  data,
 	}, nil
