@@ -1,5 +1,6 @@
 server/tmp/*
 web/res/bookimages/*
+web/res/caseimages/*
 web/res/userimages/*
 server/server.exe
 server/server

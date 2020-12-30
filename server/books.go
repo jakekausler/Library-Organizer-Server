@@ -69,6 +69,7 @@ func GetBooksHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
+
 	bs, numberOfBooks, err := books.GetBooks(db, sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, fromLexile, toLexile, fromInterestLevel, toInterestLevel, fromAR, toAR, fromLearningAZ, toLearningAZ, fromGuidedReading, toGuidedReading, fromDRA, toDRA, fromGrade, toGrade, fromFountasPinnell, toFountasPinnell, fromAge, toAge, fromReadingRecovery, toReadingRecovery, fromPMReaders, toPMReaders, libraryids, isbn, isanthology, session, authorseries)
 	if err != nil {
 		logger.Printf("%+v", err)
@@ -90,11 +91,19 @@ func GetBooksHandler(w http.ResponseWriter, r *http.Request) {
 
 //AddBookHandler saves a book
 func AddBookHandler(w http.ResponseWriter, r *http.Request) {
-	if ok, _ := Registered(r); !ok {
+	registered, session := Registered(r)
+	if !registered {
 		logger.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
 		return
 	}
+
+	if !CanWrite(session, "43") {
+		logger.Printf("no write permission")
+		http.Error(w, fmt.Sprintf("No Write Permissions"), http.StatusInternalServerError)
+		return
+	}
+
 	var b books.Book
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&b)
@@ -115,11 +124,19 @@ func AddBookHandler(w http.ResponseWriter, r *http.Request) {
 
 //SaveBookHandler saves a book
 func SaveBookHandler(w http.ResponseWriter, r *http.Request) {
-	if ok, _ := Registered(r); !ok {
+	registered, session := Registered(r)
+	if !registered {
 		logger.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
 		return
 	}
+
+	if !CanWrite(session, "43") {
+		logger.Printf("no write permission")
+		http.Error(w, fmt.Sprintf("No Write Permissions"), http.StatusInternalServerError)
+		return
+	}
+
 	var b books.Book
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&b)
@@ -140,11 +157,19 @@ func SaveBookHandler(w http.ResponseWriter, r *http.Request) {
 
 //DeleteBookHandler deletes a book
 func DeleteBookHandler(w http.ResponseWriter, r *http.Request) {
-	if ok, _ := Registered(r); !ok {
+	registered, session := Registered(r)
+	if !registered {
 		logger.Printf("unauthorized")
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
+
+	if !CanWrite(session, "43") {
+		logger.Printf("no write permission")
+		http.Error(w, fmt.Sprintf("No Write Permissions"), http.StatusInternalServerError)
+		return
+	}
+
 	bookid := mux.Vars(r)["bookid"]
 	err := books.DeleteBook(db, bookid)
 	if err != nil {

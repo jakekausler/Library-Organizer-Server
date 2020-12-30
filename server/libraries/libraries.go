@@ -6,17 +6,25 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"fmt"
+	"math"
+	"image/color"
 
 	"github.com/jakekausler/Library-Organizer-2.0/server/books"
 	"github.com/jakekausler/Library-Organizer-2.0/server/information"
 	"github.com/jakekausler/Library-Organizer-2.0/server/users"
+
+	"github.com/ajstarks/svgo"
 )
 
 const (
 	getLibrariesQuery = "SELECT libraries.id, name, permission, usr FROM libraries JOIN permissions ON libraries.id=permissions.libraryid join library_members on libraries.ownerid=library_members.id WHERE permissions.permission & 1 and permissions.userid=(SELECT id from library_members join usersession on library_members.id=usersession.userid WHERE sessionkey=?)"
+	getLibraryQuery = "SELECT libraries.id, name, permission, usr FROM libraries JOIN permissions ON libraries.id=permissions.libraryid join library_members on libraries.ownerid=library_members.id WHERE libraries.id=? AND permissions.permission & 1 and permissions.userid=(SELECT id from library_members join usersession on library_members.id=usersession.userid WHERE sessionkey=?)"
 	getBreaksQuery    = "SELECT breaktype, valuetype, value FROM breaks WHERE libraryid=?"
 	//getCasesQuery                    = "SELECT CaseId, Width, SpacerHeight, PaddingLeft, PaddingRight, BookMargin, CaseNumber, NumberOfShelves, ShelfHeight FROM bookcases WHERE libraryid=? ORDER BY CaseNumber"
 	getCasesQuery                    = "SELECT caseid, casenumber, paddingleft, paddingright, bookmargin, spacerheight FROM bookcases WHERE libraryid=? ORDER BY casenumber"
+	getCaseIdsQuery                  = "SELECT caseid FROM bookcases WHERE libraryid=? ORDER BY casenumber"
+	getShelfIdsQuery                 = "SELECT id FROM shelves WHERE caseid=? ORDER BY ShelfNumber"
 	getShelvesQuery                  = "SELECT id, shelfnumber, caseid, width, height, alignment FROM shelves WHERE shelves.caseid=? ORDER BY shelfnumber"
 	addCaseQuery                     = "INSERT INTO bookcases (casenumber, width, spacerheight, paddingleft, paddingright, libraryid, numberofshelves, shelfheight) VALUES (?,?,?,?,?,?,?,?)"
 	updateCaseQuery                  = "UPDATE bookcases SET casenumber=?, width=?, spacerheight=?, paddingleft=?, paddingright=?, libraryid=?, numberOfShelves=?, shelfheight=? WHERE caseid=?"
@@ -48,6 +56,9 @@ const (
 	addAuthorBasedSeriesQuery        = "INSERT INTO series_author_sorts (libraryid, series) VALUES (?,?)"
 	getSortMethodQuery               = "SELECT sortmethod FROM libraries WHERE id=?"
 	updateSortMethodQuery            = "UPDATE libraries SET sortmethod=? WHERE id=?"
+
+	SVG_PATH = "/caseimages"
+	CASE_MARGIN = 50
 )
 
 var logger = log.New(os.Stderr, "log: ", log.LstdFlags|log.Lshortfile)
@@ -426,6 +437,17 @@ func GetLibraries(db *sql.DB, session string) ([]books.Library, error) {
 	return libraries, nil
 }
 
+//GetLibrary gets the library by its id
+func GetLibrary(db *sql.DB, session string, libraryid string) (books.Library, error) {
+	var library books.Library
+	row := db.QueryRow(getLibraryQuery, libraryid, session)
+	if err := row.Scan(&library.ID, &library.Name, &library.Permissions, &library.Owner); err != nil {
+		logger.Printf("Error: %+v", err)
+		return library, err
+	}
+	return library, nil
+}
+
 //SaveCases saves book cases
 func SaveCases(db *sql.DB, libraryid string, cases EditedCases) error {
 	for _, c := range cases.EditedCases {
@@ -799,6 +821,7 @@ type SearchLocation struct {
 	Case  int    `json:"case"`
 	Shelf int    `json:"shelf"`
 	Book  int    `json:"book"`
+	ID    string `json:"id"`
 	Title string `json:"title"`
 }
 
@@ -822,15 +845,15 @@ func SearchShelves(db *sql.DB, libraryid string, session string, text string) ([
 	if err != nil {
 		return locations, err
 	}
-	queries := strings.Split(strings.ToLower(text), " ")
 	for cidx, c := range cases {
 		for sidx, s := range c.Shelves {
 			for bidx, b := range s.Books {
-				if IsMatch(b, queries) {
+				if IsMatch(b, strings.ToLower(text)) {
 					locations = append(locations, SearchLocation{
 						Case:  cidx,
 						Shelf: sidx,
 						Book:  bidx,
+						ID:    b.ID,
 						Title: b.Title,
 					})
 				}
@@ -841,11 +864,220 @@ func SearchShelves(db *sql.DB, libraryid string, session string, text string) ([
 }
 
 //IsMatch determines if a book matches a search string
-func IsMatch(book books.Book, queries []string) bool {
-	for _, word := range queries {
-		if !strings.Contains(strings.ToLower(book.Title), word) && !strings.Contains(strings.ToLower(book.Subtitle), word) && !strings.Contains(strings.ToLower(book.Series), word) {
-			return false
-		}
+func IsMatch(book books.Book, query string) bool {
+	return strings.Contains(strings.ToLower(book.Title), query) || strings.Contains(strings.ToLower(book.Subtitle), query) || strings.Contains(strings.ToLower(book.Series), query)
+}
+
+//GetCaseIDs gets a list of the case ids for a library in case order
+func GetCaseIDs(db *sql.DB, libraryid string, session string) ([]int, error) {
+	var values []int
+	rows, err := db.Query(getCaseIdsQuery, libraryid)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return nil, err
 	}
-	return true
+	for rows.Next() {
+		var v int
+		err = rows.Scan(&v)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return nil, err
+		}
+		values = append(values, v)
+	}
+	return values, nil
+}
+
+//GetShelfIDs gets a list of the shelf ids for a case in shelf order {
+func GetShelfIDs(db *sql.DB, libraryid string, session string, caseid string) ([]int, error) {
+	var values []int
+	rows, err := db.Query(getShelfIdsQuery, caseid)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return nil, err
+	}
+	for rows.Next() {
+		var v int
+		err = rows.Scan(&v)
+		if err != nil {
+			logger.Printf("Error: %+v", err)
+			return nil, err
+		}
+		values = append(values, v)
+	}
+	return values, nil
+}
+
+//RefreshCases refreshes case and shelf images {
+func RefreshCases(db *sql.DB, libraryid string, session string, resRoot string) error {
+	// Grab all the cases
+    cases, err := GetCases(db, libraryid, session)
+    if err != nil {
+    	logger.Printf("Error: %s", err)
+        return err
+    }
+
+    CaseSvgPath := resRoot + SVG_PATH
+
+    maxCaseHeight := 0
+    for _, c := range cases {
+    	height := int(c.SpacerHeight) * (len(c.Shelves) + 1)
+    	for _, s := range(c.Shelves) {
+    		height += int(s.Height)
+    	}
+    	if maxCaseHeight < height {
+    		maxCaseHeight = height
+    	}
+    }
+    maxCaseHeight += CASE_MARGIN * 2
+
+    // For each case in library
+    for _, c := range cases {
+
+        // Open case file
+        cf, err := os.OpenFile(fmt.Sprintf("%s/%d.svg", CaseSvgPath, c.ID), os.O_CREATE|os.O_RDWR, 0644)
+        if err != nil {
+        	logger.Printf("Error: %s", err)
+            return err
+        }
+        cf.Truncate(0)
+        cf.Seek(0, 0)
+
+        // Get max shelf width (only books and book margins)
+        // Also set default book widths and heights if none
+        // Also get total shelf heights (interior only)
+        maxShelfWidthBooks := 0
+        totalCaseHeight := 0
+        for _, s := range c.Shelves {
+            width := int(s.Width)
+            for _, b := range s.Books {
+                if b.Width <= 0 {
+                    b.Width = int64(c.AverageBookWidth)
+                }
+                if b.Height <= 0 {
+                    b.Height = int64(c.AverageBookHeight)
+                }
+            }
+            if width > maxShelfWidthBooks {
+                maxShelfWidthBooks = width
+            }
+            totalCaseHeight += int(s.Height)
+        }
+
+        // Get case width
+        caseWidth := int(c.SpacerHeight) * 2
+        caseWidth += maxShelfWidthBooks + CASE_MARGIN * 2
+
+        // Get case height
+        caseHeight := int(c.SpacerHeight) * (len(c.Shelves) + 1)
+        caseHeight += totalCaseHeight
+
+        // Start case canvas
+        caseCanvas := svg.New(cf)
+        caseCanvas.Startview(caseWidth, maxCaseHeight, 0, 0, caseWidth, maxCaseHeight)
+
+        // Set current y
+        y := (maxCaseHeight - caseHeight)
+
+        // For each shelf in case
+        for _, s := range c.Shelves {
+
+            // Set current x
+            x := CASE_MARGIN
+            if s.Alignment == "right" {
+                x = caseWidth - (int(s.Width) + 2 * int(c.SpacerHeight)) - CASE_MARGIN
+            }
+
+            //Add the left and right shelf borders
+            caseCanvas.Rect(x, y, int(c.SpacerHeight), int(s.Height + c.SpacerHeight))
+            caseCanvas.Rect(x + int(c.SpacerHeight) + int(s.Width), y, int(c.SpacerHeight), int(s.Height + c.SpacerHeight))
+
+            // Add the top border
+            caseCanvas.Rect(x + int(c.SpacerHeight), y, int(s.Width), int(c.SpacerHeight))
+
+            // Update the current y to bottom of current shelf
+            y += int(c.SpacerHeight + s.Height)
+
+            // Add the bottom border if last shelf
+            caseCanvas.Rect(x, y, int(s.Width) + int(c.SpacerHeight) * 2, int(c.SpacerHeight))
+
+            // Update current x to inside of shelf
+            x += int(c.SpacerHeight + c.PaddingLeft)
+
+            // Open shelf file
+            if _, err := os.Stat(fmt.Sprintf("%s/%d/", CaseSvgPath, c.ID)); os.IsNotExist(err) {
+                os.MkdirAll(fmt.Sprintf("%s/%d/", CaseSvgPath, c.ID), 0700)
+            }
+            sf, err := os.OpenFile(fmt.Sprintf("%s/%d/%d.svg", CaseSvgPath, c.ID, s.ID), os.O_CREATE|os.O_RDWR, 0644)
+            if err != nil {
+            	logger.Printf("Error: %s", err)
+                return err
+            }
+            sf.Truncate(0)
+            sf.Seek(0, 0)
+
+            // For each book on shelf
+            for _, b := range s.Books {
+                
+                // Fix Font Color if too short
+                for len(b.SpineColor) < 7 {
+                    b.SpineColor += "0"
+                }
+
+                // Draw Book
+                caseCanvas.Rect(x, y - int(b.Height), int(b.Width), int(b.Height), fmt.Sprintf("id='book-%s'", b.ID), "class='bookcase-book'", "stroke='black'", fmt.Sprintf("fill='%s'", b.SpineColor))
+
+                // Get Font Size
+                fontSize := int(math.Min(18, float64(b.Width) / 4 * 3))
+
+                // Get Font Color
+                var fontColor string
+                var c color.RGBA
+                c.A = 0xff
+                _, err = fmt.Sscanf(b.SpineColor, "#%02x%02x%02x", &c.R, &c.G, &c.B)
+                if err != nil {
+                    c.A = 0x00
+                }
+                if c.A == 0xff {
+                    o := math.Round(float64(int(c.R) * 299 + int(c.G) * 587 + int(c.B) * 114) / 1000)
+                    if o > 125 {
+                        fontColor = "black"
+                    } else {
+                        fontColor = "white"
+                    }
+                } else {
+                    fontColor = "white"
+                }
+
+                // Draw Title
+                caseCanvas.TranslateRotate(x + int(b.Width) / 2, y, -90)
+                caseCanvas.Path(fmt.Sprintf("M 2 0 L %d 0", int(b.Height) - 4), fmt.Sprintf(`id="PATH%s"`, b.ID))
+                // caseCanvas.Use(0, 0, fmt.Sprintf("#PATH%s", b.ID))
+                caseCanvas.Textpath(b.Title, fmt.Sprintf("#PATH%s", b.ID), fmt.Sprintf("dominant-baseline:middle;font-family:Arial;font-size:%dpx;fill:%s", fontSize, fontColor))
+                caseCanvas.Gend()
+
+                // Move x to start of next book
+                x += int(b.Width)
+
+            }
+
+            // Close shelf file
+            if err := sf.Close(); err != nil {
+            	logger.Printf("Error: %s", err)
+                return err
+            }
+        }
+
+        //End case canvas
+        caseCanvas.End()
+
+        // Close case file
+        if err := cf.Close(); err != nil {
+        	logger.Printf("Error: %s", err)
+            return err
+        }
+
+    }
+
+    return nil
 }

@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+    "time"
 )
 
 //Env Variables
@@ -42,8 +43,10 @@ func RunServer(host, username, password, database string, appport, mysqlport int
 	logger.Printf("Pinging the database")
 	// Test the connection
 	err = db.Ping()
-	if err != nil {
-		panic(err.Error())
+	for err != nil {
+        logger.Printf("Could not reach the database. Sleeping for 10 seconds")
+        time.Sleep(10 * time.Second)
+		err = db.Ping()
 	}
 	logger.Printf("Opening the log")
 	logFile, err := os.OpenFile(fmt.Sprintf("%v/server.log", logRoot), os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
@@ -84,12 +87,16 @@ func RunServer(host, username, password, database string, appport, mysqlport int
 	r.HandleFunc("/information/awards", GetAwardsHandler).Methods("GET")
 	r.HandleFunc("/info/stats", GetStatsHandler2).Methods("GET")
 	r.HandleFunc("/libraries", GetLibrariesHandler).Methods("GET")
+	r.HandleFunc("/libraries/{libraryid}", GetLibraryHandler).Methods("GET")
 	r.HandleFunc("/libraries/owned", GetOwnedLibrariesHandler).Methods("GET")
 	r.HandleFunc("/libraries/owned", SaveOwnedLibrariesHandler).Methods("PUT")
 	r.HandleFunc("/libraries/{libraryid}/breaks", GetBreaksHandler).Methods("GET")
 	r.HandleFunc("/libraries/{libraryid}/breaks", UpdateBreaksHandler).Methods("PUT")
+	r.HandleFunc("/libraries/{libraryid}/cases/ids", GetCaseIDsHandler).Methods("GET")
+	r.HandleFunc("/libraries/{libraryid}/cases/{caseid}/shelves/ids", GetShelfIDsHandler).Methods("GET")
 	r.HandleFunc("/libraries/{libraryid}/cases", GetCasesHandler).Methods("GET")
 	r.HandleFunc("/libraries/{libraryid}/cases", SaveCasesHandler).Methods("PUT")
+	r.HandleFunc("/libraries/{libraryid}/cases", RefreshCasesHandler).Methods("POST")
 	r.HandleFunc("/libraries/{libraryid}/series", GetAuthorBasedSeriesHandler).Methods("GET")
 	r.HandleFunc("/libraries/{libraryid}/series", UpdateAuthorBasedSeriesHandler).Methods("PUT")
 	r.HandleFunc("/libraries/{libraryid}/sort", GetLibrarySortHandler).Methods("GET")
@@ -107,7 +114,9 @@ func RunServer(host, username, password, database string, appport, mysqlport int
 	r.HandleFunc("/users/username", GetUsernameHandler).Methods("GET")
 	r.HandleFunc("/imagelist", GetImages).Methods("GET")
 	r.HandleFunc("/information/locationcounts", GetPublisherLocationCounts).Methods("GET")
-	r.HandleFunc("/bookimages/{imageid}", GetImage).Methods("GET")
+	r.HandleFunc("/bookimages/{bookid}", GetBookImage).Methods("GET")
+	r.HandleFunc("/caseimages/{caseid}", GetCaseImage).Methods("GET")
+	r.HandleFunc("/shelfimages/{caseid}/{shelfid}", GetShelfImage).Methods("GET")
 	r.PathPrefix("/web/").Handler(http.StripPrefix("/web/", http.FileServer(http.Dir(appRoot)))) //+"/../"))))
 	logger.Printf("Listening on port %v", appport)
 	loggedRouter := handlers.CombinedLoggingHandler(logFile, r)
@@ -129,10 +138,23 @@ func GetUnregisteredPageHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, fmt.Sprintf("%v/index.html", appRoot))
 }
 
-//GetImage gets an image
-func GetImage(w http.ResponseWriter, r *http.Request) {
-	imageid := mux.Vars(r)["imageid"]
+//GetBookImage gets an image
+func GetBookImage(w http.ResponseWriter, r *http.Request) {
+	bookid := mux.Vars(r)["bookid"]
 	params := r.URL.Query()
 	size := params.Get("size")
-	http.ServeFile(w, r, fmt.Sprintf("%v/bookimages/%v/%v.jpg", resRoot, size, imageid))
+	http.ServeFile(w, r, fmt.Sprintf("%v/bookimages/%v/%v.jpg", resRoot, size, bookid))
+}
+
+//GetCaseImage gets an image
+func GetCaseImage(w http.ResponseWriter, r *http.Request) {
+	caseid := mux.Vars(r)["caseid"]
+	http.ServeFile(w, r, fmt.Sprintf("%v/caseimages/%v.svg", resRoot, caseid))
+}
+
+//GetShelfImage gets an image
+func GetShelfImage(w http.ResponseWriter, r *http.Request) {
+	caseid := mux.Vars(r)["caseid"]
+	shelfid := mux.Vars(r)["shelfid"]
+	http.ServeFile(w, r, fmt.Sprintf("%v/caseimages/%v/%v.svg", resRoot, caseid, shelfid))
 }

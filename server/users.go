@@ -88,6 +88,11 @@ func FinishResetPasswordHandler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+//CanWrite determines if the current user has write access to a library
+func CanWrite(session string, libraryid string) (bool) {
+	return users.CanWrite(db, session, libraryid)
+}
+
 //Registered determines whether a user is registered
 func Registered(r *http.Request) (bool, string) {
 	session, _ := store.Get(r, "session")

@@ -24,6 +24,7 @@ const (
 	getUsernameQuery         = "SELECT usr FROM library_members JOIN usersession ON UserID=ID WHERE sessionkey=?"
 	getUserIDQuery           = "SELECT id FROM library_members JOIN usersession ON UserID=ID WHERE sessionkey=?"
 	getUsersQuery            = "SELECT id, usr, firstname, lastname, email FROM library_members WHERE id != ?"
+	getPermissionQuery		 = "SELECT permission from permissions where userid=? AND libraryid=?"
 
 	charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 )
@@ -197,4 +198,20 @@ func GetUsers(db *sql.DB, session string) ([]User, error) {
 		users = append(users, user)
 	}
 	return users, nil
+}
+
+//CanWrite determines if the current user has write access to a library
+func CanWrite(db *sql.DB, session, libraryid string) (bool) {
+	id, err := GetUserID(db, session)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return false
+	}
+	var permission int64
+	err = db.QueryRow(getPermissionQuery, id, libraryid).Scan(&permission)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return false
+	}
+	return (permission & 2) == 2
 }

@@ -33,6 +33,31 @@ func GetLibrariesHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
+//GetLibraryHandler gets a library by its id
+func GetLibraryHandler(w http.ResponseWriter, r *http.Request) {
+	registered, session := Registered(r)
+	if !registered {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
+		return
+	}
+	libraryid := mux.Vars(r)["libraryid"]
+	d, err := libraries.GetLibrary(db, session, libraryid)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	data, err := json.Marshal(d)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+}
+
 //GetCasesHandler gets cases
 func GetCasesHandler(w http.ResponseWriter, r *http.Request) {
 	registered, session := Registered(r)
@@ -76,6 +101,24 @@ func SaveCasesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 	err = libraries.SaveCases(db, libraryid, editedCases)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	return
+}
+
+//RefreshCasesHandler refreshes case and shelf images
+func RefreshCasesHandler(w http.ResponseWriter, r *http.Request) {
+	registered, session := Registered(r)
+	if !registered {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
+		return
+	}
+	libraryid := mux.Vars(r)["libraryid"]
+	err := libraries.RefreshCases(db, libraryid, session, resRoot)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -301,6 +344,57 @@ func GetLibrarySearchHandler(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
 	text := params.Get("text")
 	d, err := libraries.SearchShelves(db, libraryid, session, text)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	data, err := json.Marshal(d)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+}
+
+//GetCaseIDsHandler gets cases
+func GetCaseIDsHandler(w http.ResponseWriter, r *http.Request) {
+	registered, session := Registered(r)
+	if !registered {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
+		return
+	}
+	libraryid := mux.Vars(r)["libraryid"]
+	d, err := libraries.GetCaseIDs(db, libraryid, session)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	data, err := json.Marshal(d)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+}
+
+//GetCaseIDsHandler gets cases
+func GetShelfIDsHandler(w http.ResponseWriter, r *http.Request) {
+	registered, session := Registered(r)
+	if !registered {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
+		return
+	}
+	libraryid := mux.Vars(r)["libraryid"]
+	caseid := mux.Vars(r)["caseid"]
+	d, err := libraries.GetShelfIDs(db, libraryid, session, caseid)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
