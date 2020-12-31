@@ -944,20 +944,11 @@ func RefreshCases(db *sql.DB, libraryid string, session string, resRoot string) 
         cf.Seek(0, 0)
 
         // Get max shelf width (only books and book margins)
-        // Also set default book widths and heights if none
         // Also get total shelf heights (interior only)
         maxShelfWidthBooks := 0
         totalCaseHeight := 0
         for _, s := range c.Shelves {
             width := int(s.Width)
-            for _, b := range s.Books {
-                if b.Width <= 0 {
-                    b.Width = int64(c.AverageBookWidth)
-                }
-                if b.Height <= 0 {
-                    b.Height = int64(c.AverageBookHeight)
-                }
-            }
             if width > maxShelfWidthBooks {
                 maxShelfWidthBooks = width
             }
@@ -1022,6 +1013,14 @@ func RefreshCases(db *sql.DB, libraryid string, session string, resRoot string) 
                 // Fix Font Color if too short
                 for len(b.SpineColor) < 7 {
                     b.SpineColor += "0"
+                }
+
+                // Set default width/height if neccessary
+                if b.Width <= 0 {
+                	b.Width = int64(c.AverageBookWidth)
+                }
+                if b.Height <= 0 {
+                	b.Height = int64(c.AverageBookHeight)
                 }
 
                 // Draw Book
