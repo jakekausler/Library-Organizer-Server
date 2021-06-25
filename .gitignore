@@ -4,4 +4,10 @@ web/res/caseimages/*
 web/res/userimages/*
 server/server.exe
 server/server
+server/main/server
 logs/*
+web/main.js
+web/main.js.map
+web/*.ttf
+web/*.woff*
+web/fonts

@@ -67,7 +67,10 @@ func GetCasesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	libraryid := mux.Vars(r)["libraryid"]
-	d, err := libraries.GetCases(db, libraryid, session)
+	// params := r.URL.Query()
+	r.ParseForm()
+	_, includeBooks := r.Form["includeBooks"]
+	d, err := libraries.GetCases(db, libraryid, session, includeBooks)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
