@@ -18,11 +18,11 @@ var (
     db     *sql.DB
     logger = log.New(os.Stdout, "log: ", log.LstdFlags|log.Lshortfile)
 
-    username = "jakekausler"
-    password = "Jake021f2f1!"
+    username = ""
+    password = ""
     host = "localhost"
     mysqlport = "3306"
-    database = "library"
+    database = ""
 
     CaseSvgPath = "../../../web/res/caseimages"
 )
