@@ -11,13 +11,14 @@ import (
 
 //GetStatsHandler gets statistics
 func GetStatsHandler(w http.ResponseWriter, r *http.Request) {
-	if ok, _ := Registered(r); !ok {
-		logger.Printf("Unauthorized")
-		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
+	registered, session := Registered(r)
+	if !registered {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
 		return
 	}
 	params := r.URL.Query()
-	d, err := information.GetStats(db, params.Get("type"), params.Get("libraryids"))
+	d, err := information.GetStats(db, params.Get("type"), params.Get("libraryids"), session)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -35,13 +36,14 @@ func GetStatsHandler(w http.ResponseWriter, r *http.Request) {
 
 //GetStatsHandler2 gets statistics
 func GetStatsHandler2(w http.ResponseWriter, r *http.Request) {
-	if ok, _ := Registered(r); !ok {
-		logger.Printf("Unauthorized")
-		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
+	registered, session := Registered(r)
+	if !registered {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
 		return
 	}
 	params := r.URL.Query()
-	d, err := information.GetStats2(db, params.Get("type"), params.Get("libraryids"))
+	d, err := information.GetStats2(db, params.Get("type"), params.Get("libraryids"), session)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)

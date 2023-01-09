@@ -70,7 +70,7 @@ func GetCasesHandler(w http.ResponseWriter, r *http.Request) {
 	// params := r.URL.Query()
 	r.ParseForm()
 	_, includeBooks := r.Form["includeBooks"]
-	d, err := libraries.GetCases(db, libraryid, session, includeBooks)
+	d, _, err := libraries.GetCases(db, libraryid, session, includeBooks, true, false, true)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -346,7 +346,11 @@ func GetLibrarySearchHandler(w http.ResponseWriter, r *http.Request) {
 	libraryid := mux.Vars(r)["libraryid"]
 	params := r.URL.Query()
 	text := params.Get("text")
-	d, err := libraries.SearchShelves(db, libraryid, session, text)
+	searchusingtitle := params.Get("searchusingtitle") == "true"
+	searchusingsubtitle := params.Get("searchusingsubtitle") == "true"
+	searchusingseries := params.Get("searchusingseries") == "true"
+	searchusingauthor := params.Get("searchusingauthor") == "true"
+	d, err := libraries.SearchShelves(db, libraryid, session, text, searchusingtitle, searchusingsubtitle, searchusingseries, searchusingauthor)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)

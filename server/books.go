@@ -27,7 +27,7 @@ func GetBooksHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	params := r.URL.Query()
 	sortMethod := params.Get("sortmethod")
-	isread := params.Get("isread")
+	userread := params.Get("userread")
 	isreference := params.Get("isreference")
 	isowned := params.Get("isowned")
 	isloaned := params.Get("isloaned")
@@ -35,6 +35,10 @@ func GetBooksHandler(w http.ResponseWriter, r *http.Request) {
 	isshipping := params.Get("isshipping")
 	isanthology := params.Get("isanthology")
 	text := params.Get("text")
+	searchusingtitle := params.Get("searchusingtitle") == "true"
+	searchusingsubtitle := params.Get("searchusingsubtitle") == "true"
+	searchusingseries := params.Get("searchusingseries") == "true"
+	searchusingauthor := params.Get("searchusingauthor") == "true"
 	page := params.Get("page")
 	numberToGet := params.Get("numbertoget")
 	fromDewey := params.Get("fromdewey")
@@ -70,7 +74,7 @@ func GetBooksHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	bs, numberOfBooks, err := books.GetBooks(db, sortMethod, isread, isreference, isowned, isloaned, isreading, isshipping, text, page, numberToGet, fromDewey, toDewey, fromLexile, toLexile, fromInterestLevel, toInterestLevel, fromAR, toAR, fromLearningAZ, toLearningAZ, fromGuidedReading, toGuidedReading, fromDRA, toDRA, fromGrade, toGrade, fromFountasPinnell, toFountasPinnell, fromAge, toAge, fromReadingRecovery, toReadingRecovery, fromPMReaders, toPMReaders, libraryids, isbn, isanthology, session, authorseries)
+	bs, numberOfBooks, err := books.GetBooks(db, sortMethod, userread, isreference, isowned, isloaned, isreading, isshipping, text, searchusingtitle, searchusingsubtitle, searchusingseries, searchusingauthor, page, numberToGet, fromDewey, toDewey, fromLexile, toLexile, fromInterestLevel, toInterestLevel, fromAR, toAR, fromLearningAZ, toLearningAZ, fromGuidedReading, toGuidedReading, fromDRA, toDRA, fromGrade, toGrade, fromFountasPinnell, toFountasPinnell, fromAge, toAge, fromReadingRecovery, toReadingRecovery, fromPMReaders, toPMReaders, libraryids, isbn, isanthology, session, authorseries)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -113,7 +117,7 @@ func AddBookHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
-	err = books.SaveBook(db, b)
+	err = books.SaveBook(db, b, session)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -146,7 +150,7 @@ func SaveBookHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
-	err = books.SaveBook(db, b)
+	err = books.SaveBook(db, b, session)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
@@ -171,13 +175,71 @@ func DeleteBookHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	bookid := mux.Vars(r)["bookid"]
-	err := books.DeleteBook(db, bookid)
+	err := books.DeleteBook(db, bookid, session)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 		return
 	}
 	return
+}
+
+//DeleteBooskHandler deletes multiple books
+func DeleteBooksHandler(w http.ResponseWriter, r *http.Request) {
+	registered, session := Registered(r)
+	if !registered {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusUnauthorized)
+		return
+	}
+
+	if !CanWrite(session, "43") {
+		logger.Printf("no write permission")
+		http.Error(w, fmt.Sprintf("No Write Permissions"), http.StatusInternalServerError)
+		return
+	}
+
+	var bookids []string
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&bookids)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
+
+	err = books.DeleteBooks(db, bookids, session)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	return
+}
+
+//GetPriorityBooksHandler gets the priority book list for a user
+func GetPriorityBooksHandler(w http.ResponseWriter, r *http.Request) {
+	registered, session := Registered(r)
+	if !registered {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
+		return
+	}
+	priorityBooks, err := books.GetPriorityBooks(db, session)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	data, err := json.Marshal(priorityBooks)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
 }
 
 //CheckoutBookHandler checks out a book

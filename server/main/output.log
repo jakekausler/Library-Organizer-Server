@@ -1,0 +1,4 @@
+log: 2023/01/04 20:50:12 session.go:35: Creating the database
+log: 2023/01/04 20:50:12 session.go:43: Pinging the database
+log: 2023/01/04 20:50:12 session.go:51: Opening the log
+log: 2023/01/04 20:50:12 session.go:123: Listening on port 8181

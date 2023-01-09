@@ -7,7 +7,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/jakekausler/Library-Organizer-2.0/server/information"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -27,6 +26,9 @@ const (
 	getPermissionQuery		 = "SELECT permission from permissions where userid=? AND libraryid=?"
 
 	charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+	//SORTMETHOD comment
+	SORTMETHOD = "Dewey:ASC--Series:ASC--Volume:ASC--Author:ASC--Title:ASC--Subtitle:ASC--Edition:ASC--Lexile:ASC--InterestLevel:ASC--AR:ASC--LearningAZ:ASC--GuidedReading:ASC--DRA:ASC--FountasPinnell:ASC--ReadingRecovery:ASC--PMReaders:ASC--Grade:ASC--Age:ASC||Dewey:ASC--Series:ASC--Volume:ASC--Author:ASC--Title:ASC--Subtitle:ASC--Edition:ASC--Lexile:ASC--InterestLevel:ASC--AR:ASC--LearningAZ:ASC--GuidedReading:ASC--DRA:ASC--FountasPinnell:ASC--ReadingRecovery:ASC--PMReaders:ASC--Grade:ASC--Age:ASC"
 )
 
 var logger = log.New(os.Stderr, "log: ", log.LstdFlags|log.Lshortfile)
@@ -104,6 +106,7 @@ func GenerateSessionKey(db *sql.DB) string {
 //LoginUser logs in a user
 func LoginUser(db *sql.DB, username, password string) (string, error) {
 	id, err := IsUser(db, username, password)
+    logger.Printf("User id: %+v", id)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return "", err
@@ -136,7 +139,7 @@ func RegisterUser(db *sql.DB, username, password, email, first, last string) (st
 		logger.Printf("Error: %+v", err)
 		return "", err
 	}
-	result, err = db.Exec(addLibraryQuery, "default", id, information.SORTMETHOD)
+	result, err = db.Exec(addLibraryQuery, "default", id, SORTMETHOD)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return "", err
@@ -214,4 +217,20 @@ func CanWrite(db *sql.DB, session, libraryid string) (bool) {
 		return false
 	}
 	return (permission & 2) == 2
+}
+
+//CanSetRead determines if the current user can read books in a library
+func CanSetRead(db *sql.DB, session, libraryid string) (bool) {
+	id, err := GetUserID(db, session)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return false
+	}
+	var permission int64
+	err = db.QueryRow(getPermissionQuery, id, libraryid).Scan(&permission)
+	if err != nil {
+		logger.Printf("Error: %+v", err)
+		return false
+	}
+	return (permission & 8) == 8
 }

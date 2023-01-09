@@ -1,0 +1,7 @@
+log: 2022/09/16 18:30:19 session.go:35: Creating the database
+log: 2022/09/16 18:30:19 session.go:43: Pinging the database
+log: 2022/09/16 18:30:19 session.go:51: Opening the log
+log: 2022/09/16 18:30:19 session.go:123: Listening on port 8181
+log: 2022/09/16 18:30:23 libraries.go:1058: Refreshing Cases
+log: 2022/09/16 18:30:23 libraries.go:506: true, 35
+log: 2022/09/16 18:30:24 libraries.go:1250: Finished Refreshing Cases
