@@ -1,4 +1,6 @@
-# Library-Organizer-2.0
+# Library Organizer
+
+## About
 
 Library Organizer is a complete suite of tools designed to help users manage their personal or professional libraries. It hosts a variety of features:
 
@@ -15,6 +17,27 @@ In this document, you will find both a user guide, for normal users to learn the
 
 * User Guide
 * REST API
+
+## Screenshots
+
+![MainGrid](https://user-images.githubusercontent.com/15731642/140591631-2940613d-8937-4019-8e95-6628fb2b0ab8.PNG)
+![FilterGrid](https://user-images.githubusercontent.com/15731642/140591639-16207a54-1549-4e1f-890a-7d61c1d19560.PNG)
+![Edit](https://user-images.githubusercontent.com/15731642/140591638-89d18b15-c19a-40b6-a21f-7d330151d64e.PNG)
+![Shelves](https://user-images.githubusercontent.com/15731642/140591637-1db9495b-12fc-42a8-94ca-65e39c90e48f.PNG)
+![ShelvesSearch](https://user-images.githubusercontent.com/15731642/140591636-7f421965-a2be-4a05-a0ee-1fcfd8137d0c.PNG)
+![StatsCount](https://user-images.githubusercontent.com/15731642/140591635-7a27ab35-856b-426f-87fe-85c1a9e66150.PNG)
+![StatsPages](https://user-images.githubusercontent.com/15731642/140591634-092bf7f5-d5c1-438f-8f07-7710f3d6fade.PNG)
+![StatsDeweys](https://user-images.githubusercontent.com/15731642/140591633-e7cbf55a-2618-4a90-a915-9d1861d2e410.PNG)
+![StatsDimensions](https://user-images.githubusercontent.com/15731642/140591632-8a0ca043-19d9-40a7-9743-87a1517b8e41.PNG)
+
+
+## Before you start
+
+You will need to have a MySql database setup, as well as Go and npm. First, initialize the database using /dev/create_database.sql. Then, edit /dev/libraries.env with your sql credentials and database information.
+
+Pull down https://github.com/jakekausler/LibraryOrganizerReact and build application. Move the files from the /build folder in LibraryOrganizerReact to the /web folder in this application.
+
+Source the /dev/libraries.env file, and then build and run the application.
 
 # User Guide
 
