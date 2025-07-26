@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/jakekausler/Library-Organizer-2.0/server/libraries"
@@ -86,6 +87,36 @@ func GetCasesHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
+//GetShelfDividersHandler gets dividers for a shelf
+func GetShelfDividersHandler(w http.ResponseWriter, r *http.Request) {
+	registered, _ := Registered(r)
+	if !registered {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
+		return
+	}
+	shelfid, err := strconv.Atoi(mux.Vars(r)["shelfid"])
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	d, err := libraries.GetDividers(db, int64(shelfid))
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	data, err := json.Marshal(d)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+}
+
 //SaveCasesHandler saves cases
 func SaveCasesHandler(w http.ResponseWriter, r *http.Request) {
 	if ok, _ := Registered(r); !ok {
@@ -120,8 +151,10 @@ func RefreshCasesHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
 		return
 	}
+	sessionKey, _ := r.Cookie("session")
 	libraryid := mux.Vars(r)["libraryid"]
-	err := libraries.RefreshCases(db, libraryid, session, resRoot)
+	err := libraries.RefreshCases(db, libraryid, session, resRoot, sessionKey.Value)
+	//err := libraries.RefreshCases2(db, libraryid, session, resRoot)
 	if err != nil {
 		logger.Printf("%+v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)

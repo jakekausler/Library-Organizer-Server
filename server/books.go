@@ -93,6 +93,45 @@ func GetBooksHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
+//GetBooksCasesHandler gets books from a filter query
+func GetBooksCasesHandler(w http.ResponseWriter, r *http.Request) {
+	registered, session := Registered(r)
+	if !registered {
+		logger.Printf("unauthorized")
+		http.Error(w, fmt.Sprintf("Unauthorized"), http.StatusInternalServerError)
+		return
+	}
+	params := r.URL.Query()
+	libraryid := params.Get("libraryid")
+	authorseries, err := libraries.GetAuthorBasedSeries(db, libraryid)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	sortMethod, err := libraries.GetLibrarySort(db, libraryid)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	books, _, err := books.GetBooksCases(db, sortMethod, "both", "both", "yes", "both", "both", "both", "", false, false, false, false, "1", "-1", "", "bGEO", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", libraryid, "", "both", session, authorseries)
+
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	data, err := json.Marshal(books)
+	if err != nil {
+		logger.Printf("%+v", err)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+}
+
 //AddBookHandler saves a book
 func AddBookHandler(w http.ResponseWriter, r *http.Request) {
 	registered, session := Registered(r)

@@ -3,14 +3,15 @@ package libraryserver
 import (
 	"database/sql"
 	"fmt"
+	"log"
+	"net/http"
+	"os"
+	"time"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
-	"log"
-	"net/http"
-	"os"
-    "time"
 )
 
 //Env Variables
@@ -44,8 +45,8 @@ func RunServer(host, username, password, database string, appport, mysqlport int
 	// Test the connection
 	err = db.Ping()
 	for err != nil {
-        logger.Printf("Could not reach the database. Sleeping for 10 seconds")
-        time.Sleep(10 * time.Second)
+		logger.Printf("Could not reach the database. Sleeping for 10 seconds")
+		time.Sleep(10 * time.Second)
 		err = db.Ping()
 	}
 	logger.Printf("Opening the log")
@@ -64,6 +65,7 @@ func RunServer(host, username, password, database string, appport, mysqlport int
 	r.HandleFunc("/books/checkout", CheckoutBookHandler).Methods("PUT")
 	r.HandleFunc("/books/checkin", CheckinBookHandler).Methods("PUT")
 	r.HandleFunc("/books/books", ExportBooksHandler).Methods("GET")
+	r.HandleFunc("/books/bookscases", GetBooksCasesHandler).Methods("GET")
 	r.HandleFunc("/books/priority", GetPriorityBooksHandler).Methods("GET")
 	r.HandleFunc("/books/contributors", ExportAuthorsHandler).Methods("GET")
 	r.HandleFunc("/books/books", ImportBooksHandler).Methods("POST")
@@ -104,16 +106,18 @@ func RunServer(host, username, password, database string, appport, mysqlport int
 	r.HandleFunc("/libraries/{libraryid}/sort", GetLibrarySortHandler).Methods("GET")
 	r.HandleFunc("/libraries/{libraryid}/sort", UpdateLibrarySortHandler).Methods("PUT")
 	r.HandleFunc("/libraries/{libraryid}/search", GetLibrarySearchHandler).Methods("GET")
+	r.HandleFunc("/libraries/shelfdividers/{shelfid}", GetShelfDividersHandler).Methods("GET")
 	r.HandleFunc("/settings", GetSettingsHandler).Methods("GET")
 	r.HandleFunc("/settings", SaveSettingsHandler).Methods("PUT")
 	r.HandleFunc("/settings/{setting}", GetSettingHandler).Methods("GET")
 	r.HandleFunc("/users", GetUsersHandler).Methods("GET")
 	r.HandleFunc("/users/login", LoginHandler).Methods("POST")
 	r.HandleFunc("/users", RegisterHandler).Methods("POST")
-	r.HandleFunc("/users/logout", LogoutHandler).Methods("POST")
+	r.HandleFunc("/users/logout", LogoutHandler).Methods("POST", "GET")
 	r.HandleFunc("/users/reset", ResetPasswordHandler).Methods("PUT")
 	r.HandleFunc("/users/reset/{token}", FinishResetPasswordHandler).Methods("GET")
 	r.HandleFunc("/users/username", GetUsernameHandler).Methods("GET")
+	r.HandleFunc("/users/loggedin", IsLoggedInHandler).Methods("GET")
 	r.HandleFunc("/imagelist", GetImages).Methods("GET")
 	r.HandleFunc("/information/locationcounts", GetPublisherLocationCounts).Methods("GET")
 	r.HandleFunc("/bookimages/{bookid}", GetBookImage).Methods("GET")
@@ -122,8 +126,16 @@ func RunServer(host, username, password, database string, appport, mysqlport int
 	r.PathPrefix("/web/").Handler(http.StripPrefix("/web/", http.FileServer(http.Dir(appRoot)))) //+"/../"))))
 	logger.Printf("Listening on port %v", appport)
 	loggedRouter := handlers.CombinedLoggingHandler(logFile, r)
+	//r.Use(corsMiddleware)
 	logger.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", appport), handlers.CompressHandler(loggedRouter)))
 	// http.ListenAndServe(":8181", nil)
+}
+
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		next.ServeHTTP(w, r)
+	})
 }
 
 //RouteByAuthenticate determines which page to load
@@ -145,7 +157,18 @@ func GetBookImage(w http.ResponseWriter, r *http.Request) {
 	bookid := mux.Vars(r)["bookid"]
 	params := r.URL.Query()
 	size := params.Get("size")
-	http.ServeFile(w, r, fmt.Sprintf("%v/bookimages/%v/%v.jpg", resRoot, size, bookid))
+	// Check if the jpg file exists. If it doesn't, try to serve png, then jpeg
+	_, err := os.Stat(fmt.Sprintf("%v/bookimages/%v/%v.jpg", resRoot, size, bookid))
+	if os.IsNotExist(err) {
+		_, err = os.Stat(fmt.Sprintf("%v/bookimages/%v/%v.png", resRoot, size, bookid))
+		if os.IsNotExist(err) {
+			http.ServeFile(w, r, fmt.Sprintf("%v/bookimages/%v/%v.jpeg", resRoot, size, bookid))
+		} else {
+			http.ServeFile(w, r, fmt.Sprintf("%v/bookimages/%v/%v.png", resRoot, size, bookid))
+		}
+	} else {
+		http.ServeFile(w, r, fmt.Sprintf("%v/bookimages/%v/%v.jpg", resRoot, size, bookid))
+	}
 }
 
 //GetCaseImage gets an image

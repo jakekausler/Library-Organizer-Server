@@ -1,12 +1,14 @@
 package libraries
 
 import (
+	"bytes"
 	"database/sql"
 	"fmt"
 	"image/color"
 	"log"
 	"math"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 
@@ -105,17 +107,17 @@ type Bookcase struct {
 
 //Bookshelf is a shelf on a bookcase
 type Bookshelf struct {
-	ID          int64        `json:"id"`
-	CaseID      int64        `json:"caseid"`
-	ShelfNumber int64        `json:"shelfnumber"`
-	Width       int64        `json:"width"`
-	Height      int64        `json:"height"`
-	PaddingLeft int64        `json:"paddingleft"`
-	PaddingRight int64       `json:"paddingright"`
-	Alignment   string       `json:"alignment"`
-	IsTop       int64        `json:"istop"`
-	DoNotUse    int64        `json:"DoNotUse"`
-	Books       []books.Book `json:"books"`
+	ID           int64        `json:"id"`
+	CaseID       int64        `json:"caseid"`
+	ShelfNumber  int64        `json:"shelfnumber"`
+	Width        int64        `json:"width"`
+	Height       int64        `json:"height"`
+	PaddingLeft  int64        `json:"paddingleft"`
+	PaddingRight int64        `json:"paddingright"`
+	Alignment    string       `json:"alignment"`
+	IsTop        int64        `json:"istop"`
+	DoNotUse     int64        `json:"DoNotUse"`
+	Books        []books.Book `json:"books"`
 }
 
 //OwnedLibrary is a library owned by the user and the users that have permission to view them
@@ -139,10 +141,10 @@ type UserWithPermission struct {
 
 //Divider is a divider in a shelf
 type Divider struct {
-	Width            int64 `json:"width"`
-	DistanceFromLeft int64 `json:"distancefromleft"`
-	Height 			 int64 `json:"height"`
-	ImageURL		 string `json:"height"`
+	Width            int64  `json:"width"`
+	DistanceFromLeft int64  `json:"distancefromleft"`
+	Height           int64  `json:"height"`
+	ImageURL         string `json:"imageurl"`
 }
 
 type BookList struct {
@@ -161,7 +163,7 @@ func shiftSubarray(array []books.Book, start, end, amount int) {
 func GetCases(db *sql.DB, libraryid, session string, includeBooks, useOversized, keepSeriesTogether, turnSideways bool) ([]Bookcase, []books.Book, error) {
 	// logger.Printf("Start getting Cases")
 	// MAX_HEIGHT_ON_TOP := 250
-    STACKED_CASE_PADDING := 15;
+	STACKED_CASE_PADDING := 15
 	authorseries, err := GetAuthorBasedSeries(db, libraryid)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
@@ -227,28 +229,39 @@ func GetCases(db *sql.DB, libraryid, session string, includeBooks, useOversized,
 				return nil, nil, err
 			}
 			bookcase.Shelves = append(bookcase.Shelves, Bookshelf{
-				ID:          shelfid,
-				CaseID:      caseid,
-				ShelfNumber: shelfnumber,
-				Width:       width,
-				Height:      height,
-				PaddingLeft: paddingLeft,
+				ID:           shelfid,
+				CaseID:       caseid,
+				ShelfNumber:  shelfnumber,
+				Width:        width,
+				Height:       height,
+				PaddingLeft:  paddingLeft,
 				PaddingRight: paddingRight,
-				Alignment:   alignment,
-				IsTop:       istop,
-				DoNotUse:	 donotuse,
+				Alignment:    alignment,
+				IsTop:        istop,
+				DoNotUse:     donotuse,
 			})
 		}
 		cases = append(cases, bookcase)
 	}
+	// for index, _ := range books {
+	// 	if strings.HasPrefix(books[index].Notes, "Buy new to match height (") {
+	// 		notesHeightI, err := strconv.Atoi(books[index].Notes[len("Buy new to match height ("):strings.Index(books[index].Notes,",")])
+	// 		if err != nil {
+	// 			logger.Printf("Error: %s", err)
+	// 			return nil, nil, err
+	// 		}
+	// 		notesHeight := int64(notesHeightI)
+	// 		books[index].Height = notesHeight
+	// 	}
+	// }
 	var oversized BookList
 	if includeBooks {
 		// logger.Printf("Start getting books")
 		index := 0
 		x := 0
-		
+
 		var handledSeries []string
-		
+
 		for c, bookcase := range cases {
 			// logger.Printf("Start getting bookcase %+v", bookcase.CaseNumber)
 			breakcase := false
@@ -268,8 +281,8 @@ func GetCases(db *sql.DB, libraryid, session string, includeBooks, useOversized,
 				}
 				// totalDividerWidthAndMargin := 0
 				// for _, d := range dividers {
-					//Ignore padding for dividers
-					// totalDividerWidthAndMargin += int(d.Width) // + int(bookcase.Shelves[s].PaddingLeft) + int(bookcase.PaddingLeft)
+				//Ignore padding for dividers
+				// totalDividerWidthAndMargin += int(d.Width) // + int(bookcase.Shelves[s].PaddingLeft) + int(bookcase.PaddingLeft)
 				// }
 				x = int(bookcase.Shelves[s].PaddingLeft)
 				useWidth := int(bookcase.AverageBookWidth)
@@ -279,7 +292,7 @@ func GetCases(db *sql.DB, libraryid, session string, includeBooks, useOversized,
 				useWidth += int(cases[c].BookMargin)
 				breakshelf := false
 				currentDivider := 0
-				for index < len(books) && useWidth+x <= int(cases[c].Shelves[s].Width)-int(bookcase.Shelves[s].PaddingRight)/*-totalDividerWidthAndMargin*/ {
+				for index < len(books) && useWidth+x <= int(cases[c].Shelves[s].Width)-int(bookcase.Shelves[s].PaddingRight) /*-totalDividerWidthAndMargin*/ {
 					// logger.Printf("Start getting book %+v", index)
 					// if bookcase.CaseNumber == 10 && bookcase.Shelves[s].ShelfNumber == 1 {
 					// 	logger.Printf("%+v/%+v/%+v: %+v + %+v = %+v <= %+v - %+v = %+v -----> %+v", bookcase.CaseNumber, bookcase.Shelves[s].ShelfNumber, index, useWidth, x, useWidth+x, int(cases[c].Shelves[s].Width), int(bookcase.Shelves[s].PaddingRight), /*totalDividerWidthAndMargin, */int(cases[c].Shelves[s].Width)-int(bookcase.Shelves[s].PaddingRight)/*-totalDividerWidthAndMargin*/, books[index].Title)
@@ -290,7 +303,30 @@ func GetCases(db *sql.DB, libraryid, session string, includeBooks, useOversized,
 					if useOversized && books[index].Height > cases[c].Shelves[s].Height {
 						oversized.Books = append(oversized.Books, books[index])
 						index++
+						useWidth = int(bookcase.AverageBookWidth)
+						if index < len(books) && books[index].Width != 0 {
+							useWidth = int(books[index].Width)
+						}
 						continue
+					}
+					if useOversized && !books[index].IsSideways && len(oversized.Books) > 0 {
+						for i := 0; i < len(oversized.Books); i++ {
+							if int(oversized.Books[i].Height) <= int(cases[c].Shelves[s].Height) && x+int(oversized.Books[i].Width) <= int(cases[c].Shelves[s].Width)-int(cases[c].Shelves[s].PaddingRight) {
+								books = append(books[:index+1], books[index:]...)
+								books[index] = oversized.Books[i]
+								useWidth = int(bookcase.AverageBookWidth)
+								if index < len(books) && books[index].Width > 0 {
+									useWidth = int(books[index].Width)
+								}
+								useWidth += int(cases[c].BookMargin)
+								oversized.Books = append(oversized.Books[:i], oversized.Books[i+1:]...)
+								// logger.Printf(books[index].Title)
+								// for _, b := range oversized.Books {
+								// 	logger.Printf("\t%+v", b.Title)
+								// }
+								break
+							}
+						}
 					}
 					// If we are using the turning sideways method,
 					//   and we aren't already turning books sideways
@@ -306,55 +342,55 @@ func GetCases(db *sql.DB, libraryid, session string, includeBooks, useOversized,
 					//   and move the x position.
 					//   In all marked books, add them to the list and move on without advancing the x any further.
 					if turnSideways &&
-					   !books[index].IsSideways &&
-					   index < len(books) - 1 &&
-					   bookcase.Shelves[s].IsTop == 0 &&
-					   books[index].Height == books[index+1].Height &&
-					   int(books[index].Height)+x <= int(cases[c].Shelves[s].Width)-int(bookcase.Shelves[s].PaddingRight) &&
-					   (len(dividers) == 0 || currentDivider >= len(dividers) ||
+						!books[index].IsSideways &&
+						index < len(books)-1 &&
+						bookcase.Shelves[s].IsTop == 0 &&
+						books[index].Height == books[index+1].Height &&
+						int(books[index].Height)+x <= int(cases[c].Shelves[s].Width)-int(bookcase.Shelves[s].PaddingRight) &&
+						(len(dividers) == 0 || currentDivider >= len(dividers) ||
 							x+int(books[index].Height) <= int(dividers[currentDivider].DistanceFromLeft)) {
-					   	maxStackHeight := int(cases[c].Shelves[s].Height) - STACKED_CASE_PADDING
-					   	// Uncomment these lines and the constant and remove the is top if clause to set a max height for the top shelf
-					   	// if cases[c].Shelves[s].IsTop == 1 {
-					   	// 	maxStackHeight = MAX_HEIGHT_ON_TOP
-					   	// }
-					   	stackHeight := books[index].Width//-useWidth
+						maxStackHeight := int(cases[c].Shelves[s].Height) - STACKED_CASE_PADDING
+						// Uncomment these lines and the constant and remove the is top if clause to set a max height for the top shelf
+						// if cases[c].Shelves[s].IsTop == 1 {
+						// 	maxStackHeight = MAX_HEIGHT_ON_TOP
+						// }
+						stackHeight := books[index].Width //-useWidth
 						// logger.Printf("Checking Stacked (%+v/%+v):\n\tTitle: %+v\n\tSeries: %+v\n\tVolume: %+v\n\tWidth: %+v\n\tHeight: %+v\n\tStackHeight: %+v\n\tMaxStackHeight: %+v\n\t", index, index, books[index].Title, books[index].Series, books[index].Volume, useWidth, books[index].Height, stackHeight, maxStackHeight)
-					   	checkIndex := index + 1
-					   	//- checkWidth := int(books[checkIndex].Width)
-					   	//- if checkWidth == 0 {
-					   	//- 	checkWidth = int(bookcase.AverageBookWidth)
-					   	//- }
-					   	for checkIndex < len(books) && books[checkIndex].Height == books[index].Height && int(stackHeight) + /*-checkWidth*/int(books[checkIndex].Width) < maxStackHeight {
-					   		stackHeight += books[checkIndex].Width//-checkWidth
-						   	// logger.Printf("Checking Stacked (%+v/%+v):\n\tTitle: %+v\n\tSeries: %+v\n\tVolume: %+v\n\tWidth: %+v\n\tHeight: %+v\n\tStackHeight: %+v\n\tMaxStackHeight: %+v\n\t", index, checkIndex, books[checkIndex].Title, books[checkIndex].Series, books[checkIndex].Volume, checkWidth, books[checkIndex].Height, stackHeight, maxStackHeight)
-					   		checkIndex += 1
-					   		//- if checkIndex < len(books) {
-						   	//- 	checkWidth := int(books[checkIndex].Width)
+						checkIndex := index + 1
+						//- checkWidth := int(books[checkIndex].Width)
+						//- if checkWidth == 0 {
+						//- 	checkWidth = int(bookcase.AverageBookWidth)
+						//- }
+						for checkIndex < len(books) && books[checkIndex].Height == books[index].Height && int(stackHeight)+ /*-checkWidth*/ int(books[checkIndex].Width) < maxStackHeight {
+							stackHeight += books[checkIndex].Width //-checkWidth
+							// logger.Printf("Checking Stacked (%+v/%+v):\n\tTitle: %+v\n\tSeries: %+v\n\tVolume: %+v\n\tWidth: %+v\n\tHeight: %+v\n\tStackHeight: %+v\n\tMaxStackHeight: %+v\n\t", index, checkIndex, books[checkIndex].Title, books[checkIndex].Series, books[checkIndex].Volume, checkWidth, books[checkIndex].Height, stackHeight, maxStackHeight)
+							checkIndex += 1
+							//- if checkIndex < len(books) {
+							//- 	checkWidth := int(books[checkIndex].Width)
 							//-    	if checkWidth == 0 {
 							//-    		checkWidth = int(bookcase.AverageBookWidth)
 							//-    	}
 							//- }
-					   	}
+						}
 						// logger.Printf("Checking Stacked Start (%+v/%+v):\n\tTitle: %+v\n\tSeries: %+v\n\tVolume: %+v\n\tHeight: %+v\n\tStackHeight: %+v\n\tMaxStackHeight: %+v\n\t", index, index, books[index].Title, books[index].Series, books[index].Volume, books[index].Height, stackHeight, maxStackHeight)
-					   	// logger.Printf("Checking Stacked End (%+v/%+v):\n\tTitle: %+v\n\tSeries: %+v\n\tVolume: %+v\n\tHeight: %+v\n\tStackHeight: %+v\n\tMaxStackHeight: %+v\n\t", index, checkIndex - 1, books[checkIndex - 1].Title, books[checkIndex - 1].Series, books[checkIndex - 1].Volume, books[checkIndex - 1].Height, stackHeight, maxStackHeight)
-					   	if int(stackHeight) > int(books[index].Height) {
-					   		for i := index; i < checkIndex; i++ {
-					   			books[i].IsSideways = true
-					   			// logger.Printf("%+v", i)
-					   			if i > index {
-					   				books[i].PreviousSideways = &books[i-1]
-					   			}
-						   		// logger.Printf("Stacked (%+v):\n\tTitle: %+v\n\tSeries: %+v\n\tVolume: %+v\n\tHeight: %+v\n\tStackHeight: %+v\n\tMaxStackHeight: %+v\n\t", i, books[i].Title, books[i].Series, books[i].Volume, books[i].Height, stackHeight, maxStackHeight)
-					   		}
-					   	}
+						// logger.Printf("Checking Stacked End (%+v/%+v):\n\tTitle: %+v\n\tSeries: %+v\n\tVolume: %+v\n\tHeight: %+v\n\tStackHeight: %+v\n\tMaxStackHeight: %+v\n\t", index, checkIndex - 1, books[checkIndex - 1].Title, books[checkIndex - 1].Series, books[checkIndex - 1].Volume, books[checkIndex - 1].Height, stackHeight, maxStackHeight)
+						if int(stackHeight) > int(books[index].Height) {
+							for i := index; i < checkIndex; i++ {
+								books[i].IsSideways = true
+								// logger.Printf("%+v", i)
+								if i > index {
+									books[i].PreviousSideways = &books[i-1]
+								}
+								// logger.Printf("Stacked (%+v):\n\tTitle: %+v\n\tSeries: %+v\n\tVolume: %+v\n\tHeight: %+v\n\tStackHeight: %+v\n\tMaxStackHeight: %+v\n\t", i, books[i].Title, books[i].Series, books[i].Volume, books[i].Height, stackHeight, maxStackHeight)
+							}
+						}
 					}
 					if books[index].IsSideways {
 						// logger.Printf("Increased index, breaking. x is %+v", x)
 						if index < len(books)-1 && books[index+1].PreviousSideways == nil {
 							useWidth = int(books[index].Height)
 							// x += int(books[index].Height)
-						   	// logger.Printf("Stacked and moving on (%+v):\n\tTitle: %+v\n\tSeries: %+v\n\tVolume: %+v\n\tHeight: %+v\n\tx: %+v\n\t", index, books[index].Title, books[index].Series, books[index].Volume, books[index].Height, x)
+							// logger.Printf("Stacked and moving on (%+v):\n\tTitle: %+v\n\tSeries: %+v\n\tVolume: %+v\n\tHeight: %+v\n\tx: %+v\n\t", index, books[index].Title, books[index].Series, books[index].Volume, books[index].Height, x)
 						} else {
 							cases[c].Shelves[s].Books = append(cases[c].Shelves[s].Books, books[index])
 							index++
@@ -375,15 +411,15 @@ func GetCases(db *sql.DB, libraryid, session string, includeBooks, useOversized,
 						}
 
 						// If the series will fit on the remainder of this shelf, don't move it and mark it done
-						if seriesWidth+x <= int(cases[c].Shelves[s].Width)-int(bookcase.Shelves[s].PaddingRight)/*-totalDividerWidthAndMargin*/ {
+						if seriesWidth+x <= int(cases[c].Shelves[s].Width)-int(bookcase.Shelves[s].PaddingRight) /*-totalDividerWidthAndMargin*/ {
 							handledSeries = append(handledSeries, series)
 							logger.Printf("\nX: %v.\nSeries: %v.\nSeries Width: %v.\nOld index: %v.\nNewIndex: %v.\n", x, series, seriesWidth, index, index)
 							// If the series won't fit on this shelf, but will fit on the next shelf and the next shelf isn't the last shelf, keep moving it until we get to the next shelf
-						} else if s+1 < len(cases[c].Shelves) && int(bookcase.Shelves[s].PaddingLeft)+seriesWidth <= int(cases[c].Shelves[s+1].Width)-int(bookcase.Shelves[s].PaddingRight)/*-totalDividerWidthAndMargin*/ {
+						} else if s+1 < len(cases[c].Shelves) && int(bookcase.Shelves[s].PaddingLeft)+seriesWidth <= int(cases[c].Shelves[s+1].Width)-int(bookcase.Shelves[s].PaddingRight) /*-totalDividerWidthAndMargin*/ {
 							shiftSubarray(books, index, index+booksInSeries-1, 1)
 							logger.Printf("\nX: %v.\nSeries: %v.\nSeries Width: %v.\nOld index: %v.\nNewIndex: %v.\n", x, series, seriesWidth, index, index+1)
 							// If the series won't fit on this shelf, but will fit on the next shelf and the next shelf is the last shelf on the case, keep moving it until we get to the next shelf
-						} else if s+1 >= len(cases[c].Shelves) && c+1 < len(cases) && int(cases[c+1].Shelves[s].PaddingLeft)+seriesWidth <= int(cases[c+1].Shelves[0].Width)-int(bookcase.Shelves[s].PaddingRight)/*-totalDividerWidthAndMargin*/ {
+						} else if s+1 >= len(cases[c].Shelves) && c+1 < len(cases) && int(cases[c+1].Shelves[s].PaddingLeft)+seriesWidth <= int(cases[c+1].Shelves[0].Width)-int(bookcase.Shelves[s].PaddingRight) /*-totalDividerWidthAndMargin*/ {
 							shiftSubarray(books, index, index+booksInSeries-1, 1)
 							logger.Printf("\nX: %v.\nSeries: %v.\nSeries Width: %v.\nOld index: %v.\nNewIndex: %v.\n", x, series, seriesWidth, index, index+1)
 							// If the series won't even fit on the next shelf, or this is the last shelf in the library, don't move it and mark it done
@@ -408,6 +444,7 @@ func GetCases(db *sql.DB, libraryid, session string, includeBooks, useOversized,
 					}
 					cases[c].Shelves[s].Books = append(cases[c].Shelves[s].Books, books[index])
 					x += useWidth
+					// logger.Printf("Book (%+v, %+v, %+v) end x: %+v (useWidth %+v)", cases[c].CaseNumber, cases[c].Shelves[s].ShelfNumber, index, x, useWidth)
 					index++
 					useWidth = int(bookcase.AverageBookWidth)
 					if index < len(books) && books[index].Width != 0 {
@@ -460,6 +497,7 @@ func GetCases(db *sql.DB, libraryid, session string, includeBooks, useOversized,
 					}
 					// logger.Printf("Done getting book")
 				}
+				// logger.Printf("end x for shelf (%+v, %+v): %+v. useWidth + x: %+v. End of Shelf: %+v", cases[c].CaseNumber, cases[c].Shelves[s].ShelfNumber, x, useWidth+x, int(cases[c].Shelves[s].Width)-int(bookcase.Shelves[s].PaddingRight))
 				// logger.Printf("Done getting shelf")
 			}
 			// logger.Printf("Done getting bookcase")
@@ -480,15 +518,15 @@ func GetCases(db *sql.DB, libraryid, session string, includeBooks, useOversized,
 			CaseNumber:        int64(len(cases) + 1),
 		}
 		c.Shelves = append(c.Shelves, Bookshelf{
-			ID:          -1,
-			CaseID:      -1,
-			ShelfNumber: 0,
-			Width:       int64(oversizedWidth),
-			Height:      300,
-			PaddingLeft: cases[0].Shelves[0].PaddingLeft,
+			ID:           -1,
+			CaseID:       -1,
+			ShelfNumber:  0,
+			Width:        int64(oversizedWidth),
+			Height:       300,
+			PaddingLeft:  cases[0].Shelves[0].PaddingLeft,
 			PaddingRight: cases[0].Shelves[0].PaddingRight,
-			Alignment:   "Left",
-			IsTop:       0,
+			Alignment:    "Left",
+			IsTop:        0,
 		})
 		c.Shelves[len(c.Shelves)-1].Books = oversized.Books
 		cases = append(cases, c)
@@ -927,7 +965,7 @@ func UpdateLibrarySort(db *sql.DB, libraryid, method string) error {
 //SearchShelves gets the locations of books on shelves by a search
 func SearchShelves(db *sql.DB, libraryid, session, text string, searchusingtitle, searchusingsubtitle, searchusingseries, searchusingauthor bool) ([]SearchLocation, error) {
 	var locations []SearchLocation
-	cases, _, err := GetCases(db, libraryid, session, true, true, false, true)
+	cases, _, err := GetCases(db, libraryid, session, true, true, false, false)
 	if err != nil {
 		return locations, err
 	}
@@ -952,8 +990,7 @@ func SearchShelves(db *sql.DB, libraryid, session, text string, searchusingtitle
 //IsMatch determines if a book matches a search string
 func IsMatch(book books.Book, query string, searchusingtitle, searchusingsubtitle, searchusingseries, searchusingauthor bool) bool {
 	useAllSearch := !(searchusingtitle || searchusingsubtitle || searchusingseries || searchusingauthor)
-	return (
-		((useAllSearch || searchusingtitle) && strings.Contains(strings.ToLower(book.Title), query)) ||
+	return (((useAllSearch || searchusingtitle) && strings.Contains(strings.ToLower(book.Title), query)) ||
 		((useAllSearch || searchusingsubtitle) && strings.Contains(strings.ToLower(book.Subtitle), query)) ||
 		((useAllSearch || searchusingseries) && strings.Contains(strings.ToLower(book.Series), query)) ||
 		((useAllSearch || searchusingauthor) && IsAuthorMatch(book.Contributors, query)))
@@ -963,11 +1000,10 @@ func IsMatch(book books.Book, query string, searchusingtitle, searchusingsubtitl
 func IsAuthorMatch(contributors []information.Contributor, query string) bool {
 	for _, c := range contributors {
 		if c.Role == "Author" {
-			if (
-				strings.Contains(strings.ToLower(c.Name.First + " " + c.Name.Middles + " " + c.Name.Last), query) ||
-				strings.Contains(strings.ToLower(c.Name.First + " " + c.Name.Last), query)) {
-					return true
-				}
+			if strings.Contains(strings.ToLower(c.Name.First+" "+c.Name.Middles+" "+c.Name.Last), query) ||
+				strings.Contains(strings.ToLower(c.Name.First+" "+c.Name.Last), query) {
+				return true
+			}
 		}
 	}
 	return false
@@ -1034,7 +1070,7 @@ func GetDividers(db *sql.DB, shelfid int64) ([]Divider, error) {
 }
 
 //RefreshCases refreshes case and shelf images {
-func RefreshCases(db *sql.DB, libraryid string, session string, resRoot string) error {
+func RefreshCases2(db *sql.DB, libraryid string, session string, resRoot string) error {
 	// logger.Printf("Refreshing Cases")
 	// Grab all the cases
 	cases, _, err := GetCases(db, libraryid, session, true, true, false, true)
@@ -1179,7 +1215,7 @@ func RefreshCases(db *sql.DB, libraryid string, session string, resRoot string) 
 
 				if currentDivider < len(dividers) {
 					if x+int(b.Width) > CASE_MARGIN+int(c.SpacerHeight)+int(dividers[currentDivider].DistanceFromLeft) {
-						x = CASE_MARGIN+int(c.SpacerHeight)+int(dividers[currentDivider].DistanceFromLeft) + int(dividers[currentDivider].Width) + int(c.BookMargin)
+						x = CASE_MARGIN + int(c.SpacerHeight) + int(dividers[currentDivider].DistanceFromLeft) + int(dividers[currentDivider].Width) + int(c.BookMargin)
 						currentDivider += 1
 					}
 				}
@@ -1237,7 +1273,7 @@ func RefreshCases(db *sql.DB, libraryid string, session string, resRoot string) 
 				// Move x to start of next book (if not in a sideways stack, or if in the last book of a sideways stack)
 				if !b.IsSideways {
 					x += int(b.Width) + int(c.BookMargin)
-				} else if b.IsSideways && bidx < len(s.Books) - 1 && s.Books[bidx+1].PreviousSideways == nil {
+				} else if b.IsSideways && bidx < len(s.Books)-1 && s.Books[bidx+1].PreviousSideways == nil {
 					x += int(b.Height) + int(c.BookMargin)
 				}
 			}
@@ -1262,5 +1298,20 @@ func RefreshCases(db *sql.DB, libraryid string, session string, resRoot string) 
 
 	// logger.Printf("Finished Refreshing Cases")
 
+	return nil
+}
+
+//RefreshCases refreshes case and shelf images {
+func RefreshCases(db *sql.DB, libraryid string, session string, resRoot string, sessionKey string) error {
+	CaseSvgPath := resRoot + SVG_PATH
+	c := exec.Command("python3", "./FullShelfEditWithUnevenStacks.py", "--directory", CaseSvgPath, "--libraryid", libraryid, "--session", sessionKey)
+	var out bytes.Buffer
+	var stderr bytes.Buffer
+	c.Stdout = &out
+	c.Stderr = &stderr
+	if err := c.Run(); err != nil {
+		fmt.Println(fmt.Sprint(err) + ":" + stderr.String())
+	}
+	fmt.Println("Result: " + out.String())
 	return nil
 }

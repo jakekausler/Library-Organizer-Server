@@ -2,6 +2,7 @@ package users
 
 import (
 	"database/sql"
+	"errors"
 	"log"
 	"math/rand"
 	"os"
@@ -23,7 +24,7 @@ const (
 	getUsernameQuery         = "SELECT usr FROM library_members JOIN usersession ON UserID=ID WHERE sessionkey=?"
 	getUserIDQuery           = "SELECT id FROM library_members JOIN usersession ON UserID=ID WHERE sessionkey=?"
 	getUsersQuery            = "SELECT id, usr, firstname, lastname, email FROM library_members WHERE id != ?"
-	getPermissionQuery		 = "SELECT permission from permissions where userid=? AND libraryid=?"
+	getPermissionQuery       = "SELECT permission from permissions where userid=? AND libraryid=?"
 
 	charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
@@ -106,10 +107,12 @@ func GenerateSessionKey(db *sql.DB) string {
 //LoginUser logs in a user
 func LoginUser(db *sql.DB, username, password string) (string, error) {
 	id, err := IsUser(db, username, password)
-    logger.Printf("User id: %+v", id)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
 		return "", err
+	}
+	if id == -1 {
+		return "", errors.New("invalid username or password")
 	}
 	key := GenerateSessionKey(db)
 	_, err = db.Exec(addSessionQuery, key, id)
@@ -165,6 +168,8 @@ func LogoutSession(db *sql.DB, sessionkey string) error {
 
 //GetUsername gets a username from a session
 func GetUsername(db *sql.DB, session string) (string, error) {
+	//TODO: Undo these comments
+	// return "jakekausler", nil
 	var name string
 	err := db.QueryRow(getUsernameQuery, session).Scan(&name)
 	return name, err
@@ -172,6 +177,8 @@ func GetUsername(db *sql.DB, session string) (string, error) {
 
 //GetUserID gets a userid from a session
 func GetUserID(db *sql.DB, session string) (string, error) {
+	//TODO: Undo these comments
+	// return "1", nil
 	var name string
 	err := db.QueryRow(getUserIDQuery, session).Scan(&name)
 	return name, err
@@ -204,7 +211,7 @@ func GetUsers(db *sql.DB, session string) ([]User, error) {
 }
 
 //CanWrite determines if the current user has write access to a library
-func CanWrite(db *sql.DB, session, libraryid string) (bool) {
+func CanWrite(db *sql.DB, session, libraryid string) bool {
 	id, err := GetUserID(db, session)
 	if err != nil {
 		logger.Printf("Error: %+v", err)
@@ -220,7 +227,7 @@ func CanWrite(db *sql.DB, session, libraryid string) (bool) {
 }
 
 //CanSetRead determines if the current user can read books in a library
-func CanSetRead(db *sql.DB, session, libraryid string) (bool) {
+func CanSetRead(db *sql.DB, session, libraryid string) bool {
 	id, err := GetUserID(db, session)
 	if err != nil {
 		logger.Printf("Error: %+v", err)

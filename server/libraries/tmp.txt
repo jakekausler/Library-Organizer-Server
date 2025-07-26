@@ -1,0 +1,13 @@
+        try:
+            dewey = math.floor(float(b.Dewey)*10)/10.0
+            oldDewey = math.floor(float(currentSplit[-1].Dewey)*10)/10.0
+            if oldDewey != dewey:
+                deweySplits.append(currentSplit)
+                currentSplit = []
+            currentSplit.append(b)
+        except:
+            if currentSplit[-1].Dewey != b.Dewey:
+                deweySplits.append(currentSplit)
+                currentSplit = []
+            currentSplit.append(b)
+            continue

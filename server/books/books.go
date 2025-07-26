@@ -24,7 +24,7 @@ import (
 const (
 	saveBookQuery          = "UPDATE books SET Title=?, Subtitle=?, OriginallyPublished=?, EditionPublished=?, PublisherID=?, IsReference=?, IsOwned=?, IsShipping=?, IsReading=?, isbn=?, Dewey=?, Pages=?, Width=?, Height=?, Depth=?, Weight=?, PrimaryLanguage=?, SecondaryLanguage=?, OriginalLanguage=?, Series=?, Volume=?, Format=?, Edition=?, ImageURL=?, LibraryId=?, Lexile=?, LexileCode=?, InterestLevel=?, AR=?, LearningAZ=?, GuidedReading=?, DRA=?, Grade=?, FountasPinnell=?, Age=?, ReadingRecovery=?, PMReaders=?, SpineColor=?, Notes=?, IsAnthology=? WHERE BookId=?"
 	addBookQuery           = "INSERT INTO books (Title, Subtitle, OriginallyPublished, PublisherID, IsReference, IsOwned, IsShipping, IsReading, isbn, Dewey, Pages, Width, Height, Depth, Weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, Series, Volume, Format, Edition, EditionPublished, LibraryId, Lexile, LexileCode, InterestLevel, AR, LearningAZ, GuidedReading, DRA, Grade, FountasPinnell, Age, ReadingRecovery, PMReaders, Notes, IsAnthology) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-	getBookQuery           = "SELECT bookid, title, subtitle, OriginallyPublished, PublisherID, EXISTS(SELECT * FROM read_books WHERE read_books.bookid=? AND read_books.userid=?) AS userread, isreference, IsOwned, ISBN, LoaneeID, dewey, pages, width, height, depth, weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, series, volume, format, Edition, ImageURL, IsReading AS IsReading, isshipping, SpineColor, CheapestNew, CheapestUsed, EditionPublished, SpineColorOverridden, Lexile,  LexileCode, InterestLevel, AR, LearningAZ, GuidedReading, DRA, Grade, FountasPinnell, Age, ReadingRecovery, PMReaders, Notes, IsAnthology, blid, libraries.Name, library_members.usr, permissions.Permission from (select books.*, books.libraryid as blid FROM books LEFT JOIN (SELECT  PersonID, AuthorRoles.BookID, concat(COALESCE(lastname,''),COALESCE(firstname,''),COALESCE(middlenames,'')) as name FROM persons JOIN (SELECT written_by.BookID, AuthorID FROM written_by WHERE Role='Author') AS AuthorRoles ON AuthorRoles.AuthorID = persons.PersonID ORDER BY name ) AS Authors ON books.BookID=Authors.BookID) i LEFT JOIN libraries on blid=libraries.id JOIN library_members on libraries.ownerid=library_members.id JOIN permissions on permissions.userid=? AND libraries.id=permissions.libraryid WHERE BookId=?"
+	getBookQuery           = "SELECT bookid, title, subtitle, OriginallyPublished, PublisherID, EXISTS(SELECT * FROM read_books WHERE read_books.bookid=? AND read_books.userid=?) AS userread, isreference, IsOwned, ISBN, LoaneeID, dewey, pages, width, height, depth, weight, PrimaryLanguage, SecondaryLanguage, OriginalLanguage, series, volume, format, Edition, ImageURL, IsReading AS IsReading, isshipping, SpineColor, CheapestNew, CheapestUsed, EditionPublished, SpineColorOverridden, Lexile,  LexileCode, InterestLevel, AR, LearningAZ, GuidedReading, DRA, Grade, FountasPinnell, Age, ReadingRecovery, PMReaders, Notes, IsAnthology, KeepWithNext, blid, libraries.Name, library_members.usr, permissions.Permission from (select books.*, books.libraryid as blid FROM books LEFT JOIN (SELECT  PersonID, AuthorRoles.BookID, concat(COALESCE(lastname,''),COALESCE(firstname,''),COALESCE(middlenames,'')) as name FROM persons JOIN (SELECT written_by.BookID, AuthorID FROM written_by WHERE Role='Author') AS AuthorRoles ON AuthorRoles.AuthorID = persons.PersonID ORDER BY name ) AS Authors ON books.BookID=Authors.BookID) i LEFT JOIN libraries on blid=libraries.id JOIN library_members on libraries.ownerid=library_members.id JOIN permissions on permissions.userid=? AND libraries.id=permissions.libraryid WHERE BookId=?"
 	getPriorityBooksQuery  = "SELECT books.bookid, title, imageurl, priority from books join to_read_priority on books.bookid = to_read_priority.bookid and to_read_priority.userid = ? order by priority"
 	deleteWrittenByQuery   = "DELETE FROM written_by WHERE BookId=?"
 	deleteAwardsQuery      = "DELETE FROM awards WHERE BookId=?"
@@ -141,7 +141,9 @@ type Book struct {
 	Tags                 []string                  `json:"tags"`
 	IsAnthology          bool                      `json:"isanthology"`
 	IsSideways			 bool					   `json:"issideways"`
-	PreviousSideways	 *Book					   `json:"previoussideways"`
+    PreviousSideways	 *Book					   `json:"previoussideways"`
+	SortDewey       	 string					   `json:"sortdewey"`
+    KeepWithNext         bool                      `json:"keepwithnext"`
 }
 
 //Library is a library
@@ -176,7 +178,7 @@ func SaveBook(db *sql.DB, book Book, session string) error {
 		return err
 	}
 	if book.ID != "" {
-		imageType := filepath.Ext(book.ImageURL)
+		imageType := ".jpg"//filepath.Ext(book.ImageURL)
 		if book.ImageURL != "" && !strings.HasPrefix(book.ImageURL, "res/bookimages/") {
 			err := downloadImage(book.ImageURL, book.ID)
 			if err != nil {
@@ -441,7 +443,7 @@ func SaveBook(db *sql.DB, book Book, session string) error {
 		}
 		id, err := res.LastInsertId()
 		bookid := strconv.FormatInt(id, 10)
-		imageType := filepath.Ext(book.ImageURL)
+		imageType := ".jpg"//filepath.Ext(book.ImageURL)
 		if book.ImageURL != "" {
 			err = downloadImage(book.ImageURL, bookid)
 		}
@@ -1334,9 +1336,9 @@ func GetBooksCases(db *sql.DB, sortMethod, userread, isreference, isowned, isloa
 			order = "if(Series2='' or Series2 is null,1,0), Series2, Volume, minname, Title2"
 		} else {
 			if authorseries != nil {
-				order = "Dewey, CASE WHEN Series IN('" + strings.Join(authorseries, "','") + "') THEN Series2 ELSE minname END, CASE WHEN Series IN('" + strings.Join(authorseries, "','") + "') THEN LPAD(Volume, 8, '0') ELSE series2 END, CASE WHEN Series IN('" + strings.Join(authorseries, "','") + "') THEN minname ELSE LPAD(Volume, 8, '0') END, Title2, Subtitle2, Edition"
+				order = "SortDewey, CASE WHEN Series IN('" + strings.Join(authorseries, "','") + "') THEN Series2 ELSE minname END, CASE WHEN Series IN('" + strings.Join(authorseries, "','") + "') THEN LPAD(Volume, 8, '0') ELSE series2 END, CASE WHEN Series IN('" + strings.Join(authorseries, "','") + "') THEN minname ELSE LPAD(Volume, 8, '0') END, Title2, Subtitle2, Edition"
 			} else {
-				order = "Dewey, minname, Series2, Volume, title2, Subtitle2, edition"
+				order = "SortDewey, minname, Series2, Volume, title2, Subtitle2, edition"
 			}
 		}
 	}
@@ -1718,7 +1720,7 @@ func GetBooksCases(db *sql.DB, sortMethod, userread, isreference, isowned, isloa
 		return nil, 0, err
 	}
 	fields := "bookid, title, subtitle, ImageURL, blid, libraries.Name, library_members.usr, permissions.Permission"
-	fields += ", SpineColor, width, height, dewey, series, volume, notes"
+	fields += ", SpineColor, width, height, dewey, sortdewey, series, volume, notes"
 	query := "SELECT " + fields + " FROM (select books.*, publisher, city, state, country, parentcompany, books.libraryid as blid, " + titlechange + ", " + subtitlechange + ", " + serieschange + ", min(name) as minname, " + seriesheight + " FROM books LEFT JOIN " + authors + " ON books.BookID = Authors.BookID LEFT JOIN publishers ON books.PublisherID = publishers.PublisherID LEFT JOIN " + seriesheightjoin + " ON seriesheight.series=books.series " + filter + " GROUP BY books.BookID, seriesheight.height) i LEFT JOIN libraries ON blid=libraries.id JOIN library_members on libraries.ownerid=library_members.id JOIN permissions on permissions.userid=? and libraries.id=permissions.libraryid ORDER BY " + order
 	if numberToGet != "-1" {
 		query += " LIMIT " + numberToGet + " OFFSET " + strconv.FormatInt(((pag-1)*ntg), 10)
@@ -1735,14 +1737,14 @@ func GetBooksCases(db *sql.DB, sortMethod, userread, isreference, isowned, isloa
 	var Series sql.NullString
 	var Notes sql.NullString
 
-    logger.Printf(query)
+    // logger.Printf(query)
 	rows, err := db.Query(query, userid)
 	if err != nil {
 		logger.Printf("Error querying books: %v", err)
 		return nil, 0, err
 	}
 	for rows.Next() {
-		if err := rows.Scan(&b.ID, &Title, &Subtitle, &ImageURL, &b.Library.ID, &b.Library.Name, &b.Library.Owner, &b.Library.Permissions, &SpineColor, &b.Width, &b.Height, &b.Dewey, &Series, &b.Volume, &Notes); err != nil {
+		if err := rows.Scan(&b.ID, &Title, &Subtitle, &ImageURL, &b.Library.ID, &b.Library.Name, &b.Library.Owner, &b.Library.Permissions, &SpineColor, &b.Width, &b.Height, &b.Dewey, &b.SortDewey, &Series, &b.Volume, &Notes); err != nil {
 			logger.Printf("Error scanning books: %v", err)
 			return nil, 0, err
 		}
@@ -2244,6 +2246,7 @@ func GetBook(db *sql.DB, session, bookid string) (Book, error) {
 	var IsOwned int64
 	var IsShipping int64
 	var IsReading int64
+    var KeepWithNext int64
 	var LoaneeID int64
 	var Title sql.NullString
 	var Subtitle sql.NullString
@@ -2267,7 +2270,7 @@ func GetBook(db *sql.DB, session, bookid string) (Book, error) {
 		logger.Printf("Error getting username: %v", err)
 		return b, err
 	}
-	err = db.QueryRow(getBookQuery, bookid, userid, userid, bookid).Scan(&b.ID, &Title, &Subtitle, &OriginallyPublished, &PublisherID, &UserRead, &IsReference, &IsOwned, &ISBN, &LoaneeID, &b.Dewey, &b.Pages, &b.Width, &b.Height, &b.Depth, &b.Weight, &PrimaryLanguage, &SecondaryLanguage, &OriginalLanguage, &Series, &b.Volume, &Format, &b.Edition, &ImageURL, &IsReading, &IsShipping, &SpineColor, &b.CheapestNew, &b.CheapestUsed, &EditionPublished, &spinecoloroverridden, &b.Lexile, &b.LexileCode, &b.InterestLevel, &b.AR, &b.LearningAZ, &b.GuidedReading, &b.DRA, &b.Grade, &b.FountasPinnell, &b.Age, &b.ReadingRecovery, &b.PMReaders, &b.Notes, &b.IsAnthology, &b.Library.ID, &b.Library.Name, &b.Library.Owner, &b.Library.Permissions)
+	err = db.QueryRow(getBookQuery, bookid, userid, userid, bookid).Scan(&b.ID, &Title, &Subtitle, &OriginallyPublished, &PublisherID, &UserRead, &IsReference, &IsOwned, &ISBN, &LoaneeID, &b.Dewey, &b.Pages, &b.Width, &b.Height, &b.Depth, &b.Weight, &PrimaryLanguage, &SecondaryLanguage, &OriginalLanguage, &Series, &b.Volume, &Format, &b.Edition, &ImageURL, &IsReading, &IsShipping, &SpineColor, &b.CheapestNew, &b.CheapestUsed, &EditionPublished, &spinecoloroverridden, &b.Lexile, &b.LexileCode, &b.InterestLevel, &b.AR, &b.LearningAZ, &b.GuidedReading, &b.DRA, &b.Grade, &b.FountasPinnell, &b.Age, &b.ReadingRecovery, &b.PMReaders, &b.Notes, &b.IsAnthology, &b.KeepWithNext, &b.Library.ID, &b.Library.Name, &b.Library.Owner, &b.Library.Permissions)
 	if err != nil {
 		logger.Printf("Error getting username: %v", err)
 		return b, err
@@ -2302,6 +2305,7 @@ func GetBook(db *sql.DB, session, bookid string) (Book, error) {
 	b.IsReading = IsReading == 1
 	b.UserRead = UserRead == 1
 	b.IsShipping = IsShipping == 1
+    b.KeepWithNext = KeepWithNext == 1
 	b.SpineColorOverridden = spinecoloroverridden == 1
 	b.Title = ""
 	if Title.Valid {
